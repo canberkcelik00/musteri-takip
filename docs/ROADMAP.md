@@ -34,7 +34,7 @@ Hedef: Yerelde çalışan, otomatik test edilen bir Laravel 13 + Filament 5 proj
 
 Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerlerin testleriyle hazır olması. Teklif tabloları Faz 6'da eklenir.
 
-- [ ] **G-2.1 Enum'lar** — Bağımlılık: Faz 1
+- [x] **G-2.1 Enum'lar** — Bağımlılık: Faz 1
   - Yapılacak: `Currency`, `ServiceType`, `CustomerServiceStatus`, `ChargeStatus`. `ServiceType` her tür için Türkçe etiketi ve katalog ile müşteri düzeyindeki `details` anahtarlarını tanımlar.
   - Kabul: Her türün etiketleri ve anahtarları PRD'deki tabloyla birebir aynı (testli).
 - [ ] **G-2.2 Para işlemleri** — Bağımlılık: G-2.1
@@ -122,7 +122,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Yapılacak: Tek sayfada ilgili kişiler, müşteri hizmetleri (tarih, fiyat, durum), borçlar (açık, kısmi, gecikmiş), ödemeler ve para birimi başına alacak bakiyesi.
   - Kabul: Logi senaryosundaki durum kartta PRD'deki gibi görünür (testli).
 - [ ] **G-4.5 Hizmet atama** — Bağımlılık: G-4.4, G-4.2
-  - Yapılacak: Müşteri kartından "Hizmet ekle": katalog hizmeti veya paket seçimi; fiyat, para birimi ve başlangıç önerilir, değiştirilebilir; ücretsiz; "Bu dönemin borcu"; türe göre müşteriye özel alanlar (alan adı, sunucu, cPanel kullanıcı adı vb.).
+  - Yapılacak: Müşteri kartından "Hizmet ekle": katalog hizmeti veya paket seçimi; fiyat, para birimi ve başlangıç önerilir, değiştirilebilir; ücretsiz; "Bu dönemin borcu"; türe göre müşteriye özel alanlar (alan adı, sunucu, cPanel kullanıcı adı vb.). Not: Lisans anahtarı `details`'te değil, `customer_service_items.license_key` sütununda (şifreli) tutulur; lisans türü için formda `ServiceType` anahtarlarından ayrı olarak gösterilmelidir.
   - Kabul: Tek hizmet ve paket atama akışları doğru kayıt ve borç oluşturur (testli).
 - [ ] **G-4.6 Müşteri hizmeti işlemleri** — Bağımlılık: G-4.5
   - Yapılacak: Düzenleme (fiyat, tarihler, kalem bilgileri), ücretsiz işareti, iptal penceresi (yaklaşan dönem borcunu iptal kutusu işaretli gelir, geçmiş borç bilgi olarak gösterilir), yeniden aktif etme.
