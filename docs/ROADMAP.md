@@ -21,7 +21,7 @@ Hedef: Yerelde çalışan, otomatik test edilen bir Laravel 13 + Filament 5 proj
 - [x] **G-1.3 Claude Code altyapısı** — Bağımlılık: G-1.2
   - Yapılacak: Laravel Boost kurulur. Dosya setinin (`CLAUDE.md`, `docs/*.md`) repoda doğru yerde olduğu doğrulanır; Boost'un ürettiği yönergeler CLAUDE.md ile çelişiyorsa kullanıcıya sorulur.
   - Kabul: Dosyalar repoda; Boost çalışıyor.
-- [ ] **G-1.4 Filament paneli ve Türkçe ayarlar** — Bağımlılık: G-1.2
+- [x] **G-1.4 Filament paneli ve Türkçe ayarlar** — Bağımlılık: G-1.2
   - Yapılacak: Filament 5 kurulur, panel `/panel` adresinde. Dil Türkçe, saat dilimi Europe/Istanbul, tarih biçimi gg.aa.yyyy. İlk yönetici kullanıcı `.env`'deki bilgilerden oluşturulur.
   - Kabul: Giriş yapılmadan panel açılmaz, giriş yapılınca açılır (testli); arayüz Türkçe.
 - [ ] **G-1.5 Sürekli test (CI)** — Bağımlılık: G-1.2
@@ -169,7 +169,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Ana akışların ekran üzerinden uçtan uca testi (müşteri ekle → hizmet ata → ödeme al → yenileme → iptal); birkaç yüz müşterilik örnek veriyle listelerin hız kontrolü; tüm dokümanların güncelliği.
   - Kabul: Tüm testler yeşil; ROADMAP ve DECISIONS güncel.
 - [ ] **G-5.8 Canlıya geçiş kontrol listesi** — Bağımlılık: G-5.7
-  - Yapılacak: `docs/CANLIYA_GECIS.md`: canlı ortam ayarları (hata ayrıntıları kapalı, HTTPS), test e-postası, ayarların doldurulması, yönetici şifresinin değiştirilmesi, örnek verinin canlıda olmadığının kontrolü.
+  - Yapılacak: `docs/CANLIYA_GECIS.md`: canlı ortam ayarları (hata ayrıntıları kapalı, HTTPS), test e-postası, ayarların doldurulması, "İlk girişten sonra panelden şifreni değiştir ve hostingdeki .env'den ADMIN_PASSWORD satırını sil.", örnek verinin canlıda olmadığının kontrolü.
   - Kabul: Liste ekran adımlarıyla takip edilebilir.
 - [ ] **K-5.2 Yedek kontrolü:** Hosting panelinde veritabanı yedeklerinin günlük alındığını ve bir yedeğin geri yüklenebildiğini kontrol et.
 - [ ] **K-5.3 Canlıya geçiş ve veri girişi:** Kontrol listesini uygula, mevcut müşterileri ve hizmetleri "Bu dönemin borcu: Oluşturma" ile gir.

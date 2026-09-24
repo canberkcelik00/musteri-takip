@@ -18,12 +18,13 @@ Ortam: Windows + Docker Desktop. PHP, Composer ve Node Windows'a kurulmaz; tüm 
 Git Bash'te, proje klasöründe:
 
 ```bash
-cp .env.example .env
+cp .env.example .env                           # ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD doldurun
 docker compose build
 docker compose run --rm app composer install   # vendor birimi boşken uygulama başlayamaz
 docker compose up -d
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
+docker compose exec app php artisan app:create-admin   # .env'deki ADMIN_* bilgileriyle ilk kullanıcı
 ```
 
 ### Adresler
@@ -31,6 +32,7 @@ docker compose exec app php artisan migrate
 | Servis | Adres |
 | --- | --- |
 | Uygulama | http://localhost:8000 |
+| Yönetim paneli | http://localhost:8000/panel |
 | Mailpit (yerel e-postalar) | http://localhost:8025 |
 | MySQL (dışarıdan bağlanmak için) | `127.0.0.1:3307`, kullanıcı `musteri_takip`, şifre `secret` |
 
