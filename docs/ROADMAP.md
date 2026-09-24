@@ -46,7 +46,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [x] **G-2.4 Katalog ve paketler** — Bağımlılık: G-2.1
   - Yapılacak: `catalog_services`, `packages`, `package_items`; modeller, ilişkiler, factory'ler, arşiv.
   - Kabul: Aynı hizmet bir pakete iki kez eklenemez; arşivlenen kalem listelerde görünmez ama mevcut ilişkiler bozulmaz (testli).
-- [ ] **G-2.5 Ödeme yöntemleri ve ayarlar** — Bağımlılık: G-2.1
+- [x] **G-2.5 Ödeme yöntemleri ve ayarlar** — Bağımlılık: G-2.1
   - Yapılacak: `payment_methods` (varsayılan: Havale/EFT, Nakit, Kredi Kartı); `settings` tablosu ve varsayılan değerleri döndüren ayar servisi.
   - Kabul: Kayıt yokken varsayılanlar döner, kayıt varsa o döner (testli).
 - [ ] **G-2.6 Müşteri hizmetleri ve kalemleri** — Bağımlılık: G-2.3, G-2.4
