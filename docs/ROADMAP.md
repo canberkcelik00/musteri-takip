@@ -37,7 +37,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [x] **G-2.1 Enum'lar** — Bağımlılık: Faz 1
   - Yapılacak: `Currency`, `ServiceType`, `CustomerServiceStatus`, `ChargeStatus`. `ServiceType` her tür için Türkçe etiketi ve katalog ile müşteri düzeyindeki `details` anahtarlarını tanımlar.
   - Kabul: Her türün etiketleri ve anahtarları PRD'deki tabloyla birebir aynı (testli).
-- [ ] **G-2.2 Para işlemleri** — Bağımlılık: G-2.1
+- [x] **G-2.2 Para işlemleri** — Bağımlılık: G-2.1
   - Yapılacak: Kuruş cinsinden tutarlar için yardımcı: "4.000,50" gibi girdiyi 400050'ye çevirme, "4.000,50 TL" biçiminde gösterme, para birimi başına toplama.
   - Kabul: Türkçe biçimler, sıfır, büyük tutarlar ve farklı para birimlerini karıştırmama testli; hiçbir yerde float yok.
 - [ ] **G-2.3 Müşteriler ve ilgili kişiler** — Bağımlılık: G-2.1

@@ -51,6 +51,7 @@ Windows'a özgü kurallar:
 6. **Bitti = hepsi yeşil.** Test, lint ve analiz temiz olmadan görevi bitmiş sayma.
 7. **Bitirince:** Görevin kutusunu `docs/ROADMAP.md`'de işaretle, kod içi bir karar verdiysen `docs/DECISIONS.md`'ye ekle, commit et (mesaj Türkçe ve görev koduyla başlar: `G-2.3: Müşteri ve ilgili kişiler`).
 8. **K görevleri kullanıcınındır.** Hesap açma, şifre, secret girme gibi işleri yapma; gerektiğinde hatırlat.
+9. **Karar yetkisi.** Klasör adı, sınıf adı gibi sadece kodun içini ilgilendiren kararları sormadan ver ve DECISIONS'a gerekçesiyle yaz. Görünüm, iş kuralı, paket ve altyapı kararlarını sor.
 
 ## Kod kuralları
 
