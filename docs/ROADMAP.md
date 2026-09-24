@@ -24,7 +24,7 @@ Hedef: Yerelde çalışan, otomatik test edilen bir Laravel 13 + Filament 5 proj
 - [x] **G-1.4 Filament paneli ve Türkçe ayarlar** — Bağımlılık: G-1.2
   - Yapılacak: Filament 5 kurulur, panel `/panel` adresinde. Dil Türkçe, saat dilimi Europe/Istanbul, tarih biçimi gg.aa.yyyy. İlk yönetici kullanıcı `.env`'deki bilgilerden oluşturulur.
   - Kabul: Giriş yapılmadan panel açılmaz, giriş yapılınca açılır (testli); arayüz Türkçe.
-- [ ] **G-1.5 Sürekli test (CI)** — Bağımlılık: G-1.2
+- [x] **G-1.5 Sürekli test (CI)** — Bağımlılık: G-1.2
   - Yapılacak: Her push ve pull request'te GitHub Actions; MySQL 8.0 servisiyle Pint, Larastan ve Pest çalışır.
   - Kabul: GitHub'da ilk çalışma yeşil.
 
