@@ -18,7 +18,7 @@ Hedef: Yerelde çalışan, otomatik test edilen bir Laravel 13 + Filament 5 proj
 - [x] **G-1.2 Kalite araçları** — Bağımlılık: G-1.1
   - Yapılacak: Pest, Pint ve Larastan kurulur; `composer test`, `composer lint`, `composer analyse` komutları tanımlanır.
   - Kabul: Üç komut da temiz projede hatasız geçer.
-- [ ] **G-1.3 Claude Code altyapısı** — Bağımlılık: G-1.2
+- [x] **G-1.3 Claude Code altyapısı** — Bağımlılık: G-1.2
   - Yapılacak: Laravel Boost kurulur. Dosya setinin (`CLAUDE.md`, `docs/*.md`) repoda doğru yerde olduğu doğrulanır; Boost'un ürettiği yönergeler CLAUDE.md ile çelişiyorsa kullanıcıya sorulur.
   - Kabul: Dosyalar repoda; Boost çalışıyor.
 - [ ] **G-1.4 Filament paneli ve Türkçe ayarlar** — Bağımlılık: G-1.2

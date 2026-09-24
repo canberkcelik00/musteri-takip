@@ -80,3 +80,11 @@ Windows'a özgü kurallar:
 - Testleri geçirmek için testi zayıflatma veya atlama; test yanlışsa bunu söyle.
 - Gerçek e-posta adreslerine e-posta gönderen yerel ayar kullanma (yerelde Mailpit).
 - Windows'taki PHP veya Composer'ı kullanma.
+
+## Laravel Boost
+
+- Boost MCP sunucusu `app` konteynerinde çalışır (`.mcp.json`: `docker compose exec -T app php artisan boost:mcp`); Claude Code açılmadan önce `docker compose up -d` çalışmış olmalı.
+- AGENTS.md Laravel Boost tarafından yönetilir; elle düzenleme veya silme, `boost:update` ile güncellenir.
+- Boost yönergeleriyle (AGENTS.md, `.claude/skills`) bu dosya çelişirse bu dosya geçerlidir. Özellikle: yönergelerdeki `php artisan`, `vendor/bin/pint`, `vendor/bin/pest` gibi komutlar her zaman `docker compose exec app` ile çalışır; görev bitince tam test paketini, lint'i ve analizi ben çalıştırırım; ROADMAP ve DECISIONS güncellemeleri istenmiş doküman sayılır.
+
+@AGENTS.md
