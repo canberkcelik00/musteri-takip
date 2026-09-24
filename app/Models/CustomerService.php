@@ -86,6 +86,14 @@ class CustomerService extends Model
     }
 
     /**
+     * @return HasMany<Charge, $this>
+     */
+    public function charges(): HasMany
+    {
+        return $this->hasMany(Charge::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

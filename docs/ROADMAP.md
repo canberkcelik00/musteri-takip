@@ -53,7 +53,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
   - Yapılacak: `customer_services`, `customer_service_items`; modeller, ilişkiler, factory durumları (tek hizmet, paket, ücretsiz, iptal). Lisans anahtarı şifreli.
   - Kabul: Katalog hizmeti ve paketten tam olarak biri dolu olmalı; lisans anahtarı veritabanında şifreli duruyor (testli).
   - Not: Müşteri hizmeti kalemi kaydedilirken `details` içinde yalnızca türün `customerDetailKeys()` anahtarları tutulur, diğerleri atılır; tür değişince eski anahtarlar silinir (G-2.4'teki katalog kuralıyla aynı; testli).
-- [ ] **G-2.7 Borçlar, ödemeler ve dağıtımlar** — Bağımlılık: G-2.2, G-2.5, G-2.6
+- [x] **G-2.7 Borçlar, ödemeler ve dağıtımlar** — Bağımlılık: G-2.2, G-2.5, G-2.6
   - Yapılacak: `charges`, `payments`, `payment_allocations`; modeller ve hesaplanan değerler: borcun kalan tutarı, kısmi ödenmiş, gecikmiş, müşterinin para birimi başına alacak bakiyesi.
   - Kabul: Aynı dönem için ikinci borç veritabanı düzeyinde engellenir; tüm hesaplanan değerler örnek senaryolarla testli.
 - [ ] **G-2.8 Örnek veri** — Bağımlılık: G-2.7
@@ -68,16 +68,16 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 
 - [ ] **G-3.1 Ödeme kaydı ve dağıtım** — Bağımlılık: Faz 2
   - Yapılacak: Ödemeyi aynı para birimindeki açık borçlara en eski vadeden başlayarak dağıtma; elle dağıtım; artanı alacak bakiyesine bırakma; ödeme silinince dağıtımları geri alma.
-  - Kabul: Tam, kısmi ve fazla ödeme; farklı para birimindeki borca düşmeme; bir borca tutarından fazla dağıtılamama; silmede borcun yeniden açılması (hepsi testli).
+  - Kabul: Tam, kısmi ve fazla ödeme; farklı para birimindeki borca düşmeme; bir borca tutarından fazla dağıtılamama; silmede borcun yeniden açılması (hepsi testli). Ödeme yalnızca aynı müşterinin ve aynı para birimindeki borçlarına dağıtılabilir; başka müşterinin borcuna dağıtma reddedilir (testli).
 - [ ] **G-3.2 Bakiyenin yeni borca uygulanması** — Bağımlılık: G-3.1
   - Yapılacak: Yeni borç doğduğunda müşterinin aynı para birimindeki alacak bakiyesini otomatik olarak o borca düşme.
   - Kabul: Bakiye borçtan büyük, eşit ve küçük durumları; farklı para biriminde bakiyenin kullanılmaması (testli).
 - [ ] **G-3.3 Hizmet atama ve ilk dönem borcu** — Bağımlılık: G-3.2
   - Yapılacak: Katalog hizmetini veya paketi müşteriye atama: ad, fiyat ve para birimi kopyalanır, pakette her iç hizmet için kalem oluşur, bitiş = başlangıç + 12 ay, ücretsiz değilse ve "Bu dönemin borcu: Oluşturma" seçilmediyse ilk dönem borcu doğar ve bakiye uygulanır.
-  - Kabul: Tek hizmet, paket, ücretsiz, değiştirilmiş fiyatla ve "Oluşturma" seçeneğiyle (Excel'den geçiş) atama; katalog fiyatı sonradan değişince müşteri hizmetinin etkilenmemesi (testli).
+  - Kabul: Tek hizmet, paket, ücretsiz, değiştirilmiş fiyatla ve "Oluşturma" seçeneğiyle (Excel'den geçiş) atama; katalog fiyatı sonradan değişince müşteri hizmetinin etkilenmemesi (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [ ] **G-3.4 Yenileme borcu** — Bağımlılık: G-3.3
   - Yapılacak: Aktif ve ücretsiz olmayan hizmetlerde bitişe ayarlardaki gün sayısı (30) kaldığında sonraki dönemin borcunu oluşturma; vade = bitiş tarihi.
-  - Kabul: Tam sınır günü, sınırı geçmiş ama borcu oluşmamış kayıt (kaçırılan cron), iki kez çalıştırmada tek borç, ücretsiz ve iptal edilmişleri atlama (testli).
+  - Kabul: Tam sınır günü, sınırı geçmiş ama borcu oluşmamış kayıt (kaçırılan cron), iki kez çalıştırmada tek borç, ücretsiz ve iptal edilmişleri atlama (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [ ] **G-3.5 Dönem ilerletme** — Bağımlılık: G-3.4
   - Yapılacak: Bitiş tarihi gelen aktif hizmetlerin (ücretsizler dahil) tarihlerini bir dönem ilerletme.
   - Kabul: Ödeme durumundan bağımsız ilerler; iptal edilmişler ilerlemez; iki kez çalıştırmada tek ilerleme (testli).
@@ -87,9 +87,10 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [ ] **G-3.7 İptal ve yeniden aktif etme** — Bağımlılık: G-3.4
   - Yapılacak: İptal; isteğe bağlı olarak henüz başlamamış dönemin ödenmemiş borcunu iptal; yeniden aktif etme.
   - Kabul: Geçmiş dönem borcu hiçbir durumda iptal edilmez; dağıtımı olan borç iptal edilmez (testli).
+  - Not: Aynı dönem için tek borç kuralı iptal edilmiş borçları da kapsar; yeniden aktif etmede iptal edilmiş dönem borcunun nasıl ele alınacağı bu görevin planında kullanıcıya sorulmalı.
 - [ ] **G-3.8 Borçları elle düzenleme** — Bağımlılık: G-3.1
   - Yapılacak: Tutar ve vade değiştirme, borcu ikiye bölme, gerekçeyle iptal, kurala bağlı olmayan elle borç ekleme (bakiye uygulanır).
-  - Kabul: Dağıtımı olan borçta tutar değişmez; bölmede toplam korunur; gerekçesiz iptal edilemez (testli).
+  - Kabul: Dağıtımı olan borçta tutar değişmez; bölmede toplam korunur; gerekçesiz iptal edilemez (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [ ] **G-3.9 Zamanlayıcı** — Bağımlılık: G-3.5
   - Yapılacak: Yenileme borcu ve dönem ilerletme `routes/console.php` içinde her 15 dakikada "henüz yapılmadıysa yap" mantığıyla çalışır; o gün oluşan borçlar günlük özet için izlenebilir.
   - Kabul: Üst üste çalışmada yinelenen kayıt oluşmaz; günler boyunca atlanan cron sonrası ilk çalışma eksikleri tamamlar (testli).

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\Currency;
 use App\Models\Concerns\Archivable;
+use App\Support\Money;
 use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,5 +40,54 @@ class Customer extends Model
     public function customerServices(): HasMany
     {
         return $this->hasMany(CustomerService::class);
+    }
+
+    /**
+     * @return HasMany<Charge, $this>
+     */
+    public function charges(): HasMany
+    {
+        return $this->hasMany(Charge::class);
+    }
+
+    /**
+     * @return HasMany<Payment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Credit balance per currency: payments minus their allocations. Currencies without
+     * a balance are left out; keyed by currency value in `Currency::cases()` order.
+     *
+     * @return array<string, Money>
+     */
+    public function creditBalances(): array
+    {
+        $paid = $this->payments()
+            ->groupBy('currency')
+            ->selectRaw('currency, SUM(amount) as total')
+            ->pluck('total', 'currency');
+
+        $allocated = PaymentAllocation::query()
+            ->join('payments', 'payments.id', '=', 'payment_allocations.payment_id')
+            ->where('payments.customer_id', $this->getKey())
+            ->groupBy('payments.currency')
+            ->selectRaw('payments.currency as currency, SUM(payment_allocations.amount) as total')
+            ->pluck('total', 'currency');
+
+        $balances = [];
+
+        foreach (Currency::cases() as $currency) {
+            $balance = (int) ($paid[$currency->value] ?? 0) - (int) ($allocated[$currency->value] ?? 0);
+
+            if ($balance !== 0) {
+                $balances[$currency->value] = new Money($balance, $currency);
+            }
+        }
+
+        return $balances;
     }
 }

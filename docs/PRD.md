@@ -211,6 +211,8 @@ TL, USD ve EUR desteklenir; kur çevrimi veya kur hesabı yapılmaz.
 
 Vadesi geçip ödenmeyen borç "gecikmiş" olarak işaretlenir ve günlük özette kaç gün geciktiğiyle listelenir. Faiz, gecikme bedeli veya askıya alma yoktur; askıya alma WHM entegrasyonu fazında eklenecek.
 
+**Gecikme kuralı:** Vade günü boyunca borç açık sayılır. Vadenin ertesi gününden itibaren ödenmemiş tutar kalıyorsa borç gecikmiş olur ve gecikme günü oradan sayılır (vade 01.03 → 02.03'te "1 gün gecikti"). Gün hesabı Europe/Istanbul saatine göre yapılır.
+
 **Günlük özet e-posta** kullanıcıya günde bir kez gider (varsayılan 09:00, ayarlardan). Bölümleri:
 
 1. Bugün oluşan borçlar (bakiyeden kapatılanlar ayrıca belirtilir)
