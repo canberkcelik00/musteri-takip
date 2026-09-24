@@ -10,8 +10,8 @@ Her görev tek oturumda bitirilebilecek, kabul kriterleriyle doğrulanabilen bir
 
 Hedef: Yerelde çalışan, otomatik test edilen bir Laravel 13 + Filament 5 projesi ve projeyi çalıştırabileceği doğrulanmış bir hosting. Yayına alma Faz 5'te kurulur.
 
-- [ ] **K-1.1 GitHub deposu ve bilgisayar:** Özel (private) `musteri-takip` deposunu aç. Git for Windows'u kur (Claude Code Windows'ta Git Bash kullanır), `git config --global core.autocrlf false` ayarını yap, Docker Desktop'ın çalıştığını kontrol et.
-- [ ] **K-1.2 Hosting uyumluluk kontrolü:** cPanel'de PHP sürümünü 8.3 yap ve "PHP Uzantıları" ekranında şunların açık olduğunu kontrol et: `intl`, `mbstring`, `pdo_mysql`, `gd`, `dom`, `xml`, `zip`, `fileinfo`, `curl`, `openssl`, `tokenizer`, `ctype`. Kapalı olanı aç; açılamıyorsa hosting firmasına sor.
+- [x] **K-1.1 GitHub deposu ve bilgisayar:** Özel (private) `musteri-takip` deposunu aç. Git for Windows'u kur (Claude Code Windows'ta Git Bash kullanır), `git config --global core.autocrlf false` ayarını yap, Docker Desktop'ın çalıştığını kontrol et.
+- [x] **K-1.2 Hosting uyumluluk kontrolü:** cPanel'de PHP sürümünü 8.3 yap ve "PHP Uzantıları" ekranında şunların açık olduğunu kontrol et: `intl`, `mbstring`, `pdo_mysql`, `gd`, `dom`, `xml`, `zip`, `fileinfo`, `curl`, `openssl`, `tokenizer`, `ctype`. Kapalı olanı aç; açılamıyorsa hosting firmasına sor.
 - [x] **G-1.1 Proje kurulumu** — Bağımlılık: K-1.1
   - Yapılacak: Windows klasöründe, projeye ait Docker Compose ortamıyla (`compose.yaml` + `Dockerfile`) Laravel 13 projesi: PHP 8.3 uygulama konteyneri, MySQL 8.0 (uygulama ve test veritabanı), Mailpit; `vendor` ve `node_modules` Docker biriminde; `.gitattributes` ile LF satır sonları. Proje konteyner içindeki Composer ile oluşturulur. Klasör ve depo adı `musteri-takip`, `APP_NAME` "Müşteri Takip". `composer.json` içinde platform PHP 8.3. Git başlatılır, depoya bağlanır.
   - Kabul: `docker compose up -d` ile ana sayfa açılır; `docker compose exec app php artisan --version` 13.x gösterir; platform ayarı 8.3; README'de yerel kurulum adımları var.
@@ -150,7 +150,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Gizli anahtarla korunan yayın adresi; migration, önbellek yenileme ve gerekirse storage bağlantısını çalıştırır. Aynı kontrol zamanlayıcıda "yeni sürüm varsa bir kez yap" görevi olarak çalışır.
   - Kabul: Yanlış veya eksik anahtar reddedilir; doğru anahtarla komutlar bir kez çalışır; aynı sürüm için tekrar çalışmaz (hepsi testli).
 - [ ] **G-5.2 Otomatik yayına alma** — Bağımlılık: G-1.5, G-5.1
-  - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz.
+  - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz. Filament'in public/ altındaki dosyaları git'te değil, composer install sırasında üretilir; paket hazırlanırken Composer betikleri kapatılmamalı ve paketin Filament dosyalarını içerdiği kontrol edilmeli.
   - Kabul: Gerekli GitHub secret'ları belgelenmiş; test başarısızsa yükleme yapılmaz.
 - [ ] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, */15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.
