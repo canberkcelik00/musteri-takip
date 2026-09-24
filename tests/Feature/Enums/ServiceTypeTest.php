@@ -77,3 +77,8 @@ it('matches the PRD table for each service type', function (
 it('keeps the license key out of the license details keys', function () {
     expect(ServiceType::License->customerDetailKeys())->not->toContain('license_key');
 });
+
+it('keeps only the customer details keys of the type', function () {
+    expect(ServiceType::Email->onlyCustomerDetails(['domain' => 'logi.com.tr', 'account_count' => '5', 'server' => 'srv1']))
+        ->toBe(['domain' => 'logi.com.tr', 'account_count' => '5']);
+});

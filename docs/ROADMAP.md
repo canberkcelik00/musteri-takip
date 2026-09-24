@@ -49,7 +49,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [x] **G-2.5 Ödeme yöntemleri ve ayarlar** — Bağımlılık: G-2.1
   - Yapılacak: `payment_methods` (varsayılan: Havale/EFT, Nakit, Kredi Kartı); `settings` tablosu ve varsayılan değerleri döndüren ayar servisi.
   - Kabul: Kayıt yokken varsayılanlar döner, kayıt varsa o döner (testli).
-- [ ] **G-2.6 Müşteri hizmetleri ve kalemleri** — Bağımlılık: G-2.3, G-2.4
+- [x] **G-2.6 Müşteri hizmetleri ve kalemleri** — Bağımlılık: G-2.3, G-2.4
   - Yapılacak: `customer_services`, `customer_service_items`; modeller, ilişkiler, factory durumları (tek hizmet, paket, ücretsiz, iptal). Lisans anahtarı şifreli.
   - Kabul: Katalog hizmeti ve paketten tam olarak biri dolu olmalı; lisans anahtarı veritabanında şifreli duruyor (testli).
   - Not: Müşteri hizmeti kalemi kaydedilirken `details` içinde yalnızca türün `customerDetailKeys()` anahtarları tutulur, diğerleri atılır; tür değişince eski anahtarlar silinir (G-2.4'teki katalog kuralıyla aynı; testli).

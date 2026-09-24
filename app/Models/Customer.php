@@ -31,4 +31,12 @@ class Customer extends Model
     {
         return $this->hasOne(Contact::class)->where('is_primary', true);
     }
+
+    /**
+     * @return HasMany<CustomerService, $this>
+     */
+    public function customerServices(): HasMany
+    {
+        return $this->hasMany(CustomerService::class);
+    }
 }
