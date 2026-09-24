@@ -40,7 +40,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [x] **G-2.2 Para işlemleri** — Bağımlılık: G-2.1
   - Yapılacak: Kuruş cinsinden tutarlar için yardımcı: "4.000,50" gibi girdiyi 400050'ye çevirme, "4.000,50 TL" biçiminde gösterme, para birimi başına toplama.
   - Kabul: Türkçe biçimler, sıfır, büyük tutarlar ve farklı para birimlerini karıştırmama testli; hiçbir yerde float yok.
-- [ ] **G-2.3 Müşteriler ve ilgili kişiler** — Bağımlılık: G-2.1
+- [x] **G-2.3 Müşteriler ve ilgili kişiler** — Bağımlılık: G-2.1
   - Yapılacak: Migration, model, ilişkiler, factory; arşiv kapsamı; birincil kişi kuralları.
   - Kabul: Kısa ad benzersiz; ilk kişi otomatik birincil; birincil değişince önceki kalkar; birincil kişi silinemez (hepsi testli).
 - [ ] **G-2.4 Katalog ve paketler** — Bağımlılık: G-2.1
@@ -116,7 +116,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Yapılacak: Katalog hizmetleri (seçilen türe göre alanların değiştiği form), paketler (içerik seçimi ve kendi fiyatı), arşivleme.
   - Kabul: Hosting seçilince hosting planı alanları, domain seçilince domain alanları görünür (testli).
 - [ ] **G-4.3 Müşteri listesi ve formu** — Bağımlılık: G-4.1
-  - Yapılacak: Kısa adla arama; listede hizmet sayısı, para birimi başına açık borç ve en yakın yenileme; müşteri formu; ilgili kişiler ve birincil işareti.
+  - Yapılacak: Kısa adla arama; listede hizmet sayısı, para birimi başına açık borç ve en yakın yenileme; müşteri formu; ilgili kişiler ve birincil işareti. Müşterinin en az bir ilgili kişisi olmalı; müşteri oluşturma formunda ilk kişi zorunlu.
   - Kabul: Listedeki özet değerler örnek veriyle doğru (testli).
 - [ ] **G-4.4 Müşteri kartı** — Bağımlılık: G-4.3
   - Yapılacak: Tek sayfada ilgili kişiler, müşteri hizmetleri (tarih, fiyat, durum), borçlar (açık, kısmi, gecikmiş), ödemeler ve para birimi başına alacak bakiyesi.
