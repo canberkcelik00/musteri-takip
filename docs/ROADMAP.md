@@ -15,7 +15,7 @@ Hedef: Yerelde çalışan, otomatik test edilen bir Laravel 13 + Filament 5 proj
 - [x] **G-1.1 Proje kurulumu** — Bağımlılık: K-1.1
   - Yapılacak: Windows klasöründe, projeye ait Docker Compose ortamıyla (`compose.yaml` + `Dockerfile`) Laravel 13 projesi: PHP 8.3 uygulama konteyneri, MySQL 8.0 (uygulama ve test veritabanı), Mailpit; `vendor` ve `node_modules` Docker biriminde; `.gitattributes` ile LF satır sonları. Proje konteyner içindeki Composer ile oluşturulur. Klasör ve depo adı `musteri-takip`, `APP_NAME` "Müşteri Takip". `composer.json` içinde platform PHP 8.3. Git başlatılır, depoya bağlanır.
   - Kabul: `docker compose up -d` ile ana sayfa açılır; `docker compose exec app php artisan --version` 13.x gösterir; platform ayarı 8.3; README'de yerel kurulum adımları var.
-- [ ] **G-1.2 Kalite araçları** — Bağımlılık: G-1.1
+- [x] **G-1.2 Kalite araçları** — Bağımlılık: G-1.1
   - Yapılacak: Pest, Pint ve Larastan kurulur; `composer test`, `composer lint`, `composer analyse` komutları tanımlanır.
   - Kabul: Üç komut da temiz projede hatasız geçer.
 - [ ] **G-1.3 Claude Code altyapısı** — Bağımlılık: G-1.2
