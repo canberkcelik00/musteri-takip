@@ -45,7 +45,7 @@ it('deletes its allocations with it and keeps the charge', function () {
         ->and(Charge::find($charge->id))->not->toBeNull();
 });
 
-it('allocates a payment to a charge only once', function () {
+it('allocates a payment to a charge only once per source', function () {
     $allocation = PaymentAllocation::factory()->create();
 
     expect(fn () => $allocation->payment->allocations()->create([

@@ -185,8 +185,9 @@ Kısıtlar: `customer_service_id` + `period_start` benzersizdir; aynı dönem i�
 | payment_id | FK payments | Evet | Ödeme silinince dağıtımları da silinir |
 | charge_id | FK charges | Evet | |
 | amount | integer | Evet | Kuruş |
+| source | enum AllocationSource | Evet | `payment` (ödeme kaydedilirken) / `credit_balance` (sonradan alacak bakiyesinden); varsayılan `payment` |
 
-Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımları ödeme tutarını, bir borcun dağıtımları borç tutarını aşamaz. Alacak bakiyesi = müşterinin ödemeleri − dağıtımları, para birimi başına hesaplanır.
+Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımları ödeme tutarını, bir borcun dağıtımları borç tutarını aşamaz. `payment_id` + `charge_id` + `source` benzersizdir: bakiyeden yapılan dağıtım, aynı ödemenin aynı borca ödeme anındaki dağıtımıyla birleşmez (günlük özette "bakiyeden kapatılanlar" için). Alacak bakiyesi = müşterinin ödemeleri − dağıtımları, para birimi başına hesaplanır.
 
 **payment_methods**
 

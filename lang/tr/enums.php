@@ -18,6 +18,11 @@ return [
         'cancelled' => 'İptal edildi',
     ],
 
+    'allocation_source' => [
+        'payment' => 'Ödeme',
+        'credit_balance' => 'Alacak bakiyesi',
+    ],
+
     'service_type' => [
         'hosting' => 'Hosting',
         'domain' => 'Domain',

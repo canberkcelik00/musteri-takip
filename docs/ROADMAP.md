@@ -69,7 +69,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.1 Ödeme kaydı ve dağıtım** — Bağımlılık: Faz 2
   - Yapılacak: Ödemeyi aynı para birimindeki açık borçlara en eski vadeden başlayarak dağıtma; elle dağıtım; artanı alacak bakiyesine bırakma; ödeme silinince dağıtımları geri alma.
   - Kabul: Tam, kısmi ve fazla ödeme; farklı para birimindeki borca düşmeme; bir borca tutarından fazla dağıtılamama; silmede borcun yeniden açılması (hepsi testli). Ödeme yalnızca aynı müşterinin ve aynı para birimindeki borçlarına dağıtılabilir; başka müşterinin borcuna dağıtma reddedilir (testli).
-- [ ] **G-3.2 Bakiyenin yeni borca uygulanması** — Bağımlılık: G-3.1
+- [x] **G-3.2 Bakiyenin yeni borca uygulanması** — Bağımlılık: G-3.1
   - Yapılacak: Yeni borç doğduğunda müşterinin aynı para birimindeki alacak bakiyesini otomatik olarak o borca düşme.
   - Kabul: Bakiye borçtan büyük, eşit ve küçük durumları; farklı para biriminde bakiyenin kullanılmaması (testli).
 - [ ] **G-3.3 Hizmet atama ve ilk dönem borcu** — Bağımlılık: G-3.2
@@ -166,6 +166,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
 - [ ] **G-5.5 Günlük özet e-postası** — Bağımlılık: G-5.4
   - Yapılacak: Türkçe, sade e-posta; bölümler: bugün oluşan borçlar (bakiyeden kapatılanlar belirtilir), ücretsiz devam kararı bekleyenler, vadesi geçmiş borçlar; her satırda bağlantı. Ayarlanan saatten sonraki ilk zamanlayıcı çalışmasında günde bir kez gönderilir; tüm bölümler boşsa gönderilmez.
   - Kabul: Günde tek gönderim, boş günde gönderilmeme, saatten önce gönderilmeme, atlanan cron sonrası gönderim (testli); Mailpit'te görünüm kontrol edilir.
+  - Not: Bakiyeden kapatılan borçlar `PaymentAllocation::appliedFromCreditBalanceOn($gün)` ile bulunur (`source = credit_balance`, G-3.2); ödeme anındaki dağıtımlar bu sorguya girmez.
 - [ ] **G-5.6 Zamanlayıcı sağlık kontrolü** — Bağımlılık: G-5.4
   - Yapılacak: Zamanlayıcının son çalışma zamanı kaydedilir; 1 saatten uzun süredir çalışmadıysa panelde uyarı görünür.
   - Kabul: Süre aşılınca uyarı görünür, çalışınca kaybolur (testli).

@@ -3,6 +3,7 @@
 namespace App\Actions\Payments;
 
 use App\Actions\Charges\SyncChargeStatus;
+use App\Enums\AllocationSource;
 use App\Enums\Currency;
 use App\Exceptions\InvalidPaymentAllocation;
 use App\Models\Charge;
@@ -45,7 +46,11 @@ class RecordPayment
             $payment = $customer->payments()->create($attributes);
 
             foreach ($allocations as $chargeId => $amount) {
-                $payment->allocations()->create(['charge_id' => $chargeId, 'amount' => $amount]);
+                $payment->allocations()->create([
+                    'charge_id' => $chargeId,
+                    'amount' => $amount,
+                    'source' => AllocationSource::Payment,
+                ]);
             }
 
             foreach (Charge::query()->findMany(array_keys($allocations)) as $charge) {
