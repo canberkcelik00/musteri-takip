@@ -129,6 +129,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [ ] **G-4.6 Müşteri hizmeti işlemleri** — Bağımlılık: G-4.5
   - Yapılacak: Düzenleme (fiyat, tarihler, kalem bilgileri), ücretsiz işareti, iptal penceresi (yaklaşan dönem borcunu iptal kutusu işaretli gelir, geçmiş borç bilgi olarak gösterilir), yeniden aktif etme.
   - Kabul: İptal penceresi PRD'deki kurallara uyar (testli).
+  - Not: Kalem türü düzenleme ekranında değiştirilemez; tür satış anında katalogdan kopyalanır.
 - [ ] **G-4.7 Ödeme kaydı** — Bağımlılık: G-4.4
   - Yapılacak: İki alanlı form (müşteri, tutar); tarih bugün, yöntem son kullanılan, para birimi açık borçtan gelir; dağıtım önizlemesi isteğe bağlı açılır ve değiştirilebilir; sonuç mesajı ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"); onaylı silme.
   - Kabul: Varsayılanlar ve sonuç mesajı doğru (testli).
