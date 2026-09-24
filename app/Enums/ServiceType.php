@@ -58,6 +58,17 @@ enum ServiceType: string implements HasLabel
         };
     }
 
+    /**
+     * Keep only the catalog details keys that belong to this type.
+     *
+     * @param  array<string, mixed>  $details
+     * @return array<string, mixed>
+     */
+    public function onlyCatalogDetails(array $details): array
+    {
+        return array_intersect_key($details, array_flip($this->catalogDetailKeys()));
+    }
+
     public function catalogDetailLabel(string $key): string
     {
         return __("enums.service_type_details.{$this->value}.catalog.{$key}");

@@ -43,7 +43,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [x] **G-2.3 Müşteriler ve ilgili kişiler** — Bağımlılık: G-2.1
   - Yapılacak: Migration, model, ilişkiler, factory; arşiv kapsamı; birincil kişi kuralları.
   - Kabul: Kısa ad benzersiz; ilk kişi otomatik birincil; birincil değişince önceki kalkar; birincil kişi silinemez (hepsi testli).
-- [ ] **G-2.4 Katalog ve paketler** — Bağımlılık: G-2.1
+- [x] **G-2.4 Katalog ve paketler** — Bağımlılık: G-2.1
   - Yapılacak: `catalog_services`, `packages`, `package_items`; modeller, ilişkiler, factory'ler, arşiv.
   - Kabul: Aynı hizmet bir pakete iki kez eklenemez; arşivlenen kalem listelerde görünmez ama mevcut ilişkiler bozulmaz (testli).
 - [ ] **G-2.5 Ödeme yöntemleri ve ayarlar** — Bağımlılık: G-2.1
@@ -52,6 +52,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [ ] **G-2.6 Müşteri hizmetleri ve kalemleri** — Bağımlılık: G-2.3, G-2.4
   - Yapılacak: `customer_services`, `customer_service_items`; modeller, ilişkiler, factory durumları (tek hizmet, paket, ücretsiz, iptal). Lisans anahtarı şifreli.
   - Kabul: Katalog hizmeti ve paketten tam olarak biri dolu olmalı; lisans anahtarı veritabanında şifreli duruyor (testli).
+  - Not: Müşteri hizmeti kalemi kaydedilirken `details` içinde yalnızca türün `customerDetailKeys()` anahtarları tutulur, diğerleri atılır; tür değişince eski anahtarlar silinir (G-2.4'teki katalog kuralıyla aynı; testli).
 - [ ] **G-2.7 Borçlar, ödemeler ve dağıtımlar** — Bağımlılık: G-2.2, G-2.5, G-2.6
   - Yapılacak: `charges`, `payments`, `payment_allocations`; modeller ve hesaplanan değerler: borcun kalan tutarı, kısmi ödenmiş, gecikmiş, müşterinin para birimi başına alacak bakiyesi.
   - Kabul: Aynı dönem için ikinci borç veritabanı düzeyinde engellenir; tüm hesaplanan değerler örnek senaryolarla testli.
@@ -115,6 +116,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [ ] **G-4.2 Katalog ekranları** — Bağımlılık: G-4.1
   - Yapılacak: Katalog hizmetleri (seçilen türe göre alanların değiştiği form), paketler (içerik seçimi ve kendi fiyatı), arşivleme.
   - Kabul: Hosting seçilince hosting planı alanları, domain seçilince domain alanları görünür (testli).
+  - Not: Paket formunda hizmet seçimi yalnızca arşivlenmemiş katalog hizmetlerini listeler.
 - [ ] **G-4.3 Müşteri listesi ve formu** — Bağımlılık: G-4.1
   - Yapılacak: Kısa adla arama; listede hizmet sayısı, para birimi başına açık borç ve en yakın yenileme; müşteri formu; ilgili kişiler ve birincil işareti. Müşterinin en az bir ilgili kişisi olmalı; müşteri oluşturma formunda ilk kişi zorunlu.
   - Kabul: Listedeki özet değerler örnek veriyle doğru (testli).
