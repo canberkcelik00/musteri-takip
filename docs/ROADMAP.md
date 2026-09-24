@@ -56,7 +56,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 - [x] **G-2.7 Borçlar, ödemeler ve dağıtımlar** — Bağımlılık: G-2.2, G-2.5, G-2.6
   - Yapılacak: `charges`, `payments`, `payment_allocations`; modeller ve hesaplanan değerler: borcun kalan tutarı, kısmi ödenmiş, gecikmiş, müşterinin para birimi başına alacak bakiyesi.
   - Kabul: Aynı dönem için ikinci borç veritabanı düzeyinde engellenir; tüm hesaplanan değerler örnek senaryolarla testli.
-- [ ] **G-2.8 Örnek veri** — Bağımlılık: G-2.7
+- [x] **G-2.8 Örnek veri** — Bağımlılık: G-2.7
   - Yapılacak: Sadece yerelde çalışan gerçekçi Türkçe örnek veri: müşteriler, katalog, paketler, farklı tarihli hizmetler, ücretsiz ve iptal edilmiş kayıtlar, ödenmiş, kısmi ve gecikmiş borçlar, USD kayıtlar.
   - Kabul: `docker compose exec app php artisan migrate:fresh --seed` hatasız çalışır; canlıda çalıştırılamaz.
 
