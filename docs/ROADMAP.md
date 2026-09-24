@@ -66,7 +66,7 @@ Hedef: `docs/DATA_MODEL.md`'deki tabloların, modellerin ve hesaplanan değerler
 
 Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sınıfları olarak, kapsamlı testlerle hazır olması. Tarih testleri zaman yolculuğu (Carbon) ile yazılır. Bu fazda hiçbir kural test olmadan eklenmez.
 
-- [ ] **G-3.1 Ödeme kaydı ve dağıtım** — Bağımlılık: Faz 2
+- [x] **G-3.1 Ödeme kaydı ve dağıtım** — Bağımlılık: Faz 2
   - Yapılacak: Ödemeyi aynı para birimindeki açık borçlara en eski vadeden başlayarak dağıtma; elle dağıtım; artanı alacak bakiyesine bırakma; ödeme silinince dağıtımları geri alma.
   - Kabul: Tam, kısmi ve fazla ödeme; farklı para birimindeki borca düşmeme; bir borca tutarından fazla dağıtılamama; silmede borcun yeniden açılması (hepsi testli). Ödeme yalnızca aynı müşterinin ve aynı para birimindeki borçlarına dağıtılabilir; başka müşterinin borcuna dağıtma reddedilir (testli).
 - [ ] **G-3.2 Bakiyenin yeni borca uygulanması** — Bağımlılık: G-3.1

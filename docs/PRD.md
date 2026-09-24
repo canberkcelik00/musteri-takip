@@ -186,7 +186,9 @@ Her dönem için bir borç doğar; tutar müşteri hizmetindeki fiyattır. Ödem
 
 **Ödeme kaydı iki alanlıdır:** müşteri ve tutar. Tarih bugün, yöntem son kullanılan olarak gelir; açıklama isteğe bağlıdır. Dağıtım otomatik yapılır, görmek ve değiştirmek isteğe bağlıdır. Ödeme yöntemleri panelden yönetilir.
 
-**Dağıtım örneği:** Logi'nin 1.500 TL hosting ve 400 TL alan adı borcu var, 1.000 TL gönderdi. Otomatik dağıtımda 1.000 TL hosting'e düşer, 500 TL kalır. Kullanıcı isterse önce 400 TL'yi alan adına düşebilir.
+**Dağıtım örneği:** Logi'nin 1.500 TL hosting ve 400 TL alan adı borcu var, 1.000 TL gönderdi. Otomatik dağıtımda 1.000 TL hosting'e düşer, 500 TL kalır. Kullanıcı isterse önce 400 TL'yi alan adına düşebilir; kalan 600 TL hosting'e düşer.
+
+**Elle dağıtım:** Elle dağıtımda belirtilen tutarlar önce uygulanır; dağıtılmayan kısım aynı para birimindeki diğer açık borçlara en eski vadeden otomatik düşer; açık borç kalmazsa alacak bakiyesine eklenir. Aynı para biriminde açık borç ve alacak bakiyesi bir arada bulunmaz.
 
 **Alacak bakiyesi**
 
