@@ -171,7 +171,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Ana akışların ekran üzerinden uçtan uca testi (müşteri ekle → hizmet ata → ödeme al → yenileme → iptal); birkaç yüz müşterilik örnek veriyle listelerin hız kontrolü; tüm dokümanların güncelliği.
   - Kabul: Tüm testler yeşil; ROADMAP ve DECISIONS güncel.
 - [ ] **G-5.8 Canlıya geçiş kontrol listesi** — Bağımlılık: G-5.7
-  - Yapılacak: `docs/CANLIYA_GECIS.md`: canlı ortam ayarları (hata ayrıntıları kapalı, HTTPS), test e-postası, ayarların doldurulması, "İlk girişten sonra panelden şifreni değiştir ve hostingdeki .env'den ADMIN_PASSWORD satırını sil.", örnek verinin canlıda olmadığının kontrolü.
+  - Yapılacak: `docs/CANLIYA_GECIS.md`: canlı ortam ayarları (hata ayrıntıları kapalı, HTTPS), test e-postası, ayarların doldurulması, "İlk girişten sonra panelden şifreni değiştir ve hostingdeki .env'den ADMIN_PASSWORD satırını sil.", "Canlı ortamın APP_KEY değerini güvenli bir yerde yedekle; değişir veya kaybolursa şifreli lisans anahtarları okunamaz.", örnek verinin canlıda olmadığının kontrolü.
   - Kabul: Liste ekran adımlarıyla takip edilebilir.
 - [ ] **K-5.2 Yedek kontrolü:** Hosting panelinde veritabanı yedeklerinin günlük alındığını ve bir yedeğin geri yüklenebildiğini kontrol et.
 - [ ] **K-5.3 Canlıya geçiş ve veri girişi:** Kontrol listesini uygula, mevcut müşterileri ve hizmetleri "Bu dönemin borcu: Oluşturma" ile gir.
