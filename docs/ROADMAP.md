@@ -96,7 +96,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
   - Kabul: Üst üste çalışmada yinelenen kayıt oluşmaz; günler boyunca atlanan cron sonrası ilk çalışma eksikleri tamamlar (testli).
 - [ ] **G-3.10 Uçtan uca senaryo** — Bağımlılık: G-3.1…G-3.9
   - Yapılacak: Aşağıdaki Logi senaryosunun (atama, fazla ödeme, 30 gün kala yenileme, bakiyenin düşmesi, dönem ilerlemesi, iptal) tek bir testte zaman ilerletilerek doğrulanması.
-  - Kabul: Senaryodaki her adımın tutarları ve tarihleri birebir aynı.
+  - Kabul: Senaryodaki her adımın tutarları ve tarihleri birebir aynı. Ayrıca örnek veri (SampleDataSeeder) hizmet atama, borç ve ödeme dağıtımı için doğrudan veritabanına yazmak yerine Faz 3 Action'larını kullanacak şekilde yeniden düzenlenir; DatabaseSeederTest yeşil kalır.
 
 **Logi senaryosu (G-3.10 için referans):**
 
