@@ -5,8 +5,10 @@ use App\Actions\Payments\RecordPayment;
 use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
+use App\Exceptions\InvalidCharge;
 use App\Models\Charge;
 use App\Models\Customer;
+use App\Models\CustomerService;
 use App\Models\Payment;
 use App\Models\PaymentAllocation;
 use App\Models\PaymentMethod;
@@ -127,4 +129,33 @@ it('marks the allocations as applied from the credit balance', function () {
 
     expect($charge->allocations()->get()->pluck('source')->all())->toBe([AllocationSource::CreditBalance])
         ->and(PaymentAllocation::query()->count())->toBe(1);
+});
+
+it('creates a charge of a customer service for the customer of that service', function () {
+    $customerService = CustomerService::factory()->create();
+
+    $charge = app(CreateCharge::class)->handle($customerService->customer, [
+        'customer_service_id' => $customerService->id,
+        'description' => 'Kurumsal Paket 2027–2028',
+        'amount' => 400000,
+        'currency' => Currency::Try,
+        'due_date' => '2027-03-01',
+    ]);
+
+    expect($charge->customer_id)->toBe($customerService->customer_id)
+        ->and($charge->customer_service_id)->toBe($customerService->id);
+});
+
+it('rejects a charge of a customer service for another customer', function () {
+    $customerService = CustomerService::factory()->create();
+
+    expect(fn () => app(CreateCharge::class)->handle(Customer::factory()->create(), [
+        'customer_service_id' => $customerService->id,
+        'description' => 'Kurumsal Paket 2027–2028',
+        'amount' => 400000,
+        'currency' => Currency::Try,
+        'due_date' => '2027-03-01',
+    ]))->toThrow(InvalidCharge::class, __('charges.customer_service_of_another_customer'));
+
+    expect(Charge::query()->exists())->toBeFalse();
 });

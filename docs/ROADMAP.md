@@ -72,7 +72,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.2 Bakiyenin yeni borca uygulanması** — Bağımlılık: G-3.1
   - Yapılacak: Yeni borç doğduğunda müşterinin aynı para birimindeki alacak bakiyesini otomatik olarak o borca düşme.
   - Kabul: Bakiye borçtan büyük, eşit ve küçük durumları; farklı para biriminde bakiyenin kullanılmaması (testli).
-- [ ] **G-3.3 Hizmet atama ve ilk dönem borcu** — Bağımlılık: G-3.2
+- [x] **G-3.3 Hizmet atama ve ilk dönem borcu** — Bağımlılık: G-3.2
   - Yapılacak: Katalog hizmetini veya paketi müşteriye atama: ad, fiyat ve para birimi kopyalanır, pakette her iç hizmet için kalem oluşur, bitiş = başlangıç + 12 ay, ücretsiz değilse ve "Bu dönemin borcu: Oluşturma" seçilmediyse ilk dönem borcu doğar ve bakiye uygulanır.
   - Kabul: Tek hizmet, paket, ücretsiz, değiştirilmiş fiyatla ve "Oluşturma" seçeneğiyle (Excel'den geçiş) atama; katalog fiyatı sonradan değişince müşteri hizmetinin etkilenmemesi (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [ ] **G-3.4 Yenileme borcu** — Bağımlılık: G-3.3
