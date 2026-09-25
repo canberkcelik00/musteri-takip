@@ -2,4 +2,18 @@
 
 return [
     'has_active_services' => 'Önce müşterinin hizmetlerini iptal edin.',
+    'singular' => 'Müşteri',
+    'plural' => 'Müşteriler',
+    'short_name' => 'Kısa ad',
+    'legal_title' => 'Ticari ünvan',
+    'tax_office' => 'Vergi dairesi',
+    'tax_number' => 'Vergi no',
+    'billing_address' => 'Fatura adresi',
+    'notes' => 'Notlar',
+    'customer_section' => 'Müşteri bilgileri',
+    'first_contact_section' => 'İlk ilgili kişi',
+    'first_contact_helper' => 'Her müşterinin en az bir ilgili kişisi olur; ilk kişi birincil kişidir.',
+    'active_services_count' => 'Hizmet',
+    'open_debt' => 'Açık borç',
+    'next_renewal' => 'En yakın yenileme',
 ];

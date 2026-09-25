@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Models\Concerns\Archivable;
 use App\Support\Money;
@@ -56,6 +57,26 @@ class Customer extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Open debt per currency: the remaining amount of every open charge, summed per currency.
+     * Currencies without open debt are left out. Uses the loaded `charges` relation (with
+     * `withSum('allocations', 'amount')`) when available, so lists do not query per customer.
+     *
+     * @return array<string, Money>
+     */
+    public function openChargeTotals(): array
+    {
+        $charges = $this->relationLoaded('charges')
+            ? $this->charges
+            : $this->charges()->where('status', ChargeStatus::Open)->withSum('allocations', 'amount')->get();
+
+        return Money::sumByCurrency(
+            $charges
+                ->filter(fn (Charge $charge): bool => $charge->status === ChargeStatus::Open && $charge->remainingAmount() > 0)
+                ->map(fn (Charge $charge): Money => new Money($charge->remainingAmount(), $charge->currency)),
+        );
     }
 
     /**
