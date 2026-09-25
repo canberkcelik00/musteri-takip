@@ -115,7 +115,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.1 Ortak bileşenler** — Bağımlılık: Faz 3
   - Yapılacak: Türkçe biçimli tutar girişi ve para birimi seçimi, tutar gösterimi, para birimine göre ayrı toplamlar, gg.aa.yyyy tarih.
   - Kabul: "4.000,50" girişi 400050 olarak kaydedilir ve aynı biçimde görünür (testli).
-- [ ] **G-4.2 Katalog ekranları** — Bağımlılık: G-4.1
+- [x] **G-4.2 Katalog ekranları** — Bağımlılık: G-4.1
   - Yapılacak: Katalog hizmetleri (seçilen türe göre alanların değiştiği form), paketler (içerik seçimi ve kendi fiyatı), arşivleme.
   - Kabul: Hosting seçilince hosting planı alanları, domain seçilince domain alanları görünür (testli).
   - Not: Paket formunda hizmet seçimi yalnızca arşivlenmemiş katalog hizmetlerini listeler.

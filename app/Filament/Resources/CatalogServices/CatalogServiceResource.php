@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Filament\Resources\CatalogServices;
+
+use App\Filament\Resources\CatalogServices\Pages\CreateCatalogService;
+use App\Filament\Resources\CatalogServices\Pages\EditCatalogService;
+use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
+use App\Filament\Resources\CatalogServices\Schemas\CatalogServiceForm;
+use App\Filament\Resources\CatalogServices\Tables\CatalogServicesTable;
+use App\Models\CatalogService;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use UnitEnum;
+
+class CatalogServiceResource extends Resource
+{
+    protected static ?string $model = CatalogService::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedServerStack;
+
+    protected static string|UnitEnum|null $navigationGroup = null;
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationGroup(): string
+    {
+        return __('catalog_services.navigation_group');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('catalog_services.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('catalog_services.plural');
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return CatalogServiceForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return CatalogServicesTable::configure($table);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListCatalogServices::route('/'),
+            'create' => CreateCatalogService::route('/create'),
+            'edit' => EditCatalogService::route('/{record}/edit'),
+        ];
+    }
+}
