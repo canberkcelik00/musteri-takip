@@ -30,3 +30,4 @@ Homestead.yaml
 Thumbs.db
 /.claude/settings.local.json
 /.claude/settings.json
+/graphify-out

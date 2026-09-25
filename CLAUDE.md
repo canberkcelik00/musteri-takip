@@ -52,6 +52,7 @@ Windows'a özgü kurallar:
 7. **Bitirince:** Görevin kutusunu `docs/ROADMAP.md`'de işaretle, kod içi bir karar verdiysen `docs/DECISIONS.md`'ye ekle, commit et (mesaj Türkçe ve görev koduyla başlar: `G-2.3: Müşteri ve ilgili kişiler`).
 8. **K görevleri kullanıcınındır.** Hesap açma, şifre, secret girme gibi işleri yapma; gerektiğinde hatırlat.
 9. **Karar yetkisi.** Klasör adı, sınıf adı gibi sadece kodun içini ilgilendiren kararları sormadan ver ve DECISIONS'a gerekçesiyle yaz. Görünüm, iş kuralı, paket ve altyapı kararlarını sor.
+10. **Proje haritası:** Görevin ilgili olduğu dosyaları bulmak için önce `graphify-out/` altındaki graphify raporunu oku; projeyi baştan taramak yerine oradan başla. Harita yalnızca yol göstericidir ve eskimiş olabilir: bir dosyayı değiştirmeden veya ona dayanarak karar vermeden önce dosyanın kendisini oku. Haritayla kod çelişirse kod geçerlidir; bunu raporunda belirt. Klasör yoksa bu adımı atla.
 
 ## Kod kuralları
 
