@@ -112,6 +112,12 @@ class SampleDataSeeder extends Seeder
         $this->catalogService('email', ServiceType::Email, 'Kurumsal E-posta', '3.000', Currency::Try, [
             'provider' => 'Yandex', 'quota' => 'Hesap başına 10 GB',
         ]);
+        $this->catalogService('maintenance', ServiceType::Maintenance, 'Web Sitesi Bakımı', '12.000', Currency::Try, [
+            'scope' => 'Aylık güncelleme, yedek kontrolü ve küçük içerik değişiklikleri',
+        ]);
+        $this->catalogService('theme_license', ServiceType::License, 'Tema Lisansı', '59', Currency::Usd, [
+            'product_name' => 'Astra Pro', 'provider' => 'Brainstorm Force',
+        ]);
         $this->catalogService('hosting_legacy', ServiceType::Hosting, 'Linux Hosting Eski (500 MB)', '900', Currency::Try, [
             'provider' => 'Natro', 'disk_space' => '500 MB', 'monthly_traffic' => '5 GB',
             'email_accounts' => '5', 'databases' => '2', 'sites' => '1',
@@ -120,7 +126,7 @@ class SampleDataSeeder extends Seeder
 
     private function seedPackages(): void
     {
-        $this->package('corporate', 'Kurumsal Paket', '4.000', ['hosting_1000', 'domain_com_tr']);
+        $this->package('corporate', 'Kurumsal Paket', '4.000', ['hosting_1000', 'domain_com_tr', 'maintenance']);
         $this->package('professional', 'Profesyonel Paket', '9.500', ['hosting_business', 'domain_com_tr', 'ssl', 'email']);
         $this->package('starter', 'Başlangıç Paketi', '2.750', ['hosting_starter', 'domain_com_tr']);
     }
@@ -141,6 +147,7 @@ class SampleDataSeeder extends Seeder
         $service = $this->assign($customer, $this->packages['corporate'], $start, [
             ServiceType::Hosting->value => ['domain' => 'logi.com.tr', 'server' => 'srv14.natro.com', 'cpanel_username' => 'logicomt'],
             ServiceType::Domain->value => ['domain' => 'logi.com.tr'],
+            ServiceType::Maintenance->value => ['domain' => 'logi.com.tr'],
         ]);
 
         $this->payment($customer, '5.000', Currency::Try, $start->addDays(3), 'Havale/EFT');
@@ -168,6 +175,12 @@ class SampleDataSeeder extends Seeder
 
         $this->at($start, fn () => $this->advanceCustomerServicePeriod->handle($package));
         $this->payment($customer, '9.500', Currency::Try, $start->addDays(2), 'Havale/EFT');
+
+        $maintenanceStart = $this->today->subMonthsNoOverflow(4);
+        $this->assign($customer, $this->catalog['maintenance'], $maintenanceStart, [
+            ServiceType::Maintenance->value => ['domain' => 'yildizmobilya.com.tr'],
+        ]);
+        $this->payment($customer, '12.000', Currency::Try, $maintenanceStart->addDays(10), 'Kredi Kartı');
 
         $this->createRenewalCharge->handle($package);
     }
@@ -212,7 +225,7 @@ class SampleDataSeeder extends Seeder
     }
 
     /**
-     * USD records: a paid domain with a 21 USD overpayment kept as USD credit balance,
+     * USD records: a paid domain, a paid license with its key and a USD credit balance,
      * next to an overdue TRY charge the USD credit must not touch.
      */
     private function seedEgeYazilim(): void
@@ -225,7 +238,13 @@ class SampleDataSeeder extends Seeder
         $this->assign($customer, $this->catalog['domain_com'], $domainStart, [
             ServiceType::Domain->value => ['domain' => 'egeyazilim.com'],
         ]);
-        $this->payment($customer, '36', Currency::Usd, $domainStart, 'Kredi Kartı');
+        $this->payment($customer, '15', Currency::Usd, $domainStart, 'Kredi Kartı');
+
+        $licenseStart = $this->today->subMonthsNoOverflow(1);
+        $this->assign($customer, $this->catalog['theme_license'], $licenseStart, [
+            ServiceType::License->value => ['quantity' => '1'],
+        ], licenseKey: 'ASTRA-7F3K9-2QX8M-PL45T');
+        $this->payment($customer, '80', Currency::Usd, $licenseStart->addDays(1), 'Havale/EFT');
 
         $this->assign($customer, $this->catalog['hosting_starter'], $this->today->subDays(5), [
             ServiceType::Hosting->value => ['domain' => 'egeyazilim.com', 'server' => 'srv11.natro.com', 'cpanel_username' => 'egeyazil'],
@@ -361,14 +380,17 @@ class SampleDataSeeder extends Seeder
      * @param  array<string, array<string, string>>  $detailsByType  keyed by ServiceType value
      * @param  array{is_free?: bool, notes?: ?string}  $attributes
      */
-    private function assign(Customer $customer, CatalogService|Package $sold, CarbonImmutable $start, array $detailsByType, array $attributes = []): CustomerService
+    private function assign(Customer $customer, CatalogService|Package $sold, CarbonImmutable $start, array $detailsByType, array $attributes = [], ?string $licenseKey = null): CustomerService
     {
         $catalogServices = $sold instanceof Package ? $sold->catalogServices : collect([$sold]);
 
         $items = [];
 
         foreach ($catalogServices as $catalogService) {
-            $items[$catalogService->id] = ['details' => $detailsByType[$catalogService->type->value] ?? []];
+            $items[$catalogService->id] = [
+                'details' => $detailsByType[$catalogService->type->value] ?? [],
+                'license_key' => $licenseKey,
+            ];
         }
 
         return $this->at($start, fn (): CustomerService => $this->assignCustomerService->handle($customer, $sold, [
