@@ -181,10 +181,11 @@ it('applies the customer credit balance to the upcoming period charge', function
         ->and($customer->creditBalances())->toBe([]);
 });
 
-it('creates no second charge when the upcoming period already has a cancelled charge', function () {
+it('reopens the cancelled upcoming period charge instead of creating a second one', function () {
     $customerService = freeService();
 
-    Charge::factory()->forCustomerService($customerService)->cancelled()->create([
+    $cancelled = Charge::factory()->forCustomerService($customerService)->cancelled()->create([
+        'amount' => 300000,
         'due_date' => '2027-03-01',
         'period_start' => '2027-03-01',
         'period_end' => '2028-03-01',
@@ -192,7 +193,38 @@ it('creates no second charge when the upcoming period already has a cancelled ch
 
     $this->travelTo('2027-02-15');
 
+    $charge = removeFreeFlag($customerService);
+
+    expect($charge?->id)->toBe($cancelled->id)
+        ->and($charge->status)->toBe(ChargeStatus::Open)
+        ->and($charge->amount)->toBe(400000)
+        ->and($charge->description)->toBe('Kurumsal Paket 2027–2028')
+        ->and($charge->cancelled_at)->toBeNull()
+        ->and($charge->cancel_reason)->toBeNull()
+        ->and(Charge::query()->count())->toBe(1);
+});
+
+it('leaves a cancelled upcoming period charge with an allocation cancelled and creates no second charge', function () {
+    $customerService = freeService();
+
+    $cancelled = Charge::factory()->forCustomerService($customerService)->cancelled()->create([
+        'due_date' => '2027-03-01',
+        'period_start' => '2027-03-01',
+        'period_end' => '2028-03-01',
+    ]);
+
+    $this->travelTo('2027-02-15');
+
+    $payment = $customerService->customer->payments()->create([
+        'amount' => 100000,
+        'currency' => Currency::Try,
+        'paid_on' => '2027-02-15',
+        'payment_method_id' => PaymentMethod::query()->value('id'),
+    ]);
+    $payment->allocations()->create(['charge_id' => $cancelled->id, 'amount' => 100000]);
+
     expect(removeFreeFlag($customerService))->toBeNull()
+        ->and($cancelled->fresh()->status)->toBe(ChargeStatus::Cancelled)
         ->and(Charge::query()->count())->toBe(1);
 });
 

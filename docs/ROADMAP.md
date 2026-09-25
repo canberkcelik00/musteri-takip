@@ -84,7 +84,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.6 Ücretsiz işaretinin kaldırılması** — Bağımlılık: G-3.4
   - Yapılacak: İşaret yenileme penceresi içinde ve dönem başlamadan kaldırılırsa yaklaşan dönemin borcunu hemen oluşturma.
   - Kabul: Pencere içinde ve dışında kaldırma senaryoları (testli).
-- [ ] **G-3.7 İptal ve yeniden aktif etme** — Bağımlılık: G-3.4
+- [x] **G-3.7 İptal ve yeniden aktif etme** — Bağımlılık: G-3.4
   - Yapılacak: İptal; isteğe bağlı olarak henüz başlamamış dönemin ödenmemiş borcunu iptal; yeniden aktif etme.
   - Kabul: Geçmiş dönem borcu hiçbir durumda iptal edilmez; dağıtımı olan borç iptal edilmez (testli).
   - Ek: Ücretsiz işareti eklenirken, yaklaşan dönemin ödenmemiş borcunu iptal etme seçeneği sunulur (varsayılan işaretli); dağıtımı olan borca dokunulmaz. İptal akışıyla aynı yardımcıyı kullanır (testli).
@@ -134,6 +134,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Kabul: İptal penceresi PRD'deki kurallara uyar (testli).
   - Not: Ücretsiz işareti ekleme ve kaldırma, G-3.6 ve G-3.7 Action'ları üzerinden yapılır.
   - Not: Kalem türü düzenleme ekranında değiştirilemez; tür satış anında katalogdan kopyalanır.
+  - Not: Arşivli müşterinin hizmetinde Yeniden aktif et düğmesi, önce müşterinin arşivden çıkarılması gerektiğini söyler.
 - [ ] **G-4.7 Ödeme kaydı** — Bağımlılık: G-4.4
   - Yapılacak: İki alanlı form (müşteri, tutar); tarih bugün, yöntem son kullanılan, para birimi açık borçtan gelir; dağıtım önizlemesi isteğe bağlı açılır ve değiştirilebilir; sonuç mesajı ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"); onaylı silme.
   - Kabul: Varsayılanlar ve sonuç mesajı doğru (testli).

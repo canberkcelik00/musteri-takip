@@ -20,4 +20,19 @@ class InvalidCustomerService extends DomainException
     {
         return new self(__('customer_services.period_already_ended'));
     }
+
+    public static function customerArchived(): self
+    {
+        return new self(__('customer_services.customer_archived'));
+    }
+
+    public static function startDateRequired(): self
+    {
+        return new self(__('customer_services.start_date_required'));
+    }
+
+    public static function startDateBeforePreviousPeriodEnd(): self
+    {
+        return new self(__('customer_services.start_date_before_previous_period_end'));
+    }
 }
