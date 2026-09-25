@@ -112,7 +112,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 
 Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ekranlar iş mantığı içermez, sadece Action sınıflarını çağırır. Her ekranın temel akışı Livewire testiyle korunur. Ölçüt: "Excel'den daha kolay mı?"
 
-- [ ] **G-4.1 Ortak bileşenler** — Bağımlılık: Faz 3
+- [x] **G-4.1 Ortak bileşenler** — Bağımlılık: Faz 3
   - Yapılacak: Türkçe biçimli tutar girişi ve para birimi seçimi, tutar gösterimi, para birimine göre ayrı toplamlar, gg.aa.yyyy tarih.
   - Kabul: "4.000,50" girişi 400050 olarak kaydedilir ve aynı biçimde görünür (testli).
 - [ ] **G-4.2 Katalog ekranları** — Bağımlılık: G-4.1

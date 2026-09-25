@@ -99,6 +99,27 @@ it('returns no totals for no money', function () {
     expect(Money::sumByCurrency([]))->toBe([]);
 });
 
+it('formats minor units without a currency', function (int $amount, string $expected) {
+    expect(Money::formatAmount($amount))->toBe($expected);
+})->with([
+    'with cents' => [400050, '4.000,50'],
+    'whole amount hides cents' => [400000, '4.000'],
+    'single cent digit is padded' => [5, '0,05'],
+    'zero' => [0, '0'],
+]);
+
+it('formats per-currency totals on one line', function () {
+    $totals = Money::sumByCurrency([
+        new Money(35000, Currency::Usd),
+        new Money(1000000, Currency::Try),
+        new Money(200000, Currency::Try),
+    ]);
+
+    expect(Money::formatTotals($totals))->toBe('12.000 TL + 350 USD')
+        ->and(Money::formatTotals(['TRY' => new Money(400050, Currency::Try)]))->toBe('4.000,50 TL')
+        ->and(Money::formatTotals([]))->toBe('—');
+});
+
 arch('money never uses float functions')
     ->expect(Money::class)
     ->not->toUse(['floatval', 'round', 'floor', 'ceil', 'number_format', 'fdiv']);

@@ -62,8 +62,16 @@ final readonly class Money
      */
     public function format(): string
     {
-        $wholeDigits = (string) intdiv($this->amount, 100);
-        $cents = $this->amount % 100;
+        return self::formatAmount($this->amount).' '.$this->currency->getLabel();
+    }
+
+    /**
+     * Format minor units without a currency, such as "4.000,50"; cents are omitted when zero ("4.000").
+     */
+    public static function formatAmount(int $amount): string
+    {
+        $wholeDigits = (string) intdiv($amount, 100);
+        $cents = $amount % 100;
 
         $formatted = strrev(implode('.', str_split(strrev($wholeDigits), 3)));
 
@@ -71,7 +79,21 @@ final readonly class Money
             $formatted .= ','.str_pad((string) $cents, 2, '0', STR_PAD_LEFT);
         }
 
-        return $formatted.' '.$this->currency->getLabel();
+        return $formatted;
+    }
+
+    /**
+     * Format per-currency totals on one line such as "12.000 TL + 350 USD"; an empty list gives "—".
+     *
+     * @param  array<array-key, self>  $totals
+     */
+    public static function formatTotals(array $totals): string
+    {
+        if ($totals === []) {
+            return '—';
+        }
+
+        return implode(' + ', array_map(fn (self $money): string => $money->format(), $totals));
     }
 
     /**
