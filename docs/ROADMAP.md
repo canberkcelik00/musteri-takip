@@ -81,12 +81,13 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.5 Dönem ilerletme** — Bağımlılık: G-3.4
   - Yapılacak: Bitiş tarihi gelen aktif hizmetlerin (ücretsizler dahil) tarihlerini bir dönem ilerletme.
   - Kabul: Ödeme durumundan bağımsız ilerler; iptal edilmişler ilerlemez; iki kez çalıştırmada tek ilerleme (testli).
-- [ ] **G-3.6 Ücretsiz işaretinin kaldırılması** — Bağımlılık: G-3.4
+- [x] **G-3.6 Ücretsiz işaretinin kaldırılması** — Bağımlılık: G-3.4
   - Yapılacak: İşaret yenileme penceresi içinde ve dönem başlamadan kaldırılırsa yaklaşan dönemin borcunu hemen oluşturma.
   - Kabul: Pencere içinde ve dışında kaldırma senaryoları (testli).
 - [ ] **G-3.7 İptal ve yeniden aktif etme** — Bağımlılık: G-3.4
   - Yapılacak: İptal; isteğe bağlı olarak henüz başlamamış dönemin ödenmemiş borcunu iptal; yeniden aktif etme.
   - Kabul: Geçmiş dönem borcu hiçbir durumda iptal edilmez; dağıtımı olan borç iptal edilmez (testli).
+  - Ek: Ücretsiz işareti eklenirken, yaklaşan dönemin ödenmemiş borcunu iptal etme seçeneği sunulur (varsayılan işaretli); dağıtımı olan borca dokunulmaz. İptal akışıyla aynı yardımcıyı kullanır (testli).
   - Not: Aynı dönem için tek borç kuralı iptal edilmiş borçları da kapsar; yeniden aktif etmede iptal edilmiş dönem borcunun nasıl ele alınacağı bu görevin planında kullanıcıya sorulmalı.
 - [ ] **G-3.8 Borçları elle düzenleme** — Bağımlılık: G-3.1
   - Yapılacak: Tutar ve vade değiştirme, borcu ikiye bölme, gerekçeyle iptal, kurala bağlı olmayan elle borç ekleme (bakiye uygulanır).
@@ -131,6 +132,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [ ] **G-4.6 Müşteri hizmeti işlemleri** — Bağımlılık: G-4.5
   - Yapılacak: Düzenleme (fiyat, tarihler, kalem bilgileri), ücretsiz işareti, iptal penceresi (yaklaşan dönem borcunu iptal kutusu işaretli gelir, geçmiş borç bilgi olarak gösterilir), yeniden aktif etme.
   - Kabul: İptal penceresi PRD'deki kurallara uyar (testli).
+  - Not: Ücretsiz işareti ekleme ve kaldırma, G-3.6 ve G-3.7 Action'ları üzerinden yapılır.
   - Not: Kalem türü düzenleme ekranında değiştirilemez; tür satış anında katalogdan kopyalanır.
 - [ ] **G-4.7 Ödeme kaydı** — Bağımlılık: G-4.4
   - Yapılacak: İki alanlı form (müşteri, tutar); tarih bugün, yöntem son kullanılan, para birimi açık borçtan gelir; dağıtım önizlemesi isteğe bağlı açılır ve değiştirilebilir; sonuç mesajı ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"); onaylı silme.
