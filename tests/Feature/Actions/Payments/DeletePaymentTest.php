@@ -2,6 +2,7 @@
 
 use App\Actions\Payments\DeletePayment;
 use App\Actions\Payments\RecordPayment;
+use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Models\Charge;
@@ -9,6 +10,7 @@ use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\PaymentAllocation;
 use App\Models\PaymentMethod;
+use App\Support\Money;
 
 function recordPaymentToDelete(Customer $customer, int $amount): Payment
 {
@@ -62,4 +64,41 @@ it('does not reopen a charge the deleted payment did not touch', function () {
     app(DeletePayment::class)->handle($payment);
 
     expect($paidCharge->fresh()->status)->toBe(ChargeStatus::Paid);
+});
+
+it('applies the remaining credit balance to the reopened charges, oldest due date first', function () {
+    $customer = Customer::factory()->create();
+    $older = Charge::factory()->for($customer)->create(['amount' => 100000, 'due_date' => '2026-02-01']);
+    $newer = Charge::factory()->for($customer)->create(['amount' => 300000, 'due_date' => '2026-03-01']);
+    $deleted = recordPaymentToDelete($customer, 150000);
+    $withBalance = recordPaymentToDelete($customer, 350000);
+    expect($customer->creditBalances())->toEqual(['TRY' => new Money(100000, Currency::Try)]);
+
+    app(DeletePayment::class)->handle($deleted);
+
+    $older->refresh();
+    $newer->refresh();
+
+    expect($older->status)->toBe(ChargeStatus::Paid)
+        ->and($older->allocations()->where('source', AllocationSource::CreditBalance)->sum('amount'))->toEqual(100000)
+        ->and($newer->status)->toBe(ChargeStatus::Open)
+        ->and($newer->remainingAmount())->toBe(50000)
+        ->and($newer->allocations()->where('source', AllocationSource::CreditBalance)->exists())->toBeFalse()
+        ->and($withBalance->allocations()->sum('amount'))->toEqual(350000)
+        ->and($customer->creditBalances())->toBe([]);
+});
+
+it('closes the reopened charge from the balance and keeps the rest as balance', function () {
+    $customer = Customer::factory()->create();
+    $charge = Charge::factory()->for($customer)->create(['amount' => 400000, 'due_date' => '2026-03-01']);
+    $deleted = recordPaymentToDelete($customer, 100000);
+    recordPaymentToDelete($customer, 500000);
+
+    app(DeletePayment::class)->handle($deleted);
+
+    $charge->refresh();
+
+    expect($charge->status)->toBe(ChargeStatus::Paid)
+        ->and($charge->remainingAmount())->toBe(0)
+        ->and($customer->creditBalances())->toEqual(['TRY' => new Money(100000, Currency::Try)]);
 });
