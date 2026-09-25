@@ -285,3 +285,15 @@ it('rejects item details for a catalog service that is not sold', function () {
         ->and(CustomerServiceItem::query()->exists())->toBeFalse()
         ->and(Charge::query()->exists())->toBeFalse();
 });
+
+it('assigns an archived catalog service or package', function () {
+    $customer = Customer::factory()->create();
+    $catalogService = CatalogService::factory()->archived()->create();
+    [$package] = corporatePackage();
+    $package->archive();
+
+    assignService($customer, $catalogService, ['create_first_charge' => false]);
+    assignService($customer, $package, ['create_first_charge' => false]);
+
+    expect($customer->customerServices()->count())->toBe(2);
+});
