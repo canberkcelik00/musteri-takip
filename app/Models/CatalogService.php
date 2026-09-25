@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * other keys, including those of a previous type, and blank values are dropped on save.
  *
  * @property ServiceType $type
+ * @property Currency $currency
  * @property array<string, mixed>|null $details
  */
 #[Fillable(['type', 'name', 'price', 'currency', 'details', 'notes'])]

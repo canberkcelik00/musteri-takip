@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property Currency $currency
+ */
 #[Fillable(['name', 'price', 'currency', 'notes'])]
 class Package extends Model
 {

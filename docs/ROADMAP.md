@@ -125,7 +125,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.4 Müşteri kartı** — Bağımlılık: G-4.3
   - Yapılacak: Tek sayfada ilgili kişiler, müşteri hizmetleri (tarih, fiyat, durum), borçlar (açık, kısmi, gecikmiş), ödemeler ve para birimi başına alacak bakiyesi.
   - Kabul: Logi senaryosundaki durum kartta PRD'deki gibi görünür (testli).
-- [ ] **G-4.5 Hizmet atama** — Bağımlılık: G-4.4, G-4.2
+- [x] **G-4.5 Hizmet atama** — Bağımlılık: G-4.4, G-4.2
   - Yapılacak: Müşteri kartından "Hizmet ekle": katalog hizmeti veya paket seçimi; fiyat, para birimi ve başlangıç önerilir, değiştirilebilir; ücretsiz; "Bu dönemin borcu"; türe göre müşteriye özel alanlar (alan adı, sunucu, cPanel kullanıcı adı vb.). Not: Lisans anahtarı `details`'te değil, `customer_service_items.license_key` sütununda (şifreli) tutulur; lisans türü için formda `ServiceType` anahtarlarından ayrı olarak gösterilmelidir.
   - Kabul: Tek hizmet ve paket atama akışları doğru kayıt ve borç oluşturur (testli).
   - Not: Atama ekranında arşivlenmiş katalog hizmetleri ve paketler de seçilebilir, '(arşivlendi)' etiketiyle listenin sonunda.

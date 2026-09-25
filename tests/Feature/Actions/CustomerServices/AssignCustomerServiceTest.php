@@ -328,3 +328,15 @@ it('assigns an archived catalog service or package', function () {
 
     expect($customer->customerServices()->count())->toBe(2);
 });
+
+it('rejects assigning to an archived customer and changes nothing', function () {
+    $customer = Customer::factory()->archived()->create();
+    $catalogService = CatalogService::factory()->create();
+
+    expect(fn () => assignService($customer, $catalogService))
+        ->toThrow(InvalidCustomerService::class, 'Önce müşteriyi arşivden çıkarın.');
+
+    expect(CustomerService::query()->exists())->toBeFalse()
+        ->and(CustomerServiceItem::query()->exists())->toBeFalse()
+        ->and(Charge::query()->exists())->toBeFalse();
+});

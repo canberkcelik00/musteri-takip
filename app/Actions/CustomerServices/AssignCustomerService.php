@@ -26,12 +26,17 @@ class AssignCustomerService
      * with the customer's details keyed by catalog service id. Unless the service is free
      * or the first charge is skipped (migration from Excel), the first period's charge is
      * created, which also applies the customer's credit balance. A start date whose period
-     * has already ended is rejected, so no past period charges are ever created.
+     * has already ended is rejected, so no past period charges are ever created. An archived
+     * customer must be unarchived first.
      *
      * @param  array{start_date: CarbonInterface|string, price?: int, currency?: Currency, is_free?: bool, create_first_charge?: bool, notes?: ?string, items?: array<int, array{details?: array<string, mixed>|null, license_key?: string|null}>}  $attributes
      */
     public function handle(Customer $customer, CatalogService|Package $sold, array $attributes): CustomerService
     {
+        if ($customer->isArchived()) {
+            throw InvalidCustomerService::customerArchived();
+        }
+
         $price = $attributes['price'] ?? $sold->price;
         $isFree = $attributes['is_free'] ?? false;
 
