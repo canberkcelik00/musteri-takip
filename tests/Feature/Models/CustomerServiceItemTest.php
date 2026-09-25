@@ -34,6 +34,15 @@ it('drops details keys that do not belong to the type', function () {
     expect($item->fresh()->details)->toEqual(['domain' => 'logi.com.tr', 'server' => 'srv1', 'cpanel_username' => 'logi']);
 });
 
+it('does not save blank details', function () {
+    $item = CustomerServiceItem::factory()->create([
+        'type' => ServiceType::Hosting,
+        'details' => ['domain' => 'logi.com.tr', 'server' => '', 'cpanel_username' => null],
+    ]);
+
+    expect($item->fresh()->details)->toBe(['domain' => 'logi.com.tr']);
+});
+
 it('drops the details of the previous type when the type changes', function () {
     $item = CustomerServiceItem::factory()->create([
         'type' => ServiceType::Hosting,

@@ -102,8 +102,7 @@ it('drops the details of the previous type when the type is changed', function (
         ->assertHasNoFormErrors();
 
     expect($service->refresh()->type)->toBe(ServiceType::Domain)
-        ->and($service->details)->toHaveKey('registrar', 'Natro')
-        ->and(array_keys($service->details))->each->toBeIn(ServiceType::Domain->catalogDetailKeys());
+        ->and($service->details)->toBe(['registrar' => 'Natro']);
 });
 
 it('hides archived catalog services from the list by default', function () {

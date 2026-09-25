@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * `details` keeps only the keys of the current type (ServiceType::catalogDetailKeys());
- * other keys, including those of a previous type, are dropped on save.
+ * other keys, including those of a previous type, and blank values are dropped on save.
  *
  * @property ServiceType $type
  * @property array<string, mixed>|null $details

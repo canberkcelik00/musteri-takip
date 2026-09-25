@@ -59,25 +59,39 @@ enum ServiceType: string implements HasLabel
     }
 
     /**
-     * Keep only the catalog details keys that belong to this type.
+     * Keep only the catalog details keys that belong to this type, without blank values.
      *
      * @param  array<string, mixed>  $details
      * @return array<string, mixed>
      */
     public function onlyCatalogDetails(array $details): array
     {
-        return array_intersect_key($details, array_flip($this->catalogDetailKeys()));
+        return $this->withoutBlankValues(array_intersect_key($details, array_flip($this->catalogDetailKeys())));
     }
 
     /**
-     * Keep only the customer details keys that belong to this type.
+     * Keep only the customer details keys that belong to this type, without blank values.
      *
      * @param  array<string, mixed>  $details
      * @return array<string, mixed>
      */
     public function onlyCustomerDetails(array $details): array
     {
-        return array_intersect_key($details, array_flip($this->customerDetailKeys()));
+        return $this->withoutBlankValues(array_intersect_key($details, array_flip($this->customerDetailKeys())));
+    }
+
+    /**
+     * Drop null and empty (or whitespace only) text values; "0" is a value and stays.
+     *
+     * @param  array<string, mixed>  $details
+     * @return array<string, mixed>
+     */
+    private function withoutBlankValues(array $details): array
+    {
+        return array_filter(
+            $details,
+            fn (mixed $value): bool => $value !== null && ! (is_string($value) && trim($value) === ''),
+        );
     }
 
     public function catalogDetailLabel(string $key): string

@@ -82,3 +82,12 @@ it('keeps only the customer details keys of the type', function () {
     expect(ServiceType::Email->onlyCustomerDetails(['domain' => 'logi.com.tr', 'account_count' => '5', 'server' => 'srv1']))
         ->toBe(['domain' => 'logi.com.tr', 'account_count' => '5']);
 });
+
+it('drops blank catalog and customer details but keeps "0"', function () {
+    expect(ServiceType::Hosting->onlyCatalogDetails(['provider' => 'Natro', 'disk_space' => '', 'monthly_traffic' => null, 'sites' => '  ', 'databases' => '0']))
+        ->toBe(['provider' => 'Natro', 'databases' => '0'])
+        ->and(ServiceType::Hosting->onlyCustomerDetails(['domain' => 'logi.com.tr', 'server' => '', 'cpanel_username' => null]))
+        ->toBe(['domain' => 'logi.com.tr'])
+        ->and(ServiceType::Domain->onlyCatalogDetails(['registrar' => '', 'extension' => null]))
+        ->toBe([]);
+});

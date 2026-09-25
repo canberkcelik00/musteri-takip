@@ -29,6 +29,15 @@ it('drops details keys that do not belong to the type', function () {
     expect($catalogService->fresh()->details)->toEqual(['registrar' => 'Nic.tr', 'extension' => '.com.tr']);
 });
 
+it('does not save blank details', function () {
+    $catalogService = CatalogService::factory()->create([
+        'type' => ServiceType::Hosting,
+        'details' => ['provider' => 'Natro', 'disk_space' => '', 'monthly_traffic' => null],
+    ]);
+
+    expect($catalogService->fresh()->details)->toBe(['provider' => 'Natro']);
+});
+
 it('drops the details of the previous type when the type changes', function () {
     $catalogService = CatalogService::factory()->create([
         'type' => ServiceType::Hosting,

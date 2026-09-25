@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * `details` keeps only the keys of the current type (ServiceType::customerDetailKeys());
- * other keys, including those of a previous type, are dropped on save.
+ * other keys, including those of a previous type, and blank values are dropped on save.
  * `license_key` is stored encrypted with the application key.
  *
  * @property ServiceType $type
