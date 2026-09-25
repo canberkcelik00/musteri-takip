@@ -89,7 +89,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
   - Kabul: Geçmiş dönem borcu hiçbir durumda iptal edilmez; dağıtımı olan borç iptal edilmez (testli).
   - Ek: Ücretsiz işareti eklenirken, yaklaşan dönemin ödenmemiş borcunu iptal etme seçeneği sunulur (varsayılan işaretli); dağıtımı olan borca dokunulmaz. İptal akışıyla aynı yardımcıyı kullanır (testli).
   - Not: Aynı dönem için tek borç kuralı iptal edilmiş borçları da kapsar; yeniden aktif etmede iptal edilmiş dönem borcunun nasıl ele alınacağı bu görevin planında kullanıcıya sorulmalı.
-- [ ] **G-3.8 Borçları elle düzenleme** — Bağımlılık: G-3.1
+- [x] **G-3.8 Borçları elle düzenleme** — Bağımlılık: G-3.1
   - Yapılacak: Tutar ve vade değiştirme, borcu ikiye bölme, gerekçeyle iptal, kurala bağlı olmayan elle borç ekleme (bakiye uygulanır).
   - Kabul: Dağıtımı olan borçta tutar değişmez; bölmede toplam korunur; gerekçesiz iptal edilemez (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [ ] **G-3.9 Zamanlayıcı** — Bağımlılık: G-3.5
