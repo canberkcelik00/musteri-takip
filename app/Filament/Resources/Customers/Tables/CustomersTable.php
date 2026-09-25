@@ -6,6 +6,7 @@ use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
 use App\Filament\Actions\ArchiveCustomerAction;
 use App\Filament\Actions\UnarchiveAction;
+use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Customer;
@@ -20,6 +21,7 @@ class CustomersTable
     {
         return $table
             ->defaultSort('short_name')
+            ->recordUrl(fn (Customer $record): string => CustomerResource::getUrl('view', ['record' => $record]))
             ->modifyQueryUsing(fn (Builder $query): Builder => self::withSummaries($query))
             ->columns([
                 TextColumn::make('short_name')

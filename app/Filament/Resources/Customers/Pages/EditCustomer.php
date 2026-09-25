@@ -11,6 +11,14 @@ class EditCustomer extends EditRecord
 {
     protected static string $resource = CustomerResource::class;
 
+    /**
+     * The contacts and the other tables live on the customer card (ViewCustomer).
+     */
+    protected function getAllRelationManagers(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

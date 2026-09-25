@@ -35,6 +35,14 @@ class ContactsRelationManager extends RelationManager
         return __('contacts.plural');
     }
 
+    /**
+     * Filament makes relation managers read-only on view pages; the contacts are managed on the customer card.
+     */
+    public function isReadOnly(): bool
+    {
+        return false;
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema

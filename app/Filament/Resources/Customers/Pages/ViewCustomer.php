@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Filament\Resources\Customers\Pages;
+
+use App\Filament\Actions\ArchiveCustomerAction;
+use App\Filament\Actions\UnarchiveAction;
+use App\Filament\Resources\Customers\CustomerResource;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Livewire;
+
+/**
+ * The customer card. The relation managers (contacts, services, charges, payments) are
+ * stacked under the details instead of being put in tabs, so everything is on one page.
+ */
+class ViewCustomer extends ViewRecord
+{
+    protected static string $resource = CustomerResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            EditAction::make(),
+            ArchiveCustomerAction::make(),
+            UnarchiveAction::make(),
+        ];
+    }
+
+    public function getRelationManagersContentComponent(): Component
+    {
+        $ownerRecord = $this->getRecord();
+
+        return Group::make(
+            collect($this->getCachedRelationManagers())
+                ->map(fn (string $manager): Livewire => Livewire::make($manager, [
+                    'ownerRecord' => $ownerRecord,
+                    'pageClass' => static::class,
+                ])->key($manager))
+                ->all(),
+        );
+    }
+}

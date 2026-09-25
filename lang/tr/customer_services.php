@@ -12,4 +12,12 @@ return [
     'scheduler_advanced' => 'Dönemi ilerletilen hizmet: :count',
     'scheduler_charges_created' => 'Oluşan yenileme borcu: :count',
     'scheduler_failures' => 'Hata veren hizmet: :count (ayrıntılar logda)',
+
+    'plural' => 'Hizmetler',
+    'name' => 'Hizmet',
+    'start_date' => 'Başlangıç',
+    'end_date' => 'Bitiş',
+    'price' => 'Fiyat',
+    'free' => 'Ücretsiz',
+    'status' => 'Durum',
 ];

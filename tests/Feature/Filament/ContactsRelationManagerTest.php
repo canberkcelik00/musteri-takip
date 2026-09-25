@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\Customers\Pages\EditCustomer;
+use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
 use App\Models\Contact;
 use App\Models\Customer;
@@ -23,13 +24,16 @@ function contactsManager(Customer $customer)
 {
     return Livewire::test(ContactsRelationManager::class, [
         'ownerRecord' => $customer,
-        'pageClass' => EditCustomer::class,
+        'pageClass' => ViewCustomer::class,
     ]);
 }
 
-it('is shown on the customer edit page', function () {
-    Livewire::test(EditCustomer::class, ['record' => $this->customer->id])
+it('is shown on the customer card, not on the edit page', function () {
+    Livewire::test(ViewCustomer::class, ['record' => $this->customer->id])
         ->assertSeeLivewire(ContactsRelationManager::class);
+
+    Livewire::test(EditCustomer::class, ['record' => $this->customer->id])
+        ->assertDontSeeLivewire(ContactsRelationManager::class);
 });
 
 it('lists the contacts of the customer only, primary first', function () {

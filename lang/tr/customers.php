@@ -16,4 +16,6 @@ return [
     'active_services_count' => 'Hizmet',
     'open_debt' => 'Açık borç',
     'next_renewal' => 'En yakın yenileme',
+    'balance_section' => 'Bakiye',
+    'credit_balance' => 'Alacak bakiyesi',
 ];

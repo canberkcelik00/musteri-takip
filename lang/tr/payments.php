@@ -7,4 +7,10 @@ return [
     'charge_not_open' => 'Ödeme yalnızca açık borçlara dağıtılabilir.',
     'exceeds_charge_remaining' => 'Bir borca kalan tutarından fazla dağıtılamaz.',
     'exceeds_payment_amount' => 'Dağıtımların toplamı ödeme tutarını aşamaz.',
+
+    'plural' => 'Ödemeler',
+    'paid_on' => 'Tarih',
+    'amount' => 'Tutar',
+    'payment_method' => 'Yöntem',
+    'note' => 'Açıklama',
 ];

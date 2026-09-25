@@ -5,8 +5,13 @@ namespace App\Filament\Resources\Customers;
 use App\Filament\Resources\Customers\Pages\CreateCustomer;
 use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
+use App\Filament\Resources\Customers\Pages\ViewCustomer;
+use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
+use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
+use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
+use App\Filament\Resources\Customers\Schemas\CustomerInfolist;
 use App\Filament\Resources\Customers\Tables\CustomersTable;
 use App\Models\Customer;
 use BackedEnum;
@@ -40,6 +45,11 @@ class CustomerResource extends Resource
         return CustomerForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return CustomerInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return CustomersTable::configure($table);
@@ -49,6 +59,9 @@ class CustomerResource extends Resource
     {
         return [
             ContactsRelationManager::class,
+            CustomerServicesRelationManager::class,
+            ChargesRelationManager::class,
+            PaymentsRelationManager::class,
         ];
     }
 
@@ -57,6 +70,7 @@ class CustomerResource extends Resource
         return [
             'index' => ListCustomers::route('/'),
             'create' => CreateCustomer::route('/create'),
+            'view' => ViewCustomer::route('/{record}'),
             'edit' => EditCustomer::route('/{record}/edit'),
         ];
     }

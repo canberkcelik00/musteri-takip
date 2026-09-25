@@ -122,7 +122,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.3 Müşteri listesi ve formu** — Bağımlılık: G-4.1
   - Yapılacak: Kısa adla arama; listede hizmet sayısı, para birimi başına açık borç ve en yakın yenileme; müşteri formu; ilgili kişiler ve birincil işareti. Müşterinin en az bir ilgili kişisi olmalı; müşteri oluşturma formunda ilk kişi zorunlu.
   - Kabul: Listedeki özet değerler örnek veriyle doğru (testli).
-- [ ] **G-4.4 Müşteri kartı** — Bağımlılık: G-4.3
+- [x] **G-4.4 Müşteri kartı** — Bağımlılık: G-4.3
   - Yapılacak: Tek sayfada ilgili kişiler, müşteri hizmetleri (tarih, fiyat, durum), borçlar (açık, kısmi, gecikmiş), ödemeler ve para birimi başına alacak bakiyesi.
   - Kabul: Logi senaryosundaki durum kartta PRD'deki gibi görünür (testli).
 - [ ] **G-4.5 Hizmet atama** — Bağımlılık: G-4.4, G-4.2
