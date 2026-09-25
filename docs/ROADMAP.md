@@ -75,7 +75,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.3 Hizmet atama ve ilk dönem borcu** — Bağımlılık: G-3.2
   - Yapılacak: Katalog hizmetini veya paketi müşteriye atama: ad, fiyat ve para birimi kopyalanır, pakette her iç hizmet için kalem oluşur, bitiş = başlangıç + 12 ay, ücretsiz değilse ve "Bu dönemin borcu: Oluşturma" seçilmediyse ilk dönem borcu doğar ve bakiye uygulanır.
   - Kabul: Tek hizmet, paket, ücretsiz, değiştirilmiş fiyatla ve "Oluşturma" seçeneğiyle (Excel'den geçiş) atama; katalog fiyatı sonradan değişince müşteri hizmetinin etkilenmemesi (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
-- [ ] **G-3.4 Yenileme borcu** — Bağımlılık: G-3.3
+- [x] **G-3.4 Yenileme borcu** — Bağımlılık: G-3.3
   - Yapılacak: Aktif ve ücretsiz olmayan hizmetlerde bitişe ayarlardaki gün sayısı (30) kaldığında sonraki dönemin borcunu oluşturma; vade = bitiş tarihi.
   - Kabul: Tam sınır günü, sınırı geçmiş ama borcu oluşmamış kayıt (kaçırılan cron), iki kez çalıştırmada tek borç, ücretsiz ve iptal edilmişleri atlama (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [ ] **G-3.5 Dönem ilerletme** — Bağımlılık: G-3.4
@@ -144,6 +144,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [ ] **G-4.10 Silme ve arşiv davranışı** — Bağımlılık: G-4.2…G-4.9
   - Yapılacak: Borcu veya ödemesi olmayan kayıtta "Sil", olanda sadece "Arşivle" görünür; arşiv filtresi ve geri alma.
   - Kabul: Tüm listelerde kural tutarlı (testli).
+  - Not: Aktif hizmeti olan müşterinin Arşivle düğmesi, önce hizmetlerin iptal edilmesi gerektiğini söyler.
 
 **Faz 4 bittiğinde:** Sistem elle kullanılabilir durumda; mevcut müşteriler ve hizmetler girilebilir.
 
