@@ -9,4 +9,7 @@ return [
     'start_date_before_previous_period_end' => 'Yeni başlangıç tarihi önceki dönemin bitişinden önce olamaz.',
     'charge_cancel_reason_service_cancelled' => 'Hizmet iptal edildi.',
     'charge_cancel_reason_marked_free' => 'Hizmet ücretsiz işaretlendi.',
+    'scheduler_advanced' => 'Dönemi ilerletilen hizmet: :count',
+    'scheduler_charges_created' => 'Oluşan yenileme borcu: :count',
+    'scheduler_failures' => 'Hata veren hizmet: :count (ayrıntılar logda)',
 ];

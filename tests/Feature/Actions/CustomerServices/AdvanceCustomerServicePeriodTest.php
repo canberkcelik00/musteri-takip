@@ -8,6 +8,7 @@ use App\Enums\Currency;
 use App\Models\Charge;
 use App\Models\CustomerService;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * An active 4.000 TL service for the period 01.03.2026 – 01.03.2027.
@@ -182,4 +183,28 @@ it('keeps a period starting on 28 February after a leap year', function () {
     advanceDueCustomerServicePeriods();
 
     expect(servicePeriod($customerService))->toBe(['2029-02-28', '2030-02-28']);
+});
+
+it('logs a failing service and still advances the others', function () {
+    $broken = advanceableService(['price' => 0]);
+    $healthy = advanceableService();
+    Log::spy();
+
+    $this->travelTo('2027-03-01 00:00:00');
+
+    $failed = [];
+    $advanced = app(AdvanceDueCustomerServicePeriods::class)->handle(function (CustomerService $customerService) use (&$failed): void {
+        $failed[] = $customerService->id;
+    });
+
+    expect($advanced->pluck('id')->all())->toBe([$healthy->id])
+        ->and($failed)->toBe([$broken->id])
+        ->and(servicePeriod($healthy))->toBe(['2027-03-01', '2028-03-01'])
+        ->and(chargedPeriodStarts($healthy))->toBe(['2027-03-01'])
+        ->and(servicePeriod($broken))->toBe(['2026-03-01', '2027-03-01'])
+        ->and(chargedPeriodStarts($broken))->toBe([]);
+
+    Log::shouldHaveReceived('error')
+        ->once()
+        ->withArgs(fn (string $message, array $context) => $context['customer_service_id'] === $broken->id);
 });

@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\PaymentAllocation;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Carbon;
 
 /**
  * @param  array<string, mixed>  $attributes
@@ -119,4 +120,23 @@ it('has a factory state for a customer service period', function () {
         ->and($charge->due_date->format('d.m.Y'))->toBe('01.03.2026')
         ->and($charge->period_start?->format('d.m.Y'))->toBe('01.03.2026')
         ->and($charge->period_end?->format('d.m.Y'))->toBe('01.03.2027');
+});
+
+it('finds the charges created on a day in Istanbul time', function () {
+    $customerService = CustomerService::factory()->create();
+    $createAt = function (string $now, string $periodStart) use ($customerService): Charge {
+        $this->travelTo(Carbon::parse($now, 'Europe/Istanbul'));
+
+        return createPeriodCharge($customerService, ['period_start' => $periodStart, 'period_end' => '2030-01-01']);
+    };
+
+    $createAt('2027-01-29 23:59:59', '2026-01-01');
+    $first = $createAt('2027-01-30 00:00:00', '2026-02-01');
+    $second = $createAt('2027-01-30 23:59:59', '2026-03-01');
+    $createAt('2027-01-31 00:00:00', '2026-04-01');
+
+    $this->travelTo(Carbon::parse('2027-01-30 12:00', 'Europe/Istanbul'));
+
+    expect(Charge::query()->createdOn(today())->orderBy('id')->pluck('id')->all())
+        ->toBe([$first->id, $second->id]);
 });

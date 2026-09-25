@@ -4,8 +4,11 @@ namespace App\Models;
 
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
+use Carbon\CarbonInterface;
 use Database\Factories\ChargeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $period_start
  * @property Carbon|null $period_end
  * @property Carbon|null $cancelled_at
+ * @property Carbon $created_at
  */
 #[Fillable([
     'customer_service_id',
@@ -135,6 +139,20 @@ class Charge extends Model
         $dueDate = Carbon::parse($this->due_date->toDateString(), config('app.timezone'));
 
         return max(0, (int) $dueDate->diffInDays($today, false));
+    }
+
+    /**
+     * Limit the query to charges created on the given day, counted in the application
+     * time zone (Europe/Istanbul). The daily digest lists these as the day's new charges.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function createdOn(Builder $query, CarbonInterface $date): void
+    {
+        $day = Carbon::instance($date)->setTimezone(config('app.timezone'));
+
+        $query->whereBetween($this->qualifyColumn('created_at'), [$day->copy()->startOfDay(), $day->copy()->endOfDay()]);
     }
 
     /**

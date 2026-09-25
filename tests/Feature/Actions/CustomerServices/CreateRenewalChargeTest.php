@@ -14,6 +14,7 @@ use App\Models\CustomerService;
 use App\Models\PaymentMethod;
 use App\Support\Settings;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * An active 4.000 TL service for the period 01.03.2026 – 01.03.2027.
@@ -208,4 +209,26 @@ it('keeps the charge customer check of CreateCharge for service charges', functi
         'period_start' => '2027-03-01',
         'period_end' => '2028-03-01',
     ]))->toThrow(InvalidCharge::class);
+});
+
+it('logs a failing service and still creates the renewal charges of the others', function () {
+    $broken = renewableService(['price' => 0]);
+    $healthy = renewableService();
+    Log::spy();
+
+    $this->travelTo('2027-01-30 00:00:00');
+
+    $failed = [];
+    $charges = app(CreateDueRenewalCharges::class)->handle(function (CustomerService $customerService) use (&$failed): void {
+        $failed[] = $customerService->id;
+    });
+
+    expect($charges)->toHaveCount(1)
+        ->and($charges->sole()->customer_service_id)->toBe($healthy->id)
+        ->and($failed)->toBe([$broken->id])
+        ->and($broken->charges()->count())->toBe(0);
+
+    Log::shouldHaveReceived('error')
+        ->once()
+        ->withArgs(fn (string $message, array $context) => $context['customer_service_id'] === $broken->id);
 });
