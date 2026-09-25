@@ -158,7 +158,7 @@ Her dönem için bir borç doğar; tutar müşteri hizmetindeki fiyattır. Ödem
 
 **İlk dönem:** Hizmet veya paket müşteriye atandığında (teklif kabulü dahil) ilk yılın borcu doğar.
 
-**Excel'den geçiş:** Atama ekranında "Bu dönemin borcu" seçimi bulunur. Varsayılan "Oluştur"dur; mevcut hizmetler girilirken "Oluşturma" seçilir ve o dönem için borç doğmaz, sonraki yenilemeden itibaren kural normal işler.
+**Excel'den geçiş:** Atama ekranında "Bu dönemin borcu" seçimi bulunur. Varsayılan "Oluştur"dur; mevcut hizmetler girilirken "Oluşturma" seçilir ve o dönem için borç doğmaz, sonraki yenilemeden itibaren kural normal işler. Başlangıç tarihi olarak hizmetin şu anki döneminin başlangıcı girilir; bitişi bugüne veya daha öncesine düşen bir başlangıç tarihiyle atama "Başlangıç tarihi olarak hizmetin şu anki döneminin başlangıcını girin." uyarısıyla reddedilir. Böylece eski bir başlangıç tarihi yüzünden geçmiş dönemlerin borçları oluşmaz.
 
 **Yenileme:** Bitiş tarihinden 30 gün önce yeni dönemin borcu otomatik oluşur; vadesi bitiş tarihidir. 30 gün ayarlardan değiştirilebilir.
 

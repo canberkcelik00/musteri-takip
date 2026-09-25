@@ -51,6 +51,10 @@ function recordCreditBalance(Customer $customer, int $amount, Currency $currency
     ]);
 }
 
+beforeEach(function () {
+    $this->travelTo('2026-03-01');
+});
+
 it('assigns a single catalog service with its first period charge', function () {
     $customer = Customer::factory()->create();
     $catalogService = CatalogService::factory()->ofType(ServiceType::Domain)->create([
@@ -212,6 +216,33 @@ it('rejects a zero price for a service that is not free', function () {
     expect(CustomerService::query()->exists())->toBeFalse()
         ->and(CustomerServiceItem::query()->exists())->toBeFalse()
         ->and(Charge::query()->exists())->toBeFalse();
+});
+
+it('rejects a start date whose period has already ended', function (string $startDate, bool $createFirstCharge) {
+    $customer = Customer::factory()->create();
+    [$package] = corporatePackage();
+
+    $this->travelTo('2026-09-25');
+
+    expect(fn () => assignService($customer, $package, ['start_date' => $startDate, 'create_first_charge' => $createFirstCharge]))
+        ->toThrow(InvalidCustomerService::class, 'Başlangıç tarihi olarak hizmetin şu anki döneminin başlangıcını girin.');
+
+    expect(CustomerService::query()->exists())->toBeFalse()
+        ->and(CustomerServiceItem::query()->exists())->toBeFalse()
+        ->and(Charge::query()->exists())->toBeFalse();
+})->with([
+    'period ends today' => ['2025-09-25', true],
+    'period ended before today' => ['2024-03-01', true],
+    'migrating from Excel' => ['2025-03-01', false],
+]);
+
+it('accepts a start date whose period ends tomorrow', function () {
+    $this->travelTo('2026-09-25');
+
+    $customerService = assignService(Customer::factory()->create(), CatalogService::factory()->create(), ['start_date' => '2025-09-26']);
+
+    expect($customerService->end_date->toDateString())->toBe('2026-09-26')
+        ->and($customerService->charges()->count())->toBe(1);
 });
 
 it('accepts a zero price for a free service', function () {

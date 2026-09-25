@@ -15,4 +15,9 @@ class InvalidCustomerService extends DomainException
     {
         return new self(__('customer_services.item_not_in_sold_service'));
     }
+
+    public static function periodAlreadyEnded(): self
+    {
+        return new self(__('customer_services.period_already_ended'));
+    }
 }

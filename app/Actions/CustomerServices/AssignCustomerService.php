@@ -12,6 +12,7 @@ use App\Models\CustomerService;
 use App\Models\Package;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +25,8 @@ class AssignCustomerService
      * copied from the catalog unless given; one item is created per sold catalog service,
      * with the customer's details keyed by catalog service id. Unless the service is free
      * or the first charge is skipped (migration from Excel), the first period's charge is
-     * created, which also applies the customer's credit balance.
+     * created, which also applies the customer's credit balance. A start date whose period
+     * has already ended is rejected, so no past period charges are ever created.
      *
      * @param  array{start_date: CarbonInterface|string, price?: int, currency?: Currency, is_free?: bool, create_first_charge?: bool, notes?: ?string, items?: array<int, array{details?: array<string, mixed>|null, license_key?: string|null}>}  $attributes
      */
@@ -37,6 +39,14 @@ class AssignCustomerService
             throw InvalidCustomerService::priceNotPositive();
         }
 
+        $periodMonths = 12;
+        $startDate = CarbonImmutable::parse($attributes['start_date']);
+        $endDate = $startDate->addMonthsNoOverflow($periodMonths);
+
+        if ($endDate->toDateString() <= Carbon::today(config('app.timezone'))->toDateString()) {
+            throw InvalidCustomerService::periodAlreadyEnded();
+        }
+
         $catalogServices = $sold instanceof Package
             ? $sold->catalogServices()->orderBy('catalog_services.id')->get()
             : collect([$sold]);
@@ -47,10 +57,7 @@ class AssignCustomerService
             throw InvalidCustomerService::itemNotInSoldService();
         }
 
-        return DB::transaction(function () use ($customer, $sold, $attributes, $price, $isFree, $catalogServices, $itemDetails): CustomerService {
-            $startDate = CarbonImmutable::parse($attributes['start_date']);
-            $periodMonths = 12;
-
+        return DB::transaction(function () use ($customer, $sold, $attributes, $price, $isFree, $periodMonths, $startDate, $endDate, $catalogServices, $itemDetails): CustomerService {
             $customerService = $customer->customerServices()->create([
                 'catalog_service_id' => $sold instanceof CatalogService ? $sold->id : null,
                 'package_id' => $sold instanceof Package ? $sold->id : null,
@@ -59,7 +66,7 @@ class AssignCustomerService
                 'currency' => $attributes['currency'] ?? $sold->currency,
                 'period_months' => $periodMonths,
                 'start_date' => $startDate->toDateString(),
-                'end_date' => $startDate->addMonthsNoOverflow($periodMonths)->toDateString(),
+                'end_date' => $endDate->toDateString(),
                 'is_free' => $isFree,
                 'notes' => $attributes['notes'] ?? null,
             ]);

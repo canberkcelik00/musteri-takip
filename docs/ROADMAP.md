@@ -78,7 +78,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.4 Yenileme borcu** — Bağımlılık: G-3.3
   - Yapılacak: Aktif ve ücretsiz olmayan hizmetlerde bitişe ayarlardaki gün sayısı (30) kaldığında sonraki dönemin borcunu oluşturma; vade = bitiş tarihi.
   - Kabul: Tam sınır günü, sınırı geçmiş ama borcu oluşmamış kayıt (kaçırılan cron), iki kez çalıştırmada tek borç, ücretsiz ve iptal edilmişleri atlama (testli). Hizmete bağlı borç oluşturulurken borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
-- [ ] **G-3.5 Dönem ilerletme** — Bağımlılık: G-3.4
+- [x] **G-3.5 Dönem ilerletme** — Bağımlılık: G-3.4
   - Yapılacak: Bitiş tarihi gelen aktif hizmetlerin (ücretsizler dahil) tarihlerini bir dönem ilerletme.
   - Kabul: Ödeme durumundan bağımsız ilerler; iptal edilmişler ilerlemez; iki kez çalıştırmada tek ilerleme (testli).
 - [ ] **G-3.6 Ücretsiz işaretinin kaldırılması** — Bağımlılık: G-3.4
