@@ -95,7 +95,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
 - [x] **G-3.9 Zamanlayıcı** — Bağımlılık: G-3.5
   - Yapılacak: Yenileme borcu ve dönem ilerletme `routes/console.php` içinde her 15 dakikada "henüz yapılmadıysa yap" mantığıyla çalışır; o gün oluşan borçlar günlük özet için izlenebilir.
   - Kabul: Üst üste çalışmada yinelenen kayıt oluşmaz; günler boyunca atlanan cron sonrası ilk çalışma eksikleri tamamlar (testli).
-- [ ] **G-3.10 Uçtan uca senaryo** — Bağımlılık: G-3.1…G-3.9
+- [x] **G-3.10 Uçtan uca senaryo** — Bağımlılık: G-3.1…G-3.9
   - Yapılacak: Aşağıdaki Logi senaryosunun (atama, fazla ödeme, 30 gün kala yenileme, bakiyenin düşmesi, dönem ilerlemesi, iptal) tek bir testte zaman ilerletilerek doğrulanması.
   - Kabul: Senaryodaki her adımın tutarları ve tarihleri birebir aynı. Ayrıca örnek veri (SampleDataSeeder) hizmet atama, borç ve ödeme dağıtımı için doğrudan veritabanına yazmak yerine Faz 3 Action'larını kullanacak şekilde yeniden düzenlenir; DatabaseSeederTest yeşil kalır.
 
@@ -175,6 +175,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
 - [ ] **G-5.6 Zamanlayıcı sağlık kontrolü** — Bağımlılık: G-5.4
   - Yapılacak: Zamanlayıcının son çalışma zamanı kaydedilir; 1 saatten uzun süredir çalışmadıysa panelde uyarı görünür.
   - Kabul: Süre aşılınca uyarı görünür, çalışınca kaybolur (testli).
+  - Not: Son çalışmada hata veren hizmet varsa (G-3.9'daki hata yalıtımı) panelde bu da uyarı olarak gösterilir.
 - [ ] **G-5.7 MVP son kontrol** — Bağımlılık: G-5.1…G-5.6
   - Yapılacak: Ana akışların ekran üzerinden uçtan uca testi (müşteri ekle → hizmet ata → ödeme al → yenileme → iptal); birkaç yüz müşterilik örnek veriyle listelerin hız kontrolü; tüm dokümanların güncelliği.
   - Kabul: Tüm testler yeşil; ROADMAP ve DECISIONS güncel.

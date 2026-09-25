@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
@@ -125,6 +126,7 @@ it('seeds the Logi scenario with the credit applied to the renewal charge', func
         ->and($renewalCharge->amount)->toBe(Money::parseAmount('4.000'))
         ->and($renewalCharge->due_date->toDateString())->toBe($service->end_date->toDateString())
         ->and($renewalCharge->allocatedAmount())->toBe(Money::parseAmount('1.000'))
+        ->and($renewalCharge->allocations()->sole()->source)->toBe(AllocationSource::CreditBalance)
         ->and($renewalCharge->remainingAmount())->toBe(Money::parseAmount('3.000'))
         ->and($customer->payments()->sole()->amount)->toBe(Money::parseAmount('5.000'))
         ->and($customer->creditBalances())->toBe([]);

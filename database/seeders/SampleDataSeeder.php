@@ -2,10 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Charges\CancelCharge;
+use App\Actions\Charges\CreateManualCharge;
 use App\Actions\Contacts\CreateContact;
-use App\Enums\ChargeStatus;
+use App\Actions\Customers\ArchiveCustomer;
+use App\Actions\CustomerServices\AdvanceCustomerServicePeriod;
+use App\Actions\CustomerServices\AssignCustomerService;
+use App\Actions\CustomerServices\CancelCustomerService;
+use App\Actions\CustomerServices\CreateRenewalCharge;
+use App\Actions\Payments\RecordPayment;
 use App\Enums\Currency;
-use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Models\CatalogService;
 use App\Models\Charge;
@@ -16,19 +22,23 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 /**
  * Realistic Turkish sample data for local use. All dates are relative to today, so
  * paid, partially paid, overdue and upcoming charges stay so whenever it is run.
  *
- * The payment and assignment Actions do not exist yet (Phase 3), so records are
- * built directly and kept consistent by hand: a paid charge is fully allocated,
- * allocations stay within the payment's customer and currency, and a surplus is
- * left as credit only when no open charge of that currency could take it.
+ * Services, charges and payments are created by the Phase 3 Actions, each at the date
+ * it happened: the clock is set to that date for the call and set back afterwards, so
+ * the data follows the same rules as the application (first period charge, allocation,
+ * credit balance, renewal). The clock the seeder was started with is restored at the end.
  */
 class SampleDataSeeder extends Seeder
 {
+    private CarbonImmutable $now;
+
     private CarbonImmutable $today;
 
     /** @var array<string, CatalogService> */
@@ -37,24 +47,43 @@ class SampleDataSeeder extends Seeder
     /** @var array<string, Package> */
     private array $packages = [];
 
-    public function __construct(private CreateContact $createContact) {}
+    public function __construct(
+        private CreateContact $createContact,
+        private AssignCustomerService $assignCustomerService,
+        private RecordPayment $recordPayment,
+        private CreateRenewalCharge $createRenewalCharge,
+        private AdvanceCustomerServicePeriod $advanceCustomerServicePeriod,
+        private CreateManualCharge $createManualCharge,
+        private CancelCustomerService $cancelCustomerService,
+        private CancelCharge $cancelCharge,
+        private ArchiveCustomer $archiveCustomer,
+    ) {}
 
     public function run(): void
     {
-        $this->today = CarbonImmutable::today(config('app.timezone'));
+        $previousTestNow = Carbon::getTestNow();
 
-        $this->seedCatalog();
-        $this->seedPackages();
+        $this->now = CarbonImmutable::now(config('app.timezone'));
+        $this->today = $this->now->startOfDay();
 
-        $this->seedLogi();
-        $this->seedYildizMobilya();
-        $this->seedAydinHukuk();
-        $this->seedDenizLojistik();
-        $this->seedEgeYazilim();
-        $this->seedKaradenizDernek();
-        $this->seedAnadoluGida();
-        $this->seedKayaMatbaa();
-        $this->seedGunesTekstil();
+        try {
+            Carbon::setTestNow($this->now);
+
+            $this->seedCatalog();
+            $this->seedPackages();
+
+            $this->seedLogi();
+            $this->seedYildizMobilya();
+            $this->seedAydinHukuk();
+            $this->seedDenizLojistik();
+            $this->seedEgeYazilim();
+            $this->seedKaradenizDernek();
+            $this->seedAnadoluGida();
+            $this->seedKayaMatbaa();
+            $this->seedGunesTekstil();
+        } finally {
+            Carbon::setTestNow($previousTestNow);
+        }
     }
 
     private function seedCatalog(): void
@@ -103,8 +132,8 @@ class SampleDataSeeder extends Seeder
     }
 
     /**
-     * The PRD scenario: renewal charge created, the 1.000 TL surplus of the previous
-     * payment applied to it, 3.000 TL still open.
+     * The PRD scenario: 5.000 TL paid for the 4.000 TL first charge, then the renewal
+     * charge created with the 1.000 TL credit applied to it, 3.000 TL still open.
      */
     private function seedLogi(): void
     {
@@ -113,19 +142,17 @@ class SampleDataSeeder extends Seeder
             ['name' => 'Elif Şahin', 'title' => 'Muhasebe', 'phone' => '0216 555 12 34', 'email' => 'muhasebe.logi@example.com'],
         ]);
 
-        $service = $this->assign($customer, $this->packages['corporate'], $this->endingIn(20), [
+        $start = $this->endingIn(20);
+
+        $service = $this->assign($customer, $this->packages['corporate'], $start, [
             ServiceType::Hosting->value => ['domain' => 'logi.com.tr', 'server' => 'srv14.natro.com', 'cpanel_username' => 'logicomt'],
             ServiceType::Domain->value => ['domain' => 'logi.com.tr'],
             ServiceType::Maintenance->value => ['domain' => 'logi.com.tr'],
         ]);
 
-        $currentCharge = $this->periodCharge($service, $service->start_date->toImmutable(), ChargeStatus::Paid);
-        $renewalCharge = $this->periodCharge($service, $service->end_date->toImmutable());
+        $this->payment($customer, '5.000', Currency::Try, $start->addDays(3), 'Havale/EFT');
 
-        $this->payment($customer, '5.000', Currency::Try, $service->start_date->toImmutable()->addDays(3), 'Havale/EFT', [
-            [$currentCharge, '4.000'],
-            [$renewalCharge, '1.000'],
-        ]);
+        $this->createRenewalCharge->handle($service);
     }
 
     private function seedYildizMobilya(): void
@@ -134,28 +161,28 @@ class SampleDataSeeder extends Seeder
             ['name' => 'Hasan Yıldız', 'title' => 'Genel Müdür', 'phone' => '0533 280 44 12', 'email' => 'hasan.yildiz@example.com'],
         ]);
 
-        $package = $this->assign($customer, $this->packages['professional'], $this->endingIn(15), [
+        $start = $this->endingIn(15);
+        $previousStart = $start->subMonthsNoOverflow(12);
+
+        $package = $this->assign($customer, $this->packages['professional'], $previousStart, [
             ServiceType::Hosting->value => ['domain' => 'yildizmobilya.com.tr', 'server' => 'srv08.natro.com', 'cpanel_username' => 'yildizmo'],
             ServiceType::Domain->value => ['domain' => 'yildizmobilya.com.tr'],
             ServiceType::Ssl->value => ['domain' => 'yildizmobilya.com.tr'],
             ServiceType::Email->value => ['domain' => 'yildizmobilya.com.tr', 'account_count' => '12'],
         ]);
 
-        $start = $package->start_date->toImmutable();
-        $previousStart = $start->subMonthsNoOverflow($package->period_months);
+        $this->payment($customer, '9.500', Currency::Try, $previousStart->addDays(5), 'Havale/EFT');
 
-        $previousCharge = $this->periodCharge($package, $previousStart, ChargeStatus::Paid);
-        $currentCharge = $this->periodCharge($package, $start, ChargeStatus::Paid);
-        $this->periodCharge($package, $package->end_date->toImmutable());
+        $this->at($start, fn () => $this->advanceCustomerServicePeriod->handle($package));
+        $this->payment($customer, '9.500', Currency::Try, $start->addDays(2), 'Havale/EFT');
 
-        $this->payment($customer, '9.500', Currency::Try, $previousStart->addDays(5), 'Havale/EFT', [[$previousCharge, '9.500']]);
-        $this->payment($customer, '9.500', Currency::Try, $start->addDays(2), 'Havale/EFT', [[$currentCharge, '9.500']]);
-
-        $maintenance = $this->assign($customer, $this->catalog['maintenance'], $this->today->subMonthsNoOverflow(4), [
+        $maintenanceStart = $this->today->subMonthsNoOverflow(4);
+        $this->assign($customer, $this->catalog['maintenance'], $maintenanceStart, [
             ServiceType::Maintenance->value => ['domain' => 'yildizmobilya.com.tr'],
         ]);
-        $maintenanceCharge = $this->periodCharge($maintenance, $maintenance->start_date->toImmutable(), ChargeStatus::Paid);
-        $this->payment($customer, '12.000', Currency::Try, $maintenance->start_date->toImmutable()->addDays(10), 'Kredi Kartı', [[$maintenanceCharge, '12.000']]);
+        $this->payment($customer, '12.000', Currency::Try, $maintenanceStart->addDays(10), 'Kredi Kartı');
+
+        $this->createRenewalCharge->handle($package);
     }
 
     private function seedAydinHukuk(): void
@@ -164,13 +191,14 @@ class SampleDataSeeder extends Seeder
             ['name' => 'Av. Zeynep Aydın', 'title' => 'Kurucu Ortak', 'phone' => '0312 419 22 30', 'email' => 'zeynep.aydin@example.com'],
         ]);
 
-        $service = $this->assign($customer, $this->packages['starter'], $this->today->subMonthsNoOverflow(2), [
+        $start = $this->today->subMonthsNoOverflow(2);
+
+        $this->assign($customer, $this->packages['starter'], $start, [
             ServiceType::Hosting->value => ['domain' => 'aydinhukuk.com.tr', 'server' => 'srv11.natro.com', 'cpanel_username' => 'aydinhuk'],
             ServiceType::Domain->value => ['domain' => 'aydinhukuk.com.tr'],
         ]);
-        $charge = $this->periodCharge($service, $service->start_date->toImmutable());
 
-        $this->payment($customer, '1.500', Currency::Try, $service->start_date->toImmutable()->addDays(7), 'Nakit', [[$charge, '1.500']]);
+        $this->payment($customer, '1.500', Currency::Try, $start->addDays(7), 'Nakit');
     }
 
     private function seedDenizLojistik(): void
@@ -181,17 +209,14 @@ class SampleDataSeeder extends Seeder
 
         $start = $this->today->subMonthsNoOverflow(3);
 
-        $hosting = $this->assign($customer, $this->catalog['hosting_business'], $start, [
+        $this->assign($customer, $this->catalog['hosting_business'], $start, [
             ServiceType::Hosting->value => ['domain' => 'denizlojistik.com.tr', 'server' => 'srv03.natro.com', 'cpanel_username' => 'denizloj'],
         ]);
-        $domain = $this->assign($customer, $this->catalog['domain_com_tr'], $start, [
+        $this->assign($customer, $this->catalog['domain_com_tr'], $start, [
             ServiceType::Domain->value => ['domain' => 'denizlojistik.com.tr'],
         ]);
 
-        $this->periodCharge($hosting, $start);
-        $this->periodCharge($domain, $start);
-
-        $customer->charges()->create([
+        $this->createManualCharge->handle($customer, [
             'description' => 'E-posta taşıma hizmeti',
             'amount' => Money::parseAmount('1.500'),
             'currency' => Currency::Try,
@@ -209,23 +234,21 @@ class SampleDataSeeder extends Seeder
             ['name' => 'Can Öztürk', 'title' => 'Kurucu', 'phone' => '0535 610 90 21', 'email' => 'can.ozturk@example.com'],
         ]);
 
-        $domain = $this->assign($customer, $this->catalog['domain_com'], $this->today->subMonthsNoOverflow(6), [
+        $domainStart = $this->today->subMonthsNoOverflow(6);
+        $this->assign($customer, $this->catalog['domain_com'], $domainStart, [
             ServiceType::Domain->value => ['domain' => 'egeyazilim.com'],
         ]);
-        $domainCharge = $this->periodCharge($domain, $domain->start_date->toImmutable(), ChargeStatus::Paid);
-        $this->payment($customer, '15', Currency::Usd, $domain->start_date->toImmutable(), 'Kredi Kartı', [[$domainCharge, '15']]);
+        $this->payment($customer, '15', Currency::Usd, $domainStart, 'Kredi Kartı');
 
-        $license = $this->assign($customer, $this->catalog['theme_license'], $this->today->subMonthsNoOverflow(1), [
+        $licenseStart = $this->today->subMonthsNoOverflow(1);
+        $this->assign($customer, $this->catalog['theme_license'], $licenseStart, [
             ServiceType::License->value => ['quantity' => '1'],
-        ]);
-        $license->items()->firstOrFail()->update(['license_key' => 'ASTRA-7F3K9-2QX8M-PL45T']);
-        $licenseCharge = $this->periodCharge($license, $license->start_date->toImmutable(), ChargeStatus::Paid);
-        $this->payment($customer, '80', Currency::Usd, $license->start_date->toImmutable()->addDays(1), 'Havale/EFT', [[$licenseCharge, '59']]);
+        ], licenseKey: 'ASTRA-7F3K9-2QX8M-PL45T');
+        $this->payment($customer, '80', Currency::Usd, $licenseStart->addDays(1), 'Havale/EFT');
 
-        $hosting = $this->assign($customer, $this->catalog['hosting_starter'], $this->today->subDays(5), [
+        $this->assign($customer, $this->catalog['hosting_starter'], $this->today->subDays(5), [
             ServiceType::Hosting->value => ['domain' => 'egeyazilim.com', 'server' => 'srv11.natro.com', 'cpanel_username' => 'egeyazil'],
         ]);
-        $this->periodCharge($hosting, $hosting->start_date->toImmutable());
     }
 
     private function seedKaradenizDernek(): void
@@ -239,34 +262,31 @@ class SampleDataSeeder extends Seeder
         ], ['is_free' => true, 'notes' => 'Dernek desteği olarak ücretsiz.']);
     }
 
+    /**
+     * A service cancelled after its period started: its charge is cancelled by hand,
+     * since cancelling the service keeps the charge of a period that has started.
+     */
     private function seedAnadoluGida(): void
     {
         $customer = $this->customer('Anadolu Gıda', 'Anadolu Gıda Pazarlama A.Ş.', 'Selçuklu', '0780654321', 'Sanayi Mah. Ankara Yolu No: 220, Selçuklu / Konya', [
             ['name' => 'Mehmet Arslan', 'title' => 'Satın Alma', 'phone' => '0332 248 60 10', 'email' => 'mehmet.arslan@example.com'],
         ]);
 
-        $email = $this->assign($customer, $this->catalog['email'], $this->today->subMonthsNoOverflow(10), [
+        $this->assign($customer, $this->catalog['email'], $this->today->subMonthsNoOverflow(10), [
             ServiceType::Email->value => ['domain' => 'anadolugida.com.tr', 'account_count' => '8'],
         ]);
-        $emailCharge = $this->periodCharge($email, $email->start_date->toImmutable(), ChargeStatus::Paid);
 
         $sslStart = $this->today->subMonthsNoOverflow(1);
-        $sslCancelledOn = $sslStart->addDays(10);
         $ssl = $this->assign($customer, $this->catalog['ssl'], $sslStart, [
             ServiceType::Ssl->value => ['domain' => 'anadolugida.com.tr'],
-        ], [
-            'status' => CustomerServiceStatus::Cancelled,
-            'cancelled_on' => $sslCancelledOn->toDateString(),
-            'cancel_note' => 'Müşteri SSL sertifikasını kendisi aldı.',
-        ]);
-        $sslCharge = $this->periodCharge($ssl, $sslStart);
-        $sslCharge->update([
-            'status' => ChargeStatus::Cancelled,
-            'cancelled_at' => $sslCancelledOn,
-            'cancel_reason' => 'Hizmet iptal edildi.',
         ]);
 
-        $this->payment($customer, '3.500', Currency::Try, $this->today->subDays(10), 'Havale/EFT', [[$emailCharge, '3.000']], 'Fazla gönderildi, bakiyede kalacak.');
+        $this->at($sslStart->addDays(10), function () use ($ssl): void {
+            $this->cancelCustomerService->handle($ssl, cancelNote: 'Müşteri SSL sertifikasını kendisi aldı.');
+            $this->cancelCharge->handle($this->periodCharge($ssl), __('customer_services.charge_cancel_reason_service_cancelled'));
+        });
+
+        $this->payment($customer, '3.500', Currency::Try, $this->today->subDays(10), 'Havale/EFT', 'Fazla gönderildi, bakiyede kalacak.');
     }
 
     private function seedKayaMatbaa(): void
@@ -275,12 +295,14 @@ class SampleDataSeeder extends Seeder
             ['name' => 'Selim Kaya', 'title' => null, 'phone' => '0505 390 11 76', 'email' => 'selim.kaya@example.com'],
         ]);
 
-        $service = $this->assign($customer, $this->catalog['domain_com_tr'], $this->today, [
+        $this->assign($customer, $this->catalog['domain_com_tr'], $this->today, [
             ServiceType::Domain->value => ['domain' => 'kayamatbaa.com.tr'],
         ]);
-        $this->periodCharge($service, $this->today);
     }
 
+    /**
+     * A customer whose only service was cancelled before its renewal window, then archived.
+     */
     private function seedGunesTekstil(): void
     {
         $customer = $this->customer('Güneş Tekstil', 'Güneş Tekstil Konfeksiyon Ltd. Şti.', 'Merkezefendi', '4150098765', 'Sümer Mah. 2480 Sok. No: 4, Merkezefendi / Denizli', [
@@ -291,15 +313,14 @@ class SampleDataSeeder extends Seeder
         $service = $this->assign($customer, $this->catalog['hosting_legacy'], $start, [
             ServiceType::Hosting->value => ['domain' => 'gunestekstil.com.tr', 'server' => 'srv02.natro.com', 'cpanel_username' => 'gunestks'],
         ]);
-        $charge = $this->periodCharge($service, $start, ChargeStatus::Paid);
-        $this->payment($customer, '900', Currency::Try, $start->addDays(4), 'Nakit', [[$charge, '900']]);
+        $this->payment($customer, '900', Currency::Try, $start->addDays(4), 'Nakit');
 
-        $service->update([
-            'status' => CustomerServiceStatus::Cancelled,
-            'cancelled_on' => $service->end_date->toDateString(),
-            'cancel_note' => 'Firma faaliyetini durdurdu.',
-        ]);
-        $customer->archive();
+        $this->at(
+            $service->end_date->toImmutable()->subDays(45),
+            fn () => $this->cancelCustomerService->handle($service, cancelNote: 'Firma faaliyetini durdurdu.'),
+        );
+
+        $this->archiveCustomer->handle($customer);
     }
 
     /**
@@ -353,82 +374,74 @@ class SampleDataSeeder extends Seeder
     }
 
     /**
-     * Sell a catalog service or package as on assignment: name, price and currency are
-     * copied, and there is one item per catalog service with its customer details.
+     * Assign a catalog service or package on its start date, with the customer's details
+     * of each sold catalog service; the first period charge is created unless it is free.
      *
      * @param  array<string, array<string, string>>  $detailsByType  keyed by ServiceType value
-     * @param  array<string, mixed>  $attributes
+     * @param  array{is_free?: bool, notes?: ?string}  $attributes
      */
-    private function assign(Customer $customer, CatalogService|Package $sold, CarbonImmutable $start, array $detailsByType, array $attributes = []): CustomerService
+    private function assign(Customer $customer, CatalogService|Package $sold, CarbonImmutable $start, array $detailsByType, array $attributes = [], ?string $licenseKey = null): CustomerService
     {
-        $service = $customer->customerServices()->create([
-            'catalog_service_id' => $sold instanceof CatalogService ? $sold->id : null,
-            'package_id' => $sold instanceof Package ? $sold->id : null,
-            'name' => $sold->name,
-            'price' => $sold->price,
-            'currency' => $sold->currency,
-            'start_date' => $start->toDateString(),
-            'end_date' => $start->addMonthsNoOverflow(12)->toDateString(),
-            ...$attributes,
-        ]);
-
         $catalogServices = $sold instanceof Package ? $sold->catalogServices : collect([$sold]);
 
+        $items = [];
+
         foreach ($catalogServices as $catalogService) {
-            $service->items()->create([
-                'catalog_service_id' => $catalogService->id,
-                'type' => $catalogService->type,
-                'name' => $catalogService->name,
+            $items[$catalogService->id] = [
                 'details' => $detailsByType[$catalogService->type->value] ?? [],
-            ]);
+                'license_key' => $licenseKey,
+            ];
         }
 
-        return $service;
+        return $this->at($start, fn (): CustomerService => $this->assignCustomerService->handle($customer, $sold, [
+            'start_date' => $start->toDateString(),
+            'items' => $items,
+            ...$attributes,
+        ]));
     }
 
     /**
-     * The charge of the service's period starting on the given date, due on that date.
+     * Record the payment on the day it was paid; it is allocated automatically and any
+     * surplus stays as credit balance.
      */
-    private function periodCharge(CustomerService $service, CarbonImmutable $periodStart, ChargeStatus $status = ChargeStatus::Open): Charge
+    private function payment(Customer $customer, string $amount, Currency $currency, CarbonImmutable $paidOn, string $method, ?string $note = null): Payment
     {
-        $periodEnd = $periodStart->addMonthsNoOverflow($service->period_months);
-
-        /** @var Customer $customer */
-        $customer = $service->customer;
-
-        return $customer->charges()->create([
-            'customer_service_id' => $service->id,
-            'description' => $service->name.' '.$periodStart->format('Y').'–'.$periodEnd->format('Y'),
-            'amount' => $service->price,
-            'currency' => $service->currency,
-            'due_date' => $periodStart->toDateString(),
-            'period_start' => $periodStart->toDateString(),
-            'period_end' => $periodEnd->toDateString(),
-            'status' => $status,
-        ]);
-    }
-
-    /**
-     * @param  list<array{0: Charge, 1: string}>  $allocations  charge and allocated amount
-     */
-    private function payment(Customer $customer, string $amount, Currency $currency, CarbonImmutable $paidOn, string $method, array $allocations, ?string $note = null): Payment
-    {
-        $payment = $customer->payments()->create([
+        return $this->at($paidOn, fn (): Payment => $this->recordPayment->handle($customer, [
             'amount' => Money::parseAmount($amount),
             'currency' => $currency,
             'paid_on' => $paidOn->toDateString(),
             'payment_method_id' => PaymentMethod::query()->where('name', $method)->firstOrFail()->id,
             'note' => $note,
-        ]);
+        ]));
+    }
 
-        foreach ($allocations as [$charge, $allocated]) {
-            $payment->allocations()->create([
-                'charge_id' => $charge->id,
-                'amount' => Money::parseAmount($allocated),
-            ]);
+    /**
+     * The charge of the customer service's current period.
+     */
+    private function periodCharge(CustomerService $customerService): Charge
+    {
+        return $customerService->charges()
+            ->whereDate('period_start', $customerService->refresh()->start_date->toDateString())
+            ->sole();
+    }
+
+    /**
+     * Run the callback with the clock set to the given date, then set it back to now.
+     *
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $callback
+     * @return TResult
+     */
+    private function at(CarbonImmutable $date, Closure $callback): mixed
+    {
+        Carbon::setTestNow($date);
+
+        try {
+            return $callback();
+        } finally {
+            Carbon::setTestNow($this->now);
         }
-
-        return $payment;
     }
 
     /**
