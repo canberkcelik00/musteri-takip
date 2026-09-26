@@ -7,6 +7,24 @@ it('has the default payment methods in order', function () {
         ->toBe(['Havale/EFT', 'Nakit', 'Kredi Kartı']);
 });
 
+it('puts a new method without a sort order at the end of the list', function () {
+    $new = PaymentMethod::create(['name' => 'Çek']);
+
+    expect($new->refresh()->sort_order)->toBe(4);
+});
+
+it('keeps a given sort order', function () {
+    $new = PaymentMethod::create(['name' => 'Çek', 'sort_order' => 0]);
+
+    expect($new->refresh()->sort_order)->toBe(0);
+});
+
+it('starts the sort order at 1 when there is no method yet', function () {
+    PaymentMethod::query()->delete();
+
+    expect(PaymentMethod::create(['name' => 'Çek'])->refresh()->sort_order)->toBe(1);
+});
+
 it('lists archived and not archived payment methods separately', function () {
     PaymentMethod::query()->delete();
     $active = PaymentMethod::factory()->create();
