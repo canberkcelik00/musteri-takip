@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Customers\Pages;
 
 use App\Filament\Actions\ArchiveCustomerAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Resources\Customers\CustomerResource;
 use Filament\Actions\EditAction;
@@ -10,6 +11,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Livewire;
+use Livewire\Attributes\On;
 
 /**
  * The customer card. The relation managers (contacts, services, charges, payments) are
@@ -26,6 +28,16 @@ class ViewCustomer extends ViewRecord
             ArchiveCustomerAction::make(),
             UnarchiveAction::make(),
         ];
+    }
+
+    /**
+     * Recording or deleting a payment changes the open debt and credit balance shown above the
+     * tables; they are computed from the record, so a fresh record is enough.
+     */
+    #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
+    public function refreshAfterPaymentChange(): void
+    {
+        $this->record->refresh();
     }
 
     public function getRelationManagersContentComponent(): Component

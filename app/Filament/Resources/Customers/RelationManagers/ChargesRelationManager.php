@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Enums\ChargeStatus;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -11,6 +12,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Attributes\On;
 
 /**
  * The customer's charges, newest due date first; only the open ones by default. The remaining
@@ -30,6 +32,13 @@ class ChargesRelationManager extends RelationManager
     {
         return true;
     }
+
+    /**
+     * Recording or deleting a payment changes the charges' remaining amounts; the empty
+     * method is enough, the component renders again when the event arrives.
+     */
+    #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
+    public function refreshAfterPaymentChange(): void {}
 
     public function table(Table $table): Table
     {

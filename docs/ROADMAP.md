@@ -135,7 +135,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Not: Ücretsiz işareti ekleme ve kaldırma, G-3.6 ve G-3.7 Action'ları üzerinden yapılır.
   - Not: Kalem türü düzenleme ekranında değiştirilemez; tür satış anında katalogdan kopyalanır.
   - Not: Arşivli müşterinin hizmetinde Yeniden aktif et düğmesi, önce müşterinin arşivden çıkarılması gerektiğini söyler.
-- [ ] **G-4.7 Ödeme kaydı** — Bağımlılık: G-4.4
+- [x] **G-4.7 Ödeme kaydı** — Bağımlılık: G-4.4
   - Yapılacak: İki alanlı form (müşteri, tutar); tarih bugün, yöntem son kullanılan, para birimi açık borçtan gelir; dağıtım önizlemesi isteğe bağlı açılır ve değiştirilebilir; sonuç mesajı ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"); onaylı silme.
   - Kabul: Varsayılanlar ve sonuç mesajı doğru (testli).
 - [ ] **G-4.8 Borç ekranları** — Bağımlılık: G-4.4

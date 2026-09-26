@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\Customers\RelationManagers;
 
+use App\Filament\Actions\DeletePaymentAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Tables\Columns\MoneyColumn;
+use App\Models\Customer;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -10,7 +13,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The customer's payments, newest first. Read-only; recording and deleting payments comes with G-4.7.
+ * The customer's payments, newest first. "Ödeme kaydet" records a payment for the customer and
+ * the row action deletes one; both only call the Actions in app/Actions/Payments.
  */
 class PaymentsRelationManager extends RelationManager
 {
@@ -21,13 +25,19 @@ class PaymentsRelationManager extends RelationManager
         return __('payments.plural');
     }
 
+    /**
+     * Filament makes relation managers read-only on view pages; the record and delete actions live on the customer card.
+     */
     public function isReadOnly(): bool
     {
-        return true;
+        return false;
     }
 
     public function table(Table $table): Table
     {
+        $customer = $this->getOwnerRecord();
+        assert($customer instanceof Customer);
+
         return $table
             ->recordTitleAttribute('id')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
@@ -46,6 +56,12 @@ class PaymentsRelationManager extends RelationManager
                 TextColumn::make('note')
                     ->label(__('payments.note'))
                     ->placeholder(__('money.empty')),
+            ])
+            ->headerActions([
+                RecordPaymentAction::make()->customer($customer),
+            ])
+            ->recordActions([
+                DeletePaymentAction::make(),
             ]);
     }
 }
