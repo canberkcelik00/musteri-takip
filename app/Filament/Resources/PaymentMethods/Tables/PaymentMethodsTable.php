@@ -2,19 +2,23 @@
 
 namespace App\Filament\Resources\PaymentMethods\Tables;
 
+use App\Actions\PaymentMethods\DeletePaymentMethod;
 use App\Filament\Actions\ArchivePaymentMethodAction;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\PaymentMethod;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PaymentMethodsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->scopes(['withInUse']))
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->paginated(false)
@@ -34,6 +38,7 @@ class PaymentMethodsTable
                 EditAction::make(),
                 ArchivePaymentMethodAction::make(),
                 UnarchiveAction::make(),
+                DeleteRecordAction::make()->deleteWith(DeletePaymentMethod::class),
             ]);
     }
 }

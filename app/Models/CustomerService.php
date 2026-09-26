@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
+use App\Models\Concerns\TracksUsage;
 use Database\Factories\CustomerServiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,7 +43,7 @@ use Illuminate\Support\Carbon;
 class CustomerService extends Model
 {
     /** @use HasFactory<CustomerServiceFactory> */
-    use HasFactory;
+    use HasFactory, TracksUsage;
 
     /**
      * @var array<string, mixed>
@@ -52,6 +53,16 @@ class CustomerService extends Model
         'is_free' => false,
         'status' => 'active',
     ];
+
+    /**
+     * A service with a charge (cancelled ones included) is cancelled, not deleted.
+     *
+     * @return list<string>
+     */
+    protected function usageRelations(): array
+    {
+        return ['charges'];
+    }
 
     /**
      * @return BelongsTo<Customer, $this>

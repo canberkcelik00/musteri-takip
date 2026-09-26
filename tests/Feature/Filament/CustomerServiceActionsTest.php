@@ -420,3 +420,30 @@ describe('row actions by state', function () {
             ->assertActionHidden(rowAction('removeFree', $customerService));
     });
 });
+
+describe('delete', function () {
+    it('deletes a service that has no charge from the card', function () {
+        $customerService = cardService();
+
+        serviceRows($customerService)
+            ->assertActionVisible(rowAction('delete', $customerService))
+            ->callAction(rowAction('delete', $customerService));
+
+        expect(CustomerService::query()->find($customerService->id))->toBeNull();
+    });
+
+    it('offers delete for a cancelled service without a charge too', function () {
+        $customerService = cardService(['status' => CustomerServiceStatus::Cancelled, 'cancelled_on' => '2026-06-01']);
+
+        serviceRows($customerService)->assertActionVisible(rowAction('delete', $customerService));
+    });
+
+    it('hides delete once the service has a charge, cancelled ones included', function (bool $cancelled) {
+        $customerService = cardService();
+        chargeOfPeriod($customerService, '2026-03-01', $cancelled ? ['status' => ChargeStatus::Cancelled, 'cancelled_at' => now(), 'cancel_reason' => 'Yanlış dönem'] : []);
+
+        serviceRows($customerService)
+            ->assertActionHidden(rowAction('delete', $customerService))
+            ->assertActionVisible(rowAction('cancelService', $customerService));
+    })->with(['open charge' => false, 'cancelled charge' => true]);
+});

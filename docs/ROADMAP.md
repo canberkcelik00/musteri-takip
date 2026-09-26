@@ -144,7 +144,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.9 Ayarlar ve ödeme yöntemleri** — Bağımlılık: G-4.1
   - Yapılacak: Ayarlar sayfası (yenileme gün sayısı, özet saati, bildirim adresi) ve ödeme yöntemleri yönetimi.
   - Kabul: Değişen ayar kurallara hemen yansır (testli).
-- [ ] **G-4.10 Silme ve arşiv davranışı** — Bağımlılık: G-4.2…G-4.9
+- [x] **G-4.10 Silme ve arşiv davranışı** — Bağımlılık: G-4.2…G-4.9
   - Yapılacak: Borcu veya ödemesi olmayan kayıtta "Sil", olanda sadece "Arşivle" görünür; arşiv filtresi ve geri alma.
   - Kabul: Tüm listelerde kural tutarlı (testli).
   - Not: Aktif hizmeti olan müşterinin Arşivle düğmesi, önce hizmetlerin iptal edilmesi gerektiğini söyler.

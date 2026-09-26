@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Customers\Tables;
 
+use App\Actions\Customers\DeleteCustomer;
 use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
 use App\Filament\Actions\ArchiveCustomerAction;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -52,12 +54,13 @@ class CustomersTable
                 EditAction::make(),
                 ArchiveCustomerAction::make(),
                 UnarchiveAction::make(),
+                DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
             ]);
     }
 
     /**
      * Summary values of the list, loaded with the customers so the list does not query per row:
-     * active service count, nearest end date of the active services (free ones included) and
+     * whether the customer is in use (Delete is offered only when it is not), active service count, nearest end date of the active services (free ones included) and
      * the open charges with their allocated amount.
      *
      * @param  Builder<Customer>  $query
@@ -68,6 +71,7 @@ class CustomersTable
         $activeServices = fn (Builder $services): Builder => $services->where('status', CustomerServiceStatus::Active);
 
         return $query
+            ->withInUse()
             ->withCount(['customerServices as active_services_count' => $activeServices])
             ->withMin(['customerServices as next_renewal_on' => $activeServices], 'end_date')
             ->with(['charges' => fn ($charges) => $charges

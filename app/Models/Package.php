@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Models\Concerns\Archivable;
+use App\Models\Concerns\TracksUsage;
 use Database\Factories\PackageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property Currency $currency
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Package extends Model
 {
     /** @use HasFactory<PackageFactory> */
-    use Archivable, HasFactory;
+    use Archivable, HasFactory, TracksUsage;
 
     /**
      * @var array<string, mixed>
@@ -27,11 +29,29 @@ class Package extends Model
     ];
 
     /**
+     * A package sold to a customer is archived, not deleted.
+     *
+     * @return list<string>
+     */
+    protected function usageRelations(): array
+    {
+        return ['customerServices'];
+    }
+
+    /**
      * @return BelongsToMany<CatalogService, $this>
      */
     public function catalogServices(): BelongsToMany
     {
         return $this->belongsToMany(CatalogService::class, 'package_items')->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<CustomerService, $this>
+     */
+    public function customerServices(): HasMany
+    {
+        return $this->hasMany(CustomerService::class);
     }
 
     /**

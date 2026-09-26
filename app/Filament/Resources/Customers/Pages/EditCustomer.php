@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Customers\Pages;
 
+use App\Actions\Customers\DeleteCustomer;
 use App\Filament\Actions\ArchiveCustomerAction;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Resources\Customers\CustomerResource;
 use Filament\Resources\Pages\EditRecord;
@@ -24,6 +26,7 @@ class EditCustomer extends EditRecord
         return [
             ArchiveCustomerAction::make(),
             UnarchiveAction::make(),
+            DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
         ];
     }
 }

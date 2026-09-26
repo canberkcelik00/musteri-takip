@@ -2,10 +2,13 @@
 
 use App\Enums\Currency;
 use App\Enums\ServiceType;
+use App\Filament\Resources\CatalogServices\CatalogServiceResource;
 use App\Filament\Resources\CatalogServices\Pages\CreateCatalogService;
 use App\Filament\Resources\CatalogServices\Pages\EditCatalogService;
 use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
 use App\Models\CatalogService;
+use App\Models\CustomerService;
+use App\Models\Package;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
@@ -187,13 +190,51 @@ it('archives and unarchives a catalog service from its edit page', function () {
     expect($service->refresh()->isArchived())->toBeFalse();
 });
 
-it('offers no delete action', function () {
+it('offers delete next to archive for an unused catalog service and deletes it', function () {
     $service = CatalogService::factory()->create();
 
     Livewire::test(ListCatalogServices::class)
-        ->assertActionDoesNotExist(TestAction::make('delete')->table($service))
-        ->assertTableBulkActionDoesNotExist('delete');
+        ->assertActionVisible(TestAction::make('delete')->table($service))
+        ->assertActionVisible(TestAction::make('archive')->table($service))
+        ->callAction(TestAction::make('delete')->table($service));
+
+    expect(CatalogService::query()->find($service->id))->toBeNull();
+});
+
+it('offers only archive for a catalog service that is in a package or was sold', function () {
+    $inPackage = CatalogService::factory()->create();
+    Package::factory()->create()->catalogServices()->attach($inPackage);
+    $sold = CatalogService::factory()->create();
+    CustomerService::factory()->forCatalogService($sold)->create();
+
+    Livewire::test(ListCatalogServices::class)
+        ->assertActionHidden(TestAction::make('delete')->table($inPackage))
+        ->assertActionVisible(TestAction::make('archive')->table($inPackage))
+        ->assertActionHidden(TestAction::make('delete')->table($sold))
+        ->assertActionVisible(TestAction::make('archive')->table($sold));
+
+    Livewire::test(EditCatalogService::class, ['record' => $sold->id])
+        ->assertActionHidden('delete')
+        ->assertActionVisible('archive');
+});
+
+it('deletes an unused catalog service from its edit page and returns to the list', function () {
+    $service = CatalogService::factory()->create();
 
     Livewire::test(EditCatalogService::class, ['record' => $service->id])
-        ->assertActionDoesNotExist('delete');
+        ->assertActionVisible('delete')
+        ->callAction('delete')
+        ->assertRedirect(CatalogServiceResource::getUrl('index'));
+
+    expect(CatalogService::query()->find($service->id))->toBeNull();
+});
+
+it('offers delete for an archived catalog service that is not in use', function () {
+    $service = CatalogService::factory()->create();
+    $service->archive();
+
+    Livewire::test(ListCatalogServices::class)
+        ->filterTable('archived', true)
+        ->assertActionVisible(TestAction::make('delete')->table($service))
+        ->assertActionVisible(TestAction::make('unarchive')->table($service));
 });

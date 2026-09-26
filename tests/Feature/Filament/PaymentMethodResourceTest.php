@@ -2,6 +2,7 @@
 
 use App\Actions\Payments\SuggestPaymentDefaults;
 use App\Filament\Resources\PaymentMethods\Pages\ManagePaymentMethods;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
@@ -116,9 +117,42 @@ it('does not archive the last active method and says why', function () {
     expect($cash->refresh()->isArchived())->toBeFalse();
 });
 
-it('has no delete action', function () {
+it('offers delete next to archive for an unused method and deletes it', function () {
+    $method = PaymentMethod::factory()->create();
+
+    Livewire::test(ManagePaymentMethods::class)
+        ->assertActionVisible(TestAction::make('delete')->table($method))
+        ->assertActionVisible(TestAction::make('archive')->table($method))
+        ->callAction(TestAction::make('delete')->table($method));
+
+    expect(PaymentMethod::query()->find($method->id))->toBeNull();
+});
+
+it('offers only archive for a method a payment uses', function () {
+    $method = Payment::factory()->create()->paymentMethod;
+
+    Livewire::test(ManagePaymentMethods::class)
+        ->assertActionHidden(TestAction::make('delete')->table($method))
+        ->assertActionVisible(TestAction::make('archive')->table($method));
+});
+
+it('does not delete the last active method and says why', function () {
+    PaymentMethod::query()->where('name', '!=', 'Nakit')->get()->each->archive();
     $cash = paymentMethodNamed('Nakit');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->assertActionDoesNotExist(TestAction::make('delete')->table($cash));
+        ->callAction(TestAction::make('delete')->table($cash))
+        ->assertNotified('En az bir ödeme yöntemi aktif kalmalı. Önce başka bir yöntem ekleyin veya arşivden çıkarın.');
+
+    expect(PaymentMethod::query()->find($cash->id))->not->toBeNull();
+});
+
+it('offers delete for an archived method that no payment uses', function () {
+    $method = PaymentMethod::factory()->create();
+    $method->archive();
+
+    Livewire::test(ManagePaymentMethods::class)
+        ->filterTable('archived', true)
+        ->assertActionVisible(TestAction::make('delete')->table($method))
+        ->assertActionVisible(TestAction::make('unarchive')->table($method));
 });

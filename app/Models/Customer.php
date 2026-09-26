@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Models\Concerns\Archivable;
+use App\Models\Concerns\TracksUsage;
 use App\Support\Money;
 use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,7 +18,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Customer extends Model
 {
     /** @use HasFactory<CustomerFactory> */
-    use Archivable, HasFactory;
+    use Archivable, HasFactory, TracksUsage;
+
+    /**
+     * A customer with a service, charge or payment is archived, not deleted.
+     *
+     * @return list<string>
+     */
+    protected function usageRelations(): array
+    {
+        return ['customerServices', 'charges', 'payments'];
+    }
 
     /**
      * @return HasMany<Contact, $this>

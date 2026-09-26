@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Customers\Pages;
 
+use App\Actions\Customers\DeleteCustomer;
 use App\Filament\Actions\ArchiveCustomerAction;
 use App\Filament\Actions\CreateManualChargeAction;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -28,6 +30,7 @@ class ViewCustomer extends ViewRecord
             EditAction::make(),
             ArchiveCustomerAction::make(),
             UnarchiveAction::make(),
+            DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
         ];
     }
 

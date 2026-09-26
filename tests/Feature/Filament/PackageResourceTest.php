@@ -1,10 +1,12 @@
 <?php
 
 use App\Enums\Currency;
+use App\Filament\Resources\Packages\PackageResource;
 use App\Filament\Resources\Packages\Pages\CreatePackage;
 use App\Filament\Resources\Packages\Pages\EditPackage;
 use App\Filament\Resources\Packages\Pages\ListPackages;
 use App\Models\CatalogService;
+use App\Models\CustomerService;
 use App\Models\Package;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
@@ -170,13 +172,47 @@ it('archives and unarchives a package from its edit page', function () {
     expect($package->refresh()->isArchived())->toBeFalse();
 });
 
-it('offers no delete action', function () {
-    $package = Package::factory()->create();
+it('offers delete next to archive for an unsold package and deletes it', function () {
+    $package = Package::factory()->withCatalogServices()->create();
 
     Livewire::test(ListPackages::class)
-        ->assertActionDoesNotExist(TestAction::make('delete')->table($package))
-        ->assertTableBulkActionDoesNotExist('delete');
+        ->assertActionVisible(TestAction::make('delete')->table($package))
+        ->assertActionVisible(TestAction::make('archive')->table($package))
+        ->callAction(TestAction::make('delete')->table($package));
+
+    expect(Package::query()->find($package->id))->toBeNull()
+        ->and(CatalogService::query()->count())->toBe(3);
+});
+
+it('offers only archive for a package sold to a customer', function () {
+    $package = Package::factory()->withCatalogServices()->create();
+    CustomerService::factory()->forPackage($package)->create();
+
+    Livewire::test(ListPackages::class)
+        ->assertActionHidden(TestAction::make('delete')->table($package))
+        ->assertActionVisible(TestAction::make('archive')->table($package));
 
     Livewire::test(EditPackage::class, ['record' => $package->id])
-        ->assertActionDoesNotExist('delete');
+        ->assertActionHidden('delete')
+        ->assertActionVisible('archive');
+});
+
+it('deletes an unsold package from its edit page and returns to the list', function () {
+    $package = Package::factory()->withCatalogServices()->create();
+
+    Livewire::test(EditPackage::class, ['record' => $package->id])
+        ->assertActionVisible('delete')
+        ->callAction('delete')
+        ->assertRedirect(PackageResource::getUrl('index'));
+
+    expect(Package::query()->find($package->id))->toBeNull();
+});
+
+it('offers delete for an archived package that is not in use', function () {
+    $package = Package::factory()->withCatalogServices()->archived()->create();
+
+    Livewire::test(ListPackages::class)
+        ->filterTable('archived', true)
+        ->assertActionVisible(TestAction::make('delete')->table($package))
+        ->assertActionVisible(TestAction::make('unarchive')->table($package));
 });

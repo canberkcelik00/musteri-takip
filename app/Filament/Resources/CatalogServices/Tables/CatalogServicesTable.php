@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\CatalogServices\Tables;
 
+use App\Actions\CatalogServices\DeleteCatalogService;
 use App\Enums\ServiceType;
 use App\Filament\Actions\ArchiveAction;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
@@ -12,12 +14,14 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CatalogServicesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->scopes(['withInUse']))
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')
@@ -47,6 +51,7 @@ class CatalogServicesTable
                 EditAction::make(),
                 ArchiveAction::make(),
                 UnarchiveAction::make(),
+                DeleteRecordAction::make()->deleteWith(DeleteCatalogService::class),
             ]);
     }
 }

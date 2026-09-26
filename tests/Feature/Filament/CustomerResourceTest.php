@@ -1,13 +1,16 @@
 <?php
 
 use App\Enums\Currency;
+use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Resources\Customers\Pages\CreateCustomer;
 use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
+use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Models\Charge;
 use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Models\Payment;
 use App\Models\PaymentAllocation;
 use App\Models\User;
 use App\Support\Money;
@@ -240,13 +243,61 @@ it('archives and unarchives a customer from its edit page', function () {
     expect($customer->refresh()->isArchived())->toBeFalse();
 });
 
-it('offers no delete action', function () {
+it('offers delete next to archive for a customer with nothing recorded and deletes it', function () {
     $customer = Customer::factory()->create();
+    Contact::factory()->for($customer)->primary()->create();
 
     Livewire::test(ListCustomers::class)
-        ->assertActionDoesNotExist(TestAction::make('delete')->table($customer))
-        ->assertTableBulkActionDoesNotExist('delete');
+        ->assertActionVisible(TestAction::make('delete')->table($customer))
+        ->assertActionVisible(TestAction::make('archive')->table($customer))
+        ->callAction(TestAction::make('delete')->table($customer));
 
-    Livewire::test(EditCustomer::class, ['record' => $customer->id])
-        ->assertActionDoesNotExist('delete');
+    expect(Customer::query()->find($customer->id))->toBeNull()
+        ->and(Contact::query()->count())->toBe(0);
+});
+
+it('offers only archive for a customer with a service, charge or payment', function () {
+    $withService = CustomerService::factory()->cancelled()->create()->customer;
+    $withCharge = Charge::factory()->create()->customer;
+    $withPayment = Payment::factory()->create()->customer;
+
+    $list = Livewire::test(ListCustomers::class);
+
+    foreach ([$withService, $withCharge, $withPayment] as $customer) {
+        $list->assertActionHidden(TestAction::make('delete')->table($customer))
+            ->assertActionVisible(TestAction::make('archive')->table($customer));
+
+        Livewire::test(EditCustomer::class, ['record' => $customer->id])
+            ->assertActionHidden('delete')
+            ->assertActionVisible('archive');
+
+        Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+            ->assertActionHidden('delete');
+    }
+});
+
+it('deletes a customer with nothing recorded from the edit page and the card and returns to the list', function () {
+    $fromEdit = Customer::factory()->create();
+    $fromCard = Customer::factory()->create();
+
+    Livewire::test(EditCustomer::class, ['record' => $fromEdit->id])
+        ->callAction('delete')
+        ->assertRedirect(CustomerResource::getUrl('index'));
+
+    Livewire::test(ViewCustomer::class, ['record' => $fromCard->id])
+        ->assertActionVisible('delete')
+        ->callAction('delete')
+        ->assertRedirect(CustomerResource::getUrl('index'));
+
+    expect(Customer::query()->count())->toBe(0);
+});
+
+it('offers delete for an archived customer that has nothing recorded', function () {
+    $customer = Customer::factory()->create();
+    $customer->archive();
+
+    Livewire::test(ListCustomers::class)
+        ->filterTable('archived', true)
+        ->assertActionVisible(TestAction::make('delete')->table($customer))
+        ->assertActionVisible(TestAction::make('unarchive')->table($customer));
 });

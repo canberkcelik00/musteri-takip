@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Packages\Tables;
 
+use App\Actions\Packages\DeletePackage;
 use App\Filament\Actions\ArchiveAction;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
@@ -10,12 +12,14 @@ use App\Models\Package;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PackagesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->scopes(['withInUse']))
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')
@@ -41,6 +45,7 @@ class PackagesTable
                 EditAction::make(),
                 ArchiveAction::make(),
                 UnarchiveAction::make(),
+                DeleteRecordAction::make()->deleteWith(DeletePackage::class),
             ]);
     }
 }

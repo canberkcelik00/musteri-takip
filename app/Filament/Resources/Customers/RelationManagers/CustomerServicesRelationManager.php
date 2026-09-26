@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Actions\CustomerServices\AssignCustomerService;
 use App\Actions\CustomerServices\CancelCustomerService;
+use App\Actions\CustomerServices\DeleteCustomerService;
 use App\Actions\CustomerServices\MarkCustomerServiceFree;
 use App\Actions\CustomerServices\PreviewCustomerServiceCancellation;
 use App\Actions\CustomerServices\ReactivateCustomerService;
@@ -14,6 +15,7 @@ use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Exceptions\InvalidCustomerService;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -77,6 +79,7 @@ class CustomerServicesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->scopes(['withInUse'])
                 ->orderByRaw('status = ? desc', [CustomerServiceStatus::Active->value])
                 ->orderBy('end_date')
                 ->orderBy('id'))
@@ -108,6 +111,7 @@ class CustomerServicesRelationManager extends RelationManager
                     $this->markFreeAction(),
                     $this->removeFreeAction(),
                     $this->cancelAction(),
+                    DeleteRecordAction::make()->deleteWith(DeleteCustomerService::class),
                 ]),
             ]);
     }
