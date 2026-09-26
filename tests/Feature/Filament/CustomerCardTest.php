@@ -22,6 +22,7 @@ use App\Models\PaymentAllocation;
 use App\Models\PaymentMethod;
 use App\Models\User;
 use App\Support\Money;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
 
@@ -263,20 +264,24 @@ it('lists only the records of the customer on the card', function () {
         ->assertCanNotSeeTableRecords([$otherPayment]);
 });
 
-it('keeps the services, charges and payments read-only on the card', function () {
+it('keeps only the charges read-only on the card; services and payments have their actions', function () {
     $customer = Customer::factory()->create();
     $service = CustomerService::factory()->for($customer)->create();
     $charge = Charge::factory()->for($customer)->create();
     $payment = Payment::factory()->for($customer)->create();
 
-    foreach ([
-        [CustomerServicesRelationManager::class, $service],
-        [ChargesRelationManager::class, $charge],
-        [PaymentsRelationManager::class, $payment],
-    ] as [$manager, $record]) {
-        cardManager($manager, $customer)
-            ->assertTableActionDoesNotExist('edit', null, $record)
-            ->assertTableActionDoesNotExist('delete', null, $record)
-            ->assertActionDoesNotExist('create');
-    }
+    $charges = cardManager(ChargesRelationManager::class, $customer)->assertCanSeeTableRecords([$charge]);
+    $chargesTable = $charges->instance()->getTable();
+
+    expect($chargesTable->getHeaderActions())->toBeEmpty()
+        ->and($chargesTable->getRecordActions())->toBeEmpty();
+
+    cardManager(CustomerServicesRelationManager::class, $customer)
+        ->assertActionExists(TestAction::make('assign')->table())
+        ->assertActionExists(TestAction::make('editService')->table($service));
+
+    cardManager(PaymentsRelationManager::class, $customer)
+        ->assertActionExists(TestAction::make('recordPayment')->table())
+        ->assertActionExists(TestAction::make('deletePayment')->table($payment))
+        ->assertTableActionDoesNotExist('edit', null, $payment);
 });
