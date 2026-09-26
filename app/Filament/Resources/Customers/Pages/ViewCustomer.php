@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Customers\Pages;
 
 use App\Filament\Actions\ArchiveCustomerAction;
+use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -35,6 +36,7 @@ class ViewCustomer extends ViewRecord
      * tables; they are computed from the record, so a fresh record is enough.
      */
     #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
+    #[On(CreateManualChargeAction::CHARGES_CHANGED_EVENT)]
     public function refreshAfterPaymentChange(): void
     {
         $this->record->refresh();

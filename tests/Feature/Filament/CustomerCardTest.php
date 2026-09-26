@@ -264,17 +264,18 @@ it('lists only the records of the customer on the card', function () {
         ->assertCanNotSeeTableRecords([$otherPayment]);
 });
 
-it('keeps only the charges read-only on the card; services and payments have their actions', function () {
+it('has the charge, service and payment actions on the card', function () {
     $customer = Customer::factory()->create();
     $service = CustomerService::factory()->for($customer)->create();
     $charge = Charge::factory()->for($customer)->create();
     $payment = Payment::factory()->for($customer)->create();
 
-    $charges = cardManager(ChargesRelationManager::class, $customer)->assertCanSeeTableRecords([$charge]);
-    $chargesTable = $charges->instance()->getTable();
-
-    expect($chargesTable->getHeaderActions())->toBeEmpty()
-        ->and($chargesTable->getRecordActions())->toBeEmpty();
+    cardManager(ChargesRelationManager::class, $customer)
+        ->assertCanSeeTableRecords([$charge])
+        ->assertActionExists(TestAction::make('createManualCharge')->table())
+        ->assertActionExists(TestAction::make('editCharge')->table($charge))
+        ->assertActionExists(TestAction::make('splitCharge')->table($charge))
+        ->assertActionExists(TestAction::make('cancelCharge')->table($charge));
 
     cardManager(CustomerServicesRelationManager::class, $customer)
         ->assertActionExists(TestAction::make('assign')->table())

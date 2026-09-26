@@ -3,9 +3,16 @@
 namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Enums\ChargeStatus;
+use App\Filament\Actions\CancelChargeAction;
+use App\Filament\Actions\CreateManualChargeAction;
+use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Actions\SplitChargeAction;
+use App\Filament\Tables\Columns\ChargeStatusColumn;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
+use App\Models\Customer;
+use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -17,7 +24,8 @@ use Livewire\Attributes\On;
 /**
  * The customer's charges, newest due date first; only the open ones by default. The remaining
  * amount and the overdue / partially paid state are derived from the allocations, not stored.
- * Read-only; editing charges comes with G-4.8.
+ * The "Borç ekle" header action and the row actions (edit, split, cancel) only call the Actions
+ * in app/Actions/Charges; the rules live there.
  */
 class ChargesRelationManager extends RelationManager
 {
@@ -28,20 +36,28 @@ class ChargesRelationManager extends RelationManager
         return __('charges.plural');
     }
 
+    /**
+     * Filament makes relation managers read-only on view pages; the charge actions live on the customer card.
+     */
     public function isReadOnly(): bool
     {
-        return true;
+        return false;
     }
 
     /**
-     * Recording or deleting a payment changes the charges' remaining amounts; the empty
-     * method is enough, the component renders again when the event arrives.
+     * Recording or deleting a payment, or changing a charge from another component, changes the
+     * charges' remaining amounts; the empty method is enough, the component renders again when
+     * the event arrives.
      */
     #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
-    public function refreshAfterPaymentChange(): void {}
+    #[On(CreateManualChargeAction::CHARGES_CHANGED_EVENT)]
+    public function refreshAfterChange(): void {}
 
     public function table(Table $table): Table
     {
+        $customer = $this->getOwnerRecord();
+        assert($customer instanceof Customer);
+
         return $table
             ->recordTitleAttribute('description')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
@@ -61,39 +77,23 @@ class ChargesRelationManager extends RelationManager
                     ->label(__('charges.remaining'))
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
                     ->currencyAttribute('currency'),
-                TextColumn::make('status')
-                    ->label(__('charges.status'))
-                    ->badge()
-                    ->state(fn (Charge $record): string => self::statusLabel($record))
-                    ->color(fn (Charge $record): string => match (true) {
-                        $record->isOverdue() => 'danger',
-                        $record->isPartiallyPaid() => 'warning',
-                        $record->status === ChargeStatus::Paid => 'success',
-                        $record->status === ChargeStatus::Cancelled => 'gray',
-                        default => 'info',
-                    }),
+                ChargeStatusColumn::make('status'),
             ])
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('charges.status'))
                     ->options(ChargeStatus::class)
                     ->default(ChargeStatus::Open->value),
+            ])
+            ->headerActions([
+                CreateManualChargeAction::make()->customer($customer),
+            ])
+            ->recordActions([
+                EditChargeAction::make(),
+                ActionGroup::make([
+                    SplitChargeAction::make(),
+                    CancelChargeAction::make(),
+                ]),
             ]);
-    }
-
-    /**
-     * Overdue wins over partially paid, which wins over the plain status.
-     */
-    private static function statusLabel(Charge $charge): string
-    {
-        if ($charge->isOverdue()) {
-            return __('charges.overdue_days', ['count' => $charge->daysOverdue()]);
-        }
-
-        if ($charge->isPartiallyPaid()) {
-            return __('charges.partially_paid');
-        }
-
-        return $charge->status->getLabel();
     }
 }

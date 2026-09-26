@@ -138,7 +138,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.7 Ödeme kaydı** — Bağımlılık: G-4.4
   - Yapılacak: İki alanlı form (müşteri, tutar); tarih bugün, yöntem son kullanılan, para birimi açık borçtan gelir; dağıtım önizlemesi isteğe bağlı açılır ve değiştirilebilir; sonuç mesajı ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"); onaylı silme.
   - Kabul: Varsayılanlar ve sonuç mesajı doğru (testli).
-- [ ] **G-4.8 Borç ekranları** — Bağımlılık: G-4.4
+- [x] **G-4.8 Borç ekranları** — Bağımlılık: G-4.4
   - Yapılacak: Borç listesi (açık, gecikmiş, para birimi filtreleri), elle borç ekleme, düzenleme, bölme, gerekçeli iptal.
   - Kabul: Dağıtımı olan borçta tutar alanı kilitli görünür (testli).
 - [ ] **G-4.9 Ayarlar ve ödeme yöntemleri** — Bağımlılık: G-4.1
