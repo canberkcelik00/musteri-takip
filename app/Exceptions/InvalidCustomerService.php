@@ -35,4 +35,24 @@ class InvalidCustomerService extends DomainException
     {
         return new self(__('customer_services.start_date_before_previous_period_end'));
     }
+
+    public static function endDateNotAfterStartDate(): self
+    {
+        return new self(__('customer_services.end_date_not_after_start_date'));
+    }
+
+    public static function endDateNotInFuture(): self
+    {
+        return new self(__('customer_services.end_date_not_in_future'));
+    }
+
+    public static function upcomingChargeExists(): self
+    {
+        return new self(__('customer_services.upcoming_charge_exists'));
+    }
+
+    public static function cancelledServiceLocked(): self
+    {
+        return new self(__('customer_services.cancelled_service_locked'));
+    }
 }

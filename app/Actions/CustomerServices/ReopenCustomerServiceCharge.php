@@ -6,6 +6,7 @@ use App\Actions\Charges\ApplyCreditBalance;
 use App\Enums\ChargeStatus;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class ReopenCustomerServiceCharge
@@ -22,10 +23,7 @@ class ReopenCustomerServiceCharge
     public function handle(CustomerService $customerService, string $periodStart): ?Charge
     {
         return DB::transaction(function () use ($customerService, $periodStart): ?Charge {
-            $charge = $customerService->charges()
-                ->where('status', ChargeStatus::Cancelled)
-                ->whereDate('period_start', $periodStart)
-                ->whereDoesntHave('allocations')
+            $charge = $this->query($customerService, $periodStart)
                 ->lockForUpdate()
                 ->first();
 
@@ -44,5 +42,25 @@ class ReopenCustomerServiceCharge
 
             return $this->applyCreditBalance->handle($charge);
         });
+    }
+
+    /**
+     * The cancelled charge this Action would reopen for the period, if any; also used to
+     * decide whether the reactivate window offers to reopen it.
+     */
+    public function find(CustomerService $customerService, string $periodStart): ?Charge
+    {
+        return $this->query($customerService, $periodStart)->first();
+    }
+
+    /**
+     * @return HasMany<Charge, CustomerService>
+     */
+    private function query(CustomerService $customerService, string $periodStart): HasMany
+    {
+        return $customerService->charges()
+            ->where('status', ChargeStatus::Cancelled)
+            ->whereDate('period_start', $periodStart)
+            ->whereDoesntHave('allocations');
     }
 }

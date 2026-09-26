@@ -5,6 +5,7 @@ namespace App\Actions\CustomerServices;
 use App\Enums\ChargeStatus;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -22,10 +23,7 @@ class CancelUpcomingCustomerServiceCharges
     public function handle(CustomerService $customerService, string $reason): Collection
     {
         return DB::transaction(function () use ($customerService, $reason): Collection {
-            $charges = $customerService->charges()
-                ->where('status', ChargeStatus::Open)
-                ->whereDate('period_start', '>', Carbon::today(config('app.timezone'))->toDateString())
-                ->whereDoesntHave('allocations')
+            $charges = $this->query($customerService)
                 ->lockForUpdate()
                 ->get();
 
@@ -37,5 +35,18 @@ class CancelUpcomingCustomerServiceCharges
 
             return $charges;
         });
+    }
+
+    /**
+     * The charges this Action would cancel; also used to preview them in the cancel window.
+     *
+     * @return HasMany<Charge, CustomerService>
+     */
+    public function query(CustomerService $customerService): HasMany
+    {
+        return $customerService->charges()
+            ->where('status', ChargeStatus::Open)
+            ->whereDate('period_start', '>', Carbon::today(config('app.timezone'))->toDateString())
+            ->whereDoesntHave('allocations');
     }
 }
