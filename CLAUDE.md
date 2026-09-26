@@ -48,7 +48,7 @@ Windows'a özgü kurallar:
 3. **Kapsamda kal.** Görevde olmayan özellik, iyileştirme veya yeniden düzenleme ekleme; gerekli gördüğün şeyi sadece öner.
 4. **Kararları değiştirme.** `docs/DECISIONS.md` ve `docs/PRD.md`'deki bir kararla çelişen bir yol gerekiyorsa dur ve sor.
 5. **Kabul kriterleri test olur.** Her kriter için Pest testi yaz. Tarihe bağlı kurallarda zaman yolculuğu kullan (`$this->travelTo(...)`).
-6. **Bitti = hepsi yeşil.** Test, lint ve analiz temiz olmadan görevi bitmiş sayma.
+6. **Bitti = hepsi yeşil.** Test, lint ve analiz temiz olmadan görevi bitmiş sayma. Son kod değişikliğinden sonra tam paket (composer test, lint, analyse) mutlaka yeniden çalıştırılır; kısmi test çalıştırması yeterli sayılmaz ve bunu kullanıcıya bırakma.
 7. **Bitirince:** Görevin kutusunu `docs/ROADMAP.md`'de işaretle, kod içi bir karar verdiysen `docs/DECISIONS.md`'ye ekle, commit et (mesaj Türkçe ve görev koduyla başlar: `G-2.3: Müşteri ve ilgili kişiler`).
 8. **K görevleri kullanıcınındır.** Hesap açma, şifre, secret girme gibi işleri yapma; gerektiğinde hatırlat.
 9. **Karar yetkisi.** Klasör adı, sınıf adı gibi sadece kodun içini ilgilendiren kararları sormadan ver ve DECISIONS'a gerekçesiyle yaz. Görünüm, iş kuralı, paket ve altyapı kararlarını sor.
