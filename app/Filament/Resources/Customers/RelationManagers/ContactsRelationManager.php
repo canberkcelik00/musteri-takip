@@ -17,7 +17,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -64,9 +63,9 @@ class ContactsRelationManager extends RelationManager
                     ->label(__('contacts.phone')),
                 TextColumn::make('email')
                     ->label(__('contacts.email')),
-                IconColumn::make('is_primary')
+                TextColumn::make('is_primary')
                     ->label(__('contacts.is_primary'))
-                    ->boolean(),
+                    ->state(fn (Contact $record): ?string => $record->is_primary ? __('contacts.is_primary') : null),
             ])
             ->headerActions([
                 CreateAction::make()

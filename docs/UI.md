@@ -73,7 +73,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ### Bugün (açılış sayfası)
 
 - **Üst satır, dört sayı:** Toplam alacak (para birimi başına), Gecikmiş tutar ve adet, Bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı. Her sayı tıklanınca ilgili süzülmüş listeye gider.
-- **Altında "Yapılacaklar" listesi,** öncelik sırasıyla: gecikmiş borçlar (en eski üstte), bu hafta vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir.
+- **Altında "Yapılacaklar" listesi,** öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir.
 - Liste boşsa "Bugün yapılacak bir şey yok" yazar.
 
 ### Müşteri listesi
@@ -112,10 +112,22 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ## 6. Görsel dil
 
 - **Tema:** Açık tema varsayılan (uzun süre tablo okuma ve Excel alışkanlığı); koyu tema kullanıcı menüsünden seçilebilir.
-- **Renk:** Tek bir marka rengi yalnızca birincil düğme ve seçili menüde. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı = gecikmiş/tehlikeli, turuncu = yaklaşan/kısmi, yeşil = ödendi, gri = iptal/arşiv.
-- **Yazı:** Tek yazı tipi (örn. Inter), sayılarda eş genişlikte rakamlar; tablo metni 14 px, başlıklar sade.
+- **Marka rengi (#ff3800):** Yalnızca logo simgesinde ve seçili menü öğesinin sol kenar çizgisinde durur. Birincil düğmede veya durum rozetlerinde kullanılmaz; marka rengi kırmızı/turuncu durum renkleriyle karışır.
+- **`primary` (Filament rengi):** Birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu, odak çerçevesi) içindir; koyu lacivert. Marka veya durum rengi değildir.
+- **Durum renkleri:** Sabit ve yalnızca aşağıdaki dört anlam için kullanılır; `info` hiç kullanılmaz, renksiz (rozetsiz düz metin) beşinci bir "normal durum" seçeneğidir.
+
+  | Renk | Filament adı | Anlam |
+  | --- | --- | --- |
+  | Kırmızı | `danger` | Gecikmiş borç; Sil/İptal et |
+  | Turuncu | `warning` | Kısmi ödenmiş borç; vadesi yaklaşan borç; yenilemesi yaklaşan hizmet |
+  | Yeşil | `success` | Ödendi |
+  | Gri | `gray` | İptal edilmiş, arşivlenmiş |
+  | Renksiz | rozet yok | Açık borç (vadesi uzak), aktif hizmet (bitişi uzak) |
+
+- **"Yaklaşan" tanımı:** Borç için vade bugün ile bugün+7 gün arasında (dahil); hizmet için bitiş bugün ile bugün+yenileme gün sayısı arasında (dahil, Ayarlar'daki "yenileme gün sayısı"na bağlı). Görüntüleme durumudur; veritabanında veya borç/hizmet kayıtlarında saklanmaz, her gösterimde hesaplanır.
+- **Yazı:** Tek yazı tipi (Inter, yerelden yüklenir — dış bağlantı yok), sayılarda eş genişlikte rakamlar; tablo metni 14 px, başlıklar sade.
 - **Yoğunluk:** Tablolarda kompakt satırlar (Excel'e yakın); formlarda rahat boşluk.
-- **Logo ve ad:** Sol üstte firma logosu ve "Müşteri Takip".
+- **Logo ve ad:** Sol üstte firma logosu (yer tutucu simge) ve "Müşteri Takip".
 
 ## 7. Hedef tık sayıları (kabul ölçütü)
 
@@ -135,7 +147,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - Satır işlemleri "⋮" menülerinde gizli.
 - Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor.
 - Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok.
-- Koyu tema ve varsayılan Filament görünümü; marka rengi, logo, durum rengi kuralları yok.
+- ~~Koyu tema ve varsayılan Filament görünümü; marka rengi, logo, durum rengi kuralları yok.~~ (G-4.12'de yapıldı.)
 
 ## 9. Kaynaklar
 

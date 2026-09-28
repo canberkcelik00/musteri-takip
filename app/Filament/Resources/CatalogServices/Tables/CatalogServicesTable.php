@@ -30,7 +30,6 @@ class CatalogServicesTable
                     ->sortable(),
                 TextColumn::make('type')
                     ->label(__('catalog_services.type'))
-                    ->badge()
                     ->sortable(),
                 MoneyColumn::make('price')
                     ->label(__('catalog_services.price'))

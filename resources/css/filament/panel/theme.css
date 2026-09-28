@@ -1,0 +1,27 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/*
+ * Brand color (#ff3800): used only for the logo mark and the active sidebar
+ * item's indicator bar, never for buttons or status badges (docs/UI.md §6).
+ */
+:root {
+    --brand: #ff3800;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    @apply border-s-[3px];
+    border-inline-start-color: var(--brand);
+}
+
+/* Numbers keep a fixed width so amounts line up in tables (docs/UI.md §6). */
+body {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Compact table rows, roomy forms (docs/UI.md §6). */
+.fi-ta-text:not(.fi-inline) {
+    @apply sm:py-2;
+}

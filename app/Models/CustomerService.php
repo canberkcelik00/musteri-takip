@@ -5,8 +5,11 @@ namespace App\Models;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Models\Concerns\TracksUsage;
+use App\Support\Settings;
 use Database\Factories\CustomerServiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -102,6 +105,42 @@ class CustomerService extends Model
     public function charges(): HasMany
     {
         return $this->hasMany(Charge::class);
+    }
+
+    /**
+     * An active service whose end date falls within the next $leadDays days (today
+     * included). Purely a display state: it is derived on every call, never stored.
+     * Defaults to the configured renewal lead time (docs/UI.md §5, §6).
+     */
+    public function isEndingSoon(?int $leadDays = null): bool
+    {
+        if ($this->status !== CustomerServiceStatus::Active) {
+            return false;
+        }
+
+        $leadDays ??= app(Settings::class)->renewalLeadDays();
+
+        $today = Carbon::today(config('app.timezone'));
+        $endDate = Carbon::parse($this->end_date->toDateString(), config('app.timezone'));
+
+        return $endDate->between($today, $today->copy()->addDays($leadDays));
+    }
+
+    /**
+     * Query-level equivalent of {@see self::isEndingSoon()}.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function endingSoon(Builder $query, ?int $leadDays = null): void
+    {
+        $leadDays ??= app(Settings::class)->renewalLeadDays();
+
+        $today = Carbon::today(config('app.timezone'));
+
+        $query
+            ->where($this->qualifyColumn('status'), CustomerServiceStatus::Active)
+            ->whereBetween($this->qualifyColumn('end_date'), [$today, $today->copy()->addDays($leadDays)]);
     }
 
     /**

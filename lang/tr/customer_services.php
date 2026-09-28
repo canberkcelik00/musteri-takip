@@ -24,6 +24,7 @@ return [
     'price' => 'Fiyat',
     'free' => 'Ücretsiz',
     'status' => 'Durum',
+    'ending_soon' => 'Yenilemesi yaklaşıyor',
 
     'assign' => 'Hizmet ekle',
     'assign_heading' => 'Hizmet ekle',

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,8 +29,20 @@ class AdminPanelProvider extends PanelProvider
             ->path('panel')
             ->login()
             ->profile()
+            ->brandName(__('admin.brand_name'))
+            ->brandLogo(fn () => view('filament.panel.brand'))
+            ->brandLogoHeight('1.5rem')
+            ->viteTheme('resources/css/filament/panel/theme.css')
+            ->defaultThemeMode(ThemeMode::Light)
             ->colors([
-                'primary' => Color::Amber,
+                // Buttons and interactive elements only (docs/UI.md §6); the
+                // brand color (#ff3800) lives in the theme CSS instead, so it
+                // never collides with the status colors below.
+                'primary' => '#1e3a8a',
+                'danger' => Color::Red,
+                'warning' => Color::Amber,
+                'success' => Color::Green,
+                'gray' => Color::Zinc,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

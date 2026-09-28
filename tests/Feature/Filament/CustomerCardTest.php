@@ -173,6 +173,17 @@ it('shows a cancelled service as its own row after the active ones', function ()
         ->assertTableColumnFormattedStateSet('status', 'Aktif', $active);
 });
 
+it('shows an active service ending within the renewal lead time as ending soon', function () {
+    $this->travelTo('2026-06-10 12:00:00');
+    $customer = Customer::factory()->create();
+    $endingSoon = CustomerService::factory()->for($customer)->create(['start_date' => '2025-06-10', 'end_date' => '2026-06-20']);
+    $active = CustomerService::factory()->for($customer)->create(['start_date' => '2025-12-10', 'end_date' => '2026-12-10']);
+
+    cardManager(CustomerServicesRelationManager::class, $customer)
+        ->assertTableColumnFormattedStateSet('status', 'Yenilemesi yaklaşıyor', $endingSoon)
+        ->assertTableColumnFormattedStateSet('status', 'Aktif', $active);
+});
+
 it('shows a free service with "Ücretsiz" instead of its price', function () {
     $customer = Customer::factory()->create();
     $free = CustomerService::factory()->for($customer)->free()->create();
@@ -185,7 +196,8 @@ it('tells open, partially paid and overdue charges apart', function () {
     $this->travelTo('2026-06-10 12:00:00');
     $customer = Customer::factory()->create();
 
-    $dueToday = Charge::factory()->for($customer)->create(['amount' => 100000, 'due_date' => '2026-06-10']);
+    $dueSoon = Charge::factory()->for($customer)->create(['amount' => 100000, 'due_date' => '2026-06-10']);
+    $open = Charge::factory()->for($customer)->create(['amount' => 150000, 'due_date' => '2026-07-10']);
     $partial = Charge::factory()->for($customer)->create(['amount' => 400000, 'due_date' => '2026-07-01']);
     PaymentAllocation::factory()->create(['charge_id' => $partial->id, 'amount' => 100000]);
     $overdue = Charge::factory()->for($customer)->create(['amount' => 200000, 'due_date' => '2026-06-05']);
@@ -195,9 +207,10 @@ it('tells open, partially paid and overdue charges apart', function () {
     $cancelled = Charge::factory()->for($customer)->cancelled()->create();
 
     cardManager(ChargesRelationManager::class, $customer)
-        ->assertCanSeeTableRecords([$overdue, $partialOverdue, $dueToday, $partial], inOrder: false)
+        ->assertCanSeeTableRecords([$overdue, $partialOverdue, $dueSoon, $open, $partial], inOrder: false)
         ->assertCanNotSeeTableRecords([$paid, $cancelled])
-        ->assertTableColumnStateSet('status', 'Açık', $dueToday)
+        ->assertTableColumnStateSet('status', 'Açık', $open)
+        ->assertTableColumnStateSet('status', 'Vadesi yaklaşıyor', $dueSoon)
         ->assertTableColumnStateSet('status', 'Kısmi ödendi', $partial)
         ->assertTableColumnStateSet('status', 'Gecikmiş (5 gün)', $overdue)
         ->assertTableColumnStateSet('status', 'Gecikmiş (1 gün)', $partialOverdue)

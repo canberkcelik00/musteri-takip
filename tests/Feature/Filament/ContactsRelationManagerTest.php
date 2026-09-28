@@ -120,3 +120,9 @@ it('deletes a contact that is not primary', function () {
     expect(Contact::query()->whereKey($this->other->id)->exists())->toBeFalse()
         ->and($this->primary->refresh()->is_primary)->toBeTrue();
 });
+
+it('shows the primary contact as text, not a colored icon', function () {
+    contactsManager($this->customer)
+        ->assertTableColumnFormattedStateSet('is_primary', 'Birincil', record: $this->primary)
+        ->assertTableColumnFormattedStateSet('is_primary', '', record: $this->other);
+});

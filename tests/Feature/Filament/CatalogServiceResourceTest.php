@@ -155,6 +155,18 @@ it('shows the price in Turkish format on the list', function () {
     Livewire::test(ListCatalogServices::class)->assertSee('4.000,50 TL');
 });
 
+it('shows the type as plain text, not a badge', function () {
+    $service = CatalogService::factory()->ofType(ServiceType::Hosting)->create();
+
+    $html = Livewire::test(ListCatalogServices::class)
+        ->assertTableColumnFormattedStateSet('type', ServiceType::Hosting->getLabel(), record: $service)
+        ->html();
+
+    // The label appears as plain cell text, not inside a badge span (docs/UI.md §6:
+    // color is reserved for the four fixed status meanings, not the service type).
+    expect($html)->not->toMatch('/fi-badge[^>]*>\s*'.preg_quote(ServiceType::Hosting->getLabel(), '/').'/');
+});
+
 it('archives and unarchives a catalog service from the list', function () {
     $service = CatalogService::factory()->create();
 

@@ -142,6 +142,44 @@ class Charge extends Model
     }
 
     /**
+     * Days ahead an open charge counts as "due soon" for display (docs/UI.md §5, §6).
+     */
+    public const DUE_SOON_DAYS = 7;
+
+    /**
+     * An open, not-yet-overdue charge whose due date falls within the next
+     * {@see self::DUE_SOON_DAYS} days (today included). Purely a display state:
+     * it is derived on every call, never stored, and does not affect status or amount.
+     */
+    public function isDueSoon(): bool
+    {
+        if ($this->status !== ChargeStatus::Open || $this->isOverdue()) {
+            return false;
+        }
+
+        $today = Carbon::today(config('app.timezone'));
+        $dueDate = Carbon::parse($this->due_date->toDateString(), config('app.timezone'));
+
+        return $dueDate->lte($today->copy()->addDays(self::DUE_SOON_DAYS));
+    }
+
+    /**
+     * Query-level equivalent of {@see self::isDueSoon()}. An open charge's due date
+     * already guarantees it is unpaid (see SyncChargeStatus), so no amount filter is needed.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function dueSoon(Builder $query): void
+    {
+        $today = Carbon::today(config('app.timezone'));
+
+        $query
+            ->where($this->qualifyColumn('status'), ChargeStatus::Open)
+            ->whereBetween($this->qualifyColumn('due_date'), [$today, $today->copy()->addDays(self::DUE_SOON_DAYS)]);
+    }
+
+    /**
      * Limit the query to charges created on the given day, counted in the application
      * time zone (Europe/Istanbul). The daily digest lists these as the day's new charges.
      *

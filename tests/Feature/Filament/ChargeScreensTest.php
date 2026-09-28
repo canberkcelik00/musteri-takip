@@ -66,6 +66,20 @@ it('lists the open charges of all customers, oldest due date first', function ()
         ->assertCanNotSeeTableRecords([$paid, $cancelled]);
 });
 
+it('marks an open charge due within 7 days as due soon, in orange, and a farther one as plain open', function () {
+    $dueSoon = Charge::factory()->create(['due_date' => '2026-06-22']);
+    $open = Charge::factory()->create(['due_date' => '2026-07-10']);
+
+    $html = chargesPage()->html();
+
+    expect($html)->toContain('Vadesi yaklaşıyor')
+        ->and($html)->toContain('fi-color-warning');
+
+    chargesPage()
+        ->assertTableColumnStateSet('status', 'Vadesi yaklaşıyor', $dueSoon)
+        ->assertTableColumnStateSet('status', 'Açık', $open);
+});
+
 it('filters the list to overdue charges only', function () {
     $overdue = Charge::factory()->create(['due_date' => '2026-06-14']);
     $dueToday = Charge::factory()->create(['due_date' => '2026-06-15']);

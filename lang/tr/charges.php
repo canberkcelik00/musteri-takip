@@ -21,6 +21,7 @@ return [
     'status' => 'Durum',
     'partially_paid' => 'Kısmi ödendi',
     'overdue_days' => 'Gecikmiş (:count gün)',
+    'due_soon' => 'Vadesi yaklaşıyor',
     'currency' => 'Para birimi',
     'only_overdue' => 'Yalnızca gecikmişler',
 

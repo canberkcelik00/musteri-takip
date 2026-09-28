@@ -98,8 +98,15 @@ class CustomerServicesRelationManager extends RelationManager
                     ->state(fn (CustomerService $record): int|string => $record->is_free ? __('customer_services.free') : $record->price),
                 TextColumn::make('status')
                     ->label(__('customer_services.status'))
-                    ->badge()
-                    ->color(fn (CustomerServiceStatus $state): string => $state === CustomerServiceStatus::Active ? 'success' : 'gray'),
+                    ->badge(fn (CustomerService $record): bool => $record->status === CustomerServiceStatus::Cancelled || $record->isEndingSoon())
+                    ->state(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Active && $record->isEndingSoon()
+                        ? __('customer_services.ending_soon')
+                        : $record->status->getLabel())
+                    ->color(fn (CustomerService $record): ?string => match (true) {
+                        $record->status === CustomerServiceStatus::Cancelled => 'gray',
+                        $record->isEndingSoon() => 'warning',
+                        default => null,
+                    }),
             ])
             ->headerActions([
                 $this->assignAction(),
