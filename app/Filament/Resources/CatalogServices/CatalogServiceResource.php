@@ -29,7 +29,7 @@ class CatalogServiceResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        return __('catalog_services.navigation_group');
+        return __('navigation.catalog');
     }
 
     public static function getModelLabel(): string

@@ -24,7 +24,7 @@ class PaymentMethodResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        return __('settings.navigation_group');
+        return __('navigation.settings');
     }
 
     public static function getModelLabel(): string

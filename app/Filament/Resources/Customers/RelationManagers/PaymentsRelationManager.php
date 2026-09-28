@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Filament\Actions\DeletePaymentAction;
 use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Customer;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -13,11 +14,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The customer's payments, newest first. "Ödeme kaydet" records a payment for the customer and
- * the row action deletes one; both only call the Actions in app/Actions/Payments.
+ * The customer's payments, newest first. "Ödeme al" records a payment for the customer and
+ * the row action deletes one; both only call the Actions in app/Actions/Payments. The header
+ * button is gray, not primary, since the topbar's "Ödeme al" is the screen's one primary
+ * action (docs/UI.md §4).
  */
 class PaymentsRelationManager extends RelationManager
 {
+    use RefreshesOnPaymentOrChargeChange;
+
     protected static string $relationship = 'payments';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
@@ -58,7 +63,7 @@ class PaymentsRelationManager extends RelationManager
                     ->placeholder(__('money.empty')),
             ])
             ->headerActions([
-                RecordPaymentAction::make()->customer($customer),
+                RecordPaymentAction::make()->customer($customer)->color('gray'),
             ])
             ->recordActions([
                 DeletePaymentAction::make(),

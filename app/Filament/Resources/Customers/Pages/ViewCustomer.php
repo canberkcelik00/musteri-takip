@@ -27,7 +27,7 @@ class ViewCustomer extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            EditAction::make()->color('gray'),
             ArchiveCustomerAction::make(),
             UnarchiveAction::make(),
             DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),

@@ -2,18 +2,17 @@
 
 namespace App\Filament\Resources\Payments\Pages;
 
-use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Payments\PaymentResource;
 use Filament\Resources\Pages\ListRecords;
 
+/**
+ * "Ödeme al" moved to the topbar (G-4.13), reachable from every page; this list has no header
+ * action of its own.
+ */
 class ListPayments extends ListRecords
 {
-    protected static string $resource = PaymentResource::class;
+    use RefreshesOnPaymentOrChargeChange;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            RecordPaymentAction::make(),
-        ];
-    }
+    protected static string $resource = PaymentResource::class;
 }

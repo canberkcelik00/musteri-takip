@@ -38,12 +38,12 @@ class ManageSettings extends Page
 
     public static function getNavigationGroup(): string
     {
-        return __('settings.navigation_group');
+        return __('navigation.settings');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('settings.title');
+        return __('navigation.general');
     }
 
     public function getTitle(): string|Htmlable

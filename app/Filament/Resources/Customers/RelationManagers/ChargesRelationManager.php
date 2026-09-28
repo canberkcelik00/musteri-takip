@@ -6,8 +6,8 @@ use App\Enums\ChargeStatus;
 use App\Filament\Actions\CancelChargeAction;
 use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\EditChargeAction;
-use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\SplitChargeAction;
+use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Tables\Columns\ChargeStatusColumn;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
@@ -19,7 +19,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Livewire\Attributes\On;
 
 /**
  * The customer's charges, newest due date first; only the open ones by default. The remaining
@@ -29,6 +28,8 @@ use Livewire\Attributes\On;
  */
 class ChargesRelationManager extends RelationManager
 {
+    use RefreshesOnPaymentOrChargeChange;
+
     protected static string $relationship = 'charges';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
@@ -43,15 +44,6 @@ class ChargesRelationManager extends RelationManager
     {
         return false;
     }
-
-    /**
-     * Recording or deleting a payment, or changing a charge from another component, changes the
-     * charges' remaining amounts; the empty method is enough, the component renders again when
-     * the event arrives.
-     */
-    #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
-    #[On(CreateManualChargeAction::CHARGES_CHANGED_EVENT)]
-    public function refreshAfterChange(): void {}
 
     public function table(Table $table): Table
     {
@@ -86,7 +78,7 @@ class ChargesRelationManager extends RelationManager
                     ->default(ChargeStatus::Open->value),
             ])
             ->headerActions([
-                CreateManualChargeAction::make()->customer($customer),
+                CreateManualChargeAction::make()->customer($customer)->color('gray'),
             ])
             ->recordActions([
                 EditChargeAction::make(),

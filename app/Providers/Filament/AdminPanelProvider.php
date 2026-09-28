@@ -2,21 +2,24 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -34,6 +37,15 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('1.5rem')
             ->viteTheme('resources/css/filament/panel/theme.css')
             ->defaultThemeMode(ThemeMode::Light)
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn (): string => Blade::render('@livewire(\App\Livewire\TopbarActions::class)'),
+            )
+            ->navigationGroups([
+                NavigationGroup::make()->label(fn (): string => __('navigation.collections')),
+                NavigationGroup::make()->label(fn (): string => __('navigation.catalog'))->collapsed(),
+                NavigationGroup::make()->label(fn (): string => __('navigation.settings')),
+            ])
             ->colors([
                 // Buttons and interactive elements only (docs/UI.md §6); the
                 // brand color (#ff3800) lives in the theme CSS instead, so it

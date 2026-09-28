@@ -139,7 +139,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.12 Tema ve görsel dil** — Bağımlılık: G-4.11
   - Yapılacak: Filament özel teması `docs/UI.md` §6'ya göre hazırlanır. Açık tema varsayılan, koyu tema kullanıcı menüsünden seçilir. Marka rengi (#ff3800) yalnızca logo simgesinde ve seçili menüde; birincil düğme koyu lacivert (`primary`), marka rengiyle karışmaz. Durum renkleri sabit ve başka işte kullanılmaz (kırmızı gecikmiş/tehlikeli, turuncu kısmi/yaklaşan, yeşil ödendi, gri iptal/arşiv); normal durum renksiz düz metindir, `info` kullanılmaz. "Yaklaşan" (borç: 7 gün, hizmet: yenileme gün sayısı) modelde tek yerde tanımlanır. Tek yazı tipi (Inter, yerelden), sayılarda eş genişlikte rakamlar, tablo metni 14 px. Tablolarda kompakt, formlarda rahat boşluk. Sol üstte logo ve "Müşteri Takip". Tema derlemesi GitHub Actions paketine eklenir (CI'a `npm ci` + `npm run build`).
   - Kabul: Durum rozetleri her yerde renk ve metinle görünür; tüm testler yeşil.
-- [ ] **G-4.13 Menü ve üst çubuk** — Bağımlılık: G-4.12
+- [x] **G-4.13 Menü ve üst çubuk** — Bağımlılık: G-4.12
   - Yapılacak: Menü `docs/UI.md` §3'e göre kurulur: Bugün, Müşteriler, Tahsilat (Açık borçlar, Ödemeler), Katalog (Hizmetler, Paketler; kapalı başlar), Ayarlar (Genel, Ödeme yöntemleri; en altta). Üst çubuk her sayfada aynı yerde: solda arama kutusu, sağda "Ödeme al" birincil düğmesi ve "Yeni" menüsü (Müşteri, Elle borç). Ödeme formu (G-4.7) her sayfada yandan açılan panelde çalışır.
   - Kabul: Üst çubuk her sayfada aynı yerde (Livewire testi); ödeme kaydı 1 tık + müşteri + tutar + 1 tık.
 - [ ] **G-4.14 Ctrl+K arama ve komut kutusu** — Bağımlılık: G-4.13

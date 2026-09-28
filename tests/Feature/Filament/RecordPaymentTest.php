@@ -3,6 +3,7 @@
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
@@ -66,13 +67,13 @@ it('lists the payments of all customers, newest first', function () {
         ->assertCanSeeTableRecords([$newer, $older], inOrder: true);
 });
 
-it('fills the date, currency and method when a customer is chosen on the payments page', function () {
+it('fills the date, currency and method when a customer is chosen in the topbar form', function () {
     ['customer' => $customer] = logiWithTwoCharges();
     Charge::factory()->for($customer)->create(['currency' => Currency::Usd, 'due_date' => '2026-01-01']);
     $card = PaymentMethod::query()->where('name', 'Kredi Kartı')->firstOrFail();
     Payment::factory()->for($customer)->create(['payment_method_id' => $card->id, 'paid_on' => '2026-06-01']);
 
-    paymentsPage()
+    topbarActions()
         ->mountAction('recordPayment')
         ->assertSchemaComponentVisible('customer_id')
         ->assertSchemaStateSet(['paid_on' => '2026-06-15', 'show_allocations' => false])
@@ -86,7 +87,7 @@ it('fills the date, currency and method when a customer is chosen on the payment
 it('starts with TL and the first method before a customer is chosen', function () {
     $first = PaymentMethod::query()->notArchived()->orderBy('sort_order')->firstOrFail();
 
-    paymentsPage()
+    topbarActions()
         ->mountAction('recordPayment')
         ->assertSchemaStateSet(['currency' => Currency::Try, 'payment_method_id' => $first->id, 'paid_on' => '2026-06-15']);
 });
@@ -94,7 +95,7 @@ it('starts with TL and the first method before a customer is chosen', function (
 it('records the payment and tells how much debt was closed and how much went to the credit balance', function () {
     ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiWithTwoCharges();
 
-    paymentsPage()
+    topbarActions()
         ->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '2.500', 'currency' => 'TRY'])
         ->assertNotified('1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi.');
 
@@ -110,7 +111,7 @@ it('records the payment and tells how much debt was closed and how much went to 
 it('tells only the closed debt when nothing is left over', function () {
     ['customer' => $customer] = logiWithTwoCharges();
 
-    paymentsPage()
+    topbarActions()
         ->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '1.000', 'currency' => 'TRY'])
         ->assertNotified('1.000 TL borç kapatıldı.');
 });
@@ -118,7 +119,7 @@ it('tells only the closed debt when nothing is left over', function () {
 it('tells only the credit balance when there is no open debt', function () {
     $customer = Customer::factory()->create();
 
-    paymentsPage()
+    topbarActions()
         ->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '750,50', 'currency' => 'TRY'])
         ->assertNotified('750,50 TL alacak bakiyesine eklendi.');
 
@@ -128,7 +129,7 @@ it('tells only the credit balance when there is no open debt', function () {
 it('allocates automatically, oldest due date first, when the preview stays closed', function () {
     ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiWithTwoCharges();
 
-    paymentsPage()
+    topbarActions()
         ->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '1.000', 'currency' => 'TRY']);
 
     expect($hosting->refresh()->allocatedAmount())->toBe(100000)
@@ -138,7 +139,7 @@ it('allocates automatically, oldest due date first, when the preview stays close
 it('suggests the automatic split in the preview and applies the changed rows', function () {
     ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiWithTwoCharges();
 
-    paymentsPage()
+    topbarActions()
         ->mountAction('recordPayment')
         ->fillForm(['customer_id' => $customer->id, 'amount' => '1.000', 'show_allocations' => true])
         ->assertSchemaStateSet([
@@ -157,7 +158,7 @@ it('suggests the automatic split in the preview and applies the changed rows', f
 it('puts the rest of a manual allocation on the other open charges', function () {
     ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiWithTwoCharges();
 
-    paymentsPage()
+    topbarActions()
         ->mountAction('recordPayment')
         ->fillForm(['customer_id' => $customer->id, 'amount' => '1.000', 'show_allocations' => true])
         ->fillForm(["allocations.{$hosting->id}" => null, "allocations.{$domain->id}" => '400'])
@@ -170,7 +171,7 @@ it('puts the rest of a manual allocation on the other open charges', function ()
 it('refuses a manual allocation above the charge\'s remaining amount and records nothing', function () {
     ['customer' => $customer, 'domain' => $domain] = logiWithTwoCharges();
 
-    paymentsPage()
+    topbarActions()
         ->mountAction('recordPayment')
         ->fillForm(['customer_id' => $customer->id, 'amount' => '1.000', 'show_allocations' => true])
         ->fillForm(["allocations.{$domain->id}" => '500'])
@@ -185,7 +186,7 @@ it('shows only the open charges of the chosen currency in the preview', function
     ['customer' => $customer, 'hosting' => $hosting] = logiWithTwoCharges();
     $usd = Charge::factory()->for($customer)->create(['currency' => Currency::Usd, 'amount' => 5000, 'due_date' => '2026-06-01']);
 
-    paymentsPage()
+    topbarActions()
         ->mountAction('recordPayment')
         ->fillForm(['customer_id' => $customer->id, 'show_allocations' => true, 'currency' => 'USD', 'amount' => '30'])
         ->assertSchemaStateSet(["allocations.{$usd->id}" => '30'])
@@ -235,7 +236,7 @@ it('asks for a confirmation before deleting a payment and reopens the charges it
 
 it('deletes a payment from the payments page', function () {
     ['customer' => $customer] = logiWithTwoCharges();
-    paymentsPage()->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '400', 'currency' => 'TRY']);
+    topbarActions()->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '400', 'currency' => 'TRY']);
     $payment = $customer->payments()->sole();
 
     paymentsPage()
@@ -256,4 +257,30 @@ it('refreshes the card\'s charges and balance when a payment is recorded or dele
     Livewire::test(ViewCustomer::class, ['record' => $customer->getKey()])
         ->dispatch(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)
         ->assertOk();
+});
+
+it('records a payment from the topbar and shows it everywhere the customer\'s debt or payments are listed', function () {
+    ['customer' => $customer, 'hosting' => $hosting] = logiWithTwoCharges();
+
+    topbarActions()->callAction('recordPayment', ['customer_id' => $customer->id, 'amount' => '1.500', 'currency' => 'TRY']);
+    $payment = $customer->payments()->sole();
+
+    // The list, the payments page, the card's payments and the card itself all listened for the
+    // topbar's event and show the fresh state, even though the payment was recorded elsewhere.
+    Livewire::test(ListCustomers::class)
+        ->dispatch(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)
+        ->assertOk()
+        ->assertSee('Logi');
+
+    paymentsPage()
+        ->dispatch(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$payment]);
+
+    cardPayments($customer)
+        ->dispatch(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$payment]);
+
+    expect($hosting->refresh()->status)->toBe(ChargeStatus::Paid);
 });

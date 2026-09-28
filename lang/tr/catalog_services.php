@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'navigation_group' => 'Katalog',
     'singular' => 'Katalog hizmeti',
     'plural' => 'Hizmetler',
     'type' => 'Tür',

@@ -25,3 +25,25 @@ body {
 .fi-ta-text:not(.fi-inline) {
     @apply sm:py-2;
 }
+
+/*
+ * Topbar layout (docs/UI.md §3–4): search on the left, "Ödeme al" / "Yeni" and the user menu
+ * on the right, same place on every page. The search field is left free to shrink first; below
+ * `sm` the "Yeni" menu (a monthly task) is hidden rather than causing horizontal scroll, while
+ * "Ödeme al" (the daily task) always stays visible.
+ */
+.fi-topbar-end {
+    @apply min-w-0 flex-1;
+}
+
+.fi-global-search-ctn {
+    @apply me-auto min-w-0;
+}
+
+.fi-topbar-actions {
+    @apply flex shrink-0 items-center gap-x-2;
+}
+
+.fi-topbar-new-action {
+    @apply hidden sm:block;
+}

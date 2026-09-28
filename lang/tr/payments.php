@@ -16,7 +16,7 @@ return [
     'payment_method' => 'Yöntem',
     'note' => 'Açıklama',
 
-    'record' => 'Ödeme kaydet',
+    'record' => 'Ödeme al',
     'record_heading' => 'Ödeme kaydı',
     'show_allocations' => 'Dağıtımı göster ve değiştir',
     'allocations_helper' => 'Tutarlar önce belirttiğiniz borçlara düşer; kalan kısım en eski vadeli borçlardan devam eder.',

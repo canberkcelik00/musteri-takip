@@ -6,6 +6,7 @@ use App\Enums\Currency;
 use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Forms\Components\MoneyInput;
 use App\Filament\Resources\Charges\Pages\ListCharges;
+use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Models\Charge;
@@ -148,11 +149,11 @@ it('leaves the amount field of a charge without allocations editable and changes
         ->and($charge->due_date->toDateString())->toBe('2026-07-01');
 });
 
-it('adds a manual charge for a chosen customer from the charges page', function () {
+it('adds a manual charge for a chosen customer from the topbar', function () {
     $customer = Customer::factory()->create();
     $service = CustomerService::factory()->for($customer)->create();
 
-    chargesPage()
+    topbarActions()
         ->mountAction('createManualCharge')
         ->assertSchemaComponentVisible('customer_id')
         ->fillForm([
@@ -164,9 +165,11 @@ it('adds a manual charge for a chosen customer from the charges page', function 
             'customer_service_id' => $service->id,
         ])
         ->callMountedAction()
-        ->assertHasNoFormErrors()
         ->assertNotified('Borç eklendi.');
 
+    // The action already unmounted after the successful call (no default form left to check),
+    // so success is asserted through the notification and the created record instead of
+    // assertHasNoFormErrors().
     $charge = $customer->charges()->sole();
 
     expect($charge->description)->toBe('Ek destek saati')
@@ -317,4 +320,32 @@ it('refreshes the card and the list when a charge changes', function () {
     chargesPage()
         ->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT)
         ->assertOk();
+});
+
+it('adds a manual charge from the topbar and shows it wherever the customer\'s debt is listed', function () {
+    $customer = Customer::factory()->create(['short_name' => 'Logi']);
+
+    topbarActions()->callAction('createManualCharge', [
+        'customer_id' => $customer->id,
+        'description' => 'Ek destek saati',
+        'amount' => '750',
+        'currency' => 'TRY',
+        'due_date' => '2026-06-30',
+    ]);
+    $charge = $customer->charges()->sole();
+
+    Livewire::test(ListCustomers::class)
+        ->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT)
+        ->assertOk()
+        ->assertSee('Logi');
+
+    chargesPage()
+        ->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$charge]);
+
+    chargesOnCard($customer)
+        ->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$charge]);
 });

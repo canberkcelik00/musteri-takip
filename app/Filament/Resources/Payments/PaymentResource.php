@@ -9,6 +9,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 /**
  * All payments, newest first. Payments are recorded and deleted, never edited (T-42),
@@ -20,7 +21,14 @@ class PaymentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
-    protected static ?int $navigationSort = 3;
+    protected static string|UnitEnum|null $navigationGroup = null;
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): string
+    {
+        return __('navigation.collections');
+    }
 
     public static function getModelLabel(): string
     {

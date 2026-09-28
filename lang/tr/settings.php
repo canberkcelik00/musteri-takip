@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'navigation_group' => 'Ayarlar',
     'title' => 'Genel ayarlar',
     'renewal_lead_days' => 'Yenileme gün sayısı',
     'renewal_lead_days_help' => 'Hizmet bitişinden kaç gün önce yenileme borcu oluşsun.',

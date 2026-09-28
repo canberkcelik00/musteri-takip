@@ -52,8 +52,8 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 **Üst çubuk (her sayfada aynı yerde):**
 
-- Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i").
-- Sağda: "Ödeme al" birincil düğmesi (en sık iş her sayfadan tek tık) ve "Yeni" menüsü (Müşteri, Elle borç).
+- Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i"). (Arama davranışı G-4.14'te.)
+- Sağda: "Ödeme al" birincil düğmesi (en sık iş her sayfadan tek tık) ve "Yeni" menüsü (Müşteri, Elle borç). Dar ekranda arama önce daralır, "Yeni" menüsü `sm` altında gizlenir; "Ödeme al" her genişlikte kalır.
 
 ## 4. Yer kuralları: ne nerede durur
 
@@ -66,7 +66,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
 
-**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur. Diğerleri ikincil (çizgili) görünür.
+**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur — üst çubuktaki "Ödeme al". Sayfanın kendi ana işi (ör. "Yeni müşteri", "Borç ekle") aynı yerde durur ama ikincil (gri) görünür; kartın "Ödeme al" ve "Hizmet ekle" düğmeleri de ikincildir.
 
 ## 5. Ekran kuralları
 
@@ -86,7 +86,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 İki sütun; geniş sol sütun işe, dar sağ sütun bilgiye ayrılır.
 
-- **Başlık şeridi (tam genişlik):** Kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi; sağda birincil "Ödeme al", ikincil "Hizmet ekle".
+- **Başlık şeridi (tam genişlik):** Kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi; sağda ikincil "Ödeme al" ve "Hizmet ekle" (birincil düğme üst çubuktaki "Ödeme al"dır, §4).
 - **Sol sütun, sırayla:**
   - Hizmetler: aktifler, kompakt satırlar (ad, alan adı, bitiş, fiyat, durum). İptal edilmişler katlanmış "İptal edilenler (2)" altında.
   - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar.
@@ -143,10 +143,11 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ## 8. Şu anki panelden farklar
 
 - Açılış sayfası boş: "Bugün" sayfası yok (G-4.15'te yapılacak).
-- Her sayfadan ödeme alma ve alan adıyla arama yok.
+- ~~Her sayfadan ödeme alma yok.~~ (G-4.13'te yapıldı.)
+- Alan adıyla arama yok (G-4.14'te yapılacak).
 - Satır işlemleri "⋮" menülerinde gizli.
 - Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor.
-- Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok.
+- ~~Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok.~~ (G-4.13'te yapıldı.)
 - ~~Koyu tema ve varsayılan Filament görünümü; marka rengi, logo, durum rengi kuralları yok.~~ (G-4.12'de yapıldı.)
 
 ## 9. Kaynaklar
