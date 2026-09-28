@@ -319,7 +319,7 @@ Proje Laravel 13 ve PHP 8.3+ ile, tamamen Claude Code tarafından geliştirilece
 - Satır sonları her yerde LF: `.gitattributes` ve Git ayarıyla sabitlenir.
 - `composer.json` içinde platform PHP 8.3; testler ayrı bir test veritabanında çalışır; e-postalar yerelde Mailpit ile yakalanır.
 
-**Repodaki doküman seti:** `CLAUDE.md` (kurallar, komutlar, sürüm), `docs/PRD.md`, `docs/DATA_MODEL.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`.
+**Repodaki doküman seti:** `CLAUDE.md` (kurallar, komutlar, sürüm), `docs/PRD.md`, `docs/DATA_MODEL.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/UI.md`.
 
 **Çalışma döngüsü**
 

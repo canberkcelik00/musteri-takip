@@ -8,6 +8,7 @@ Hosting, alan adı, bakım gibi yıllık hizmetleri müşteri bazında takip ede
 - `docs/DATA_MODEL.md` — Tablolar, alanlar, kısıtlar.
 - `docs/ROADMAP.md` — Görevler, bağımlılıklar ve kabul kriterleri.
 - `docs/DECISIONS.md` — Verilmiş kararlar ve gerekçeleri.
+- `docs/UI.md` — Arayüz ilkeleri: ekran düzeni, menü, yer kuralları, görsel dil, hedef tık sayıları.
 
 Bu dosyalar arasında çelişki görürsen kendin çözme; dur ve kullanıcıya sor.
 
