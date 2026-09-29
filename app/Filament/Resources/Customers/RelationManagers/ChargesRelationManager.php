@@ -9,6 +9,7 @@ use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\SplitChargeAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
+use App\Filament\Support\MobileStatusBadge;
 use App\Filament\Tables\Columns\ChargeStatusColumn;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
@@ -21,8 +22,10 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 
 /**
  * The customer card's "Açık borçlar" (T-66): only the customer's open charges, oldest due date
@@ -33,8 +36,12 @@ use Illuminate\Database\Eloquent\Model;
  * without a service has none. "Borç ekle" and the row actions (edit, split, cancel) only call the
  * Actions in app/Actions/Charges; the rules live there. "Tüm borçlar" links to the customer's
  * full, unfiltered history in the menu's Borçlar list ({@see ChargeResource}).
- * Responsive (T-68, no horizontal scroll at any width): description (+ domains) and
- * remaining/status always show; due date from `md`.
+ * Responsive (T-68/T-70, no horizontal scroll at any width, classic table columns kept intact
+ * at every width — no {@see Stack}/`Split`, see
+ * {@see MobileStatusBadge}): description (+ domains) and remaining/status always show; due date
+ * and the "Durum" column from `md`; below `md` "Kalan"'s description carries a colored status
+ * badge instead (only for overdue, partially paid or due-soon — a plain open charge shows
+ * nothing, same as the desktop column), alongside the existing "/ total" line when applicable.
  */
 class ChargesRelationManager extends RelationManager
 {
@@ -87,26 +94,11 @@ class ChargesRelationManager extends RelationManager
                     ->label(__('charges.due_date'))
                     ->date()
                     ->visibleFrom('md'),
-                Stack::make([
-                    MoneyColumn::make('remaining')
-                        ->label(__('charges.remaining'))
-                        ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
-                        ->currencyAttribute('currency')
-                        ->description(fn (Charge $record): ?string => $record->isPartiallyPaid()
-                            ? '/ '.(new Money($record->amount, $record->currency))->format()
-                            : null),
-                    TextColumn::make('statusBadge')
-                        ->label(__('charges.status'))
-                        ->hiddenFrom('md')
-                        ->visible(fn (?Charge $record): bool => $record === null || $record->isOverdue() || $record->isPartiallyPaid() || $record->isDueSoon())
-                        ->badge()
-                        ->state(fn (Charge $record): string => match (true) {
-                            $record->isOverdue() => __('charges.overdue_days', ['count' => $record->daysOverdue()]),
-                            $record->isPartiallyPaid() => __('charges.partially_paid'),
-                            default => __('charges.due_soon'),
-                        })
-                        ->color(fn (Charge $record): string => $record->isOverdue() ? 'danger' : 'warning'),
-                ]),
+                MoneyColumn::make('remaining')
+                    ->label(__('charges.remaining'))
+                    ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
+                    ->currencyAttribute('currency')
+                    ->description(fn (Charge $record): ?Htmlable => $this->remainingDescription($record)),
                 ChargeStatusColumn::make('status')
                     ->visibleFrom('md'),
             ])
@@ -147,5 +139,37 @@ class ChargesRelationManager extends RelationManager
                 SplitChargeAction::make('splitChargeMobile')->cancelParentActions(),
                 CancelChargeAction::make('cancelChargeMobile')->cancelParentActions(),
             ]);
+    }
+
+    /**
+     * "Kalan"'s description (T-70): the "/ total" line for a partially paid charge, plus — only
+     * below `md`, where the "Durum" column is hidden — a colored status badge, for an overdue,
+     * partially paid or due-soon charge (a plain open one shows nothing, same as the desktop
+     * column; this table only ever lists open charges, so paid/cancelled never occur here).
+     */
+    private function remainingDescription(Charge $record): ?Htmlable
+    {
+        $original = $record->isPartiallyPaid()
+            ? '/ '.(new Money($record->amount, $record->currency))->format()
+            : null;
+
+        $badge = match (true) {
+            $record->isOverdue() => MobileStatusBadge::html(__('charges.overdue_days', ['count' => $record->daysOverdue()]), 'danger'),
+            $record->isPartiallyPaid() => MobileStatusBadge::html(__('charges.partially_paid'), 'warning'),
+            $record->isDueSoon() => MobileStatusBadge::html(__('charges.due_soon'), 'warning'),
+            default => null,
+        };
+
+        if ($original === null && $badge === null) {
+            return null;
+        }
+
+        $html = e($original ?? '');
+
+        if ($badge !== null) {
+            $html .= $badge->toHtml();
+        }
+
+        return new HtmlString($html);
     }
 }

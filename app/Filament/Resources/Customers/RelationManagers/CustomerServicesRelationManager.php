@@ -18,6 +18,7 @@ use App\Filament\Actions\RemoveFreeFlagAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\MobileStatusBadge;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use App\Models\Customer;
@@ -42,10 +43,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\HtmlString;
 
 /**
  * The customer's active services, one row each with its dates, price and status; the service
@@ -55,8 +58,11 @@ use Illuminate\Support\Collection;
  * "İptal edilenler" section. The row actions (edit, mark free or paid, cancel, reactivate) only
  * call the matching Action in app/Actions/CustomerServices; the rules live there. "Hizmet ekle"
  * (AssignCustomerServiceAction, T-66) is a page header action on the card, not a table action.
- * Responsive (T-68, no horizontal scroll at any width): name (+ domains) and price/status
- * always show; end date from `md`.
+ * Responsive (T-68/T-70, no horizontal scroll at any width, classic table columns kept intact
+ * at every width — no {@see Stack}/`Split`, see
+ * {@see MobileStatusBadge}): name (+ domains) and price/status always show; end date and the
+ * "Durum" column from `md`; below `md` the name's description carries a colored status badge
+ * instead (hidden again from `md`, since the "Durum" column already shows it there).
  */
 class CustomerServicesRelationManager extends RelationManager
 {
@@ -105,22 +111,11 @@ class CustomerServicesRelationManager extends RelationManager
                 ->orderBy('id'))
             ->paginated(false)
             ->columns([
-                Stack::make([
-                    TextColumn::make('name')
-                        ->label(__('customer_services.name'))
-                        ->wrap()
-                        ->description(fn (CustomerService $record): ?string => implode(', ', $record->domains()) ?: null)
-                        ->action($this->mobileEditAction()),
-                    TextColumn::make('statusBadge')
-                        ->label(__('customer_services.status'))
-                        ->hiddenFrom('md')
-                        ->visible(fn (?CustomerService $record): bool => $record === null || $record->status === CustomerServiceStatus::Cancelled || $record->isEndingSoon())
-                        ->badge()
-                        ->state(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Cancelled
-                            ? $record->status->getLabel()
-                            : __('customer_services.ending_soon'))
-                        ->color(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Cancelled ? 'gray' : 'warning'),
-                ]),
+                TextColumn::make('name')
+                    ->label(__('customer_services.name'))
+                    ->wrap()
+                    ->description(fn (CustomerService $record): ?Htmlable => $this->nameDescription($record))
+                    ->action($this->mobileEditAction()),
                 TextColumn::make('end_date')
                     ->label(__('customer_services.end_date'))
                     ->date()
@@ -174,6 +169,34 @@ class CustomerServicesRelationManager extends RelationManager
                 $this->cancelAction('cancelServiceMobile')->cancelParentActions(),
                 DeleteRecordAction::make('deleteMobile')->deleteWith(DeleteCustomerService::class)->cancelParentActions(),
             ]);
+    }
+
+    /**
+     * The name column's description (T-70): the service's domains, plus — only below `md`,
+     * where the "Durum" column is hidden — a colored status badge, for a cancelled or
+     * ending-soon service (a plain active one shows nothing, same as the desktop column).
+     */
+    private function nameDescription(CustomerService $record): ?Htmlable
+    {
+        $domains = implode(', ', $record->domains());
+
+        $badge = match (true) {
+            $record->status === CustomerServiceStatus::Cancelled => MobileStatusBadge::html($record->status->getLabel(), 'gray'),
+            $record->isEndingSoon() => MobileStatusBadge::html(__('customer_services.ending_soon'), 'warning'),
+            default => null,
+        };
+
+        if ($domains === '' && $badge === null) {
+            return null;
+        }
+
+        $html = e($domains);
+
+        if ($badge !== null) {
+            $html .= $badge->toHtml();
+        }
+
+        return new HtmlString($html);
     }
 
     private function editAction(string $name = 'editService'): Action

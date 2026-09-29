@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Filament\Support;
+
+use Filament\Tables\Columns\Layout\Stack;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
+
+/**
+ * A small colored badge for a table column's description (T-70): used to show a service's or
+ * charge's status under its name/description below `md`, where the desktop status column is
+ * hidden (docs/UI.md, G-4.16). Deliberately NOT a {@see Stack}
+ * or `Split`: using either anywhere in a table's `columns()` switches the whole table to
+ * Filament's "content layout" rendering, which has no `<thead>` — confirmed from source
+ * (`Filament\Tables\Table\Concerns\HasColumns::$hasColumnsLayout` and the classic-table branch
+ * in `index.blade.php` being gated on `! $hasColumnsLayout`) and by reproducing the regression
+ * (column headers and row actions disappeared at every width, not just below `md`). A plain
+ * `TextColumn::description()` accepts `Htmlable`, so the badge is rendered as real markup
+ * (matching `<x-filament::badge>`) inside that description instead, wrapped in `md:hidden` so
+ * it only shows below `md`; the column itself, and the table's classic rendering, stay intact.
+ */
+class MobileStatusBadge
+{
+    public static function html(string $label, string $color): Htmlable
+    {
+        return new HtmlString(Blade::render(
+            <<<'BLADE'
+                <span class="md:hidden mt-1 inline-block">
+                    <x-filament::badge :color="$color">{{ $label }}</x-filament::badge>
+                </span>
+                BLADE,
+            ['label' => $label, 'color' => $color],
+        ));
+    }
+}

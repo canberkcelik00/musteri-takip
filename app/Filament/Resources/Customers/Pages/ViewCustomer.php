@@ -35,7 +35,11 @@ use Livewire\Attributes\On;
  * credit balance), then two columns — the work (services, open charges, recent payments) on the
  * left, information (contacts, billing, notes) on the right — and the destructive actions
  * (archive, delete) at the bottom, right-aligned and separate from both columns, not boxed in
- * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5).
+ * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5), but
+ * with the same top margin a section would have (T-70; sitting flush under the grid looked
+ * attached to the shorter, right column). Contacts is wrapped in a heading-less Section (T-70)
+ * so its padding matches "Fatura bilgileri"/"Notlar" and the right column's item spacing
+ * matches the left column's — a bare Livewire component had neither on its own.
  * "Ödeme al" and "Hizmet ekle" are the page's header actions, level with the strip.
  */
 class ViewCustomer extends ViewRecord
@@ -117,7 +121,8 @@ class ViewCustomer extends ViewRecord
                 DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
             ])
                 ->key('danger_actions')
-                ->alignment(Alignment::End),
+                ->alignment(Alignment::End)
+                ->extraAttributes(['class' => 'mt-6']),
         ]);
     }
 
@@ -159,10 +164,13 @@ class ViewCustomer extends ViewRecord
     private function infoColumn(Customer $customer): array
     {
         return [
-            Livewire::make(ContactsRelationManager::class, [
-                'ownerRecord' => $customer,
-                'pageClass' => static::class,
-            ])->key('contacts'),
+            Section::make()
+                ->schema([
+                    Livewire::make(ContactsRelationManager::class, [
+                        'ownerRecord' => $customer,
+                        'pageClass' => static::class,
+                    ])->key('contacts'),
+                ]),
             Section::make(__('customers.billing_section'))
                 ->afterHeader([EditAction::make()->color('gray')])
                 ->schema(CustomerInfolist::billingSchema()),
