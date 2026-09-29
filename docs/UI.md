@@ -142,7 +142,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 ## 8. Şu anki panelden farklar
 
-- Açılış sayfası boş: "Bugün" sayfası yok (G-4.15'te yapılacak).
+- ~~Açılış sayfası boş: "Bugün" sayfası yok.~~ (G-4.15'te yapıldı.)
 - ~~Her sayfadan ödeme alma yok.~~ (G-4.13'te yapıldı.)
 - ~~Alan adıyla arama yok.~~ (G-4.14'te yapıldı.)
 - Satır işlemleri "⋮" menülerinde gizli.

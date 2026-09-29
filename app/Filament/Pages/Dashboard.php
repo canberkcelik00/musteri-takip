@@ -3,14 +3,15 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
+use App\Filament\Widgets\TodayStats;
+use App\Filament\Widgets\TodayTasks;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Illuminate\Contracts\Support\Htmlable;
 
 /**
- * The panel's home page ("Bugün"); the daily to-do content is added in G-4.15, as widgets that
- * will use the same RefreshesOnPaymentOrChargeChange trait. Named to override Filament's default
- * Dashboard so the navigation label and title read "Bugün" (docs/UI.md §3) instead of the
- * package default.
+ * The panel's home page ("Bugün", docs/UI.md §5): the four stats and the "Yapılacaklar" list,
+ * in that order. Named to override Filament's default Dashboard so the navigation label and
+ * title read "Bugün" (docs/UI.md §3) instead of the package default.
  */
 class Dashboard extends BaseDashboard
 {
@@ -24,5 +25,16 @@ class Dashboard extends BaseDashboard
     public function getTitle(): string|Htmlable
     {
         return __('navigation.today');
+    }
+
+    /**
+     * @return array<class-string>
+     */
+    public function getWidgets(): array
+    {
+        return [
+            TodayStats::class,
+            TodayTasks::class,
+        ];
     }
 }

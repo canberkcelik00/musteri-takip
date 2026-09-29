@@ -156,7 +156,7 @@ class RecordPaymentAction extends Action
 
         return [
             'customer_id' => $customer?->getKey(),
-            'currency' => $defaults['currency']->value,
+            'currency' => ($this->prefilledCurrency() ?? $defaults['currency'])->value,
             'payment_method_id' => $defaults['payment_method_id'],
             'paid_on' => today()->toDateString(),
             'show_allocations' => false,
@@ -173,6 +173,17 @@ class RecordPaymentAction extends Action
         $customerId = $this->getArguments()['customer'] ?? null;
 
         return filled($customerId) ? Customer::query()->find($customerId) : null;
+    }
+
+    /**
+     * The currency the "Bugün" page's row "Ödeme al" opened this form for (docs/UI.md §5):
+     * the charge's own currency, still changeable like the prefilled customer above.
+     */
+    private function prefilledCurrency(): ?Currency
+    {
+        $currency = $this->getArguments()['currency'] ?? null;
+
+        return $currency instanceof Currency ? $currency : Currency::tryFrom((string) $currency);
     }
 
     private function customerFrom(Get $get): ?Customer

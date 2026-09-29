@@ -71,4 +71,7 @@ return [
     'reactivate_period_ended_helper' => 'Hizmetin dönemi sona ermiş; yeni bir başlangıç tarihi girin. İptal süresi borçlandırılmaz.',
     'reopen_charge' => 'Bu dönemin iptal edilmiş borcunu yeniden aç (:amount)',
     'new_price' => 'Yeni fiyat',
+
+    'confirm_free_continuation' => 'Ücretsiz devam et',
+    'free_continuation_confirmed' => 'Ücretsiz devam onaylandı.',
 ];

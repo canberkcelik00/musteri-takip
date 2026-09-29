@@ -150,6 +150,37 @@ class Customer extends Model
     }
 
     /**
+     * Not archived and has at least one active service (free ones included, see
+     * CustomerService::endingSoon()) ending within the renewal lead time (docs/UI.md §5's
+     * "yenilemesi yaklaşan müşteri" stat). A customer counts once regardless of how many of
+     * its services qualify.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function renewalSoon(Builder $query): void
+    {
+        $query
+            ->notArchived()
+            ->whereHas('customerServices', fn (Builder $query): Builder => $query->endingSoon());
+    }
+
+    /**
+     * Not archived and has at least one service awaiting a free-continuation decision
+     * ({@see CustomerService::awaitingFreeDecision()}). A customer counts once even with
+     * several such services.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function awaitingFreeDecision(Builder $query): void
+    {
+        $query
+            ->notArchived()
+            ->whereHas('customerServices', fn (Builder $query): Builder => $query->awaitingFreeDecision());
+    }
+
+    /**
      * Credit balance per currency: payments minus their allocations. Currencies without
      * a balance are left out; keyed by currency value in `Currency::cases()` order.
      *

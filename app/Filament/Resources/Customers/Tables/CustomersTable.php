@@ -14,6 +14,7 @@ use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Customer;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -49,6 +50,14 @@ class CustomersTable
             ])
             ->filters([
                 ArchivedFilter::make(),
+                Filter::make('renewal_soon')
+                    ->label(__('customers.renewal_soon'))
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->scopes(['renewalSoon'])),
+                Filter::make('awaiting_free_decision')
+                    ->label(__('customers.awaiting_free_decision'))
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->scopes(['awaitingFreeDecision'])),
             ])
             ->recordActions([
                 EditAction::make(),

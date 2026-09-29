@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $start_date
  * @property Carbon $end_date
  * @property Carbon|null $cancelled_on
+ * @property Carbon|null $free_continuation_confirmed_for
  */
 #[Fillable([
     'catalog_service_id',
@@ -38,6 +39,7 @@ use Illuminate\Support\Carbon;
     'start_date',
     'end_date',
     'is_free',
+    'free_continuation_confirmed_for',
     'status',
     'cancelled_on',
     'cancel_note',
@@ -144,6 +146,36 @@ class CustomerService extends Model
     }
 
     /**
+     * A free, active service whose renewal window has opened ({@see self::isEndingSoon()}) but
+     * whose current end date has not been confirmed yet ("Ücretsiz devam et", docs/UI.md §5).
+     * Once the period advances, end_date moves and the question returns automatically next year.
+     */
+    public function isAwaitingFreeDecision(): bool
+    {
+        return $this->is_free
+            && $this->isEndingSoon()
+            && ($this->free_continuation_confirmed_for === null || ! $this->end_date->equalTo($this->free_continuation_confirmed_for));
+    }
+
+    /**
+     * Query-level equivalent of {@see self::isAwaitingFreeDecision()}.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function awaitingFreeDecision(Builder $query, ?int $leadDays = null): void
+    {
+        $query
+            ->where($this->qualifyColumn('is_free'), true)
+            ->endingSoon($leadDays)
+            ->where(function (Builder $query): void {
+                $query
+                    ->whereNull($this->qualifyColumn('free_continuation_confirmed_for'))
+                    ->orWhereColumn($this->qualifyColumn('free_continuation_confirmed_for'), '!=', $this->qualifyColumn('end_date'));
+            });
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -159,6 +191,7 @@ class CustomerService extends Model
             'is_free' => 'boolean',
             'status' => CustomerServiceStatus::class,
             'cancelled_on' => 'date',
+            'free_continuation_confirmed_for' => 'date',
         ];
     }
 }

@@ -19,4 +19,6 @@ return [
     'balance_section' => 'Bakiye',
     'credit_balance' => 'Alacak bakiyesi',
     'domains' => 'Alan adı',
+    'renewal_soon' => 'Yenilemesi yaklaşan',
+    'awaiting_free_decision' => 'Ücretsiz karar bekleyen',
 ];

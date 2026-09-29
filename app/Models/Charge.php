@@ -180,6 +180,40 @@ class Charge extends Model
     }
 
     /**
+     * Query-level equivalent of {@see self::isOverdue()}. Like {@see self::dueSoon()}, no
+     * amount filter is needed: an open charge's due date already guarantees it is unpaid
+     * (SyncChargeStatus moves a fully allocated charge to `paid`), so a partially paid open
+     * charge counts as overdue here too.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function overdue(Builder $query): void
+    {
+        $today = Carbon::today(config('app.timezone'));
+
+        $query
+            ->where($this->qualifyColumn('status'), ChargeStatus::Open)
+            ->whereDate($this->qualifyColumn('due_date'), '<', $today);
+    }
+
+    /**
+     * Open charges due from today through the end of the current calendar month
+     * (docs/UI.md §5's "bu ay vadesi gelen"), overdue ones counted separately and not here.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function dueThisMonth(Builder $query): void
+    {
+        $today = Carbon::today(config('app.timezone'));
+
+        $query
+            ->where($this->qualifyColumn('status'), ChargeStatus::Open)
+            ->whereBetween($this->qualifyColumn('due_date'), [$today, $today->copy()->endOfMonth()]);
+    }
+
+    /**
      * Limit the query to charges created on the given day, counted in the application
      * time zone (Europe/Istanbul). The daily digest lists these as the day's new charges.
      *

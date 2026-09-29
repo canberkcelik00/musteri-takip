@@ -90,12 +90,13 @@ Kısıt: `package_id` + `catalog_service_id` benzersizdir. Katalogdaki fiyat de�
 | start_date | date | Evet | Geçerli dönemin başlangıcı |
 | end_date | date | Evet | Geçerli dönemin bitişi |
 | is_free | boolean | Evet | Varsayılan false |
+| free_continuation_confirmed_for | date | Hayır | "Ücretsiz devam et" ile o anki `end_date` kopyalanır |
 | status | enum | Evet | `active`, `cancelled` |
 | cancelled_on | date | Hayır | |
 | cancel_note | text | Hayır | |
 | notes | text | Hayır | |
 
-Kısıt: `catalog_service_id` ve `package_id` alanlarından tam olarak biri doludur. Bitiş tarihi geldiğinde `start_date` ve `end_date` `period_months` kadar ilerler (iptal edilmişlerde ilerlemez).
+Kısıt: `catalog_service_id` ve `package_id` alanlarından tam olarak biri doludur. Bitiş tarihi geldiğinde `start_date` ve `end_date` `period_months` kadar ilerler (iptal edilmişlerde ilerlemez). `free_continuation_confirmed_for`, `end_date`'e eşit değilse (veya boşsa) ücretsiz ve yenilemesi yaklaşan hizmet "Bugün" sayfasında karar bekliyor sayılır (G-4.15); dönem ilerleyince alan eskide kalır ve soru kendiliğinden geri gelir.
 
 **customer_service_items**
 

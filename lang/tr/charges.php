@@ -22,8 +22,12 @@ return [
     'partially_paid' => 'Kısmi ödendi',
     'overdue_days' => 'Gecikmiş (:count gün)',
     'due_soon' => 'Vadesi yaklaşıyor',
+    'due_in_days' => ':count gün kaldı',
+    'due_today' => 'Bugün vadesi geliyor',
     'currency' => 'Para birimi',
     'only_overdue' => 'Yalnızca gecikmişler',
+    'due_this_month' => 'Bu ay vadesi gelen',
+    'due_soon_filter' => '7 gün içinde vadesi gelen',
 
     'create' => 'Borç ekle',
     'create_heading' => 'Elle borç ekle',

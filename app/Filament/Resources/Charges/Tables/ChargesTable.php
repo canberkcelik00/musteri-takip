@@ -17,7 +17,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 
 class ChargesTable
 {
@@ -56,10 +55,15 @@ class ChargesTable
                 Filter::make('only_overdue')
                     ->label(__('charges.only_overdue'))
                     ->toggle()
-                    ->query(fn (Builder $query): Builder => $query
-                        ->where('status', ChargeStatus::Open)
-                        ->whereDate('due_date', '<', Carbon::today(config('app.timezone'))->toDateString())
-                        ->whereRaw('charges.amount > coalesce((select sum(payment_allocations.amount) from payment_allocations where payment_allocations.charge_id = charges.id), 0)')),
+                    ->query(fn (Builder $query): Builder => $query->scopes(['overdue'])),
+                Filter::make('due_this_month')
+                    ->label(__('charges.due_this_month'))
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->scopes(['dueThisMonth'])),
+                Filter::make('due_soon')
+                    ->label(__('charges.due_soon_filter'))
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->scopes(['dueSoon'])),
                 SelectFilter::make('currency')
                     ->label(__('charges.currency'))
                     ->options(Currency::class),

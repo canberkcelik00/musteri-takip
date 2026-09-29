@@ -8,7 +8,6 @@ use App\Actions\CustomerServices\DeleteCustomerService;
 use App\Actions\CustomerServices\MarkCustomerServiceFree;
 use App\Actions\CustomerServices\PreviewCustomerServiceCancellation;
 use App\Actions\CustomerServices\ReactivateCustomerService;
-use App\Actions\CustomerServices\RemoveCustomerServiceFreeFlag;
 use App\Actions\CustomerServices\ReopenCustomerServiceCharge;
 use App\Actions\CustomerServices\UpdateCustomerService;
 use App\Enums\Currency;
@@ -16,6 +15,7 @@ use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Exceptions\InvalidCustomerService;
 use App\Filament\Actions\DeleteRecordAction;
+use App\Filament\Actions\RemoveFreeFlagAction;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -116,7 +116,7 @@ class CustomerServicesRelationManager extends RelationManager
                 $this->reactivateAction(),
                 ActionGroup::make([
                     $this->markFreeAction(),
-                    $this->removeFreeAction(),
+                    RemoveFreeFlagAction::make(),
                     $this->cancelAction(),
                     DeleteRecordAction::make()->deleteWith(DeleteCustomerService::class),
                 ]),
@@ -337,40 +337,6 @@ class CustomerServicesRelationManager extends RelationManager
                 $markCustomerServiceFree->handle($record, (bool) ($data['cancel_upcoming_charges'] ?? false));
 
                 $action->successNotificationTitle(__('customer_services.marked_free'))->success();
-            });
-    }
-
-    private function removeFreeAction(): Action
-    {
-        return Action::make('removeFree')
-            ->label(__('customer_services.remove_free'))
-            ->icon(Heroicon::CurrencyDollar)
-            ->modalHeading(__('customer_services.remove_free_heading'))
-            ->visible(fn (CustomerService $record): bool => $record->status === CustomerServiceStatus::Active && $record->is_free)
-            ->fillForm(fn (CustomerService $record): array => ['price' => $record->price])
-            ->schema(fn (CustomerService $record): array => [
-                MoneyInput::make('price')
-                    ->label(__('customer_services.new_price'))
-                    ->required()
-                    ->suffix($record->currency->getLabel()),
-            ])
-            ->action(function (array $data, CustomerService $record, Action $action, RemoveCustomerServiceFreeFlag $removeCustomerServiceFreeFlag): void {
-                $charge = null;
-
-                try {
-                    $charge = $removeCustomerServiceFreeFlag->handle($record, $data['price']);
-                } catch (InvalidCustomerService $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
-                }
-
-                $action->successNotificationTitle($charge === null
-                    ? __('customer_services.removed_free')
-                    : __('customer_services.removed_free_charge', ['amount' => (new Money($charge->amount, $charge->currency))->format()]))->success();
             });
     }
 

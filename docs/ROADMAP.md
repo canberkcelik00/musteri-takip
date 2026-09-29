@@ -145,7 +145,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.14 Ctrl+K arama ve komut kutusu** — Bağımlılık: G-4.13
   - Yapılacak: Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arama; fare kullanmadan müşteriye gitme ve ödeme kaydetme. Alan adı `details` JSON'unda durduğu için arama yöntemi planda gösterilir.
   - Kabul: "logi.com.tr" yazınca Logi bulunur (testli); Ctrl+K + yazma + 1 tık.
-- [ ] **G-4.15 Bugün sayfası (G-5.4'ten taşındı)** — Bağımlılık: G-4.13
+- [x] **G-4.15 Bugün sayfası (G-5.4'ten taşındı)** — Bağımlılık: G-4.13
   - Yapılacak: Açılış sayfası `docs/UI.md` §5'e göre yapılır. Üst satırda dört sayı: para birimi başına toplam alacak, gecikmiş tutar ve adet, bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı; her sayı süzülmüş listeye gider. Altında öncelik sırasıyla Yapılacaklar: gecikmiş borçlar (en eski üstte, kaç gün geciktiğiyle), bu hafta vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi: "Ödeme al", "Ücretsiz devam et", "Ücretli yap". Liste boşsa "Bugün yapılacak bir şey yok". "Ücretsiz devam et" kararını tutacak bir alan veri modelinde yok; planda kullanıcıya sorulur.
   - Kabul: Örnek veriyle sayılar ve tutarlar doğru; gecikmiş borcun ödemesi 1 tık + tutar + 1 tık (testli).
 - [ ] **G-4.16 Müşteri listesi ve kartı** — Bağımlılık: G-4.13
