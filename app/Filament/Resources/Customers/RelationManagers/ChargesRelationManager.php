@@ -18,6 +18,7 @@ use App\Support\Money;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,6 +39,12 @@ use Illuminate\Database\Eloquent\Model;
 class ChargesRelationManager extends RelationManager
 {
     use RefreshesOnPaymentOrChargeChange;
+
+    /**
+     * Hides a row action's button below `md` (T-68); the row's description column opens the
+     * same options via {@see self::mobileEditAction()} at that width instead.
+     */
+    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
 
     protected static string $relationship = 'charges';
 
@@ -74,19 +81,34 @@ class ChargesRelationManager extends RelationManager
                     ->wrap()
                     ->description(fn (Charge $record): ?string => filled($domains = $record->customerService?->domains())
                         ? implode(', ', $domains)
-                        : null),
+                        : null)
+                    ->action($this->mobileEditAction()),
                 TextColumn::make('due_date')
                     ->label(__('charges.due_date'))
                     ->date()
                     ->visibleFrom('md'),
-                MoneyColumn::make('remaining')
-                    ->label(__('charges.remaining'))
-                    ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
-                    ->currencyAttribute('currency')
-                    ->description(fn (Charge $record): ?string => $record->isPartiallyPaid()
-                        ? '/ '.(new Money($record->amount, $record->currency))->format()
-                        : null),
-                ChargeStatusColumn::make('status'),
+                Stack::make([
+                    MoneyColumn::make('remaining')
+                        ->label(__('charges.remaining'))
+                        ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
+                        ->currencyAttribute('currency')
+                        ->description(fn (Charge $record): ?string => $record->isPartiallyPaid()
+                            ? '/ '.(new Money($record->amount, $record->currency))->format()
+                            : null),
+                    TextColumn::make('statusBadge')
+                        ->label(__('charges.status'))
+                        ->hiddenFrom('md')
+                        ->visible(fn (?Charge $record): bool => $record === null || $record->isOverdue() || $record->isPartiallyPaid() || $record->isDueSoon())
+                        ->badge()
+                        ->state(fn (Charge $record): string => match (true) {
+                            $record->isOverdue() => __('charges.overdue_days', ['count' => $record->daysOverdue()]),
+                            $record->isPartiallyPaid() => __('charges.partially_paid'),
+                            default => __('charges.due_soon'),
+                        })
+                        ->color(fn (Charge $record): string => $record->isOverdue() ? 'danger' : 'warning'),
+                ]),
+                ChargeStatusColumn::make('status')
+                    ->visibleFrom('md'),
             ])
             ->headerActions([
                 CreateManualChargeAction::make()->customer($customer)->color('gray'),
@@ -101,11 +123,29 @@ class ChargesRelationManager extends RelationManager
                     ])),
             ])
             ->recordActions([
-                EditChargeAction::make(),
+                EditChargeAction::make()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
                 ActionGroup::make([
                     SplitChargeAction::make(),
                     CancelChargeAction::make(),
-                ]),
+                ])->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+            ]);
+    }
+
+    /**
+     * The description column's click target below `md`, where the row actions are hidden
+     * (T-68): "Düzenle", with "Böl" and "İptal et" added to its footer so they stay reachable.
+     * `cancelParentActions()` closes this modal instead of also submitting the edit form. At
+     * `md` and up the layout is unchanged: these stay separate, visible row actions
+     * ({@see self::table()}). Named distinctly from the row actions ("…Mobile"): the table
+     * caches actions by name regardless of whether they came from a column or a row, so reusing
+     * a name here would let one silently overwrite the other (confirmed by reproducing it).
+     */
+    private function mobileEditAction(): Action
+    {
+        return EditChargeAction::make('editChargeMobile')
+            ->extraModalFooterActions([
+                SplitChargeAction::make('splitChargeMobile')->cancelParentActions(),
+                CancelChargeAction::make('cancelChargeMobile')->cancelParentActions(),
             ]);
     }
 }

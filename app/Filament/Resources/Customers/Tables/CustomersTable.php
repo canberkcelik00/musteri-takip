@@ -21,9 +21,13 @@ use Illuminate\Database\Eloquent\Builder;
  * edit page, per docs/UI.md §2 Kural 6 (satırda en fazla iki metinli işlem, burada bir tane).
  * Responsive (T-68, no horizontal scroll at any width): short name + legal title and the open
  * debt (identity + amount) always show; next renewal from `md`, active service count from `lg`.
+ * "Ödeme al" is hidden below `md` too; the row is already clickable to the customer card
+ * (`recordUrl()`), the natural place to record a payment below that width.
  */
 class CustomersTable
 {
+    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -73,7 +77,8 @@ class CustomersTable
             ->recordActions([
                 RecordPaymentAction::make()
                     ->color('gray')
-                    ->visible(fn (Customer $record): bool => ! $record->isArchived()),
+                    ->visible(fn (Customer $record): bool => ! $record->isArchived())
+                    ->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
             ]);
     }
 

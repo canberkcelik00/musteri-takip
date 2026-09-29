@@ -39,6 +39,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,6 +61,13 @@ use Illuminate\Support\Collection;
 class CustomerServicesRelationManager extends RelationManager
 {
     use RefreshesOnPaymentOrChargeChange;
+
+    /**
+     * Hides a row action's button below `md` (T-68); the row's name column opens the same
+     * options via {@see self::mobileEditAction()} at that width instead. `inline-flex` matches
+     * Filament's own small table action display, so nothing shifts once it reappears at `md`.
+     */
+    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
 
     protected static string $relationship = 'customerServices';
 
@@ -97,10 +105,22 @@ class CustomerServicesRelationManager extends RelationManager
                 ->orderBy('id'))
             ->paginated(false)
             ->columns([
-                TextColumn::make('name')
-                    ->label(__('customer_services.name'))
-                    ->wrap()
-                    ->description(fn (CustomerService $record): ?string => implode(', ', $record->domains()) ?: null),
+                Stack::make([
+                    TextColumn::make('name')
+                        ->label(__('customer_services.name'))
+                        ->wrap()
+                        ->description(fn (CustomerService $record): ?string => implode(', ', $record->domains()) ?: null)
+                        ->action($this->mobileEditAction()),
+                    TextColumn::make('statusBadge')
+                        ->label(__('customer_services.status'))
+                        ->hiddenFrom('md')
+                        ->visible(fn (?CustomerService $record): bool => $record === null || $record->status === CustomerServiceStatus::Cancelled || $record->isEndingSoon())
+                        ->badge()
+                        ->state(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Cancelled
+                            ? $record->status->getLabel()
+                            : __('customer_services.ending_soon'))
+                        ->color(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Cancelled ? 'gray' : 'warning'),
+                ]),
                 TextColumn::make('end_date')
                     ->label(__('customer_services.end_date'))
                     ->date()
@@ -110,6 +130,7 @@ class CustomerServicesRelationManager extends RelationManager
                     ->state(fn (CustomerService $record): int|string => $record->is_free ? __('customer_services.free') : $record->price),
                 TextColumn::make('status')
                     ->label(__('customer_services.status'))
+                    ->visibleFrom('md')
                     ->badge(fn (CustomerService $record): bool => $record->status === CustomerServiceStatus::Cancelled || $record->isEndingSoon())
                     ->state(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Active && $record->isEndingSoon()
                         ? __('customer_services.ending_soon')
@@ -121,20 +142,43 @@ class CustomerServicesRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
-                $this->editAction(),
-                $this->reactivateAction(),
+                $this->editAction()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+                $this->reactivateAction()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
                 ActionGroup::make([
                     $this->markFreeAction(),
                     RemoveFreeFlagAction::make(),
                     $this->cancelAction(),
                     DeleteRecordAction::make()->deleteWith(DeleteCustomerService::class),
-                ]),
+                ])->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
             ]);
     }
 
-    private function editAction(): Action
+    /**
+     * The name column's click target below `md`, where the row actions are hidden (T-68): the
+     * same "Düzenle" panel, with the rarer actions (reactivate, mark free/paid, cancel, delete)
+     * added to its footer so they stay reachable. `cancelParentActions()` on each closes this
+     * modal instead of also submitting the edit form. At `md` and up the layout is unchanged:
+     * these stay separate, visible row actions ({@see self::table()}). Each nested action gets
+     * its own "…Mobile" name: reusing the row action's name here would let whichever of the two
+     * (column vs row) is built last overwrite the other in the table's action cache, since both
+     * are cached by name regardless of context — confirmed by reproducing it (the row version,
+     * with no footer, silently won and nesting inside it failed to resolve).
+     */
+    private function mobileEditAction(): Action
     {
-        return Action::make('editService')
+        return $this->editAction('editServiceMobile')
+            ->extraModalFooterActions([
+                $this->reactivateAction('reactivateMobile')->cancelParentActions(),
+                $this->markFreeAction('markFreeMobile')->cancelParentActions(),
+                RemoveFreeFlagAction::make('removeFreeMobile')->cancelParentActions(),
+                $this->cancelAction('cancelServiceMobile')->cancelParentActions(),
+                DeleteRecordAction::make('deleteMobile')->deleteWith(DeleteCustomerService::class)->cancelParentActions(),
+            ]);
+    }
+
+    private function editAction(string $name = 'editService'): Action
+    {
+        return Action::make($name)
             ->label(__('customer_services.edit'))
             ->icon(Heroicon::PencilSquare)
             ->modalHeading(__('customer_services.edit_heading'))
@@ -245,9 +289,9 @@ class CustomerServicesRelationManager extends RelationManager
         return $fields;
     }
 
-    private function markFreeAction(): Action
+    private function markFreeAction(string $name = 'markFree'): Action
     {
-        return Action::make('markFree')
+        return Action::make($name)
             ->label(__('customer_services.mark_free'))
             ->icon(Heroicon::Gift)
             ->modalHeading(__('customer_services.mark_free_heading'))
@@ -261,9 +305,9 @@ class CustomerServicesRelationManager extends RelationManager
             });
     }
 
-    private function cancelAction(): Action
+    private function cancelAction(string $name = 'cancelService'): Action
     {
-        return Action::make('cancelService')
+        return Action::make($name)
             ->label(__('customer_services.cancel'))
             ->icon(Heroicon::XCircle)
             ->color('danger')
@@ -330,9 +374,9 @@ class CustomerServicesRelationManager extends RelationManager
         ));
     }
 
-    private function reactivateAction(): Action
+    private function reactivateAction(string $name = 'reactivate'): Action
     {
-        return Action::make('reactivate')
+        return Action::make($name)
             ->label(__('customer_services.reactivate'))
             ->icon(Heroicon::ArrowPath)
             ->modalHeading(__('customer_services.reactivate_heading'))

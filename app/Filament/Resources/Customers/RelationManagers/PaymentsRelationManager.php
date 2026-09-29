@@ -24,11 +24,15 @@ use Illuminate\Database\Eloquent\Model;
  * (RecordPaymentAction), not a header action here (T-63). "Tüm ödemeler" links to the
  * customer's full history in the menu's Ödemeler list ({@see PaymentResource}).
  * Responsive (T-68, no horizontal scroll at any width): date and amount (+ domains) always
- * show; payment method from `md`, note from `lg`.
+ * show; payment method from `md`, note from `lg`. Below `md` the row action button (delete) is
+ * hidden and the amount column opens the same confirmation instead — there is no "edit" for a
+ * payment (T-42), so deleting is the only, already-confirmed option either way.
  */
 class PaymentsRelationManager extends RelationManager
 {
     use RefreshesOnPaymentOrChargeChange;
+
+    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
 
     protected static string $relationship = 'payments';
 
@@ -65,7 +69,8 @@ class PaymentsRelationManager extends RelationManager
                     ->label(__('payments.amount'))
                     ->description(fn (Payment $record): ?string => filled($domains = $record->domains())
                         ? implode(', ', $domains)
-                        : null),
+                        : null)
+                    ->action(DeletePaymentAction::make('deletePaymentMobile')),
                 TextColumn::make('paymentMethod.name')
                     ->label(__('payments.payment_method'))
                     ->visibleFrom('md'),
@@ -84,7 +89,7 @@ class PaymentsRelationManager extends RelationManager
                     ])),
             ])
             ->recordActions([
-                DeletePaymentAction::make(),
+                DeletePaymentAction::make()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
             ]);
     }
 }
