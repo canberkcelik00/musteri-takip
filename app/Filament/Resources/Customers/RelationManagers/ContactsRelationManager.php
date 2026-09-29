@@ -18,6 +18,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -56,24 +57,30 @@ class ContactsRelationManager extends RelationManager
             ->modifyQueryUsing(fn ($query) => $query->orderByDesc('is_primary')->orderBy('name'))
             ->paginated(false)
             ->columns([
-                TextColumn::make('name')
-                    ->label(__('contacts.name'))
-                    ->description(fn (Contact $record): ?string => $record->title)
-                    ->weight(FontWeight::Bold),
-                TextColumn::make('phone')
-                    ->label(__('contacts.phone'))
-                    ->url(fn (Contact $record): ?string => filled($record->phone) ? "tel:{$record->phone}" : null)
-                    ->placeholder(__('money.empty')),
-                TextColumn::make('email')
-                    ->label(__('contacts.email'))
-                    ->url(fn (Contact $record): ?string => filled($record->email) ? "mailto:{$record->email}" : null)
-                    ->placeholder(__('money.empty')),
+                Stack::make([
+                    TextColumn::make('name')
+                        ->label(__('contacts.name'))
+                        ->weight(FontWeight::Bold),
+                    TextColumn::make('title')
+                        ->label(__('contacts.title'))
+                        ->visible(fn (?Contact $record): bool => $record === null || filled($record->title)),
+                    TextColumn::make('phone')
+                        ->label(__('contacts.phone'))
+                        ->url(fn (Contact $record): ?string => filled($record->phone) ? "tel:{$record->phone}" : null)
+                        ->visible(fn (?Contact $record): bool => $record === null || filled($record->phone)),
+                    TextColumn::make('email')
+                        ->label(__('contacts.email'))
+                        ->url(fn (Contact $record): ?string => filled($record->email) ? "mailto:{$record->email}" : null)
+                        ->visible(fn (?Contact $record): bool => $record === null || filled($record->email)),
+                ]),
                 TextColumn::make('is_primary')
                     ->label(__('contacts.is_primary'))
                     ->state(fn (Contact $record): ?string => $record->is_primary ? __('contacts.is_primary') : null),
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->label(__('contacts.add'))
+                    ->color('gray')
                     ->schema([
                         ...$this->getContactFields(),
                         Toggle::make('make_primary')

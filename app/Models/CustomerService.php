@@ -110,6 +110,26 @@ class CustomerService extends Model
     }
 
     /**
+     * Distinct domain names from this service's items (customer_service_items.details->domain),
+     * in the order first seen (T-66). Uses the loaded `items` relation when available, so
+     * relation manager tables that eager-load it do not query per row. The single place this
+     * is computed; {@see Customer::domains()} and {@see Payment::domains()} build on it.
+     *
+     * @return list<string>
+     */
+    public function domains(): array
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+
+        return $items
+            ->pluck('details.domain')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * An active service whose end date falls within the next $leadDays days (today
      * included). Purely a display state: it is derived on every call, never stored.
      * Defaults to the configured renewal lead time (docs/UI.md §5, §6).

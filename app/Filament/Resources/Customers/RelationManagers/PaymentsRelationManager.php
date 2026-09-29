@@ -7,6 +7,7 @@ use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Customer;
+use App\Models\Payment;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -15,10 +16,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The customer card's "Son ödemeler" (T-66): the customer's 5 most recent payments. The row
- * action deletes one; it only calls the Actions in app/Actions/Payments. Recording a payment is
- * the card's page header action (RecordPaymentAction), not a header action here (T-63). "Tüm
- * ödemeler" links to the customer's full history in the menu's Ödemeler list ({@see PaymentResource}).
+ * The customer card's "Son ödemeler" (T-66): the customer's 5 most recent payments. The amount
+ * shows the domains of the services behind the charges it paid down ({@see Payment::domains()})
+ * as a faded line; a payment with no allocations, or allocated only to charges without a
+ * service, has none. The row action deletes one; it only calls the Actions in
+ * app/Actions/Payments. Recording a payment is the card's page header action
+ * (RecordPaymentAction), not a header action here (T-63). "Tüm ödemeler" links to the
+ * customer's full history in the menu's Ödemeler list ({@see PaymentResource}).
  */
 class PaymentsRelationManager extends RelationManager
 {
@@ -46,7 +50,7 @@ class PaymentsRelationManager extends RelationManager
 
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                ->with('paymentMethod')
+                ->with(['paymentMethod', 'allocations.charge.customerService.items'])
                 ->orderByDesc('paid_on')
                 ->orderByDesc('id')
                 ->limit(5))
@@ -56,7 +60,10 @@ class PaymentsRelationManager extends RelationManager
                     ->label(__('payments.paid_on'))
                     ->date(),
                 MoneyColumn::make('amount')
-                    ->label(__('payments.amount')),
+                    ->label(__('payments.amount'))
+                    ->description(fn (Payment $record): ?string => filled($domains = $record->domains())
+                        ? implode(', ', $domains)
+                        : null),
                 TextColumn::make('paymentMethod.name')
                     ->label(__('payments.payment_method')),
                 TextColumn::make('note')

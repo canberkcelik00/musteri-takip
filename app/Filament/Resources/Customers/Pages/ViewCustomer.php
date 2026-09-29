@@ -40,6 +40,18 @@ class ViewCustomer extends ViewRecord
 {
     protected static string $resource = CustomerResource::class;
 
+    /**
+     * Just the short name ("Deniz Lojistik"), not Filament's default "... görüntüle" title;
+     * the ticari ünvan is the subheading below it.
+     */
+    public function getTitle(): string
+    {
+        $customer = $this->getRecord();
+        assert($customer instanceof Customer);
+
+        return $customer->short_name;
+    }
+
     public function getSubheading(): ?string
     {
         $customer = $this->getRecord();

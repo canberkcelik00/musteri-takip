@@ -47,9 +47,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * The customer's active services, one row each with its dates, price and status; the domain
- * column shows the tekrarsız domain values of all of the service's items, joined with commas
- * (T-66, {@see Customer::domains()} uses the same approach across services).
+ * The customer's active services, one row each with its dates, price and status; the service
+ * name shows its distinct domain values (all items, joined with commas) as a faded line below,
+ * from {@see CustomerService::domains()} (T-66; horizontal scroll avoided, no separate column).
  * {@see CancelledCustomerServicesRelationManager} extends this for the card's collapsed
  * "İptal edilenler" section. The row actions (edit, mark free or paid, cancel, reactivate) only
  * call the matching Action in app/Actions/CustomerServices; the rules live there. "Hizmet ekle"
@@ -96,15 +96,9 @@ class CustomerServicesRelationManager extends RelationManager
             ->paginated(false)
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('customer_services.name')),
-                TextColumn::make('domain')
-                    ->label(__('customer_services.domain'))
-                    ->state(fn (CustomerService $record): ?string => $record->items
-                        ->pluck('details.domain')
-                        ->filter()
-                        ->unique()
-                        ->implode(', ') ?: null)
-                    ->placeholder(__('money.empty')),
+                    ->label(__('customer_services.name'))
+                    ->wrap()
+                    ->description(fn (CustomerService $record): ?string => implode(', ', $record->domains()) ?: null),
                 TextColumn::make('end_date')
                     ->label(__('customer_services.end_date'))
                     ->date(),

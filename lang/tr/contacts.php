@@ -9,6 +9,7 @@ return [
     'phone' => 'Telefon',
     'email' => 'E-posta',
     'is_primary' => 'Birincil',
+    'add' => 'Kişi ekle',
     'make_primary_on_create' => 'Birincil kişi yap',
     'make_primary' => 'Birincil yap',
     'made_primary' => 'Birincil kişi değiştirildi.',

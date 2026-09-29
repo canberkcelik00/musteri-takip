@@ -152,7 +152,6 @@ it('shows the Logi renewal as an overdue charge with the credit applied', functi
     cardManager(ChargesRelationManager::class, $customer)
         ->assertCanSeeTableRecords([$renewal])
         ->assertCanNotSeeTableRecords($customer->charges()->whereKeyNot($renewal->id)->get())
-        ->assertTableColumnFormattedStateSet('amount', '4.000 TL', $renewal)
         ->assertTableColumnFormattedStateSet('remaining', '3.000 TL', $renewal)
         ->assertTableColumnFormattedStateSet('due_date', '01.03.2027', $renewal)
         ->assertTableColumnStateSet('status', 'Gecikmiş (14 gün)', $renewal);

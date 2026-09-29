@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Collection;
 
 /**
  * @property-read bool|null $has_overdue Only set when loaded via CustomersTable::withSummaries() (T-66).
@@ -116,17 +115,15 @@ class Customer extends Model
 
     /**
      * Distinct domain names from every service's items (customer_service_items.details->domain),
-     * in the order first seen. Uses the loaded customerServices.items relation; for global
-     * search result details, not for the search itself (see {@see self::search()}).
+     * in the order first seen. Uses {@see CustomerService::domains()} per loaded service (T-66);
+     * for global search result details, not for the search itself (see {@see self::search()}).
      *
      * @return list<string>
      */
     public function domains(): array
     {
         return $this->customerServices
-            ->flatMap(fn (CustomerService $service): Collection => $service->items)
-            ->pluck('details.domain')
-            ->filter()
+            ->flatMap(fn (CustomerService $service): array => $service->domains())
             ->unique()
             ->values()
             ->all();

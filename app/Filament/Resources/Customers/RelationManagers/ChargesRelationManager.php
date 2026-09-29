@@ -13,6 +13,8 @@ use App\Filament\Tables\Columns\ChargeStatusColumn;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use App\Models\Customer;
+use App\Models\CustomerService;
+use App\Support\Money;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -24,7 +26,10 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * The customer card's "Açık borçlar" (T-66): only the customer's open charges, oldest due date
  * first. The remaining amount and the overdue / partially paid state are derived from the
- * allocations, not stored. "Borç ekle" and the row actions (edit, split, cancel) only call the
+ * allocations, not stored; a partially paid charge shows the original amount as a faded "/
+ * total" line under the remaining amount. The description shows the linked service's domains
+ * (if any, {@see CustomerService::domains()}) as a faded line; a manual charge
+ * without a service has none. "Borç ekle" and the row actions (edit, split, cancel) only call the
  * Actions in app/Actions/Charges; the rules live there. "Tüm borçlar" links to the customer's
  * full, unfiltered history in the menu's Borçlar list ({@see ChargeResource}).
  */
@@ -57,21 +62,27 @@ class ChargesRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->where('status', ChargeStatus::Open)
                 ->withSum('allocations', 'amount')
+                ->with('customerService.items')
                 ->orderBy('due_date')
                 ->orderBy('id'))
             ->paginated(false)
             ->columns([
                 TextColumn::make('description')
-                    ->label(__('charges.description')),
+                    ->label(__('charges.description'))
+                    ->wrap()
+                    ->description(fn (Charge $record): ?string => filled($domains = $record->customerService?->domains())
+                        ? implode(', ', $domains)
+                        : null),
                 TextColumn::make('due_date')
                     ->label(__('charges.due_date'))
                     ->date(),
-                MoneyColumn::make('amount')
-                    ->label(__('charges.amount')),
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
-                    ->currencyAttribute('currency'),
+                    ->currencyAttribute('currency')
+                    ->description(fn (Charge $record): ?string => $record->isPartiallyPaid()
+                        ? '/ '.(new Money($record->amount, $record->currency))->format()
+                        : null),
                 ChargeStatusColumn::make('status'),
             ])
             ->headerActions([

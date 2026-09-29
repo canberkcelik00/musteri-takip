@@ -50,6 +50,29 @@ class Payment extends Model
     }
 
     /**
+     * Distinct domain names of the services behind the charges this payment paid down (via its
+     * allocations), in the order first seen (T-66, {@see CustomerService::domains()}). A payment
+     * with no allocations, or allocated only to charges without a service, has none. Uses the
+     * loaded `allocations.charge.customerService.items` relation when available.
+     *
+     * @return list<string>
+     */
+    public function domains(): array
+    {
+        $allocations = $this->relationLoaded('allocations')
+            ? $this->allocations
+            : $this->allocations()->with('charge.customerService.items')->get();
+
+        return $allocations
+            ->map(fn (PaymentAllocation $allocation): ?CustomerService => $allocation->charge?->customerService)
+            ->filter()
+            ->flatMap(fn (CustomerService $service): array => $service->domains())
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

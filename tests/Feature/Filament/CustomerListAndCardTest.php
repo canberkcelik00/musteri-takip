@@ -5,6 +5,7 @@ use App\Enums\ServiceType;
 use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
+use App\Filament\Resources\Customers\RelationManagers\CancelledCustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
@@ -18,6 +19,7 @@ use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
 use App\Models\Package;
 use App\Models\Payment;
+use App\Models\PaymentAllocation;
 use App\Models\User;
 use App\Support\Money;
 use Filament\Actions\Testing\TestAction;
@@ -112,25 +114,67 @@ it('shows the strip totals per currency, never summed across currencies', functi
 
 // --- Kart: hizmet alan adı sütunu ----------------------------------------
 
-it("shows the unique domain values of all of a service's items, joined with commas", function () {
-    $customer = Customer::factory()->create();
-    $service = CustomerService::factory()->for($customer)->create();
+/**
+ * Attaches items with the given domains (blank-filtered, deduplication and joining happens in
+ * CustomerService::domains(), see the assertions) to a service, replacing its factory-made ones.
+ */
+function withDomainItems(CustomerService $service, array $domains): CustomerService
+{
     $service->items()->delete();
-    CustomerServiceItem::factory()->for($service, 'customerService')->create([
-        'type' => ServiceType::Hosting,
-        'details' => ['domain' => 'logi.com.tr'],
-    ]);
-    CustomerServiceItem::factory()->for($service, 'customerService')->create([
-        'type' => ServiceType::Domain,
-        'details' => ['domain' => 'logi.com.tr'],
-    ]);
-    CustomerServiceItem::factory()->for($service, 'customerService')->create([
-        'type' => ServiceType::Email,
-        'details' => ['domain' => 'mail.logi.com.tr'],
-    ]);
+
+    foreach ($domains as $domain) {
+        CustomerServiceItem::factory()->for($service, 'customerService')->create([
+            'type' => ServiceType::Domain,
+            'details' => ['domain' => $domain],
+        ]);
+    }
+
+    return $service;
+}
+
+it("shows a service's unique domain values as a faded line under its name, on the active table", function () {
+    $customer = Customer::factory()->create();
+    $service = withDomainItems(CustomerService::factory()->for($customer)->create(), ['logi.com.tr', 'logi.com.tr', 'mail.logi.com.tr']);
 
     Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->assertTableColumnStateSet('domain', 'logi.com.tr, mail.logi.com.tr', $service);
+        ->assertTableColumnHasDescription('name', 'logi.com.tr, mail.logi.com.tr', $service);
+});
+
+it("shows a cancelled service's domains the same way, on the collapsed section's table", function () {
+    $customer = Customer::factory()->create();
+    $service = withDomainItems(CustomerService::factory()->for($customer)->cancelled()->create(), ['logi.com.tr']);
+
+    Livewire::test(CancelledCustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertTableColumnHasDescription('name', 'logi.com.tr', $service);
+});
+
+it("shows a charge's linked service's domains as a faded line under its description, and none for a manual charge", function () {
+    $customer = Customer::factory()->create();
+    $service = withDomainItems(CustomerService::factory()->for($customer)->create(), ['logi.com.tr']);
+    $serviceCharge = Charge::factory()->forCustomerService($service)->create();
+    $manualCharge = Charge::factory()->for($customer)->create();
+
+    Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertTableColumnHasDescription('description', 'logi.com.tr', $serviceCharge)
+        ->assertTableColumnHasDescription('description', null, $manualCharge);
+});
+
+it("shows the unique domains of the services behind a payment's allocated charges, and none without allocations", function () {
+    $customer = Customer::factory()->create();
+    $serviceA = withDomainItems(CustomerService::factory()->for($customer)->create(), ['logi.com.tr']);
+    $serviceB = withDomainItems(CustomerService::factory()->for($customer)->create(), ['logi.com.tr', 'mail.logi.com.tr']);
+    $chargeA = Charge::factory()->forCustomerService($serviceA)->create();
+    $chargeB = Charge::factory()->forCustomerService($serviceB)->create();
+
+    $payment = Payment::factory()->for($customer)->create();
+    PaymentAllocation::factory()->create(['payment_id' => $payment->id, 'charge_id' => $chargeA->id, 'amount' => $chargeA->amount]);
+    PaymentAllocation::factory()->create(['payment_id' => $payment->id, 'charge_id' => $chargeB->id, 'amount' => $chargeB->amount]);
+
+    $noAllocationPayment = Payment::factory()->for($customer)->create();
+
+    Livewire::test(PaymentsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertTableColumnHasDescription('amount', 'logi.com.tr, mail.logi.com.tr', $payment)
+        ->assertTableColumnHasDescription('amount', null, $noAllocationPayment);
 });
 
 // --- Kart: son 5 ödeme ----------------------------------------------------
@@ -149,14 +193,55 @@ it('shows only the 5 most recent payments on the card', function () {
 
 // --- Kart: kişiler tel/mailto --------------------------------------------
 
-it('links the contact phone and email as tel: and mailto:', function () {
+it('links the contact phone and email as tel: and mailto:, in a single stacked column', function () {
     $customer = Customer::factory()->create();
-    Contact::factory()->for($customer)->primary()->create(['phone' => '0532 412 18 90', 'email' => 'murat@example.com']);
+    Contact::factory()->for($customer)->primary()->create(['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem Sorumlusu', 'phone' => '0532 412 18 90', 'email' => 'murat@example.com']);
 
     $html = Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->html();
 
     expect($html)->toContain('tel:0532 412 18 90')
-        ->and($html)->toContain('mailto:murat@example.com');
+        ->and($html)->toContain('mailto:murat@example.com')
+        ->and($html)->toContain('Bilgi İşlem Sorumlusu');
+});
+
+it('renders a contact without a title, phone or email without error', function () {
+    $customer = Customer::factory()->create();
+    Contact::factory()->for($customer)->primary()->create(['name' => 'Ayşe Yılmaz', 'title' => null, 'phone' => null, 'email' => null]);
+
+    Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertOk()
+        ->assertSee('Ayşe Yılmaz');
+});
+
+it('labels contact creation "Kişi ekle" as a secondary (gray) button', function () {
+    $customer = Customer::factory()->create();
+
+    Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertActionHasLabel(TestAction::make('create')->table(), 'Kişi ekle')
+        ->assertActionHasColor(TestAction::make('create')->table(), 'gray');
+});
+
+it('shows the page title as just the short name, with the legal title as subheading', function () {
+    $customer = Customer::factory()->create(['short_name' => 'Deniz Lojistik', 'legal_title' => 'Deniz Lojistik Ltd. Şti.']);
+
+    $page = Livewire::test(ViewCustomer::class, ['record' => $customer->id]);
+
+    expect($page->instance()->getTitle())->toBe('Deniz Lojistik')
+        ->and($page->instance()->getSubheading())->toBe('Deniz Lojistik Ltd. Şti.');
+});
+
+// --- Kart: açık borçlarda yalnız "Kalan" ----------------------------------
+
+it('shows only "Kalan" for an open charge, and a faded "/ total" line under it once partially paid', function () {
+    $customer = Customer::factory()->create();
+    $open = Charge::factory()->for($customer)->create(['amount' => 400000]);
+    $partial = Charge::factory()->for($customer)->create(['amount' => 400000]);
+    PaymentAllocation::factory()->create(['charge_id' => $partial->id, 'amount' => 100000]);
+
+    Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertTableColumnDoesNotExist('amount')
+        ->assertTableColumnHasDescription('remaining', null, $open)
+        ->assertTableColumnHasDescription('remaining', '/ 4.000 TL', $partial);
 });
 
 // --- "Tüm borçlar" / "Tüm ödemeler" bağlantıları --------------------------

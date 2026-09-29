@@ -19,7 +19,6 @@ return [
 
     'plural' => 'Hizmetler',
     'name' => 'Hizmet',
-    'domain' => 'Alan adı',
     'start_date' => 'Başlangıç',
     'end_date' => 'Bitiş',
     'price' => 'Fiyat',
