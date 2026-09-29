@@ -9,6 +9,7 @@ use App\Exceptions\PrimaryContactCannotBeDeleted;
 use App\Models\Contact;
 use App\Models\Customer;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -24,8 +25,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The customer's contacts. Every change goes through the Actions in App\Actions\Contacts,
- * which keep exactly one primary contact.
+ * The customer's contacts, one stacked column each (T-67: name + "· Birincil" when primary,
+ * title, phone as tel:, email as mailto:; blank ones drop out) so the card's narrow right
+ * column never scrolls horizontally. "Düzenle" stays inline; "Birincil yap" and "Sil" (both
+ * hidden for the primary contact) are grouped, the same ⋮ pattern
+ * {@see CustomerServicesRelationManager} already uses for its rare actions. Every change goes
+ * through the Actions in App\Actions\Contacts, which keep exactly one primary contact.
  */
 class ContactsRelationManager extends RelationManager
 {
@@ -60,7 +65,10 @@ class ContactsRelationManager extends RelationManager
                 Stack::make([
                     TextColumn::make('name')
                         ->label(__('contacts.name'))
-                        ->weight(FontWeight::Bold),
+                        ->weight(FontWeight::Bold)
+                        ->formatStateUsing(fn (Contact $record): string => $record->is_primary
+                            ? $record->name.' · '.__('contacts.is_primary')
+                            : $record->name),
                     TextColumn::make('title')
                         ->label(__('contacts.title'))
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->title)),
@@ -73,9 +81,6 @@ class ContactsRelationManager extends RelationManager
                         ->url(fn (Contact $record): ?string => filled($record->email) ? "mailto:{$record->email}" : null)
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->email)),
                 ]),
-                TextColumn::make('is_primary')
-                    ->label(__('contacts.is_primary'))
-                    ->state(fn (Contact $record): ?string => $record->is_primary ? __('contacts.is_primary') : null),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -99,30 +104,31 @@ class ContactsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
-                Action::make('makePrimary')
-                    ->label(__('contacts.make_primary'))
-                    ->icon(Heroicon::OutlinedStar)
-                    ->color('gray')
-                    ->visible(fn (Contact $record): bool => ! $record->is_primary)
-                    ->action(function (Contact $record, MakeContactPrimary $makeContactPrimary, Action $action): void {
-                        $makeContactPrimary->handle($record);
+                ActionGroup::make([
+                    Action::make('makePrimary')
+                        ->label(__('contacts.make_primary'))
+                        ->icon(Heroicon::OutlinedStar)
+                        ->visible(fn (Contact $record): bool => ! $record->is_primary)
+                        ->action(function (Contact $record, MakeContactPrimary $makeContactPrimary, Action $action): void {
+                            $makeContactPrimary->handle($record);
 
-                        $action->successNotificationTitle(__('contacts.made_primary'))->success();
-                    }),
-                DeleteAction::make()
-                    ->visible(fn (Contact $record): bool => ! $record->is_primary)
-                    ->using(function (Contact $record, DeleteContact $deleteContact, Action $action): bool {
-                        try {
-                            $deleteContact->handle($record);
-                        } catch (PrimaryContactCannotBeDeleted $exception) {
-                            $action->failureNotificationTitle($exception->getMessage());
+                            $action->successNotificationTitle(__('contacts.made_primary'))->success();
+                        }),
+                    DeleteAction::make()
+                        ->visible(fn (Contact $record): bool => ! $record->is_primary)
+                        ->using(function (Contact $record, DeleteContact $deleteContact, Action $action): bool {
+                            try {
+                                $deleteContact->handle($record);
+                            } catch (PrimaryContactCannotBeDeleted $exception) {
+                                $action->failureNotificationTitle($exception->getMessage());
 
-                            return false;
-                        }
+                                return false;
+                            }
 
-                        return true;
-                    })
-                    ->successNotificationTitle(__('contacts.deleted')),
+                            return true;
+                        })
+                        ->successNotificationTitle(__('contacts.deleted')),
+                ])->visible(fn (Contact $record): bool => ! $record->is_primary),
             ]);
     }
 

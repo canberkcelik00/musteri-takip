@@ -27,14 +27,16 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Livewire\Attributes\On;
 
 /**
  * The customer card (T-55, restructured in T-66 for G-4.16): a full-width strip (open debt,
  * credit balance), then two columns — the work (services, open charges, recent payments) on the
  * left, information (contacts, billing, notes) on the right — and the destructive actions
- * (archive, delete) in their own section at the bottom (docs/UI.md §5). "Ödeme al" and
- * "Hizmet ekle" are the page's header actions, level with the strip.
+ * (archive, delete) at the bottom, right-aligned and separate from both columns, not boxed in
+ * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5).
+ * "Ödeme al" and "Hizmet ekle" are the page's header actions, level with the strip.
  */
 class ViewCustomer extends ViewRecord
 {
@@ -109,14 +111,13 @@ class ViewCustomer extends ViewRecord
                     Group::make($this->workColumn($customer))->columnSpan(2),
                     Group::make($this->infoColumn($customer))->columnSpan(1),
                 ]),
-            Section::make()
-                ->schema([
-                    Actions::make([
-                        ArchiveCustomerAction::make(),
-                        UnarchiveAction::make(),
-                        DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
-                    ])->key('danger_actions'),
-                ]),
+            Actions::make([
+                ArchiveCustomerAction::make(),
+                UnarchiveAction::make(),
+                DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
+            ])
+                ->key('danger_actions')
+                ->alignment(Alignment::End),
         ]);
     }
 

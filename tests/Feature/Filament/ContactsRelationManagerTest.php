@@ -121,8 +121,8 @@ it('deletes a contact that is not primary', function () {
         ->and($this->primary->refresh()->is_primary)->toBeTrue();
 });
 
-it('shows the primary contact as text, not a colored icon', function () {
+it('shows the primary contact as text next to the name, not a colored icon', function () {
     contactsManager($this->customer)
-        ->assertTableColumnFormattedStateSet('is_primary', 'Birincil', record: $this->primary)
-        ->assertTableColumnFormattedStateSet('is_primary', '', record: $this->other);
+        ->assertTableColumnFormattedStateSet('name', $this->primary->name.' · Birincil', record: $this->primary)
+        ->assertTableColumnFormattedStateSet('name', $this->other->name, record: $this->other);
 });
