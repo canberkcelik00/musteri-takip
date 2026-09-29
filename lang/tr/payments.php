@@ -18,6 +18,8 @@ return [
 
     'record' => 'Ödeme al',
     'record_heading' => 'Ödeme kaydı',
+    'recent_heading' => 'Son ödemeler',
+    'view_all' => 'Tüm ödemeler',
     'show_allocations' => 'Dağıtımı göster ve değiştir',
     'allocations_helper' => 'Tutarlar önce belirttiğiniz borçlara düşer; kalan kısım en eski vadeli borçlardan devam eder.',
     'no_open_charges' => 'Bu para biriminde açık borç yok; ödemenin tamamı alacak bakiyesine eklenir.',

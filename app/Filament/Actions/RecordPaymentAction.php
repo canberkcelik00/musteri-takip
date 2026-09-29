@@ -165,14 +165,22 @@ class RecordPaymentAction extends Action
     }
 
     /**
-     * The customer a Ctrl+K search result's "Ödeme al" opened this form for (docs/UI.md §7):
-     * selected but still changeable, unlike customer(), which hides the field entirely.
+     * The customer a Ctrl+K search result's or the customer list row's "Ödeme al" opened this
+     * form for (docs/UI.md §7, T-66): selected but still changeable, unlike customer(), which
+     * hides the field entirely. The `customer` argument (Ctrl+K, "Bugün") wins over the table
+     * row's record (the customer list), since an argument is always explicit.
      */
     private function prefilledCustomer(): ?Customer
     {
         $customerId = $this->getArguments()['customer'] ?? null;
 
-        return filled($customerId) ? Customer::query()->find($customerId) : null;
+        if (filled($customerId)) {
+            return Customer::query()->find($customerId);
+        }
+
+        $record = $this->getRecord();
+
+        return $record instanceof Customer ? $record : null;
     }
 
     /**

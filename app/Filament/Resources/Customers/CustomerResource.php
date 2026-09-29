@@ -11,7 +11,6 @@ use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
-use App\Filament\Resources\Customers\Schemas\CustomerInfolist;
 use App\Filament\Resources\Customers\Tables\CustomersTable;
 use App\Livewire\TopbarActions;
 use App\Models\Customer;
@@ -47,11 +46,6 @@ class CustomerResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return CustomerForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return CustomerInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

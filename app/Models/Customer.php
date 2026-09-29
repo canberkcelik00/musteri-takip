@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
+/**
+ * @property-read bool|null $has_overdue Only set when loaded via CustomersTable::withSummaries() (T-66).
+ */
 #[Fillable(['short_name', 'legal_title', 'tax_office', 'tax_number', 'billing_address', 'notes'])]
 class Customer extends Model
 {

@@ -148,7 +148,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.15 Bugün sayfası (G-5.4'ten taşındı)** — Bağımlılık: G-4.13
   - Yapılacak: Açılış sayfası `docs/UI.md` §5'e göre yapılır. Üst satırda dört sayı: para birimi başına toplam alacak, gecikmiş tutar ve adet, bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı; her sayı süzülmüş listeye gider. Altında öncelik sırasıyla Yapılacaklar: gecikmiş borçlar (en eski üstte, kaç gün geciktiğiyle), bu hafta vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi: "Ödeme al", "Ücretsiz devam et", "Ücretli yap". Liste boşsa "Bugün yapılacak bir şey yok". "Ücretsiz devam et" kararını tutacak bir alan veri modelinde yok; planda kullanıcıya sorulur.
   - Kabul: Örnek veriyle sayılar ve tutarlar doğru; gecikmiş borcun ödemesi 1 tık + tutar + 1 tık (testli).
-- [ ] **G-4.16 Müşteri listesi ve kartı** — Bağımlılık: G-4.13
+- [x] **G-4.16 Müşteri listesi ve kartı** — Bağımlılık: G-4.13
   - Yapılacak: Liste sütunları: kısa ad (kalın) + ünvan (soluk), açık borç (gecikmişse kırmızı), en yakın yenileme, aktif hizmet sayısı; satırda "Ödeme al" kısayolu; varsayılan sıralama gecikmiş borçlular üstte. Müşteri kartı iki sütun olur: başlık şeridinde açık borç, alacak bakiyesi, "Ödeme al" ve "Hizmet ekle"; sol sütunda hizmetler ("İptal edilenler (n)" katlanmış), açık borçlar, son 5 ödeme; sağ sütunda kişiler, fatura bilgileri, notlar; Arşivle ve Sil en altta, ayrı.
   - Kabul: Karttan hizmet ekleme 1 tık + seçim + 1 tık; Logi örneği kartta doğru görünür (testli).
 - [ ] **G-4.17 Tablo, form ve eylem kuralları** — Bağımlılık: G-4.16

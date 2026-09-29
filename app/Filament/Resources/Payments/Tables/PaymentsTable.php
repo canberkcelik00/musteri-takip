@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Payments\Tables;
 use App\Filament\Actions\DeletePaymentAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -29,6 +30,13 @@ class PaymentsTable
                 TextColumn::make('note')
                     ->label(__('payments.note'))
                     ->placeholder(__('money.empty')),
+            ])
+            ->filters([
+                SelectFilter::make('customer')
+                    ->label(__('payments.customer'))
+                    ->relationship('customer', 'short_name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 DeletePaymentAction::make(),

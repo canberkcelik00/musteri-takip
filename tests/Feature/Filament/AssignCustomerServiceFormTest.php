@@ -4,7 +4,6 @@ use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\ServiceType;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
-use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
 use App\Models\CatalogService;
 use App\Models\Customer;
 use App\Models\Package;
@@ -23,15 +22,12 @@ beforeEach(function () {
 
 function assignForm(Customer $customer)
 {
-    return Livewire::test(CustomerServicesRelationManager::class, [
-        'ownerRecord' => $customer,
-        'pageClass' => ViewCustomer::class,
-    ]);
+    return Livewire::test(ViewCustomer::class, ['record' => $customer->id]);
 }
 
 function assignAction(): TestAction
 {
-    return TestAction::make('assign')->table();
+    return TestAction::make('assignService');
 }
 
 it('suggests price, currency and start date and creates the service, the item and the first charge', function () {

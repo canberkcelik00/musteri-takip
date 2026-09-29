@@ -6,6 +6,7 @@ use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
+use App\Filament\Resources\Customers\RelationManagers\CancelledCustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
 use App\Models\CatalogService;
 use App\Models\Charge;
@@ -42,9 +43,18 @@ function cardService(array $attributes = []): CustomerService
     ]);
 }
 
+/**
+ * Active services are rows of {@see CustomerServicesRelationManager}, cancelled ones of
+ * {@see CancelledCustomerServicesRelationManager} (T-66) — the manager is picked from the
+ * service's current status so every existing call site keeps working unchanged.
+ */
 function serviceRows(CustomerService $customerService)
 {
-    return Livewire::test(CustomerServicesRelationManager::class, [
+    $manager = $customerService->status === CustomerServiceStatus::Cancelled
+        ? CancelledCustomerServicesRelationManager::class
+        : CustomerServicesRelationManager::class;
+
+    return Livewire::test($manager, [
         'ownerRecord' => $customerService->customer,
         'pageClass' => ViewCustomer::class,
     ]);

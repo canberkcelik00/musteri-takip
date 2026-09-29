@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Filament\Actions\DeletePaymentAction;
-use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
+use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Customer;
+use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -14,10 +15,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The customer's payments, newest first. "Ödeme al" records a payment for the customer and
- * the row action deletes one; both only call the Actions in app/Actions/Payments. The header
- * button is gray, not primary, since the topbar's "Ödeme al" is the screen's one primary
- * action (docs/UI.md §4).
+ * The customer card's "Son ödemeler" (T-66): the customer's 5 most recent payments. The row
+ * action deletes one; it only calls the Actions in app/Actions/Payments. Recording a payment is
+ * the card's page header action (RecordPaymentAction), not a header action here (T-63). "Tüm
+ * ödemeler" links to the customer's full history in the menu's Ödemeler list ({@see PaymentResource}).
  */
 class PaymentsRelationManager extends RelationManager
 {
@@ -27,11 +28,11 @@ class PaymentsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('payments.plural');
+        return __('payments.recent_heading');
     }
 
     /**
-     * Filament makes relation managers read-only on view pages; the record and delete actions live on the customer card.
+     * Filament makes relation managers read-only on view pages; the delete action lives on the customer card.
      */
     public function isReadOnly(): bool
     {
@@ -44,11 +45,11 @@ class PaymentsRelationManager extends RelationManager
         assert($customer instanceof Customer);
 
         return $table
-            ->recordTitleAttribute('id')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->with('paymentMethod')
                 ->orderByDesc('paid_on')
-                ->orderByDesc('id'))
+                ->orderByDesc('id')
+                ->limit(5))
             ->paginated(false)
             ->columns([
                 TextColumn::make('paid_on')
@@ -63,7 +64,12 @@ class PaymentsRelationManager extends RelationManager
                     ->placeholder(__('money.empty')),
             ])
             ->headerActions([
-                RecordPaymentAction::make()->customer($customer)->color('gray'),
+                Action::make('viewAll')
+                    ->label(__('payments.view_all'))
+                    ->link()
+                    ->url(fn (): string => PaymentResource::getUrl('index', [
+                        'filters' => ['customer' => ['value' => $customer->getKey()]],
+                    ])),
             ])
             ->recordActions([
                 DeletePaymentAction::make(),

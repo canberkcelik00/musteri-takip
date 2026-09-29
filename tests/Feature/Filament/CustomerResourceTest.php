@@ -192,19 +192,18 @@ it('hides archived customers from the list by default and shows them with the ar
         ->assertCanSeeTableRecords([$active, $archived]);
 });
 
-it('archives and unarchives a customer without active services from the list', function () {
+it('archives and unarchives a customer without active services from the card', function () {
     $customer = Customer::factory()->create();
     CustomerService::factory()->for($customer)->cancelled()->create();
 
-    Livewire::test(ListCustomers::class)
-        ->callAction(TestAction::make('archive')->table($customer))
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->callAction(TestAction::make('archive')->schemaComponent('danger_actions'))
         ->assertNotified(__('archive.archived'));
 
     expect($customer->refresh()->isArchived())->toBeTrue();
 
-    Livewire::test(ListCustomers::class)
-        ->filterTable('archived', true)
-        ->callAction(TestAction::make('unarchive')->table($customer));
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->callAction(TestAction::make('unarchive')->schemaComponent('danger_actions'));
 
     expect($customer->refresh()->isArchived())->toBeFalse();
 });
@@ -213,8 +212,8 @@ it('does not archive a customer with an active service and says why', function (
     $customer = Customer::factory()->create();
     CustomerService::factory()->for($customer)->create();
 
-    Livewire::test(ListCustomers::class)
-        ->callAction(TestAction::make('archive')->table($customer))
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->callAction(TestAction::make('archive')->schemaComponent('danger_actions'))
         ->assertNotified('Önce müşterinin hizmetlerini iptal edin.');
 
     expect($customer->refresh()->isArchived())->toBeFalse();
@@ -247,10 +246,10 @@ it('offers delete next to archive for a customer with nothing recorded and delet
     $customer = Customer::factory()->create();
     Contact::factory()->for($customer)->primary()->create();
 
-    Livewire::test(ListCustomers::class)
-        ->assertActionVisible(TestAction::make('delete')->table($customer))
-        ->assertActionVisible(TestAction::make('archive')->table($customer))
-        ->callAction(TestAction::make('delete')->table($customer));
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->assertActionVisible(TestAction::make('delete')->schemaComponent('danger_actions'))
+        ->assertActionVisible(TestAction::make('archive')->schemaComponent('danger_actions'))
+        ->callAction(TestAction::make('delete')->schemaComponent('danger_actions'));
 
     expect(Customer::query()->find($customer->id))->toBeNull()
         ->and(Contact::query()->count())->toBe(0);
@@ -261,18 +260,16 @@ it('offers only archive for a customer with a service, charge or payment', funct
     $withCharge = Charge::factory()->create()->customer;
     $withPayment = Payment::factory()->create()->customer;
 
-    $list = Livewire::test(ListCustomers::class);
-
     foreach ([$withService, $withCharge, $withPayment] as $customer) {
-        $list->assertActionHidden(TestAction::make('delete')->table($customer))
-            ->assertActionVisible(TestAction::make('archive')->table($customer));
-
         Livewire::test(EditCustomer::class, ['record' => $customer->id])
             ->assertActionHidden('delete')
             ->assertActionVisible('archive');
 
+        // Bu düğmeler kartta bir şema bileşeni (Actions::make) içinde durur; Filament gizli
+        // eylemleri bu bileşenin ağacından tamamen çıkarır, o yüzden burada "yok" bekleniyor.
         Livewire::test(ViewCustomer::class, ['record' => $customer->id])
-            ->assertActionHidden('delete');
+            ->assertActionDoesNotExist(TestAction::make('delete')->schemaComponent('danger_actions'))
+            ->assertActionVisible(TestAction::make('archive')->schemaComponent('danger_actions'));
     }
 });
 
@@ -285,8 +282,8 @@ it('deletes a customer with nothing recorded from the edit page and the card and
         ->assertRedirect(CustomerResource::getUrl('index'));
 
     Livewire::test(ViewCustomer::class, ['record' => $fromCard->id])
-        ->assertActionVisible('delete')
-        ->callAction('delete')
+        ->assertActionVisible(TestAction::make('delete')->schemaComponent('danger_actions'))
+        ->callAction(TestAction::make('delete')->schemaComponent('danger_actions'))
         ->assertRedirect(CustomerResource::getUrl('index'));
 
     expect(Customer::query()->count())->toBe(0);
@@ -296,8 +293,7 @@ it('offers delete for an archived customer that has nothing recorded', function 
     $customer = Customer::factory()->create();
     $customer->archive();
 
-    Livewire::test(ListCustomers::class)
-        ->filterTable('archived', true)
-        ->assertActionVisible(TestAction::make('delete')->table($customer))
-        ->assertActionVisible(TestAction::make('unarchive')->table($customer));
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->assertActionVisible(TestAction::make('delete')->schemaComponent('danger_actions'))
+        ->assertActionVisible(TestAction::make('unarchive')->schemaComponent('danger_actions'));
 });

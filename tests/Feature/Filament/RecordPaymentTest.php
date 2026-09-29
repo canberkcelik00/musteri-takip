@@ -198,8 +198,8 @@ it('records a payment from the customer card with the customer field hidden', fu
     ['customer' => $customer, 'hosting' => $hosting] = logiWithTwoCharges();
     $other = Customer::factory()->create();
 
-    cardPayments($customer)
-        ->mountAction(TestAction::make('recordPayment')->table())
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->mountAction('recordPayment')
         ->assertSchemaComponentHidden('customer_id')
         ->assertSchemaStateSet(['currency' => Currency::Try, 'paid_on' => '2026-06-15'])
         ->fillForm(['amount' => '1.500'])
@@ -213,8 +213,8 @@ it('records a payment from the customer card with the customer field hidden', fu
 
 it('asks for a confirmation before deleting a payment and reopens the charges it paid', function () {
     ['customer' => $customer, 'hosting' => $hosting] = logiWithTwoCharges();
-    cardPayments($customer)
-        ->callAction(TestAction::make('recordPayment')->table(), ['amount' => '1.500', 'currency' => 'TRY']);
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->callAction('recordPayment', ['amount' => '1.500', 'currency' => 'TRY']);
     $payment = $customer->payments()->sole();
 
     expect($hosting->refresh()->status)->toBe(ChargeStatus::Paid);

@@ -21,4 +21,7 @@ return [
     'domains' => 'Alan adı',
     'renewal_soon' => 'Yenilemesi yaklaşan',
     'awaiting_free_decision' => 'Ücretsiz karar bekleyen',
+    'billing_section' => 'Fatura bilgileri',
+    'notes_section' => 'Notlar',
+    'cancelled_services' => 'İptal edilenler (:count)',
 ];

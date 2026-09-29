@@ -67,6 +67,11 @@ class ChargesTable
                 SelectFilter::make('currency')
                     ->label(__('charges.currency'))
                     ->options(Currency::class),
+                SelectFilter::make('customer')
+                    ->label(__('charges.customer'))
+                    ->relationship('customer', 'short_name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 EditChargeAction::make(),
