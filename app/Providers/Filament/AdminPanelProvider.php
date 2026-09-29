@@ -37,6 +37,10 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('1.5rem')
             ->viteTheme('resources/css/filament/panel/theme.css')
             ->defaultThemeMode(ThemeMode::Light)
+            // Ctrl+K (⌘K on Mac) focuses the search box from any page (docs/UI.md §2 Kural
+            // 12, §7); the suffix shows the binding inside the field itself.
+            ->globalSearchKeyBindings(['mod+k'])
+            ->globalSearchFieldKeyBindingSuffix()
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => Blade::render('@livewire(\App\Livewire\TopbarActions::class)'),

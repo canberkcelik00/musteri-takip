@@ -151,16 +151,28 @@ class RecordPaymentAction extends Action
      */
     private function initialState(): array
     {
-        $defaults = app(SuggestPaymentDefaults::class)->handle($this->customer);
+        $customer = $this->customer ?? $this->prefilledCustomer();
+        $defaults = app(SuggestPaymentDefaults::class)->handle($customer);
 
         return [
-            'customer_id' => $this->customer?->getKey(),
+            'customer_id' => $customer?->getKey(),
             'currency' => $defaults['currency']->value,
             'payment_method_id' => $defaults['payment_method_id'],
             'paid_on' => today()->toDateString(),
             'show_allocations' => false,
             'allocations' => [],
         ];
+    }
+
+    /**
+     * The customer a Ctrl+K search result's "Ödeme al" opened this form for (docs/UI.md §7):
+     * selected but still changeable, unlike customer(), which hides the field entirely.
+     */
+    private function prefilledCustomer(): ?Customer
+    {
+        $customerId = $this->getArguments()['customer'] ?? null;
+
+        return filled($customerId) ? Customer::query()->find($customerId) : null;
     }
 
     private function customerFrom(Get $get): ?Customer

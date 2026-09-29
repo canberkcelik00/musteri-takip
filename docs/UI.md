@@ -144,7 +144,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 - Açılış sayfası boş: "Bugün" sayfası yok (G-4.15'te yapılacak).
 - ~~Her sayfadan ödeme alma yok.~~ (G-4.13'te yapıldı.)
-- Alan adıyla arama yok (G-4.14'te yapılacak).
+- ~~Alan adıyla arama yok.~~ (G-4.14'te yapıldı.)
 - Satır işlemleri "⋮" menülerinde gizli.
 - Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor.
 - ~~Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok.~~ (G-4.13'te yapıldı.)

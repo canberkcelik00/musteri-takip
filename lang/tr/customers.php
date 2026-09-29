@@ -18,4 +18,5 @@ return [
     'next_renewal' => 'En yakın yenileme',
     'balance_section' => 'Bakiye',
     'credit_balance' => 'Alacak bakiyesi',
+    'domains' => 'Alan adı',
 ];

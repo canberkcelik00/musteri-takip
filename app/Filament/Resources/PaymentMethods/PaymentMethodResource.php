@@ -22,6 +22,12 @@ class PaymentMethodResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    /**
+     * Ctrl+K searches customers only (docs/UI.md §2 Kural 12, §7); payment methods keep
+     * their own list's search.
+     */
+    protected static bool $isGloballySearchable = false;
+
     public static function getNavigationGroup(): string
     {
         return __('navigation.settings');

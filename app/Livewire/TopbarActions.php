@@ -12,6 +12,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
@@ -25,10 +26,23 @@ class TopbarActions extends Component implements HasActions, HasSchemas
     use InteractsWithActions;
     use InteractsWithSchemas;
 
+    /**
+     * Dispatched by a Ctrl+K search result's "Ödeme al" action (CustomerResource::
+     * getGlobalSearchResultActions()); the global search component itself has no HasActions
+     * to open the payment form, so it reaches this one through a browser event instead.
+     */
+    public const string OPEN_RECORD_PAYMENT_EVENT = 'open-record-payment';
+
     public function recordPaymentAction(): Action
     {
         return RecordPaymentAction::make()
             ->color('primary');
+    }
+
+    #[On(self::OPEN_RECORD_PAYMENT_EVENT)]
+    public function openRecordPayment(int $customer): void
+    {
+        $this->mountAction('recordPayment', ['customer' => $customer]);
     }
 
     public function newCustomerAction(): Action

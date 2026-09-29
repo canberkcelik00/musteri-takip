@@ -142,7 +142,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.13 Menü ve üst çubuk** — Bağımlılık: G-4.12
   - Yapılacak: Menü `docs/UI.md` §3'e göre kurulur: Bugün, Müşteriler, Tahsilat (Açık borçlar, Ödemeler), Katalog (Hizmetler, Paketler; kapalı başlar), Ayarlar (Genel, Ödeme yöntemleri; en altta). Üst çubuk her sayfada aynı yerde: solda arama kutusu, sağda "Ödeme al" birincil düğmesi ve "Yeni" menüsü (Müşteri, Elle borç). Ödeme formu (G-4.7) her sayfada yandan açılan panelde çalışır.
   - Kabul: Üst çubuk her sayfada aynı yerde (Livewire testi); ödeme kaydı 1 tık + müşteri + tutar + 1 tık.
-- [ ] **G-4.14 Ctrl+K arama ve komut kutusu** — Bağımlılık: G-4.13
+- [x] **G-4.14 Ctrl+K arama ve komut kutusu** — Bağımlılık: G-4.13
   - Yapılacak: Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arama; fare kullanmadan müşteriye gitme ve ödeme kaydetme. Alan adı `details` JSON'unda durduğu için arama yöntemi planda gösterilir.
   - Kabul: "logi.com.tr" yazınca Logi bulunur (testli); Ctrl+K + yazma + 1 tık.
 - [ ] **G-4.15 Bugün sayfası (G-5.4'ten taşındı)** — Bağımlılık: G-4.13

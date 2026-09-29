@@ -9,10 +9,13 @@ use App\Models\Concerns\TracksUsage;
 use App\Support\Money;
 use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 
 #[Fillable(['short_name', 'legal_title', 'tax_office', 'tax_number', 'billing_address', 'notes'])]
 class Customer extends Model
@@ -68,6 +71,62 @@ class Customer extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Global search (docs/UI.md §2 Kural 12, §7): every word in $term must match the short
+     * name, legal title, a contact's name/email/phone, or a domain name kept in
+     * customer_service_items.details->domain (of any service, cancelled ones included —
+     * a customer stays known by an old domain). Only the domain value is matched, not the
+     * raw JSON, so unrelated keys such as "server" never match. JSON_UNQUOTE() returns
+     * utf8mb4_bin; it is collated back to utf8mb4_unicode_ci to search case/Turkish-character
+     * insensitively, the same as short_name/legal_title's column collation (T-36).
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function search(Builder $query, string $term): void
+    {
+        $words = array_filter(preg_split('/\s+/u', trim($term)) ?: []);
+
+        foreach ($words as $word) {
+            $like = '%'.$word.'%';
+
+            $query->where(function (Builder $query) use ($like): void {
+                $query
+                    ->where($this->qualifyColumn('short_name'), 'like', $like)
+                    ->orWhere($this->qualifyColumn('legal_title'), 'like', $like)
+                    ->orWhereHas('contacts', function (Builder $query) use ($like): void {
+                        $query->where('name', 'like', $like)
+                            ->orWhere('email', 'like', $like)
+                            ->orWhere('phone', 'like', $like);
+                    })
+                    ->orWhereHas('customerServices.items', function (Builder $query) use ($like): void {
+                        $query->whereRaw(
+                            "JSON_UNQUOTE(JSON_EXTRACT(details, '$.domain')) COLLATE utf8mb4_unicode_ci LIKE ?",
+                            [$like],
+                        );
+                    });
+            });
+        }
+    }
+
+    /**
+     * Distinct domain names from every service's items (customer_service_items.details->domain),
+     * in the order first seen. Uses the loaded customerServices.items relation; for global
+     * search result details, not for the search itself (see {@see self::search()}).
+     *
+     * @return list<string>
+     */
+    public function domains(): array
+    {
+        return $this->customerServices
+            ->flatMap(fn (CustomerService $service): Collection => $service->items)
+            ->pluck('details.domain')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**
