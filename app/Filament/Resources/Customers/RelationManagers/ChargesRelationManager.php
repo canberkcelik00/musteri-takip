@@ -32,6 +32,8 @@ use Illuminate\Database\Eloquent\Model;
  * without a service has none. "Borç ekle" and the row actions (edit, split, cancel) only call the
  * Actions in app/Actions/Charges; the rules live there. "Tüm borçlar" links to the customer's
  * full, unfiltered history in the menu's Borçlar list ({@see ChargeResource}).
+ * Responsive (T-68, no horizontal scroll at any width): description (+ domains) and
+ * remaining/status always show; due date from `md`.
  */
 class ChargesRelationManager extends RelationManager
 {
@@ -75,7 +77,8 @@ class ChargesRelationManager extends RelationManager
                         : null),
                 TextColumn::make('due_date')
                     ->label(__('charges.due_date'))
-                    ->date(),
+                    ->date()
+                    ->visibleFrom('md'),
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)

@@ -9,7 +9,6 @@ use App\Exceptions\PrimaryContactCannotBeDeleted;
 use App\Models\Contact;
 use App\Models\Customer;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -27,10 +26,17 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * The customer's contacts, one stacked column each (T-67: name + "· Birincil" when primary,
  * title, phone as tel:, email as mailto:; blank ones drop out) so the card's narrow right
- * column never scrolls horizontally. "Düzenle" stays inline; "Birincil yap" and "Sil" (both
- * hidden for the primary contact) are grouped, the same ⋮ pattern
- * {@see CustomerServicesRelationManager} already uses for its rare actions. Every change goes
- * through the Actions in App\Actions\Contacts, which keep exactly one primary contact.
+ * column never scrolls horizontally. No row action button (T-68, G-4.17 keeps this card free
+ * of "⋮" menus): clicking the name opens the edit slide-over, wired as a **column** action
+ * ({@see TextColumn::action()}) rather than a table row action. A row action registered only
+ * to be hidden() breaks Livewire's partial re-render once its form is filled (confirmed from
+ * source and by reproducing it: `Filament\Support\Livewire\Partials\PartialsComponentHook`
+ * renders the hidden trigger's own partial as an empty string, which then fails Livewire's
+ * root-tag check) — a column action sidesteps that registry entirely and needs no hidden()
+ * button at all. "Birincil yap" and "Sil" (both hidden for the primary contact, "Sil" red and
+ * confirmed) live in that slide-over's footer via extraModalFooterActions() and cancel it
+ * (cancelParentActions()) instead of saving the form. Every change goes through the Actions in
+ * App\Actions\Contacts, which keep exactly one primary contact.
  */
 class ContactsRelationManager extends RelationManager
 {
@@ -68,7 +74,8 @@ class ContactsRelationManager extends RelationManager
                         ->weight(FontWeight::Bold)
                         ->formatStateUsing(fn (Contact $record): string => $record->is_primary
                             ? $record->name.' · '.__('contacts.is_primary')
-                            : $record->name),
+                            : $record->name)
+                        ->action($this->buildEditAction()),
                     TextColumn::make('title')
                         ->label(__('contacts.title'))
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->title)),
@@ -101,35 +108,59 @@ class ContactsRelationManager extends RelationManager
 
                         return $createContact->handle($customer, $data, $makePrimary);
                     }),
-            ])
-            ->recordActions([
-                EditAction::make(),
-                ActionGroup::make([
-                    Action::make('makePrimary')
-                        ->label(__('contacts.make_primary'))
-                        ->icon(Heroicon::OutlinedStar)
-                        ->visible(fn (Contact $record): bool => ! $record->is_primary)
-                        ->action(function (Contact $record, MakeContactPrimary $makeContactPrimary, Action $action): void {
-                            $makeContactPrimary->handle($record);
-
-                            $action->successNotificationTitle(__('contacts.made_primary'))->success();
-                        }),
-                    DeleteAction::make()
-                        ->visible(fn (Contact $record): bool => ! $record->is_primary)
-                        ->using(function (Contact $record, DeleteContact $deleteContact, Action $action): bool {
-                            try {
-                                $deleteContact->handle($record);
-                            } catch (PrimaryContactCannotBeDeleted $exception) {
-                                $action->failureNotificationTitle($exception->getMessage());
-
-                                return false;
-                            }
-
-                            return true;
-                        })
-                        ->successNotificationTitle(__('contacts.deleted')),
-                ])->visible(fn (Contact $record): bool => ! $record->is_primary),
             ]);
+    }
+
+    /**
+     * Note: these builder methods are deliberately not named "{action}Action" (editAction,
+     * makePrimaryAction, deleteAction) — Filament falls back to calling a same-named public
+     * method on the Livewire component to resolve an action it can't find in its registered
+     * pool (the convention `TodayTasks::recordPaymentAction()` etc. rely on), and a private
+     * method of that name breaks with a confusing BadMethodCallException instead (verified
+     * from source; the nested footer actions below are exactly such a case, since only "edit"
+     * is a registered table action).
+     */
+    private function buildEditAction(): EditAction
+    {
+        return EditAction::make()
+            ->slideOver()
+            ->extraModalFooterActions([
+                $this->buildMakePrimaryAction(),
+                $this->buildDeleteAction(),
+            ]);
+    }
+
+    private function buildMakePrimaryAction(): Action
+    {
+        return Action::make('makePrimary')
+            ->label(__('contacts.make_primary'))
+            ->icon(Heroicon::OutlinedStar)
+            ->visible(fn (Contact $record): bool => ! $record->is_primary)
+            ->action(function (Contact $record, MakeContactPrimary $makeContactPrimary, Action $action): void {
+                $makeContactPrimary->handle($record);
+
+                $action->successNotificationTitle(__('contacts.made_primary'))->success();
+            })
+            ->cancelParentActions();
+    }
+
+    private function buildDeleteAction(): DeleteAction
+    {
+        return DeleteAction::make()
+            ->visible(fn (Contact $record): bool => ! $record->is_primary)
+            ->using(function (Contact $record, DeleteContact $deleteContact, Action $action): bool {
+                try {
+                    $deleteContact->handle($record);
+                } catch (PrimaryContactCannotBeDeleted $exception) {
+                    $action->failureNotificationTitle($exception->getMessage());
+
+                    return false;
+                }
+
+                return true;
+            })
+            ->successNotificationTitle(__('contacts.deleted'))
+            ->cancelParentActions();
     }
 
     /**

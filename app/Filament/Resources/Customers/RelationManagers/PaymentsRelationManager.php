@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  * app/Actions/Payments. Recording a payment is the card's page header action
  * (RecordPaymentAction), not a header action here (T-63). "Tüm ödemeler" links to the
  * customer's full history in the menu's Ödemeler list ({@see PaymentResource}).
+ * Responsive (T-68, no horizontal scroll at any width): date and amount (+ domains) always
+ * show; payment method from `md`, note from `lg`.
  */
 class PaymentsRelationManager extends RelationManager
 {
@@ -65,10 +67,13 @@ class PaymentsRelationManager extends RelationManager
                         ? implode(', ', $domains)
                         : null),
                 TextColumn::make('paymentMethod.name')
-                    ->label(__('payments.payment_method')),
+                    ->label(__('payments.payment_method'))
+                    ->visibleFrom('md'),
                 TextColumn::make('note')
                     ->label(__('payments.note'))
-                    ->placeholder(__('money.empty')),
+                    ->placeholder(__('money.empty'))
+                    ->wrap()
+                    ->visibleFrom('lg'),
             ])
             ->headerActions([
                 Action::make('viewAll')

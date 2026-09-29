@@ -95,30 +95,43 @@ it('edits a contact without changing whether it is primary', function () {
         ->and($this->primary->is_primary)->toBeTrue();
 });
 
-it('makes another contact primary and clears the previous primary contact', function () {
+it('makes another contact primary and clears the previous primary contact, from the edit panel', function () {
     contactsManager($this->customer)
-        ->callAction(TestAction::make('makePrimary')->table($this->other))
+        ->callAction([TestAction::make('edit')->table($this->other), TestAction::make('makePrimary')])
         ->assertNotified();
 
     expect($this->other->refresh()->is_primary)->toBeTrue()
         ->and($this->primary->refresh()->is_primary)->toBeFalse();
 });
 
-it('offers neither making primary nor deleting for the primary contact', function () {
+it('offers neither making primary nor deleting for the primary contact, in the edit panel footer', function () {
+    // Assert-only resolution (no mount) can't bind the nested action's record; mount "edit"
+    // first so "makePrimary"/"delete" resolve against the record it was opened for.
     contactsManager($this->customer)
-        ->assertActionHidden(TestAction::make('makePrimary')->table($this->primary))
-        ->assertActionHidden(TestAction::make('delete')->table($this->primary))
-        ->assertActionVisible(TestAction::make('makePrimary')->table($this->other))
-        ->assertActionVisible(TestAction::make('delete')->table($this->other));
+        ->mountAction(TestAction::make('edit')->table($this->primary))
+        ->assertActionHidden('makePrimary')
+        ->assertActionHidden('delete');
+
+    contactsManager($this->customer)
+        ->mountAction(TestAction::make('edit')->table($this->other))
+        ->assertActionVisible('makePrimary')
+        ->assertActionVisible('delete');
 });
 
-it('deletes a contact that is not primary', function () {
+it('deletes a contact that is not primary, from the edit panel', function () {
     contactsManager($this->customer)
-        ->callAction(TestAction::make('delete')->table($this->other))
+        ->callAction([TestAction::make('edit')->table($this->other), TestAction::make('delete')])
         ->assertNotified();
 
     expect(Contact::query()->whereKey($this->other->id)->exists())->toBeFalse()
         ->and($this->primary->refresh()->is_primary)->toBeTrue();
+});
+
+it('has no row action button; the name column itself opens the edit slide-over', function () {
+    $manager = contactsManager($this->customer)
+        ->assertActionExists(TestAction::make('edit')->table($this->primary));
+
+    expect($manager->instance()->getTable()->getRecordActions())->toBe([]);
 });
 
 it('shows the primary contact as text next to the name, not a colored icon', function () {

@@ -54,6 +54,8 @@ use Illuminate\Support\Collection;
  * "İptal edilenler" section. The row actions (edit, mark free or paid, cancel, reactivate) only
  * call the matching Action in app/Actions/CustomerServices; the rules live there. "Hizmet ekle"
  * (AssignCustomerServiceAction, T-66) is a page header action on the card, not a table action.
+ * Responsive (T-68, no horizontal scroll at any width): name (+ domains) and price/status
+ * always show; end date from `md`.
  */
 class CustomerServicesRelationManager extends RelationManager
 {
@@ -101,7 +103,8 @@ class CustomerServicesRelationManager extends RelationManager
                     ->description(fn (CustomerService $record): ?string => implode(', ', $record->domains()) ?: null),
                 TextColumn::make('end_date')
                     ->label(__('customer_services.end_date'))
-                    ->date(),
+                    ->date()
+                    ->visibleFrom('md'),
                 MoneyColumn::make('price')
                     ->label(__('customer_services.price'))
                     ->state(fn (CustomerService $record): int|string => $record->is_free ? __('customer_services.free') : $record->price),

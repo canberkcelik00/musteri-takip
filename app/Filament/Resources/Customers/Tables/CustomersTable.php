@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
  * The customer list (T-66): gecikmiş borçlular üstte, sonra kısa ad (docs/UI.md §5); the row's
  * only action is "Ödeme al" — edit, archive and delete moved to the customer card (T-55) and
  * edit page, per docs/UI.md §2 Kural 6 (satırda en fazla iki metinli işlem, burada bir tane).
+ * Responsive (T-68, no horizontal scroll at any width): short name + legal title and the open
+ * debt (identity + amount) always show; next renewal from `md`, active service count from `lg`.
  */
 class CustomersTable
 {
@@ -44,15 +46,18 @@ class CustomersTable
                     ->label(__('customers.next_renewal'))
                     ->date()
                     ->placeholder(__('money.empty'))
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('md'),
                 TextColumn::make('active_services_count')
                     ->label(__('customers.active_services_count'))
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('lg'),
                 TextColumn::make('archived_at')
                     ->label(__('archive.status'))
                     ->badge()
                     ->color('gray')
-                    ->state(fn (Customer $record): ?string => $record->isArchived() ? __('archive.status_archived') : null),
+                    ->state(fn (Customer $record): ?string => $record->isArchived() ? __('archive.status_archived') : null)
+                    ->visibleFrom('md'),
             ])
             ->filters([
                 ArchivedFilter::make(),

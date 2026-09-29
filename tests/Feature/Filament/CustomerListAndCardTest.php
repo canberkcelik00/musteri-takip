@@ -333,3 +333,61 @@ it('warns and assigns nothing for an archived customer from the card', function 
 
     expect($customer->customerServices()->count())->toBe(0);
 });
+
+// --- Duyarlı sütunlar (375/768/1024/1280 px'te yatay scroll yok) ---------
+
+it('always shows the identity and amount/status columns of the customer list, and hides the rest below md/lg', function () {
+    $table = Livewire::test(ListCustomers::class)->instance()->getTable();
+
+    expect($table->getColumn('short_name')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('open_debt')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('next_renewal_on')->getVisibleFrom())->toBe('md')
+        ->and($table->getColumn('active_services_count')->getVisibleFrom())->toBe('lg')
+        ->and($table->getColumn('archived_at')->getVisibleFrom())->toBe('md');
+});
+
+it('always shows the name and price/status columns of the services table, and hides the end date below md', function () {
+    $customer = Customer::factory()->create();
+    $table = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    expect($table->getColumn('name')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('price')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('status')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('end_date')->getVisibleFrom())->toBe('md');
+});
+
+it('always shows the name and price/status columns of the cancelled services table too', function () {
+    $customer = Customer::factory()->create();
+    $table = Livewire::test(CancelledCustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    expect($table->getColumn('name')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('end_date')->getVisibleFrom())->toBe('md');
+});
+
+it('always shows the description and remaining/status columns of the open charges table, and hides the due date below md', function () {
+    $customer = Customer::factory()->create();
+    $table = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    expect($table->getColumn('description')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('remaining')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('status')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('due_date')->getVisibleFrom())->toBe('md');
+});
+
+it('always shows the date and amount columns of the recent payments table, and hides method/note below md/lg', function () {
+    $customer = Customer::factory()->create();
+    $table = Livewire::test(PaymentsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    expect($table->getColumn('paid_on')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('amount')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('paymentMethod.name')->getVisibleFrom())->toBe('md')
+        ->and($table->getColumn('note')->getVisibleFrom())->toBe('lg');
+});
+
+it('lays out contacts as a single stacked column, with no separate is_primary column to widen the row', function () {
+    $customer = Customer::factory()->create();
+    $table = Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    expect($table->getColumn('is_primary'))->toBeNull()
+        ->and($table->getColumn('name'))->not->toBeNull();
+});
