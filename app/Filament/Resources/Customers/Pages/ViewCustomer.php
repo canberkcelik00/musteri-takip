@@ -35,28 +35,18 @@ use Livewire\Attributes\On;
  * credit balance), then two columns — the work (services, open charges, recent payments) on the
  * left, information (contacts, billing, notes) on the right — and the destructive actions
  * (archive, delete) at the bottom, right-aligned and separate from both columns, not boxed in
- * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5), but
- * with the same top margin a section would have (T-70/T-71; sitting flush under the grid looked
- * attached to the shorter, right column). Contacts is a bare Livewire component, not wrapped in
- * a Section (T-71 reverts a T-70 attempt that produced a visibly nested double card); its
- * padding/spacing parity with "Fatura bilgileri"/"Notlar" instead comes from those two Sections
- * each carrying their own `mt-6` (T-71 — the right column's own schema does not reliably apply a
- * gap between adjacent plain Sections the way it does around a Livewire component).
- * "Ödeme al" ve "Hizmet ekle" sayfa başlık eylemleri, şeritle aynı hizada.
+ * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5), with
+ * a normal section gap above it. Contacts is a bare Livewire component, not wrapped in a Section
+ * (a T-70 attempt at that produced a visibly nested double card). "Ödeme al" ve "Hizmet ekle"
+ * sayfa başlık eylemleri, şeritle aynı hizada.
  *
- * Bilinen, kök nedeni bulunamayan tarayıcı-ayrıştırma sorunu (T-71): açık borcu 3+ satır olan
- * bazı müşterilerde (ör. Deniz Lojistik, id 4) sağ sütunun `Grid::make(1)` sarmalayıcısı 1350
- * px'te "Fatura bilgileri"/"Notlar"ı dış `Grid::make(3)`'ün doğrudan çocuğu gibi render ediyor —
- * yalnız TARAYICIDA (ham sunucu HTML'i ve `$schema->toHtml()` ikisi de doğru iç içe geçmeyi
- * gösteriyor); kapsamlı Playwright/bisection denemeleriyle kök neden bulunamadı (docs/DECISIONS.md
- * T-71). **Savunmacı CSS düzeltmesi (T-72):** `resources/css/filament/panel/theme.css`'teki
- * `:has()` kuralı, bu "düzleşmiş" şekli (dış grid'in DOĞRUDAN çocuğu olan, düzleşmiş bir
- * `.fi-grid-col`) tespit edip yalnızca o durumda `grid-column: 3` zorluyor — doğru iç içe geçmiş
- * durumda (`:has()` eşleşmediğinden) hiçbir etkisi yok, diğer 18 örnek müşteride regresyon yok
- * (Playwright ile doğrulandı). Sütun artık doğru ama satır YANLIŞ: düzleşmiş öğe hâlâ dış
- * grid'in "2. satırı"nda kalıyor, bu satırın yüksekliği sol sütunun tam yüksekliğine eşit
- * olduğundan İlgili kişiler ile Fatura bilgileri arasında büyük bir boşluk kalıyor (DOM'da gerçek
- * iç içe geçme olmadan CSS'le düzeltilemeyen bir sınır — bkz. docs/DECISIONS.md T-72).
+ * T-71/T-72'nin sağ sütun hizalama hatası YANLIŞ teşhis edilmişti (açık borç satır sayısıyla
+ * ilgisi yoktu) ve o iki karardaki `mt-6`/savunmacı CSS geçici çözümleri artık YOK: gerçek kök
+ * neden `ContactsRelationManager`'ın satırları iç içe `<button>` üretiyor olmasıydı (tarayıcı
+ * bunu HTML5 kuralına göre yeniden yapılandırıyordu); T-73'te `recordAction(null)` ile
+ * düzeltildi. DOM artık her zaman doğru iç içe geçtiğinden şemanın kendi 24px boşluğu tüm
+ * bölümler arasında (Kişiler → Fatura bilgileri → Notlar, ve Grid → Arşivle satırı) güvenilir
+ * şekilde çalışıyor; bkz. docs/DECISIONS.md T-73.
  */
 class ViewCustomer extends ViewRecord
 {
@@ -137,8 +127,7 @@ class ViewCustomer extends ViewRecord
                 DeleteRecordAction::make()->deleteWith(DeleteCustomer::class),
             ])
                 ->key('danger_actions')
-                ->alignment(Alignment::End)
-                ->extraAttributes(['class' => 'mt-6']),
+                ->alignment(Alignment::End),
         ]);
     }
 
@@ -186,11 +175,9 @@ class ViewCustomer extends ViewRecord
             ])->key('contacts'),
             Section::make(__('customers.billing_section'))
                 ->afterHeader([EditAction::make()->color('gray')])
-                ->schema(CustomerInfolist::billingSchema())
-                ->extraAttributes(['class' => 'mt-6']),
+                ->schema(CustomerInfolist::billingSchema()),
             Section::make(__('customers.notes_section'))
-                ->schema(CustomerInfolist::notesSchema())
-                ->extraAttributes(['class' => 'mt-6']),
+                ->schema(CustomerInfolist::notesSchema()),
         ];
     }
 }

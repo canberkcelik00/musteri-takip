@@ -24,6 +24,7 @@ use App\Models\User;
 use App\Support\Money;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
+use Filament\Schemas\Components\Section;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -562,7 +563,7 @@ it('hides the recent payments row action below md; the amount opens the same del
 
 // --- Kart düzeni: bölüm boşlukları, sağa yaslı Arşivle/Sil satırı ---------
 
-it('renders contacts, billing and notes as three separate cards on the card, with consistent spacing', function () {
+it('renders contacts, billing and notes as three separate cards on the card, in the right column', function () {
     $customer = Customer::factory()->create();
 
     $schema = Livewire::test(ViewCustomer::class, ['record' => $customer->id])
@@ -575,20 +576,112 @@ it('renders contacts, billing and notes as three separate cards on the card, wit
     expect($infoColumn)->not->toBeNull();
 
     $items = $infoColumn->getChildSchema()->getComponents();
-    expect($items[0])->toBeInstanceOf(\Filament\Schemas\Components\Livewire::class);
-
-    $billing = $items[1];
-    $notes = $items[2];
-    expect($billing->getExtraAttributes())->toBe(['class' => 'mt-6'])
-        ->and($notes->getExtraAttributes())->toBe(['class' => 'mt-6']);
+    expect($items)->toHaveCount(3)
+        ->and($items[0])->toBeInstanceOf(\Filament\Schemas\Components\Livewire::class)
+        ->and($items[1])->toBeInstanceOf(Section::class)
+        ->and($items[2])->toBeInstanceOf(Section::class);
 });
 
-it('gives the danger actions row a normal top margin instead of sitting flush under the grid', function () {
+it('gives the danger actions row no extra classes, relying on the schema\'s own section gap', function () {
     $customer = Customer::factory()->create();
     $schema = Livewire::test(ViewCustomer::class, ['record' => $customer->id])->instance()->getSchema('content');
 
     $dangerActions = $schema->getComponent('danger_actions', withHidden: true);
 
     expect($dangerActions)->not->toBeNull()
-        ->and($dangerActions->getExtraAttributes())->toBe(['class' => 'mt-6']);
+        ->and($dangerActions->getExtraAttributes())->toBe([]);
+});
+
+// --- T-73: iç içe <button> (T-71/T-72'nin gerçek kök nedeni) ---------------
+
+/**
+ * A `<button>` opening while another is still open is invalid HTML5; browsers close the
+ * outer one (and every ancestor up to it) early, silently restructuring the DOM — exactly
+ * what caused T-71/T-72's misplaced right column. `masterminds/html5` is not used here: on
+ * this exact malformed shape it does not reproduce the browser's own recovery, so a small
+ * stack-based scan of `<button` / `</button` tags is used instead.
+ */
+function assertNoNestedButtons(string $html, string $context): void
+{
+    preg_match_all('/<\/?button\b[^>]*>/i', $html, $matches);
+
+    $depth = 0;
+    $maxDepth = 0;
+
+    foreach ($matches[0] as $tag) {
+        if (str_starts_with($tag, '</')) {
+            $depth = max(0, $depth - 1);
+
+            continue;
+        }
+
+        $depth++;
+        $maxDepth = max($maxDepth, $depth);
+    }
+
+    expect($maxDepth)->toBeLessThanOrEqual(1, "iç içe <button> bulundu: {$context} (en derin: {$maxDepth})");
+}
+
+it('never nests a <button> inside another across the card\'s five tables, with 2+ rows and with 0/1', function () {
+    $busy = Customer::factory()->create();
+    Contact::factory()->for($busy)->primary()->create();
+    Contact::factory()->for($busy)->create();
+    CustomerService::factory()->for($busy)->count(2)->create();
+    CustomerService::factory()->for($busy)->cancelled()->count(2)->create();
+    Charge::factory()->for($busy)->count(2)->create();
+    Payment::factory()->for($busy)->count(2)->create();
+
+    $quiet = Customer::factory()->create();
+    Contact::factory()->for($quiet)->primary()->create();
+
+    $empty = Customer::factory()->create();
+
+    foreach ([$busy, $quiet, $empty] as $customer) {
+        $html = Livewire::test(ViewCustomer::class, ['record' => $customer->id])->html();
+        assertNoNestedButtons($html, "customer {$customer->id} full card");
+    }
+
+    assertNoNestedButtons(
+        Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $busy, 'pageClass' => ViewCustomer::class])->html(),
+        'Kişiler, 2 kayıt',
+    );
+    assertNoNestedButtons(
+        Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $busy, 'pageClass' => ViewCustomer::class])->html(),
+        'Hizmetler, 2 kayıt',
+    );
+    assertNoNestedButtons(
+        Livewire::test(CancelledCustomerServicesRelationManager::class, ['ownerRecord' => $busy, 'pageClass' => ViewCustomer::class])->html(),
+        'İptal edilenler, 2 kayıt',
+    );
+    assertNoNestedButtons(
+        Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $busy, 'pageClass' => ViewCustomer::class])->html(),
+        'Açık borçlar, 2 kayıt',
+    );
+    assertNoNestedButtons(
+        Livewire::test(PaymentsRelationManager::class, ['ownerRecord' => $busy, 'pageClass' => ViewCustomer::class])->html(),
+        'Son ödemeler, 2 kayıt',
+    );
+});
+
+it('has no default record action on the contacts table, so its rows never wrap in a button', function () {
+    $customer = Customer::factory()->create();
+    $contact = Contact::factory()->for($customer)->primary()->create();
+
+    $table = Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable();
+
+    expect($table->getRecordAction($contact))->toBeNull();
+});
+
+it('keeps the right column correctly nested for a customer with 2 contacts, matching the ROADMAP\'s own Logi example', function () {
+    $customer = Customer::factory()->create(['short_name' => 'Logi']);
+    Contact::factory()->for($customer)->primary()->create();
+    Contact::factory()->for($customer)->create();
+
+    $html = Livewire::test(ViewCustomer::class, ['record' => $customer->id])->html();
+
+    assertNoNestedButtons($html, 'Logi (2 kişi)');
+    expect($html)->toContain('İlgili kişiler')
+        ->and($html)->toContain('Fatura bilgileri')
+        ->and($html)->toContain('Notlar');
 });

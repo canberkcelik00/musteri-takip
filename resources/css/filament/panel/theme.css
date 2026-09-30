@@ -65,19 +65,3 @@ body {
 .fi-mobile-badge {
     @apply md:hidden mt-1 inline-block;
 }
-
-/*
- * Defensive fallback for the customer card's right column (T-72): for some records (a data
- * shape not root-caused despite thorough investigation, docs/DECISIONS.md T-71/T-72 — the
- * source-rendered HTML and the PHP component tree are both correct, only the browser's parsed
- * DOM misplaces it), "Fatura bilgileri"/"Notlar" end up as a DIRECT child of the customer card's
- * outer 3-column grid instead of nested inside the right column's own group, landing in the
- * wrong column. This never happens to the correctly-nested case (`:has()` only matches this
- * exact flattened shape, verified against a working record), so it is a safe no-op everywhere
- * else and only engages to correct the misplacement when it occurs.
- */
-@media (width >= 64rem) {
-    .fi-grid.lg\:fi-grid-cols > .fi-grid-col:has(> .fi-sc-component > .mt-6.fi-sc-section) {
-        grid-column: 3;
-    }
-}

@@ -37,6 +37,19 @@ use Illuminate\Database\Eloquent\Model;
  * confirmed) live in that slide-over's footer via extraModalFooterActions() and cancel it
  * (cancelParentActions()) instead of saving the form. Every change goes through the Actions in
  * App\Actions\Contacts, which keep exactly one primary contact.
+ *
+ * `table()`'da `recordAction(null)` şart (T-73, T-70/T-71/T-72'nin GERÇEK kök nedeni — o kararlar
+ * yanlış teşhis edilmişti, bkz. docs/DECISIONS.md T-73): bu tablo bir `Stack` kullandığından
+ * içerik-düzeni ile render oluyor ve Filament, bir `edit` eylemi bulunca satırı otomatik olarak
+ * `<button wire:click="mountTableAction('edit', …)">` ile sarıyor. Ad sütununun kendi eylem
+ * butonu bu butonun İÇİNE düşüyordu; HTML5 ayrıştırma kuralı, açık bir `<button>` içinde ikinci
+ * bir `<button>` görülünce ilkini (ve `div.fi-grid-col`/`div.fi-ta-stack` gibi tüm ata
+ * düğümlerini) kapatıyordu — her kişi satırında DOM 2 seviye fazladan kapanıyordu. 1 kişili
+ * müşterilerde bu şans eseri görsel olarak doğru duruyordu (DOM yanlış, blok akışı toparlıyordu);
+ * 2+ kişili müşterilerde (ROADMAP'in kendi kabul örneği Logi dahil) hasar kartın sağ sütununa
+ * kadar ulaşıp "Fatura bilgileri"/"Notlar"ı yanlış yere taşıyordu. `recordAction(null)` satır
+ * genelindeki otomatik butonu kaldırıyor; ad sütununun kendi eylemi (T-68'in zaten istediği "ada
+ * tıklamak", satırın tamamı değil) aynen çalışmaya devam ediyor.
  */
 class ContactsRelationManager extends RelationManager
 {
@@ -65,6 +78,7 @@ class ContactsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('name')
+            ->recordAction(null)
             ->modifyQueryUsing(fn ($query) => $query->orderByDesc('is_primary')->orderBy('name'))
             ->paginated(false)
             ->columns([
