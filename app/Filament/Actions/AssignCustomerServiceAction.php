@@ -8,6 +8,7 @@ use App\Enums\ServiceType;
 use App\Exceptions\InvalidCustomerService;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\FieldError;
 use App\Models\CatalogService;
 use App\Models\Customer;
 use App\Models\Package;
@@ -19,7 +20,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -62,7 +62,6 @@ class AssignCustomerServiceAction extends Action
         $this
             ->label(__('customer_services.assign'))
             ->modalHeading(__('customer_services.assign_heading'))
-            ->modalSubmitActionLabel(__('customer_services.assign'))
             ->slideOver()
             ->schema([
                 Select::make('sold')
@@ -133,12 +132,7 @@ class AssignCustomerServiceAction extends Action
                         'items' => $data['items'] ?? [],
                     ]);
                 } catch (InvalidCustomerService $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
+                    FieldError::report($exception, $action, ['sold', 'price', 'currency', 'start_date']);
 
                     return;
                 }

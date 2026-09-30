@@ -5,10 +5,10 @@ namespace App\Filament\Actions;
 use App\Actions\Charges\CancelCharge;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
+use App\Filament\Support\FieldError;
 use App\Models\Charge;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
-use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
 
@@ -43,12 +43,7 @@ class CancelChargeAction extends Action
                 try {
                     $cancelCharge->handle($record, $data['reason']);
                 } catch (InvalidCharge $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
+                    FieldError::report($exception, $action, ['reason']);
 
                     return;
                 }

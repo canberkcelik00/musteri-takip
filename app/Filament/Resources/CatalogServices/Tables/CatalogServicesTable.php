@@ -2,14 +2,11 @@
 
 namespace App\Filament\Resources\CatalogServices\Tables;
 
-use App\Actions\CatalogServices\DeleteCatalogService;
 use App\Enums\ServiceType;
-use App\Filament\Actions\ArchiveAction;
-use App\Filament\Actions\DeleteRecordAction;
-use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\CatalogService;
+use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -47,10 +44,12 @@ class CatalogServicesTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                ArchiveAction::make(),
-                UnarchiveAction::make(),
-                DeleteRecordAction::make()->deleteWith(DeleteCatalogService::class),
+                EditAction::make()->slideOver(),
+            ])
+            ->emptyStateHeading(__('catalog_services.empty_heading'))
+            ->emptyStateDescription(__('catalog_services.empty_description'))
+            ->emptyStateActions([
+                CreateAction::make('createEmpty')->label(__('catalog_services.add'))->slideOver()->color('gray'),
             ]);
     }
 }

@@ -6,11 +6,11 @@ use App\Actions\Charges\SplitCharge;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\FieldError;
 use App\Models\Charge;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
@@ -55,12 +55,7 @@ class SplitChargeAction extends Action
                 try {
                     $splitCharge->handle($record, $data['amount'], $data['due_date'], $data['description'] ?? null);
                 } catch (InvalidCharge $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
+                    FieldError::report($exception, $action, ['amount', 'due_date', 'description']);
 
                     return;
                 }

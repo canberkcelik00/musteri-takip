@@ -14,4 +14,7 @@ return [
     'make_primary' => 'Birincil yap',
     'made_primary' => 'Birincil kişi değiştirildi.',
     'deleted' => 'Kişi silindi.',
+    'actions_section' => 'Kişi işlemleri',
+    'empty_heading' => 'Henüz kişi yok',
+    'empty_description' => 'Müşteriyle iletişim kuracağınız kişiyi ekleyin.',
 ];

@@ -3,21 +3,18 @@
 namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Enums\ChargeStatus;
-use App\Filament\Actions\CancelChargeAction;
 use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\EditChargeAction;
-use App\Filament\Actions\SplitChargeAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
-use App\Filament\Support\MobileStatusBadge;
-use App\Filament\Tables\Columns\ChargeStatusColumn;
+use App\Filament\Support\ChargeStatusBadge;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Support\Money;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
@@ -33,15 +30,15 @@ use Illuminate\Support\HtmlString;
  * allocations, not stored; a partially paid charge shows the original amount as a faded "/
  * total" line under the remaining amount. The description shows the linked service's domains
  * (if any, {@see CustomerService::domains()}) as a faded line; a manual charge
- * without a service has none. "Borç ekle" and the row actions (edit, split, cancel) only call the
- * Actions in app/Actions/Charges; the rules live there. "Tüm borçlar" links to the customer's
+ * without a service has none. "Borç ekle" and the row actions ("Ödeme al", "Düzenle"; split and
+ * cancel live in the edit panel's "Borç işlemleri" section, G-4.17) only call the Actions in
+ * app/Actions; the rules live there. "Tüm borçlar" links to the customer's
  * full, unfiltered history in the menu's Borçlar list ({@see ChargeResource}).
- * Responsive (T-68/T-70, no horizontal scroll at any width, classic table columns kept intact
- * at every width — no {@see Stack}/`Split`, see
- * {@see MobileStatusBadge}): description (+ domains) and remaining/status always show; due date
- * and the "Durum" column from `md`; below `md` "Kalan"'s description carries a colored status
- * badge instead (only for overdue, partially paid or due-soon — a plain open charge shows
- * nothing, same as the desktop column), alongside the existing "/ total" line when applicable.
+ * Responsive (T-68/T-70/G-4.17, no horizontal scroll at 1280 px and up, classic table columns
+ * kept intact at every width — no {@see Stack}/`Split`, see {@see ChargeStatusBadge}):
+ * description (+ domains) and remaining always show, with the state badge under "Kalan" (only for
+ * overdue, partially paid or due-soon — a plain open charge shows nothing) next to the "/ total"
+ * line when applicable; there is no separate "Durum" column. The due date shows from `md`.
  */
 class ChargesRelationManager extends RelationManager
 {
@@ -99,8 +96,6 @@ class ChargesRelationManager extends RelationManager
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
                     ->currencyAttribute('currency')
                     ->description(fn (Charge $record): ?Htmlable => $this->remainingDescription($record)),
-                ChargeStatusColumn::make('status')
-                    ->visibleFrom('md'),
             ])
             ->headerActions([
                 CreateManualChargeAction::make()->customer($customer)->color('gray'),
@@ -115,37 +110,39 @@ class ChargesRelationManager extends RelationManager
                     ])),
             ])
             ->recordActions([
-                EditChargeAction::make()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
-                ActionGroup::make([
-                    SplitChargeAction::make(),
-                    CancelChargeAction::make(),
-                ])->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+                RecordPaymentAction::make()
+                    ->customer($customer)
+                    ->icon(null)
+                    ->color('gray')
+                    ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open),
+                EditChargeAction::make()->icon(null)->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+            ])
+            ->emptyStateHeading(__('charges.open_empty_heading'))
+            ->emptyStateDescription(__('charges.open_empty_description'))
+            ->emptyStateActions([
+                CreateManualChargeAction::make('createManualChargeEmpty')->customer($customer)->color('gray'),
             ]);
     }
 
     /**
-     * The description column's click target below `md`, where the row actions are hidden
-     * (T-68): "Düzenle", with "Böl" and "İptal et" added to its footer so they stay reachable.
-     * `cancelParentActions()` closes this modal instead of also submitting the edit form. At
-     * `md` and up the layout is unchanged: these stay separate, visible row actions
-     * ({@see self::table()}). Named distinctly from the row actions ("…Mobile"): the table
-     * caches actions by name regardless of whether they came from a column or a row, so reusing
-     * a name here would let one silently overwrite the other (confirmed by reproducing it).
+     * The description column's click target below `md`, where the "Düzenle" button is hidden
+     * (T-68, G-4.17): the same edit panel, whose "Borç işlemleri" section keeps "Böl" and "İptal
+     * et" reachable. "Ödeme al" stays a visible row button at every width, so taking a payment is
+     * one tap on mobile too. Named distinctly from the row action ("…Mobile"): the table caches
+     * actions by name regardless of whether they came from a column or a row, so reusing a name
+     * here would let one silently overwrite the other (confirmed by reproducing it).
      */
     private function mobileEditAction(): Action
     {
-        return EditChargeAction::make('editChargeMobile')
-            ->extraModalFooterActions([
-                SplitChargeAction::make('splitChargeMobile')->cancelParentActions(),
-                CancelChargeAction::make('cancelChargeMobile')->cancelParentActions(),
-            ]);
+        return EditChargeAction::make('editChargeMobile');
     }
 
     /**
-     * "Kalan"'s description (T-70): the "/ total" line for a partially paid charge, plus — only
-     * below `md`, where the "Durum" column is hidden — a colored status badge, for an overdue,
-     * partially paid or due-soon charge (a plain open one shows nothing, same as the desktop
-     * column; this table only ever lists open charges, so paid/cancelled never occur here).
+     * "Kalan"'s description: the "/ total" line for a partially paid charge, plus the state badge
+     * ({@see ChargeStatusBadge}) at every width for an overdue, partially paid or due-soon charge
+     * (a plain open one shows nothing; this table only ever lists open charges). G-4.17: this
+     * replaced the desktop "Durum" column, whose width pushed "Ödeme al" and "Düzenle" out of the
+     * card at 1280 px.
      */
     private function remainingDescription(Charge $record): ?Htmlable
     {
@@ -153,12 +150,7 @@ class ChargesRelationManager extends RelationManager
             ? '/ '.(new Money($record->amount, $record->currency))->format()
             : null;
 
-        $badge = match (true) {
-            $record->isOverdue() => MobileStatusBadge::html(__('charges.overdue_days', ['count' => $record->daysOverdue()]), 'danger'),
-            $record->isPartiallyPaid() => MobileStatusBadge::html(__('charges.partially_paid'), 'warning'),
-            $record->isDueSoon() => MobileStatusBadge::html(__('charges.due_soon'), 'warning'),
-            default => null,
-        };
+        $badge = ChargeStatusBadge::html($record);
 
         if ($original === null && $badge === null) {
             return null;

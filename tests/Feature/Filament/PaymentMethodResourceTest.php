@@ -27,6 +27,11 @@ function paymentFormMethodNames(): array
     return PaymentMethod::query()->notArchived()->orderBy('sort_order')->orderBy('id')->pluck('name')->all();
 }
 
+function editMethodPanel(PaymentMethod $method): TestAction
+{
+    return TestAction::make('edit')->table($method);
+}
+
 it('lists the payment methods in their order', function () {
     Livewire::test(ManagePaymentMethods::class)
         ->assertOk()
@@ -80,7 +85,7 @@ it('archives a method, hides it from the payment form and brings it back', funct
     $cash = paymentMethodNamed('Nakit');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(TestAction::make('archive')->table($cash))
+        ->callAction(sectionAction(editMethodPanel($cash), 'archive'))
         ->assertNotified(__('archive.archived'));
 
     expect($cash->refresh()->isArchived())->toBeTrue()
@@ -88,7 +93,7 @@ it('archives a method, hides it from the payment form and brings it back', funct
 
     Livewire::test(ManagePaymentMethods::class)
         ->filterTable('archived', true)
-        ->callAction(TestAction::make('unarchive')->table($cash));
+        ->callAction(sectionAction(editMethodPanel($cash), 'unarchive'));
 
     expect($cash->refresh()->isArchived())->toBeFalse()
         ->and(paymentFormMethodNames())->toBe(['Havale/EFT', 'Nakit', 'Kredi Kartı']);
@@ -111,7 +116,7 @@ it('does not archive the last active method and says why', function () {
     $cash = paymentMethodNamed('Nakit');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(TestAction::make('archive')->table($cash))
+        ->callAction(sectionAction(editMethodPanel($cash), 'archive'))
         ->assertNotified('En az bir ödeme yöntemi aktif kalmalı. Önce başka bir yöntem ekleyin veya arşivden çıkarın.');
 
     expect($cash->refresh()->isArchived())->toBeFalse();
@@ -120,10 +125,12 @@ it('does not archive the last active method and says why', function () {
 it('offers delete next to archive for an unused method and deletes it', function () {
     $method = PaymentMethod::factory()->create();
 
-    Livewire::test(ManagePaymentMethods::class)
-        ->assertActionVisible(TestAction::make('delete')->table($method))
-        ->assertActionVisible(TestAction::make('archive')->table($method))
-        ->callAction(TestAction::make('delete')->table($method));
+    $list = Livewire::test(ManagePaymentMethods::class);
+
+    expect(actionOffered($list, sectionAction(editMethodPanel($method), 'delete', danger: true)))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editMethodPanel($method), 'archive')))->toBeTrue();
+
+    $list->callAction(sectionAction(editMethodPanel($method), 'delete', danger: true));
 
     expect(PaymentMethod::query()->find($method->id))->toBeNull();
 });
@@ -131,9 +138,10 @@ it('offers delete next to archive for an unused method and deletes it', function
 it('offers only archive for a method a payment uses', function () {
     $method = Payment::factory()->create()->paymentMethod;
 
-    Livewire::test(ManagePaymentMethods::class)
-        ->assertActionHidden(TestAction::make('delete')->table($method))
-        ->assertActionVisible(TestAction::make('archive')->table($method));
+    $list = Livewire::test(ManagePaymentMethods::class);
+
+    expect(actionOffered($list, sectionAction(editMethodPanel($method), 'delete', danger: true)))->toBeFalse()
+        ->and(actionOffered($list, sectionAction(editMethodPanel($method), 'archive')))->toBeTrue();
 });
 
 it('does not delete the last active method and says why', function () {
@@ -141,7 +149,7 @@ it('does not delete the last active method and says why', function () {
     $cash = paymentMethodNamed('Nakit');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(TestAction::make('delete')->table($cash))
+        ->callAction(sectionAction(editMethodPanel($cash), 'delete', danger: true))
         ->assertNotified('En az bir ödeme yöntemi aktif kalmalı. Önce başka bir yöntem ekleyin veya arşivden çıkarın.');
 
     expect(PaymentMethod::query()->find($cash->id))->not->toBeNull();
@@ -151,8 +159,8 @@ it('offers delete for an archived method that no payment uses', function () {
     $method = PaymentMethod::factory()->create();
     $method->archive();
 
-    Livewire::test(ManagePaymentMethods::class)
-        ->filterTable('archived', true)
-        ->assertActionVisible(TestAction::make('delete')->table($method))
-        ->assertActionVisible(TestAction::make('unarchive')->table($method));
+    $list = Livewire::test(ManagePaymentMethods::class)->filterTable('archived', true);
+
+    expect(actionOffered($list, sectionAction(editMethodPanel($method), 'delete', danger: true)))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editMethodPanel($method), 'unarchive')))->toBeTrue();
 });

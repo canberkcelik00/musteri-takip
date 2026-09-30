@@ -1,8 +1,9 @@
 <?php
 
-use App\Filament\Resources\Customers\Pages\EditCustomer;
+use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\User;
@@ -28,12 +29,11 @@ function contactsManager(Customer $customer)
     ]);
 }
 
-it('is shown on the customer card, not on the edit page', function () {
+it('is shown on the customer card; the customer has no separate edit page', function () {
     Livewire::test(ViewCustomer::class, ['record' => $this->customer->id])
         ->assertSeeLivewire(ContactsRelationManager::class);
 
-    Livewire::test(EditCustomer::class, ['record' => $this->customer->id])
-        ->assertDontSeeLivewire(ContactsRelationManager::class);
+    expect(CustomerResource::hasPage('edit'))->toBeFalse();
 });
 
 it('lists the contacts of the customer only, primary first', function () {
@@ -97,30 +97,36 @@ it('edits a contact without changing whether it is primary', function () {
 
 it('makes another contact primary and clears the previous primary contact, from the edit panel', function () {
     contactsManager($this->customer)
-        ->callAction([TestAction::make('edit')->table($this->other), TestAction::make('makePrimary')])
+        ->callAction([TestAction::make('edit')->table($this->other), TestAction::make('makePrimary')->schemaComponent(RecordActionsSection::ACTIONS_KEY)])
         ->assertNotified();
 
     expect($this->other->refresh()->is_primary)->toBeTrue()
         ->and($this->primary->refresh()->is_primary)->toBeFalse();
 });
 
-it('offers neither making primary nor deleting for the primary contact, in the edit panel footer', function () {
-    // Assert-only resolution (no mount) can't bind the nested action's record; mount "edit"
-    // first so "makePrimary"/"delete" resolve against the record it was opened for.
+it('offers neither making primary nor deleting for the primary contact: its "Kişi işlemleri" section is hidden', function () {
     contactsManager($this->customer)
         ->mountAction(TestAction::make('edit')->table($this->primary))
-        ->assertActionHidden('makePrimary')
-        ->assertActionHidden('delete');
+        ->assertSchemaComponentHidden(RecordActionsSection::ACTIONS_KEY, 'mountedActionSchema0')
+        ->assertSchemaComponentHidden(RecordActionsSection::DANGER_ACTIONS_KEY, 'mountedActionSchema0');
 
     contactsManager($this->customer)
-        ->mountAction(TestAction::make('edit')->table($this->other))
-        ->assertActionVisible('makePrimary')
-        ->assertActionVisible('delete');
+        ->assertActionVisible([TestAction::make('edit')->table($this->other), TestAction::make('makePrimary')->schemaComponent(RecordActionsSection::ACTIONS_KEY)])
+        ->assertActionVisible([TestAction::make('edit')->table($this->other), TestAction::make('delete')->schemaComponent(RecordActionsSection::DANGER_ACTIONS_KEY)]);
+});
+
+it('keeps the edit panel footer to Vazgeç and Kaydet only', function () {
+    $manager = contactsManager($this->customer)
+        ->mountAction(TestAction::make('edit')->table($this->other));
+
+    $action = $manager->instance()->getMountedAction();
+
+    expect(array_keys($action->getModalFooterActions()))->toBe(['submit', 'cancel']);
 });
 
 it('deletes a contact that is not primary, from the edit panel', function () {
     contactsManager($this->customer)
-        ->callAction([TestAction::make('edit')->table($this->other), TestAction::make('delete')])
+        ->callAction([TestAction::make('edit')->table($this->other), TestAction::make('delete')->schemaComponent(RecordActionsSection::DANGER_ACTIONS_KEY)])
         ->assertNotified();
 
     expect(Contact::query()->whereKey($this->other->id)->exists())->toBeFalse()

@@ -4,18 +4,18 @@ namespace App\Filament\Resources\Charges\Tables;
 
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
-use App\Filament\Actions\CancelChargeAction;
+use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\EditChargeAction;
-use App\Filament\Actions\SplitChargeAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Resources\Customers\CustomerResource;
-use App\Filament\Tables\Columns\ChargeStatusColumn;
+use App\Filament\Support\ChargeStatusBadge;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
-use Filament\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 class ChargesTable
@@ -44,8 +44,8 @@ class ChargesTable
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
-                    ->currencyAttribute('currency'),
-                ChargeStatusColumn::make('status'),
+                    ->currencyAttribute('currency')
+                    ->description(fn (Charge $record): ?Htmlable => ChargeStatusBadge::html($record, showPlainStatus: true)),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -74,11 +74,16 @@ class ChargesTable
                     ->preload(),
             ])
             ->recordActions([
-                EditChargeAction::make(),
-                ActionGroup::make([
-                    SplitChargeAction::make(),
-                    CancelChargeAction::make(),
-                ]),
+                RecordPaymentAction::make()
+                    ->icon(null)
+                    ->color('gray')
+                    ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open),
+                EditChargeAction::make()->icon(null),
+            ])
+            ->emptyStateHeading(__('charges.empty_heading'))
+            ->emptyStateDescription(__('charges.empty_description'))
+            ->emptyStateActions([
+                CreateManualChargeAction::make()->color('gray'),
             ]);
     }
 }

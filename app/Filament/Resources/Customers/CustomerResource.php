@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Customers;
 
-use App\Filament\Resources\Customers\Pages\CreateCustomer;
-use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
@@ -84,6 +82,14 @@ class CustomerResource extends Resource
     }
 
     /**
+     * A Ctrl+K result opens the customer's card, never a form (docs/UI.md §7).
+     */
+    public static function getGlobalSearchResultUrl(Model $record): ?string
+    {
+        return static::getUrl('view', ['record' => $record]);
+    }
+
+    /**
      * @return array<string, string>
      */
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -142,9 +148,7 @@ class CustomerResource extends Resource
     {
         return [
             'index' => ListCustomers::route('/'),
-            'create' => CreateCustomer::route('/create'),
             'view' => ViewCustomer::route('/{record}'),
-            'edit' => EditCustomer::route('/{record}/edit'),
         ];
     }
 }

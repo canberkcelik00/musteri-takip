@@ -6,6 +6,7 @@ use App\Actions\Contacts\CreateContact;
 use App\Actions\Contacts\DeleteContact;
 use App\Actions\Contacts\MakeContactPrimary;
 use App\Exceptions\PrimaryContactCannotBeDeleted;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\Contact;
 use App\Models\Customer;
 use Filament\Actions\Action;
@@ -34,9 +35,10 @@ use Illuminate\Database\Eloquent\Model;
  * renders the hidden trigger's own partial as an empty string, which then fails Livewire's
  * root-tag check) — a column action sidesteps that registry entirely and needs no hidden()
  * button at all. "Birincil yap" and "Sil" (both hidden for the primary contact, "Sil" red and
- * confirmed) live in that slide-over's footer via extraModalFooterActions() and cancel it
- * (cancelParentActions()) instead of saving the form. Every change goes through the Actions in
- * App\Actions\Contacts, which keep exactly one primary contact.
+ * confirmed) live in the slide-over's "Kişi işlemleri" section ({@see RecordActionsSection},
+ * G-4.17) — not in its footer beside Kaydet — and cancel the panel (cancelParentActions())
+ * instead of saving the form. Every change goes through the Actions in App\Actions\Contacts,
+ * which keep exactly one primary contact.
  *
  * `table()`'da `recordAction(null)` şart (T-73, T-70/T-71/T-72'nin GERÇEK kök nedeni — o kararlar
  * yanlış teşhis edilmişti, bkz. docs/DECISIONS.md T-73): bu tablo bir `Stack` kullandığından
@@ -104,25 +106,35 @@ class ContactsRelationManager extends RelationManager
                 ]),
             ])
             ->headerActions([
-                CreateAction::make()
-                    ->label(__('contacts.add'))
-                    ->color('gray')
-                    ->schema([
-                        ...$this->getContactFields(),
-                        Toggle::make('make_primary')
-                            ->label(__('contacts.make_primary_on_create')),
-                    ])
-                    ->using(function (array $data, CreateContact $createContact): Contact {
-                        $makePrimary = (bool) ($data['make_primary'] ?? false);
-
-                        unset($data['make_primary']);
-
-                        $customer = $this->getOwnerRecord();
-                        assert($customer instanceof Customer);
-
-                        return $createContact->handle($customer, $data, $makePrimary);
-                    }),
+                $this->buildCreateAction(),
+            ])
+            ->emptyStateHeading(__('contacts.empty_heading'))
+            ->emptyStateDescription(__('contacts.empty_description'))
+            ->emptyStateActions([
+                $this->buildCreateAction('createEmpty'),
             ]);
+    }
+
+    private function buildCreateAction(string $name = 'create'): CreateAction
+    {
+        return CreateAction::make($name)
+            ->label(__('contacts.add'))
+            ->color('gray')
+            ->schema([
+                ...$this->getContactFields(),
+                Toggle::make('make_primary')
+                    ->label(__('contacts.make_primary_on_create')),
+            ])
+            ->using(function (array $data, CreateContact $createContact): Contact {
+                $makePrimary = (bool) ($data['make_primary'] ?? false);
+
+                unset($data['make_primary']);
+
+                $customer = $this->getOwnerRecord();
+                assert($customer instanceof Customer);
+
+                return $createContact->handle($customer, $data, $makePrimary);
+            });
     }
 
     /**
@@ -138,9 +150,13 @@ class ContactsRelationManager extends RelationManager
     {
         return EditAction::make()
             ->slideOver()
-            ->extraModalFooterActions([
-                $this->buildMakePrimaryAction(),
-                $this->buildDeleteAction(),
+            ->schema([
+                ...$this->getContactFields(),
+                RecordActionsSection::make(
+                    __('contacts.actions_section'),
+                    [$this->buildMakePrimaryAction()],
+                    [$this->buildDeleteAction()],
+                ),
             ]);
     }
 

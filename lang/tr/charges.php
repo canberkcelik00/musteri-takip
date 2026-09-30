@@ -52,4 +52,9 @@ return [
     'cancel_heading' => 'Borcu iptal et',
     'cancel_reason' => 'İptal gerekçesi',
     'cancelled' => 'Borç iptal edildi.',
+    'actions_section' => 'Borç işlemleri',
+    'empty_heading' => 'Henüz borç yok',
+    'open_empty_heading' => 'Açık borç yok',
+    'open_empty_description' => 'Bu müşterinin ödenmemiş borcu bulunmuyor.',
+    'empty_description' => 'Hizmet eklendiğinde borçlar kendiliğinden oluşur; farklı bir borç için elle ekleyin.',
 ];

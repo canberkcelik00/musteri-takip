@@ -70,7 +70,7 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
 
     /**
      * "12 gün gecikti" or "3 gün kaldı" / "Bugün vadesi geliyor" (docs/UI.md §5, §6), the same
-     * day counts ChargeStatusColumn uses for the charge lists.
+     * day counts ChargeStatusBadge uses for the charge lists.
      */
     public function chargeStatusLabel(Charge $charge): string
     {

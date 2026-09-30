@@ -9,6 +9,7 @@ use App\Filament\Resources\Charges\Pages\ListCharges;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\CustomerService;
@@ -40,6 +41,19 @@ function chargesOnCard(Customer $customer)
 function chargeRowAction(string $name, Charge $charge): TestAction
 {
     return TestAction::make($name)->table($charge);
+}
+
+/**
+ * A rare charge action, reached through the "Borç işlemleri" section of the edit panel.
+ *
+ * @return list<TestAction>
+ */
+function chargePanelAction(string $name, Charge $charge, string $section = RecordActionsSection::ACTIONS_KEY): array
+{
+    return [
+        chargeRowAction('editCharge', $charge),
+        TestAction::make($name)->schemaComponent($section),
+    ];
 }
 
 /**
@@ -76,9 +90,12 @@ it('marks an open charge due within 7 days as due soon, in orange, and a farther
     expect($html)->toContain('Vadesi yaklaşıyor')
         ->and($html)->toContain('fi-color-warning');
 
-    chargesPage()
-        ->assertTableColumnStateSet('status', 'Vadesi yaklaşıyor', $dueSoon)
-        ->assertTableColumnStateSet('status', 'Açık', $open);
+    // G-4.17: the state sits under "Kalan"; there is no separate "Durum" column any more.
+    $remaining = chargesPage()->instance()->getTable()->getColumn('remaining');
+
+    expect(chargesPage()->instance()->getTable()->getColumn('status'))->toBeNull()
+        ->and($remaining->record($dueSoon)->getDescriptionBelow()->toHtml())->toContain('Vadesi yaklaşıyor')->toContain('fi-color-warning')
+        ->and($remaining->record($open)->getDescriptionBelow()->toHtml())->toBe('Açık');
 });
 
 it('filters the list to overdue charges only', function () {
@@ -221,12 +238,15 @@ it('splits a charge and keeps the total', function () {
     $customer = Customer::factory()->create();
     $charge = Charge::factory()->for($customer)->create(['amount' => 100000, 'due_date' => '2026-06-20', 'description' => 'Hosting']);
 
-    chargesOnCard($customer)
-        ->mountAction(chargeRowAction('splitCharge', $charge))
+    $card = chargesOnCard($customer)
+        ->mountAction(chargePanelAction('splitCharge', $charge))
         ->fillForm(['amount' => '400', 'due_date' => '2026-09-01'])
         ->callMountedAction()
         ->assertHasNoFormErrors()
         ->assertNotified('Borç bölündü.');
+
+    // cancelParentActions(): the edit panel closes together with the nested form modal.
+    expect($card->get('mountedActions'))->toBe([]);
 
     $piece = $customer->charges()->whereKeyNot($charge->id)->sole();
 
@@ -241,10 +261,10 @@ it('refuses to split off the whole amount and leaves the charge unchanged', func
     $charge = Charge::factory()->for($customer)->create(['amount' => 100000]);
 
     chargesOnCard($customer)
-        ->mountAction(chargeRowAction('splitCharge', $charge))
+        ->mountAction(chargePanelAction('splitCharge', $charge))
         ->fillForm(['amount' => '1.000', 'due_date' => '2026-09-01'])
         ->callMountedAction()
-        ->assertNotified('Ayrılan tutar sıfırdan büyük ve borç tutarından küçük olmalı.');
+        ->assertHasFormErrors(['amount']);
 
     expect($charge->refresh()->amount)->toBe(100000)
         ->and($customer->charges()->count())->toBe(1);
@@ -255,19 +275,21 @@ it('cancels a charge only with a reason', function () {
     $charge = Charge::factory()->for($customer)->create();
 
     chargesOnCard($customer)
-        ->mountAction(chargeRowAction('cancelCharge', $charge))
+        ->mountAction(chargePanelAction('cancelCharge', $charge, RecordActionsSection::DANGER_ACTIONS_KEY))
         ->fillForm(['reason' => ''])
         ->callMountedAction()
         ->assertHasFormErrors(['reason' => 'required']);
 
     expect($charge->refresh()->status)->toBe(ChargeStatus::Open);
 
-    chargesOnCard($customer)
-        ->mountAction(chargeRowAction('cancelCharge', $charge))
+    $card = chargesOnCard($customer)
+        ->mountAction(chargePanelAction('cancelCharge', $charge, RecordActionsSection::DANGER_ACTIONS_KEY))
         ->fillForm(['reason' => 'Yanlış girildi'])
         ->callMountedAction()
         ->assertHasNoFormErrors()
         ->assertNotified('Borç iptal edildi.');
+
+    expect($card->get('mountedActions'))->toBe([]);
 
     $charge->refresh();
 
@@ -282,13 +304,13 @@ it('hides split and cancel for a charge with allocations but keeps edit', functi
 
     chargesPage()
         ->assertTableActionVisible('editCharge', $charge)
-        ->assertTableActionHidden('splitCharge', $charge)
-        ->assertTableActionHidden('cancelCharge', $charge);
+        ->mountAction(chargeRowAction('editCharge', $charge))
+        ->assertSchemaComponentHidden(RecordActionsSection::ACTIONS_KEY, 'mountedActionSchema0');
 
     chargesOnCard($customer)
         ->assertTableActionVisible('editCharge', $charge)
-        ->assertTableActionHidden('splitCharge', $charge)
-        ->assertTableActionHidden('cancelCharge', $charge);
+        ->mountAction(chargeRowAction('editCharge', $charge))
+        ->assertSchemaComponentHidden(RecordActionsSection::ACTIONS_KEY, 'mountedActionSchema0');
 });
 
 it('hides every charge action for paid and cancelled charges', function () {
@@ -299,11 +321,9 @@ it('hides every charge action for paid and cancelled charges', function () {
     chargesPage()
         ->removeTableFilter('status')
         ->assertTableActionHidden('editCharge', $paid)
-        ->assertTableActionHidden('splitCharge', $paid)
-        ->assertTableActionHidden('cancelCharge', $paid)
+        ->assertTableActionHidden('recordPayment', $paid)
         ->assertTableActionHidden('editCharge', $cancelled)
-        ->assertTableActionHidden('splitCharge', $cancelled)
-        ->assertTableActionHidden('cancelCharge', $cancelled);
+        ->assertTableActionHidden('recordPayment', $cancelled);
 });
 
 it('refreshes the card and the list when a charge changes', function () {

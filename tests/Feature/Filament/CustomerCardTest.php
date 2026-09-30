@@ -11,6 +11,7 @@ use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\CatalogService;
 use App\Models\Charge;
 use App\Models\Contact;
@@ -153,8 +154,9 @@ it('shows the Logi renewal as an overdue charge with the credit applied', functi
         ->assertCanSeeTableRecords([$renewal])
         ->assertCanNotSeeTableRecords($customer->charges()->whereKeyNot($renewal->id)->get())
         ->assertTableColumnFormattedStateSet('remaining', '3.000 TL', $renewal)
-        ->assertTableColumnFormattedStateSet('due_date', '01.03.2027', $renewal)
-        ->assertTableColumnStateSet('status', 'Gecikmiş (14 gün)', $renewal);
+        ->assertTableColumnFormattedStateSet('due_date', '01.03.2027', $renewal);
+
+    expect(chargeStateOnCard($customer, $renewal))->toContain('Gecikmiş (14 gün)');
 });
 
 it('shows a cancelled service in the collapsed section, not with the active ones', function () {
@@ -211,13 +213,14 @@ it('shows only the open charges, oldest due date first, and tells overdue and pa
     cardManager(ChargesRelationManager::class, $customer)
         ->assertCanSeeTableRecords([$overdue, $partialOverdue, $dueSoon, $partial, $open], inOrder: true)
         ->assertCanNotSeeTableRecords([$paid, $cancelled])
-        ->assertTableColumnStateSet('status', 'Açık', $open)
-        ->assertTableColumnStateSet('status', 'Vadesi yaklaşıyor', $dueSoon)
-        ->assertTableColumnStateSet('status', 'Kısmi ödendi', $partial)
-        ->assertTableColumnStateSet('status', 'Gecikmiş (5 gün)', $overdue)
-        ->assertTableColumnStateSet('status', 'Gecikmiş (1 gün)', $partialOverdue)
         ->assertTableColumnFormattedStateSet('remaining', '3.000 TL', $partial)
         ->assertTableColumnFormattedStateSet('remaining', '2.000 TL', $partialOverdue);
+
+    expect(chargeStateOnCard($customer, $open))->toBe('')
+        ->and(chargeStateOnCard($customer, $dueSoon))->toContain('Vadesi yaklaşıyor')
+        ->and(chargeStateOnCard($customer, $partial))->toContain('Kısmi ödendi')
+        ->and(chargeStateOnCard($customer, $overdue))->toContain('Gecikmiş (5 gün)')
+        ->and(chargeStateOnCard($customer, $partialOverdue))->toContain('Gecikmiş (1 gün)');
 });
 
 it('shows the credit balance and the open debt of each currency separately', function () {
@@ -263,6 +266,17 @@ it('lists only the records of the customer on the card', function () {
         ->assertCanNotSeeTableRecords([$otherPayment]);
 });
 
+/**
+ * The state badge text under "Kalan" on the card's open charges (G-4.17: there is no "Durum"
+ * column any more); empty for a plain open charge.
+ */
+function chargeStateOnCard(Customer $customer, Charge $charge): string
+{
+    return cardManager(ChargesRelationManager::class, $customer)
+        ->instance()->getTable()->getColumn('remaining')
+        ->record($charge)->getDescriptionBelow()?->toHtml() ?? '';
+}
+
 it('has the charge, service and payment actions on the card', function () {
     $customer = Customer::factory()->create();
     $service = CustomerService::factory()->for($customer)->create();
@@ -276,9 +290,14 @@ it('has the charge, service and payment actions on the card', function () {
     cardManager(ChargesRelationManager::class, $customer)
         ->assertCanSeeTableRecords([$charge])
         ->assertActionExists(TestAction::make('createManualCharge')->table())
+        ->assertActionExists(TestAction::make('recordPayment')->table($charge))
         ->assertActionExists(TestAction::make('editCharge')->table($charge))
-        ->assertActionExists(TestAction::make('splitCharge')->table($charge))
-        ->assertActionExists(TestAction::make('cancelCharge')->table($charge));
+        ->mountAction([TestAction::make('editCharge')->table($charge), TestAction::make('splitCharge')->schemaComponent(RecordActionsSection::ACTIONS_KEY)])
+        ->assertActionMounted([TestAction::make('editCharge')->table($charge), TestAction::make('splitCharge')->schemaComponent(RecordActionsSection::ACTIONS_KEY)]);
+
+    cardManager(ChargesRelationManager::class, $customer)
+        ->mountAction([TestAction::make('editCharge')->table($charge), TestAction::make('cancelCharge')->schemaComponent(RecordActionsSection::DANGER_ACTIONS_KEY)])
+        ->assertActionMounted([TestAction::make('editCharge')->table($charge), TestAction::make('cancelCharge')->schemaComponent(RecordActionsSection::DANGER_ACTIONS_KEY)]);
 
     cardManager(CustomerServicesRelationManager::class, $customer)
         ->assertActionExists(TestAction::make('editService')->table($service));

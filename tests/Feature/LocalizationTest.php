@@ -19,7 +19,7 @@ it('uses the Europe/Istanbul timezone', function () {
 it('shows validation messages in Turkish', function () {
     $validator = Validator::make(['email' => ''], ['email' => 'required']);
 
-    expect($validator->errors()->first('email'))->toBe('e-posta adresi alanı zorunludur.');
+    expect($validator->errors()->first('email'))->toBe('e-posta adresi boş bırakılamaz; bir değer yazın veya seçin.');
 });
 
 it('displays dates as dd.mm.yyyy in Filament', function () {

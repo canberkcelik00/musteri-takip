@@ -7,12 +7,12 @@ use App\Enums\Currency;
 use App\Exceptions\InvalidCharge;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\FieldError;
 use App\Models\Customer;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -53,7 +53,6 @@ class CreateManualChargeAction extends Action
             ->label(__('charges.create'))
             ->icon(Heroicon::Plus)
             ->modalHeading(__('charges.create_heading'))
-            ->modalSubmitActionLabel(__('charges.create'))
             ->slideOver()
             ->fillForm(fn (): array => [
                 'customer_id' => $this->customer?->getKey(),
@@ -102,12 +101,7 @@ class CreateManualChargeAction extends Action
                         'customer_service_id' => filled($data['customer_service_id'] ?? null) ? (int) $data['customer_service_id'] : null,
                     ]);
                 } catch (InvalidCharge $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
+                    FieldError::report($exception, $action, ['customer_id', 'description', 'amount', 'currency', 'due_date', 'customer_service_id']);
 
                     return;
                 }

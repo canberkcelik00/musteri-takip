@@ -2,8 +2,6 @@
 
 use App\Enums\Currency;
 use App\Filament\Resources\Customers\CustomerResource;
-use App\Filament\Resources\Customers\Pages\CreateCustomer;
-use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Models\Charge;
@@ -104,8 +102,13 @@ it('searches the list by short name', function () {
         ->assertCanNotSeeTableRecords([$logi]);
 });
 
-it('creates a customer with its first contact as the primary contact', function () {
-    Livewire::test(CreateCustomer::class)
+function createCustomerPanel()
+{
+    return Livewire::test(ListCustomers::class)->mountAction('createCustomer');
+}
+
+it('creates a customer with its first contact as the primary contact and opens its card', function () {
+    createCustomerPanel()
         ->fillForm([
             'short_name' => 'Logi',
             'legal_title' => 'Logitech Bilgisayar Ürünleri Ltd. Şti.',
@@ -119,8 +122,9 @@ it('creates a customer with its first contact as the primary contact', function 
                 'email' => 'murat.kaya@example.com',
             ],
         ])
-        ->call('create')
-        ->assertHasNoFormErrors();
+        ->callMountedAction()
+        ->assertHasNoFormErrors()
+        ->assertRedirect(CustomerResource::getUrl('view', ['record' => Customer::query()->firstOrFail()]));
 
     $customer = Customer::firstOrFail();
 
@@ -132,9 +136,9 @@ it('creates a customer with its first contact as the primary contact', function 
 });
 
 it('requires a short name and a first contact name when creating', function () {
-    Livewire::test(CreateCustomer::class)
+    createCustomerPanel()
         ->fillForm(['short_name' => null, 'contact' => ['name' => null]])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['short_name' => 'required', 'contact.name' => 'required']);
 
     expect(Customer::count())->toBe(0)
@@ -142,9 +146,9 @@ it('requires a short name and a first contact name when creating', function () {
 });
 
 it('validates the e-mail address of the first contact', function () {
-    Livewire::test(CreateCustomer::class)
+    createCustomerPanel()
         ->fillForm(['short_name' => 'Logi', 'contact' => ['name' => 'Murat Kaya', 'email' => 'geçersiz']])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['contact.email' => 'email']);
 
     expect(Customer::count())->toBe(0);
@@ -153,22 +157,24 @@ it('validates the e-mail address of the first contact', function () {
 it('rejects a short name that is already used, ignoring case and Turkish characters', function (string $duplicate) {
     Customer::factory()->create(['short_name' => 'Göksu']);
 
-    Livewire::test(CreateCustomer::class)
+    createCustomerPanel()
         ->fillForm(['short_name' => $duplicate, 'contact' => ['name' => 'Murat Kaya']])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['short_name' => 'unique']);
 
     expect(Customer::count())->toBe(1);
 })->with(['same spelling' => 'Göksu', 'different case' => 'göksu', 'Turkish characters' => 'Goksu']);
 
-it('edits a customer without the first contact section and keeps its own short name valid', function () {
+it('edits a customer from the card without the first contact section and keeps its own short name valid', function () {
     $customer = Customer::factory()->create(['short_name' => 'Logi']);
     Contact::factory()->for($customer)->primary()->create();
 
-    Livewire::test(EditCustomer::class, ['record' => $customer->id])
-        ->assertFormFieldHidden('contact.name')
+    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+        ->mountAction(TestAction::make('editCustomer')->schemaComponent('info_column.billing_section'))
+        ->assertFormFieldDoesNotExist('contact.name')
+        ->assertSchemaStateSet(['short_name' => 'Logi'])
         ->fillForm(['short_name' => 'Logi', 'notes' => 'Yeni not', 'tax_office' => 'Kadıköy'])
-        ->call('save')
+        ->callMountedAction()
         ->assertHasNoFormErrors();
 
     $customer->refresh();
@@ -217,29 +223,6 @@ it('does not archive a customer with an active service and says why', function (
         ->assertNotified('Önce müşterinin hizmetlerini iptal edin.');
 
     expect($customer->refresh()->isArchived())->toBeFalse();
-
-    Livewire::test(EditCustomer::class, ['record' => $customer->id])
-        ->callAction('archive')
-        ->assertNotified('Önce müşterinin hizmetlerini iptal edin.');
-
-    expect($customer->refresh()->isArchived())->toBeFalse();
-});
-
-it('archives and unarchives a customer from its edit page', function () {
-    $customer = Customer::factory()->create();
-
-    Livewire::test(EditCustomer::class, ['record' => $customer->id])
-        ->assertActionVisible('archive')
-        ->assertActionHidden('unarchive')
-        ->callAction('archive');
-
-    expect($customer->refresh()->isArchived())->toBeTrue();
-
-    Livewire::test(EditCustomer::class, ['record' => $customer->id])
-        ->assertActionHidden('archive')
-        ->callAction('unarchive');
-
-    expect($customer->refresh()->isArchived())->toBeFalse();
 });
 
 it('offers delete next to archive for a customer with nothing recorded and deletes it', function () {
@@ -261,10 +244,6 @@ it('offers only archive for a customer with a service, charge or payment', funct
     $withPayment = Payment::factory()->create()->customer;
 
     foreach ([$withService, $withCharge, $withPayment] as $customer) {
-        Livewire::test(EditCustomer::class, ['record' => $customer->id])
-            ->assertActionHidden('delete')
-            ->assertActionVisible('archive');
-
         // Bu düğmeler kartta bir şema bileşeni (Actions::make) içinde durur; Filament gizli
         // eylemleri bu bileşenin ağacından tamamen çıkarır, o yüzden burada "yok" bekleniyor.
         Livewire::test(ViewCustomer::class, ['record' => $customer->id])
@@ -273,13 +252,8 @@ it('offers only archive for a customer with a service, charge or payment', funct
     }
 });
 
-it('deletes a customer with nothing recorded from the edit page and the card and returns to the list', function () {
-    $fromEdit = Customer::factory()->create();
+it('deletes a customer with nothing recorded from the card and returns to the list', function () {
     $fromCard = Customer::factory()->create();
-
-    Livewire::test(EditCustomer::class, ['record' => $fromEdit->id])
-        ->callAction('delete')
-        ->assertRedirect(CustomerResource::getUrl('index'));
 
     Livewire::test(ViewCustomer::class, ['record' => $fromCard->id])
         ->assertActionVisible(TestAction::make('delete')->schemaComponent('danger_actions'))

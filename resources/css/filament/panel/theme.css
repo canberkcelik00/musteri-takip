@@ -65,3 +65,19 @@ body {
 .fi-mobile-badge {
     @apply md:hidden mt-1 inline-block;
 }
+
+/*
+ * The state badge under "Kalan" in the charge tables (G-4.17, ChargeStatusBadge). Filament's
+ * badge truncates its label to fit the column, which cut "Gecikmiş (93 gün)" down to
+ * "Gecikmiş …" in the card's narrow table; here the label wraps instead, so the day count is
+ * never lost. The extra `:not(.fi-wrapped)` matches the specificity of Filament's own rule.
+ */
+.fi-status-badge {
+    @apply mt-1 block;
+
+    & .fi-badge:not(.fi-wrapped),
+    & .fi-badge-label:not(.fi-wrapped) {
+        @apply overflow-visible text-wrap;
+        text-overflow: clip;
+    }
+}

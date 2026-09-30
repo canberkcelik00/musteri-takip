@@ -2,13 +2,10 @@
 
 namespace App\Filament\Resources\Packages\Tables;
 
-use App\Actions\Packages\DeletePackage;
-use App\Filament\Actions\ArchiveAction;
-use App\Filament\Actions\DeleteRecordAction;
-use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Package;
+use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -42,10 +39,12 @@ class PackagesTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                ArchiveAction::make(),
-                UnarchiveAction::make(),
-                DeleteRecordAction::make()->deleteWith(DeletePackage::class),
+                EditAction::make()->slideOver(),
+            ])
+            ->emptyStateHeading(__('packages.empty_heading'))
+            ->emptyStateDescription(__('packages.empty_description'))
+            ->emptyStateActions([
+                CreateAction::make('createEmpty')->label(__('packages.add'))->slideOver()->color('gray'),
             ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Customers\Tables;
 
 use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
+use App\Filament\Actions\CreateCustomerAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -44,8 +45,7 @@ class CustomersTable
                 MoneyColumn::make('open_debt')
                     ->label(__('customers.open_debt'))
                     ->state(fn (Customer $record): array => $record->openChargeTotals())
-                    ->color(fn (Customer $record): ?string => $record->has_overdue ? 'danger' : null)
-                    ->alignEnd(),
+                    ->color(fn (Customer $record): ?string => $record->has_overdue ? 'danger' : null),
                 TextColumn::make('next_renewal_on')
                     ->label(__('customers.next_renewal'))
                     ->date()
@@ -79,6 +79,11 @@ class CustomersTable
                     ->color('gray')
                     ->visible(fn (Customer $record): bool => ! $record->isArchived())
                     ->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+            ])
+            ->emptyStateHeading(__('customers.empty_heading'))
+            ->emptyStateDescription(__('customers.empty_description'))
+            ->emptyStateActions([
+                CreateCustomerAction::make('createCustomerEmpty')->color('gray'),
             ]);
     }
 

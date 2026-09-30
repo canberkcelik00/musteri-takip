@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Payments\Tables;
 
 use App\Filament\Actions\DeletePaymentAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -17,12 +18,12 @@ class PaymentsTable
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['customer', 'paymentMethod']))
             ->defaultSort(fn (Builder $query): Builder => $query->orderByDesc('paid_on')->orderByDesc('id'))
             ->columns([
-                TextColumn::make('paid_on')
-                    ->label(__('payments.paid_on'))
-                    ->date(),
                 TextColumn::make('customer.short_name')
                     ->label(__('payments.customer'))
                     ->searchable(),
+                TextColumn::make('paid_on')
+                    ->label(__('payments.paid_on'))
+                    ->date(),
                 MoneyColumn::make('amount')
                     ->label(__('payments.amount')),
                 TextColumn::make('paymentMethod.name')
@@ -40,6 +41,11 @@ class PaymentsTable
             ])
             ->recordActions([
                 DeletePaymentAction::make(),
+            ])
+            ->emptyStateHeading(__('payments.empty_heading'))
+            ->emptyStateDescription(__('payments.empty_description'))
+            ->emptyStateActions([
+                RecordPaymentAction::make('recordPaymentEmpty')->color('gray'),
             ]);
     }
 }

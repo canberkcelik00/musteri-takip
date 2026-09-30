@@ -64,7 +64,6 @@ class RecordPaymentAction extends Action
             ->label(__('payments.record'))
             ->icon(Heroicon::Plus)
             ->modalHeading(__('payments.record_heading'))
-            ->modalSubmitActionLabel(__('payments.record'))
             ->slideOver()
             ->fillForm(fn (): array => $this->initialState())
             ->schema([
@@ -168,7 +167,8 @@ class RecordPaymentAction extends Action
      * The customer a Ctrl+K search result's or the customer list row's "Ödeme al" opened this
      * form for (docs/UI.md §7, T-66): selected but still changeable, unlike customer(), which
      * hides the field entirely. The `customer` argument (Ctrl+K, "Bugün") wins over the table
-     * row's record (the customer list), since an argument is always explicit.
+     * row's record (the customer list, or a charge row's customer), since an argument is always
+     * explicit.
      */
     private function prefilledCustomer(): ?Customer
     {
@@ -180,16 +180,25 @@ class RecordPaymentAction extends Action
 
         $record = $this->getRecord();
 
+        if ($record instanceof Charge) {
+            return $record->customer;
+        }
+
         return $record instanceof Customer ? $record : null;
     }
 
     /**
-     * The currency the "Bugün" page's row "Ödeme al" opened this form for (docs/UI.md §5):
-     * the charge's own currency, still changeable like the prefilled customer above.
+     * The currency the "Bugün" page's row "Ödeme al" opened this form for (docs/UI.md §5), or the
+     * charge row's own currency in the charge lists: still changeable like the prefilled customer
+     * above.
      */
     private function prefilledCurrency(): ?Currency
     {
         $currency = $this->getArguments()['currency'] ?? null;
+
+        if ($currency === null && ($record = $this->getRecord()) instanceof Charge) {
+            return $record->currency;
+        }
 
         return $currency instanceof Currency ? $currency : Currency::tryFrom((string) $currency);
     }

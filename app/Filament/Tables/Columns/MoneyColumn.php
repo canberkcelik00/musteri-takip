@@ -14,5 +14,6 @@ class MoneyColumn extends TextColumn
         parent::setUp();
 
         $this->setUpMoneyFormatting();
+        $this->alignEnd();
     }
 }

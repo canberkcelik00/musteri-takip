@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Filament\Actions\CreateCustomerAction;
 use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
-use App\Filament\Resources\Customers\CustomerResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -45,11 +45,14 @@ class TopbarActions extends Component implements HasActions, HasSchemas
         $this->mountAction('recordPayment', ['customer' => $customer]);
     }
 
-    public function newCustomerAction(): Action
+    /**
+     * Its own top-level method for the same reason as createManualChargeAction(): mountAction()
+     * / callAction() resolve an action by name through a method on the component.
+     */
+    public function createCustomerAction(): Action
     {
-        return Action::make('newCustomer')
-            ->label(__('navigation.new_customer'))
-            ->url(fn (): string => CustomerResource::getUrl('create'));
+        return CreateCustomerAction::make()
+            ->label(__('navigation.new_customer'));
     }
 
     /**
@@ -66,7 +69,7 @@ class TopbarActions extends Component implements HasActions, HasSchemas
     public function newAction(): ActionGroup
     {
         return ActionGroup::make([
-            $this->newCustomerAction(),
+            $this->createCustomerAction(),
             $this->createManualChargeAction(),
         ])
             ->label(__('navigation.new'))

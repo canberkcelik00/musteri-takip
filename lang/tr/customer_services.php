@@ -74,4 +74,7 @@ return [
 
     'confirm_free_continuation' => 'Ücretsiz devam et',
     'free_continuation_confirmed' => 'Ücretsiz devam onaylandı.',
+    'actions_section' => 'Hizmet işlemleri',
+    'empty_heading' => 'Henüz hizmet yok',
+    'empty_description' => 'Bu müşteriye hosting, alan adı gibi bir hizmet ekleyin; borçlar kendiliğinden oluşur.',
 ];

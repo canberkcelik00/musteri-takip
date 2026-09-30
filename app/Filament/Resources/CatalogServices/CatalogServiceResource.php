@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\CatalogServices;
 
-use App\Filament\Resources\CatalogServices\Pages\CreateCatalogService;
-use App\Filament\Resources\CatalogServices\Pages\EditCatalogService;
 use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
 use App\Filament\Resources\CatalogServices\Schemas\CatalogServiceForm;
 use App\Filament\Resources\CatalogServices\Tables\CatalogServicesTable;
@@ -62,8 +60,6 @@ class CatalogServiceResource extends Resource
     {
         return [
             'index' => ListCatalogServices::route('/'),
-            'create' => CreateCatalogService::route('/create'),
-            'edit' => EditCatalogService::route('/{record}/edit'),
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Enums\ServiceType;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\CancelledCustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\CatalogService;
 use App\Models\Charge;
 use App\Models\Customer;
@@ -65,6 +66,27 @@ function rowAction(string $name, CustomerService $customerService): TestAction
     return TestAction::make($name)->table($customerService);
 }
 
+/**
+ * A rarer service action, reached through the "Hizmet işlemleri" section of the edit panel.
+ *
+ * @return list<TestAction>
+ */
+function panelAction(string $name, CustomerService $customerService, bool $danger = false): array
+{
+    return [
+        rowAction('editService', $customerService),
+        TestAction::make($name)->schemaComponent($danger ? RecordActionsSection::DANGER_ACTIONS_KEY : RecordActionsSection::ACTIONS_KEY),
+    ];
+}
+
+/**
+ * Whether the edit panel of the service offers the action.
+ */
+function panelOffers(string $name, CustomerService $customerService, bool $danger = false): bool
+{
+    return actionOffered(serviceRows($customerService), panelAction($name, $customerService, $danger));
+}
+
 function chargeOfPeriod(CustomerService $customerService, string $periodStart, array $attributes = []): Charge
 {
     $periodEnd = CarbonImmutable::parse($periodStart)->addYear()->toDateString();
@@ -83,7 +105,7 @@ describe('cancel window', function () {
         $upcoming = chargeOfPeriod($customerService, '2027-03-01');
 
         serviceRows($customerService)
-            ->mountAction(rowAction('cancelService', $customerService))
+            ->mountAction(panelAction('cancelService', $customerService, danger: true))
             ->assertSchemaStateSet(['cancelled_on' => '2026-06-15', 'cancel_upcoming_charges' => true])
             ->assertFormFieldExists('cancel_upcoming_charges', checkFieldUsing: fn (Checkbox $field): bool => $field->getLabel() === 'Yaklaşan dönemin borcunu da iptal et (4.000 TL)')
             ->fillForm(['cancelled_on' => '2026-06-10', 'cancel_note' => 'Siteyi kapattı.'])
@@ -103,7 +125,7 @@ describe('cancel window', function () {
         $upcoming = chargeOfPeriod($customerService, '2027-03-01');
 
         serviceRows($customerService)
-            ->mountAction(rowAction('cancelService', $customerService))
+            ->mountAction(panelAction('cancelService', $customerService, danger: true))
             ->fillForm(['cancel_upcoming_charges' => false])
             ->callMountedAction()
             ->assertHasNoFormErrors();
@@ -118,7 +140,7 @@ describe('cancel window', function () {
         $upcoming = chargeOfPeriod($customerService, '2027-03-01');
 
         serviceRows($customerService)
-            ->mountAction(rowAction('cancelService', $customerService))
+            ->mountAction(panelAction('cancelService', $customerService, danger: true))
             ->assertSchemaComponentExists('stays_overdue', checkComponentUsing: fn (Text $text): bool => $text->getContent() === '1.500 TL gecikmiş borç takipte kalacak.')
             ->callMountedAction()
             ->assertHasNoFormErrors();
@@ -139,7 +161,7 @@ describe('cancel window', function () {
         ]);
 
         serviceRows($customerService)
-            ->mountAction(rowAction('cancelService', $customerService))
+            ->mountAction(panelAction('cancelService', $customerService, danger: true))
             ->assertFormFieldDoesNotExist('cancel_upcoming_charges')
             ->assertSchemaComponentExists('stays_open', checkComponentUsing: fn (Text $text): bool => $text->getContent() === '3.000 TL açık borç takipte kalacak.')
             ->callMountedAction();
@@ -152,7 +174,7 @@ describe('cancel window', function () {
         $customerService = cardService();
 
         serviceRows($customerService)
-            ->mountAction(rowAction('cancelService', $customerService))
+            ->mountAction(panelAction('cancelService', $customerService, danger: true))
             ->assertFormFieldDoesNotExist('cancel_upcoming_charges')
             ->callMountedAction();
 
@@ -204,8 +226,7 @@ describe('edit', function () {
             ->mountAction(rowAction('editService', $customerService))
             ->fillForm(['price' => '5.000', 'end_date' => '2027-03-15'])
             ->callMountedAction()
-            ->assertNotified('Yaklaşan dönemin borcu oluşmuş; bitiş tarihini değiştirmek için önce o borcu düzenleyin.')
-            ->assertActionHalted(rowAction('editService', $customerService));
+            ->assertHasFormErrors(['end_date']);
 
         expect($customerService->fresh()->price)->toBe(400000)
             ->and($customerService->fresh()->end_date->toDateString())->toBe('2027-03-01');
@@ -236,7 +257,7 @@ describe('free flag', function () {
         $upcoming = chargeOfPeriod($customerService, '2027-03-01');
 
         serviceRows($customerService)
-            ->mountAction(rowAction('markFree', $customerService))
+            ->mountAction(panelAction('markFree', $customerService))
             ->assertSchemaStateSet(['cancel_upcoming_charges' => true])
             ->callMountedAction()
             ->assertHasNoFormErrors();
@@ -250,7 +271,7 @@ describe('free flag', function () {
         $upcoming = chargeOfPeriod($customerService, '2027-03-01');
 
         serviceRows($customerService)
-            ->mountAction(rowAction('markFree', $customerService))
+            ->mountAction(panelAction('markFree', $customerService))
             ->fillForm(['cancel_upcoming_charges' => false])
             ->callMountedAction();
 
@@ -263,7 +284,7 @@ describe('free flag', function () {
         $this->travelTo('2027-02-10 10:00:00');
 
         serviceRows($customerService)
-            ->mountAction(rowAction('removeFree', $customerService))
+            ->mountAction(panelAction('removeFree', $customerService))
             ->assertSchemaStateSet(['price' => '4.000'])
             ->fillForm(['price' => '4.500'])
             ->callMountedAction()
@@ -282,7 +303,7 @@ describe('free flag', function () {
         $customerService = cardService(['is_free' => true]);
 
         serviceRows($customerService)
-            ->mountAction(rowAction('removeFree', $customerService))
+            ->mountAction(panelAction('removeFree', $customerService))
             ->callMountedAction()
             ->assertNotified('Hizmet ücretli yapıldı.');
 
@@ -294,9 +315,9 @@ describe('free flag', function () {
         $customerService = cardService(['is_free' => true, 'price' => 0]);
 
         serviceRows($customerService)
-            ->mountAction(rowAction('removeFree', $customerService))
+            ->mountAction(panelAction('removeFree', $customerService))
             ->callMountedAction()
-            ->assertNotified('Fiyat sıfırdan büyük olmalıdır; ücret alınmayacaksa ücretsiz işaretleyin.');
+            ->assertHasFormErrors(['price']);
 
         expect($customerService->fresh()->is_free)->toBeTrue();
     });
@@ -399,35 +420,37 @@ describe('reactivate', function () {
 });
 
 describe('row actions by state', function () {
-    it('shows edit, mark free and cancel for an active paid service', function () {
+    it('offers mark free and cancel in the panel of an active paid service; the row keeps only edit', function () {
         $customerService = cardService();
 
         serviceRows($customerService)
             ->assertActionVisible(rowAction('editService', $customerService))
-            ->assertActionVisible(rowAction('markFree', $customerService))
-            ->assertActionVisible(rowAction('cancelService', $customerService))
-            ->assertActionHidden(rowAction('removeFree', $customerService))
             ->assertActionHidden(rowAction('reactivate', $customerService));
+
+        expect(panelOffers('markFree', $customerService))->toBeTrue()
+            ->and(panelOffers('cancelService', $customerService, danger: true))->toBeTrue()
+            ->and(panelOffers('removeFree', $customerService))->toBeFalse();
     });
 
     it('shows make paid instead of mark free for a free service', function () {
         $customerService = cardService(['is_free' => true]);
 
-        serviceRows($customerService)
-            ->assertActionVisible(rowAction('removeFree', $customerService))
-            ->assertActionHidden(rowAction('markFree', $customerService))
-            ->assertActionVisible(rowAction('cancelService', $customerService));
+        expect(panelOffers('removeFree', $customerService))->toBeTrue()
+            ->and(panelOffers('markFree', $customerService))->toBeFalse()
+            ->and(panelOffers('cancelService', $customerService, danger: true))->toBeTrue();
     });
 
-    it('shows only edit and reactivate for a cancelled service', function () {
+    it('keeps edit and reactivate on the row of a cancelled service and offers no cancel or mark free', function () {
         $customerService = cardService(['status' => CustomerServiceStatus::Cancelled, 'cancelled_on' => '2026-06-01']);
 
         serviceRows($customerService)
             ->assertActionVisible(rowAction('editService', $customerService))
-            ->assertActionVisible(rowAction('reactivate', $customerService))
-            ->assertActionHidden(rowAction('cancelService', $customerService))
-            ->assertActionHidden(rowAction('markFree', $customerService))
-            ->assertActionHidden(rowAction('removeFree', $customerService));
+            ->assertActionVisible(rowAction('reactivate', $customerService));
+
+        expect(panelOffers('reactivate', $customerService))->toBeTrue()
+            ->and(panelOffers('cancelService', $customerService, danger: true))->toBeFalse()
+            ->and(panelOffers('markFree', $customerService))->toBeFalse()
+            ->and(panelOffers('removeFree', $customerService))->toBeFalse();
     });
 });
 
@@ -436,8 +459,8 @@ describe('delete', function () {
         $customerService = cardService();
 
         serviceRows($customerService)
-            ->assertActionVisible(rowAction('delete', $customerService))
-            ->callAction(rowAction('delete', $customerService));
+            ->assertActionVisible(panelAction('delete', $customerService, danger: true))
+            ->callAction(panelAction('delete', $customerService, danger: true));
 
         expect(CustomerService::query()->find($customerService->id))->toBeNull();
     });
@@ -445,15 +468,14 @@ describe('delete', function () {
     it('offers delete for a cancelled service without a charge too', function () {
         $customerService = cardService(['status' => CustomerServiceStatus::Cancelled, 'cancelled_on' => '2026-06-01']);
 
-        serviceRows($customerService)->assertActionVisible(rowAction('delete', $customerService));
+        expect(panelOffers('delete', $customerService, danger: true))->toBeTrue();
     });
 
     it('hides delete once the service has a charge, cancelled ones included', function (bool $cancelled) {
         $customerService = cardService();
         chargeOfPeriod($customerService, '2026-03-01', $cancelled ? ['status' => ChargeStatus::Cancelled, 'cancelled_at' => now(), 'cancel_reason' => 'Yanlış dönem'] : []);
 
-        serviceRows($customerService)
-            ->assertActionHidden(rowAction('delete', $customerService))
-            ->assertActionVisible(rowAction('cancelService', $customerService));
+        expect(panelOffers('delete', $customerService, danger: true))->toBeFalse()
+            ->and(panelOffers('cancelService', $customerService, danger: true))->toBeTrue();
     })->with(['open charge' => false, 'cancelled charge' => true]);
 });

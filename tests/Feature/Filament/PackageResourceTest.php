@@ -1,9 +1,6 @@
 <?php
 
 use App\Enums\Currency;
-use App\Filament\Resources\Packages\PackageResource;
-use App\Filament\Resources\Packages\Pages\CreatePackage;
-use App\Filament\Resources\Packages\Pages\EditPackage;
 use App\Filament\Resources\Packages\Pages\ListPackages;
 use App\Models\CatalogService;
 use App\Models\CustomerService;
@@ -18,17 +15,27 @@ beforeEach(function () {
     Filament::setCurrentPanel('panel');
 });
 
+function createPackagePanel()
+{
+    return Livewire::test(ListPackages::class)->mountAction('create');
+}
+
+function editPackagePanel(Package $package): TestAction
+{
+    return TestAction::make('edit')->table($package);
+}
+
 it('creates a package with its own price and its catalog services', function () {
     $services = CatalogService::factory()->count(3)->create();
 
-    Livewire::test(CreatePackage::class)
+    createPackagePanel()
         ->fillForm([
             'name' => 'Kurumsal Paket',
             'price' => '4.000',
             'currency' => Currency::Try->value,
             'catalogServices' => [$services[0]->id, $services[1]->id],
         ])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasNoFormErrors();
 
     $package = Package::firstOrFail();
@@ -42,14 +49,14 @@ it('creates a package with its own price and its catalog services', function () 
 it('requires a name, a price and at least two catalog services', function () {
     $service = CatalogService::factory()->create();
 
-    Livewire::test(CreatePackage::class)
+    createPackagePanel()
         ->fillForm(['name' => null, 'price' => null, 'catalogServices' => []])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['name' => 'required', 'price' => 'required', 'catalogServices' => 'required']);
 
-    Livewire::test(CreatePackage::class)
+    createPackagePanel()
         ->fillForm(['name' => 'Tek Hizmet', 'price' => '1.000', 'catalogServices' => [$service->id]])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['catalogServices']);
 
     expect(Package::count())->toBe(0);
@@ -59,7 +66,7 @@ it('lists only catalog services that are not archived when selecting package con
     $active = CatalogService::factory()->create(['name' => 'Aktif Hosting']);
     $archived = CatalogService::factory()->archived()->create(['name' => 'Eski Hosting']);
 
-    Livewire::test(CreatePackage::class)
+    createPackagePanel()
         ->assertFormFieldExists('catalogServices', function ($field) use ($active, $archived): bool {
             $options = $field->getOptions();
 
@@ -74,7 +81,8 @@ it('keeps an archived catalog service that is already in the package selectable 
     $package = Package::factory()->create();
     $package->catalogServices()->attach([$active->id, $archived->id]);
 
-    Livewire::test(EditPackage::class, ['record' => $package->id])
+    Livewire::test(ListPackages::class)
+        ->mountAction(editPackagePanel($package))
         ->assertFormFieldExists('catalogServices', function ($field) use ($archived, $unrelatedArchived): bool {
             $options = $field->getOptions();
 
@@ -89,10 +97,11 @@ it('does not drop an archived catalog service from the package when saving', fun
     $package = Package::factory()->create(['price' => 100000]);
     $package->catalogServices()->attach([$active->id, $archived->id]);
 
-    Livewire::test(EditPackage::class, ['record' => $package->id])
-        ->assertFormSet(['catalogServices' => [$active->id, $archived->id]])
+    Livewire::test(ListPackages::class)
+        ->mountAction(editPackagePanel($package))
+        ->assertSchemaStateSet(['catalogServices' => [$active->id, $archived->id]])
         ->fillForm(['name' => 'Yeni Ad', 'price' => '2.500,50'])
-        ->call('save')
+        ->callMountedAction()
         ->assertHasNoFormErrors();
 
     $package->refresh();
@@ -140,34 +149,21 @@ it('hides archived packages from the list by default and shows them with the arc
         ->assertCanSeeTableRecords([$active, $archived]);
 });
 
-it('archives and unarchives a package from the list', function () {
+it('archives and unarchives a package from its edit panel', function () {
     $package = Package::factory()->create();
 
-    Livewire::test(ListPackages::class)
-        ->callAction(TestAction::make('archive')->table($package));
+    $list = Livewire::test(ListPackages::class);
+
+    expect(actionOffered($list, sectionAction(editPackagePanel($package), 'archive')))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editPackagePanel($package), 'unarchive')))->toBeFalse();
+
+    $list->callAction(sectionAction(editPackagePanel($package), 'archive'));
 
     expect($package->refresh()->isArchived())->toBeTrue();
 
     Livewire::test(ListPackages::class)
         ->filterTable('archived', true)
-        ->callAction(TestAction::make('unarchive')->table($package));
-
-    expect($package->refresh()->isArchived())->toBeFalse();
-});
-
-it('archives and unarchives a package from its edit page', function () {
-    $package = Package::factory()->create();
-
-    Livewire::test(EditPackage::class, ['record' => $package->id])
-        ->assertActionVisible('archive')
-        ->assertActionHidden('unarchive')
-        ->callAction('archive');
-
-    expect($package->refresh()->isArchived())->toBeTrue();
-
-    Livewire::test(EditPackage::class, ['record' => $package->id])
-        ->assertActionHidden('archive')
-        ->callAction('unarchive');
+        ->callAction(sectionAction(editPackagePanel($package), 'unarchive'));
 
     expect($package->refresh()->isArchived())->toBeFalse();
 });
@@ -175,10 +171,12 @@ it('archives and unarchives a package from its edit page', function () {
 it('offers delete next to archive for an unsold package and deletes it', function () {
     $package = Package::factory()->withCatalogServices()->create();
 
-    Livewire::test(ListPackages::class)
-        ->assertActionVisible(TestAction::make('delete')->table($package))
-        ->assertActionVisible(TestAction::make('archive')->table($package))
-        ->callAction(TestAction::make('delete')->table($package));
+    $list = Livewire::test(ListPackages::class);
+
+    expect(actionOffered($list, sectionAction(editPackagePanel($package), 'delete', danger: true)))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editPackagePanel($package), 'archive')))->toBeTrue();
+
+    $list->callAction(sectionAction(editPackagePanel($package), 'delete', danger: true));
 
     expect(Package::query()->find($package->id))->toBeNull()
         ->and(CatalogService::query()->count())->toBe(3);
@@ -188,31 +186,17 @@ it('offers only archive for a package sold to a customer', function () {
     $package = Package::factory()->withCatalogServices()->create();
     CustomerService::factory()->forPackage($package)->create();
 
-    Livewire::test(ListPackages::class)
-        ->assertActionHidden(TestAction::make('delete')->table($package))
-        ->assertActionVisible(TestAction::make('archive')->table($package));
+    $list = Livewire::test(ListPackages::class);
 
-    Livewire::test(EditPackage::class, ['record' => $package->id])
-        ->assertActionHidden('delete')
-        ->assertActionVisible('archive');
+    expect(actionOffered($list, sectionAction(editPackagePanel($package), 'delete', danger: true)))->toBeFalse()
+        ->and(actionOffered($list, sectionAction(editPackagePanel($package), 'archive')))->toBeTrue();
 });
 
-it('deletes an unsold package from its edit page and returns to the list', function () {
-    $package = Package::factory()->withCatalogServices()->create();
-
-    Livewire::test(EditPackage::class, ['record' => $package->id])
-        ->assertActionVisible('delete')
-        ->callAction('delete')
-        ->assertRedirect(PackageResource::getUrl('index'));
-
-    expect(Package::query()->find($package->id))->toBeNull();
-});
-
-it('offers delete for an archived package that is not in use', function () {
+it('offers delete and unarchive for an archived package that is not in use', function () {
     $package = Package::factory()->withCatalogServices()->archived()->create();
 
-    Livewire::test(ListPackages::class)
-        ->filterTable('archived', true)
-        ->assertActionVisible(TestAction::make('delete')->table($package))
-        ->assertActionVisible(TestAction::make('unarchive')->table($package));
+    $list = Livewire::test(ListPackages::class)->filterTable('archived', true);
+
+    expect(actionOffered($list, sectionAction(editPackagePanel($package), 'delete', danger: true)))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editPackagePanel($package), 'unarchive')))->toBeTrue();
 });

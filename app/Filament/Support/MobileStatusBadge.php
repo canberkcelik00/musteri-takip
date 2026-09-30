@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\HtmlString;
 
 /**
- * A small colored badge for a table column's description (T-70): used to show a service's or
- * charge's status under its name/description below `md`, where the desktop status column is
- * hidden (docs/UI.md, G-4.16). Deliberately NOT a {@see Stack}
+ * A small colored badge for a table column's description (T-70): used to show a service's
+ * status under its name below `md`, where the desktop status column is hidden (docs/UI.md,
+ * G-4.16). The charge tables show their state through {@see ChargeStatusBadge} at every width. Deliberately NOT a {@see Stack}
  * or `Split`: using either anywhere in a table's `columns()` switches the whole table to
  * Filament's "content layout" rendering, which has no `<thead>` — confirmed from source
  * (`Filament\Tables\Table\Concerns\HasColumns::$hasColumnsLayout` and the classic-table branch

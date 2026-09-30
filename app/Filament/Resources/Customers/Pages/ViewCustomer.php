@@ -8,6 +8,7 @@ use App\Filament\Actions\ArchiveCustomerAction;
 use App\Filament\Actions\AssignCustomerServiceAction;
 use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\DeleteRecordAction;
+use App\Filament\Actions\EditCustomerAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -18,7 +19,6 @@ use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationMa
 use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Customers\Schemas\CustomerInfolist;
 use App\Models\Customer;
-use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
@@ -174,7 +174,8 @@ class ViewCustomer extends ViewRecord
                 'pageClass' => static::class,
             ])->key('contacts'),
             Section::make(__('customers.billing_section'))
-                ->afterHeader([EditAction::make()->color('gray')])
+                ->key('billing_section')
+                ->afterHeader([EditCustomerAction::make()->color('gray')])
                 ->schema(CustomerInfolist::billingSchema()),
             Section::make(__('customers.notes_section'))
                 ->schema(CustomerInfolist::notesSchema()),

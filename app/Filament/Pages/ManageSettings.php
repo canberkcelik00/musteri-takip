@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -98,7 +99,9 @@ class ManageSettings extends Page
                             ->label(__('settings.save'))
                             ->submit('save')
                             ->keyBindings(['mod+s']),
-                    ])->key('form-actions'),
+                    ])
+                        ->alignment(Alignment::End)
+                        ->key('form-actions'),
                 ]),
         ]);
     }

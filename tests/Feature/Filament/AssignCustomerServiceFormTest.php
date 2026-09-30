@@ -172,8 +172,7 @@ it('rejects a start date whose period has already ended and creates nothing', fu
         ->mountAction(assignAction())
         ->fillForm(['sold' => "catalog_service:{$catalogService->id}", 'start_date' => '2025-01-01'])
         ->callMountedAction()
-        ->assertNotified('Başlangıç tarihi olarak hizmetin şu anki döneminin başlangıcını girin.')
-        ->assertActionHalted(assignAction());
+        ->assertHasFormErrors(['start_date']);
 
     expect($customer->customerServices()->count())->toBe(0)
         ->and($customer->charges()->count())->toBe(0);

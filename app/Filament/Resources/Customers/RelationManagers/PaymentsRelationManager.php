@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Filament\Actions\DeletePaymentAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -90,6 +91,11 @@ class PaymentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 DeletePaymentAction::make()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+            ])
+            ->emptyStateHeading(__('payments.recent_empty_heading'))
+            ->emptyStateDescription(__('payments.recent_empty_description'))
+            ->emptyStateActions([
+                RecordPaymentAction::make('recordPaymentEmpty')->customer($customer)->color('gray'),
             ]);
     }
 }

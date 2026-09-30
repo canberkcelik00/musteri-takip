@@ -6,10 +6,11 @@ use App\Actions\Charges\UpdateCharge;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\FieldError;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\Charge;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
-use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
 
@@ -48,6 +49,11 @@ class EditChargeAction extends Action
                 DatePicker::make('due_date')
                     ->label(__('charges.due_date'))
                     ->required(),
+                RecordActionsSection::make(
+                    __('charges.actions_section'),
+                    [SplitChargeAction::make()],
+                    [CancelChargeAction::make()],
+                ),
             ])
             ->action(function (array $data, Charge $record, Action $action, UpdateCharge $updateCharge, Component $livewire): void {
                 $attributes = ['due_date' => $data['due_date']];
@@ -59,12 +65,7 @@ class EditChargeAction extends Action
                 try {
                     $updateCharge->handle($record, $attributes);
                 } catch (InvalidCharge $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
+                    FieldError::report($exception, $action, ['amount', 'due_date']);
 
                     return;
                 }

@@ -6,10 +6,10 @@ use App\Actions\CustomerServices\RemoveCustomerServiceFreeFlag;
 use App\Enums\CustomerServiceStatus;
 use App\Exceptions\InvalidCustomerService;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\FieldError;
 use App\Models\CustomerService;
 use App\Support\Money;
 use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
 
@@ -60,12 +60,7 @@ class RemoveFreeFlagAction extends Action
                 try {
                     $charge = $removeCustomerServiceFreeFlag->handle($record, $data['price']);
                 } catch (InvalidCustomerService $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
-
-                    $action->halt();
+                    FieldError::report($exception, $action, ['price']);
 
                     return;
                 }

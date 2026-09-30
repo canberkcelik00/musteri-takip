@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Packages;
 
-use App\Filament\Resources\Packages\Pages\CreatePackage;
-use App\Filament\Resources\Packages\Pages\EditPackage;
 use App\Filament\Resources\Packages\Pages\ListPackages;
 use App\Filament\Resources\Packages\Schemas\PackageForm;
 use App\Filament\Resources\Packages\Tables\PackagesTable;
@@ -62,8 +60,6 @@ class PackageResource extends Resource
     {
         return [
             'index' => ListPackages::route('/'),
-            'create' => CreatePackage::route('/create'),
-            'edit' => EditPackage::route('/{record}/edit'),
         ];
     }
 }

@@ -151,12 +151,13 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 - [x] **G-4.16 Müşteri listesi ve kartı** — Bağımlılık: G-4.13
   - Yapılacak: Liste sütunları: kısa ad (kalın) + ünvan (soluk), açık borç (gecikmişse kırmızı), en yakın yenileme, aktif hizmet sayısı; satırda "Ödeme al" kısayolu; varsayılan sıralama gecikmiş borçlular üstte. Müşteri kartı iki sütun olur: başlık şeridinde açık borç, alacak bakiyesi, "Ödeme al" ve "Hizmet ekle"; sol sütunda hizmetler ("İptal edilenler (n)" katlanmış), açık borçlar, son 5 ödeme; sağ sütunda kişiler, fatura bilgileri, notlar; Arşivle ve Sil en altta, ayrı.
   - Kabul: Karttan hizmet ekleme 1 tık + seçim + 1 tık; Logi örneği kartta doğru görünür (testli).
-- [ ] **G-4.17 Tablo, form ve eylem kuralları** — Bağımlılık: G-4.16
+- [x] **G-4.17 Tablo, form ve eylem kuralları** — Bağımlılık: G-4.16
   - Yapılacak: Tüm listelerde ve formlarda: "⋮" menüleri kalkar, satırda en fazla iki metinli işlem kalır, nadir işlemler kartta adlandırılmış bölüme gider; Sil ve İptal et ayrı, kırmızı ve onaylı; formlar yandan açılan panelde açılır, Kaydet sağ altta, Vazgeç solunda; hata mesajı alanın altında ve düzeltmeyi söyler; id görünmez, ilk sütun tanıdık bilgidir; varsayılan filtre görünür çip olarak durur; boş tablo iş düğmesini gösterir; tutarlar sağa hizalıdır. İş kuralları ve Action'lar değişmez.
   - Kabul: Kurallar tüm listelerde tutarlı (testli).
 - [ ] **G-4.18 Tık sayısı doğrulaması ve onay** — Bağımlılık: G-4.14, G-4.15, G-4.17
   - Yapılacak: `docs/UI.md` §7'deki her akışın tık sayısı kontrol edilir.
   - Kabul: Günlük akışlar hedef tık sayılarında; mevcut testler yeşil; kullanıcı onayı.
+  - Bilinen sorun (G-4.17'den devredildi): Müşteri kartının "Açık borçlar" tablosu 1024 px genişlikte yatay kaydırıyor (tablo 523 px, kart 419 px; "Ödeme al" + "Düzenle" sütunu 166 px, vade sütunu 104 px). Sorun G-4.17'den önce de vardı (düğmesiz tablo 522 px), 1280 px ve üzeri ile 768 px ve altında kaydırma yok. Çözüm bir yerleşim kararı gerektirir (ör. vadeyi 1024–1279 px arasında açıklamanın altına almak); bu yüzden kullanıcıya sorulup G-4.18'de kapatılacak.
 
 **Faz 4 bittiğinde:** Sistem elle kullanılabilir durumda; mevcut müşterilerini ve hizmetlerini girmeye başlayabilirsin.
 

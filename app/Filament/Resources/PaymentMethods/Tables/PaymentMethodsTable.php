@@ -2,12 +2,9 @@
 
 namespace App\Filament\Resources\PaymentMethods\Tables;
 
-use App\Actions\PaymentMethods\DeletePaymentMethod;
-use App\Filament\Actions\ArchivePaymentMethodAction;
-use App\Filament\Actions\DeleteRecordAction;
-use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\PaymentMethod;
+use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -35,10 +32,12 @@ class PaymentMethodsTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                ArchivePaymentMethodAction::make(),
-                UnarchiveAction::make(),
-                DeleteRecordAction::make()->deleteWith(DeletePaymentMethod::class),
+                EditAction::make()->slideOver(),
+            ])
+            ->emptyStateHeading(__('payment_methods.empty_heading'))
+            ->emptyStateDescription(__('payment_methods.empty_description'))
+            ->emptyStateActions([
+                CreateAction::make('createEmpty')->label(__('payment_methods.add'))->slideOver()->color('gray'),
             ]);
     }
 }

@@ -13,12 +13,15 @@ use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Exceptions\InvalidCustomerService;
+use App\Filament\Actions\AssignCustomerServiceAction;
 use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\RemoveFreeFlagAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\FieldError;
 use App\Filament\Support\MobileStatusBadge;
+use App\Filament\Support\RecordActionsSection;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use App\Models\Customer;
@@ -26,13 +29,11 @@ use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
 use App\Support\Money;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
@@ -56,7 +57,10 @@ use Illuminate\Support\HtmlString;
  * from {@see CustomerService::domains()} (T-66; horizontal scroll avoided, no separate column).
  * {@see CancelledCustomerServicesRelationManager} extends this for the card's collapsed
  * "İptal edilenler" section. The row actions (edit, mark free or paid, cancel, reactivate) only
- * call the matching Action in app/Actions/CustomerServices; the rules live there. "Hizmet ekle"
+ * call the matching Action in app/Actions/CustomerServices; the rules live there. The row
+ * keeps only "Düzenle" (and "Yeniden aktif et" on a cancelled service, G-4.17); the rarer
+ * actions live in the edit panel's "Hizmet işlemleri" section, with the dangerous ones (İptal et,
+ * Sil) on a row of their own at its end. "Hizmet ekle"
  * (AssignCustomerServiceAction, T-66) is a page header action on the card, not a table action.
  * Responsive (T-68/T-70, no horizontal scroll at any width, classic table columns kept intact
  * at every width — no {@see Stack}/`Split`, see
@@ -139,36 +143,33 @@ class CustomerServicesRelationManager extends RelationManager
             ->recordActions([
                 $this->editAction()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
                 $this->reactivateAction()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
-                ActionGroup::make([
-                    $this->markFreeAction(),
-                    RemoveFreeFlagAction::make(),
-                    $this->cancelAction(),
-                    DeleteRecordAction::make()->deleteWith(DeleteCustomerService::class),
-                ])->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
-            ]);
+            ])
+            ->emptyStateHeading(__('customer_services.empty_heading'))
+            ->emptyStateDescription(__('customer_services.empty_description'))
+            ->emptyStateActions($this->status() === CustomerServiceStatus::Active
+                ? [AssignCustomerServiceAction::make('assignServiceEmpty')->customer($this->customerOwner())->color('gray')]
+                : []);
+    }
+
+    private function customerOwner(): Customer
+    {
+        $customer = $this->getOwnerRecord();
+        assert($customer instanceof Customer);
+
+        return $customer;
     }
 
     /**
-     * The name column's click target below `md`, where the row actions are hidden (T-68): the
-     * same "Düzenle" panel, with the rarer actions (reactivate, mark free/paid, cancel, delete)
-     * added to its footer so they stay reachable. `cancelParentActions()` on each closes this
-     * modal instead of also submitting the edit form. At `md` and up the layout is unchanged:
-     * these stay separate, visible row actions ({@see self::table()}). Each nested action gets
-     * its own "…Mobile" name: reusing the row action's name here would let whichever of the two
-     * (column vs row) is built last overwrite the other in the table's action cache, since both
-     * are cached by name regardless of context — confirmed by reproducing it (the row version,
-     * with no footer, silently won and nesting inside it failed to resolve).
+     * The name column's click target below `md`, where the row buttons are hidden (T-68,
+     * G-4.17): the same "Düzenle" panel, whose "Hizmet işlemleri" section keeps the rarer
+     * actions (reactivate, mark free/paid, cancel, delete) reachable. Named distinctly from the
+     * row action ("editServiceMobile"): the table caches actions by name regardless of whether
+     * they came from a column or a row, so reusing the row action's name here would let
+     * whichever of the two is built last overwrite the other (confirmed by reproducing it).
      */
     private function mobileEditAction(): Action
     {
-        return $this->editAction('editServiceMobile')
-            ->extraModalFooterActions([
-                $this->reactivateAction('reactivateMobile')->cancelParentActions(),
-                $this->markFreeAction('markFreeMobile')->cancelParentActions(),
-                RemoveFreeFlagAction::make('removeFreeMobile')->cancelParentActions(),
-                $this->cancelAction('cancelServiceMobile')->cancelParentActions(),
-                DeleteRecordAction::make('deleteMobile')->deleteWith(DeleteCustomerService::class)->cancelParentActions(),
-            ]);
+        return $this->editAction('editServiceMobile');
     }
 
     /**
@@ -233,12 +234,9 @@ class CustomerServicesRelationManager extends RelationManager
                 try {
                     $updateCustomerService->handle($record, $attributes);
                 } catch (InvalidCustomerService $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
+                    FieldError::report($exception, $action, ['price', 'start_date', 'end_date']);
 
-                    $action->halt();
+                    return;
                 }
 
                 $action->successNotificationTitle(__('customer_services.updated'))->success();
@@ -288,7 +286,22 @@ class CustomerServicesRelationManager extends RelationManager
                 ->schema($this->editItemFields($item)))
             ->all();
 
-        return [...$fields, Group::make($sections)->columnSpanFull()];
+        return [
+            ...$fields,
+            Group::make($sections)->columnSpanFull(),
+            RecordActionsSection::make(
+                __('customer_services.actions_section'),
+                [
+                    $this->reactivateAction(),
+                    $this->markFreeAction(),
+                    RemoveFreeFlagAction::make(),
+                ],
+                [
+                    $this->cancelAction(),
+                    DeleteRecordAction::make()->deleteWith(DeleteCustomerService::class),
+                ],
+            ),
+        ];
     }
 
     /**
@@ -419,12 +432,9 @@ class CustomerServicesRelationManager extends RelationManager
                 try {
                     $reactivateCustomerService->handle($record, $attributes);
                 } catch (InvalidCustomerService $exception) {
-                    Notification::make()
-                        ->danger()
-                        ->title($exception->getMessage())
-                        ->send();
+                    FieldError::report($exception, $action, ['start_date']);
 
-                    $action->halt();
+                    return;
                 }
 
                 $action->successNotificationTitle(__('customer_services.reactivated'))->success();

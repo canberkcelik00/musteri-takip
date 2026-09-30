@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Actions\CreateCustomerAction;
 use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Pages\Dashboard;
@@ -11,10 +12,8 @@ use App\Filament\Resources\Packages\PackageResource;
 use App\Filament\Resources\PaymentMethods\PaymentMethodResource;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Livewire\TopbarActions;
-use App\Models\CatalogService;
 use App\Models\Charge;
 use App\Models\Customer;
-use App\Models\Package;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
@@ -26,21 +25,15 @@ beforeEach(function () {
 
 it('shows the topbar actions component on every panel page, in the same place', function () {
     $customer = Customer::factory()->create();
-    $catalogService = CatalogService::factory()->create();
-    $package = Package::factory()->create();
 
     $urls = [
         'Bugün' => Dashboard::getUrl(),
         'Müşteriler' => CustomerResource::getUrl('index'),
-        'Müşteri oluştur' => CustomerResource::getUrl('create'),
         'Müşteri kartı' => CustomerResource::getUrl('view', ['record' => $customer]),
-        'Müşteri düzenle' => CustomerResource::getUrl('edit', ['record' => $customer]),
         'Açık borçlar' => ChargeResource::getUrl('index'),
         'Ödemeler' => PaymentResource::getUrl('index'),
         'Hizmetler' => CatalogServiceResource::getUrl('index'),
-        'Hizmet düzenle' => CatalogServiceResource::getUrl('edit', ['record' => $catalogService]),
         'Paketler' => PackageResource::getUrl('index'),
-        'Paket düzenle' => PackageResource::getUrl('edit', ['record' => $package]),
         'Ödeme yöntemleri' => PaymentMethodResource::getUrl('index'),
         'Genel ayarlar' => ManageSettings::getUrl(),
         // The profile page is Filament's simple, sidebar-less layout (an account settings page,
@@ -105,7 +98,14 @@ it('lets the "Yeni" menu create an unattached manual charge for a chosen custome
     expect($customer->charges()->sole()->description)->toBe('Kurulum');
 });
 
-it('links the "Yeni" menu\'s "Müşteri" item to the customer create page', function () {
+it('lets the "Yeni" menu create a customer in a slide-over and opens its card', function () {
     Livewire::test(TopbarActions::class)
-        ->assertSee(CustomerResource::getUrl('create'), escape: false);
+        ->mountAction('createCustomer')
+        ->assertActionMounted('createCustomer')
+        ->fillForm(['short_name' => 'Yeni Müşteri', 'contact' => ['name' => 'Ayşe Kaya']])
+        ->callMountedAction()
+        ->assertRedirect(CustomerResource::getUrl('view', ['record' => Customer::query()->sole()]));
+
+    expect(CreateCustomerAction::make()->isModalSlideOver())->toBeTrue()
+        ->and(Customer::query()->sole()->primaryContact->name)->toBe('Ayşe Kaya');
 });

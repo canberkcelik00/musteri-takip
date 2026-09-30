@@ -2,8 +2,13 @@
 
 namespace App\Filament\Resources\Packages\Schemas;
 
+use App\Actions\Packages\DeletePackage;
+use App\Filament\Actions\ArchiveAction;
+use App\Filament\Actions\DeleteRecordAction;
+use App\Filament\Actions\UnarchiveAction;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
+use App\Filament\Support\RecordActionsSection;
 use App\Models\CatalogService;
 use App\Models\Package;
 use Filament\Forms\Components\Select;
@@ -53,6 +58,11 @@ class PackageForm
                             ->label(__('packages.notes'))
                             ->columnSpanFull(),
                     ]),
+                RecordActionsSection::make(
+                    __('packages.actions_section'),
+                    [ArchiveAction::make(), UnarchiveAction::make()],
+                    [DeleteRecordAction::make()->deleteWith(DeletePackage::class)],
+                ),
             ]);
     }
 

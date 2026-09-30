@@ -24,4 +24,12 @@ return [
     'billing_section' => 'Fatura bilgileri',
     'notes_section' => 'Notlar',
     'cancelled_services' => 'İptal edilenler (:count)',
+    'create' => 'Yeni müşteri',
+    'create_heading' => 'Yeni müşteri',
+    'created' => 'Müşteri eklendi.',
+    'edit' => 'Düzenle',
+    'edit_heading' => 'Müşteriyi düzenle',
+    'updated' => 'Müşteri güncellendi.',
+    'empty_heading' => 'Henüz müşteri yok',
+    'empty_description' => 'İlk müşterinizi ekleyin; hizmetleri ve borçları kartında takip edin.',
 ];

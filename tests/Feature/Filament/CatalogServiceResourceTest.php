@@ -2,9 +2,6 @@
 
 use App\Enums\Currency;
 use App\Enums\ServiceType;
-use App\Filament\Resources\CatalogServices\CatalogServiceResource;
-use App\Filament\Resources\CatalogServices\Pages\CreateCatalogService;
-use App\Filament\Resources\CatalogServices\Pages\EditCatalogService;
 use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
 use App\Models\CatalogService;
 use App\Models\CustomerService;
@@ -12,6 +9,7 @@ use App\Models\Package;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\TextInput;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -19,8 +17,18 @@ beforeEach(function () {
     Filament::setCurrentPanel('panel');
 });
 
+function createCatalogPanel()
+{
+    return Livewire::test(ListCatalogServices::class)->mountAction('create');
+}
+
+function editCatalogPanel(CatalogService $service): TestAction
+{
+    return TestAction::make('edit')->table($service);
+}
+
 it('shows the hosting fields when hosting is selected and the domain fields when domain is selected', function () {
-    Livewire::test(CreateCatalogService::class)
+    createCatalogPanel()
         ->fillForm(['type' => ServiceType::Hosting->value])
         ->assertFormFieldExists('details.disk_space')
         ->assertFormFieldExists('details.monthly_traffic')
@@ -34,20 +42,20 @@ it('shows the hosting fields when hosting is selected and the domain fields when
 });
 
 it('shows no type specific fields until a type is selected', function () {
-    Livewire::test(CreateCatalogService::class)
+    createCatalogPanel()
         ->assertFormFieldDoesNotExist('details.disk_space')
         ->assertFormFieldDoesNotExist('details.registrar');
 });
 
 it('labels the type specific fields in Turkish', function () {
-    Livewire::test(CreateCatalogService::class)
+    createCatalogPanel()
         ->fillForm(['type' => ServiceType::Hosting->value])
-        ->assertSee('Disk alanı')
-        ->assertSee('Aylık trafik');
+        ->assertFormFieldExists('details.disk_space', checkFieldUsing: fn (TextInput $field): bool => $field->getLabel() === 'Disk alanı')
+        ->assertFormFieldExists('details.monthly_traffic', checkFieldUsing: fn (TextInput $field): bool => $field->getLabel() === 'Aylık trafik');
 });
 
 it('creates a catalog service with its price and type specific details', function () {
-    Livewire::test(CreateCatalogService::class)
+    createCatalogPanel()
         ->fillForm([
             'type' => ServiceType::Hosting->value,
             'name' => 'Linux Hosting 1000 MB',
@@ -55,7 +63,7 @@ it('creates a catalog service with its price and type specific details', functio
             'currency' => Currency::Try->value,
             'details' => ['disk_space' => '1000 MB', 'sites' => '5'],
         ])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasNoFormErrors();
 
     $service = CatalogService::firstOrFail();
@@ -69,29 +77,30 @@ it('creates a catalog service with its price and type specific details', functio
 });
 
 it('requires a type, a name and a price', function () {
-    Livewire::test(CreateCatalogService::class)
+    createCatalogPanel()
         ->fillForm(['type' => null, 'name' => null, 'price' => null])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['type' => 'required', 'name' => 'required', 'price' => 'required']);
 
     expect(CatalogService::count())->toBe(0);
 });
 
 it('rejects an amount that is not in the Turkish format', function () {
-    Livewire::test(CreateCatalogService::class)
+    createCatalogPanel()
         ->fillForm(['type' => ServiceType::Ssl->value, 'name' => 'SSL', 'price' => '4,000.50'])
-        ->call('create')
+        ->callMountedAction()
         ->assertHasFormErrors(['price']);
 });
 
-it('fills the edit form from the record', function () {
+it('fills the edit panel from the record', function () {
     $service = CatalogService::factory()->ofType(ServiceType::Domain)->create([
         'price' => 40050,
         'details' => ['registrar' => 'Natro', 'extension' => '.com.tr'],
     ]);
 
-    Livewire::test(EditCatalogService::class, ['record' => $service->id])
-        ->assertFormSet(['price' => '400,50', 'details.registrar' => 'Natro', 'details.extension' => '.com.tr']);
+    Livewire::test(ListCatalogServices::class)
+        ->mountAction(editCatalogPanel($service))
+        ->assertSchemaStateSet(['price' => '400,50', 'details.registrar' => 'Natro', 'details.extension' => '.com.tr']);
 });
 
 it('drops the details of the previous type when the type is changed', function () {
@@ -99,9 +108,10 @@ it('drops the details of the previous type when the type is changed', function (
         'details' => ['disk_space' => '1000 MB'],
     ]);
 
-    Livewire::test(EditCatalogService::class, ['record' => $service->id])
+    Livewire::test(ListCatalogServices::class)
+        ->mountAction(editCatalogPanel($service))
         ->fillForm(['type' => ServiceType::Domain->value, 'details' => ['registrar' => 'Natro']])
-        ->call('save')
+        ->callMountedAction()
         ->assertHasNoFormErrors();
 
     expect($service->refresh()->type)->toBe(ServiceType::Domain)
@@ -167,37 +177,25 @@ it('shows the type as plain text, not a badge', function () {
     expect($html)->not->toMatch('/fi-badge[^>]*>\s*'.preg_quote(ServiceType::Hosting->getLabel(), '/').'/');
 });
 
-it('archives and unarchives a catalog service from the list', function () {
+it('archives and unarchives a catalog service from its edit panel', function () {
     $service = CatalogService::factory()->create();
 
-    Livewire::test(ListCatalogServices::class)
-        ->assertActionVisible(TestAction::make('archive')->table($service))
-        ->assertActionHidden(TestAction::make('unarchive')->table($service))
-        ->callAction(TestAction::make('archive')->table($service));
+    $list = Livewire::test(ListCatalogServices::class);
 
-    expect($service->refresh()->isArchived())->toBeTrue();
+    expect(actionOffered($list, sectionAction(editCatalogPanel($service), 'archive')))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editCatalogPanel($service), 'unarchive')))->toBeFalse();
 
-    Livewire::test(ListCatalogServices::class)
-        ->filterTable('archived', true)
-        ->assertActionHidden(TestAction::make('archive')->table($service))
-        ->callAction(TestAction::make('unarchive')->table($service));
+    $list->callAction(sectionAction(editCatalogPanel($service), 'archive'));
 
-    expect($service->refresh()->isArchived())->toBeFalse();
-});
+    // cancelParentActions(): the edit panel closes together with the nested action.
+    expect($service->refresh()->isArchived())->toBeTrue()
+        ->and($list->get('mountedActions'))->toBe([]);
 
-it('archives and unarchives a catalog service from its edit page', function () {
-    $service = CatalogService::factory()->create();
+    $archivedList = Livewire::test(ListCatalogServices::class)->filterTable('archived', true);
 
-    Livewire::test(EditCatalogService::class, ['record' => $service->id])
-        ->assertActionVisible('archive')
-        ->assertActionHidden('unarchive')
-        ->callAction('archive');
+    expect(actionOffered($archivedList, sectionAction(editCatalogPanel($service), 'archive')))->toBeFalse();
 
-    expect($service->refresh()->isArchived())->toBeTrue();
-
-    Livewire::test(EditCatalogService::class, ['record' => $service->id])
-        ->assertActionHidden('archive')
-        ->callAction('unarchive');
+    $archivedList->callAction(sectionAction(editCatalogPanel($service), 'unarchive'));
 
     expect($service->refresh()->isArchived())->toBeFalse();
 });
@@ -205,10 +203,12 @@ it('archives and unarchives a catalog service from its edit page', function () {
 it('offers delete next to archive for an unused catalog service and deletes it', function () {
     $service = CatalogService::factory()->create();
 
-    Livewire::test(ListCatalogServices::class)
-        ->assertActionVisible(TestAction::make('delete')->table($service))
-        ->assertActionVisible(TestAction::make('archive')->table($service))
-        ->callAction(TestAction::make('delete')->table($service));
+    $list = Livewire::test(ListCatalogServices::class);
+
+    expect(actionOffered($list, sectionAction(editCatalogPanel($service), 'delete', danger: true)))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editCatalogPanel($service), 'archive')))->toBeTrue();
+
+    $list->callAction(sectionAction(editCatalogPanel($service), 'delete', danger: true));
 
     expect(CatalogService::query()->find($service->id))->toBeNull();
 });
@@ -219,34 +219,20 @@ it('offers only archive for a catalog service that is in a package or was sold',
     $sold = CatalogService::factory()->create();
     CustomerService::factory()->forCatalogService($sold)->create();
 
-    Livewire::test(ListCatalogServices::class)
-        ->assertActionHidden(TestAction::make('delete')->table($inPackage))
-        ->assertActionVisible(TestAction::make('archive')->table($inPackage))
-        ->assertActionHidden(TestAction::make('delete')->table($sold))
-        ->assertActionVisible(TestAction::make('archive')->table($sold));
+    $list = Livewire::test(ListCatalogServices::class);
 
-    Livewire::test(EditCatalogService::class, ['record' => $sold->id])
-        ->assertActionHidden('delete')
-        ->assertActionVisible('archive');
+    foreach ([$inPackage, $sold] as $service) {
+        expect(actionOffered($list, sectionAction(editCatalogPanel($service), 'delete', danger: true)))->toBeFalse()
+            ->and(actionOffered($list, sectionAction(editCatalogPanel($service), 'archive')))->toBeTrue();
+    }
 });
 
-it('deletes an unused catalog service from its edit page and returns to the list', function () {
-    $service = CatalogService::factory()->create();
-
-    Livewire::test(EditCatalogService::class, ['record' => $service->id])
-        ->assertActionVisible('delete')
-        ->callAction('delete')
-        ->assertRedirect(CatalogServiceResource::getUrl('index'));
-
-    expect(CatalogService::query()->find($service->id))->toBeNull();
-});
-
-it('offers delete for an archived catalog service that is not in use', function () {
+it('offers delete and unarchive for an archived catalog service that is not in use', function () {
     $service = CatalogService::factory()->create();
     $service->archive();
 
-    Livewire::test(ListCatalogServices::class)
-        ->filterTable('archived', true)
-        ->assertActionVisible(TestAction::make('delete')->table($service))
-        ->assertActionVisible(TestAction::make('unarchive')->table($service));
+    $list = Livewire::test(ListCatalogServices::class)->filterTable('archived', true);
+
+    expect(actionOffered($list, sectionAction(editCatalogPanel($service), 'delete', danger: true)))->toBeTrue()
+        ->and(actionOffered($list, sectionAction(editCatalogPanel($service), 'unarchive')))->toBeTrue();
 });
