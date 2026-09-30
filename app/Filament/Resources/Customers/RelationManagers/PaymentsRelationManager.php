@@ -32,7 +32,7 @@ class PaymentsRelationManager extends RelationManager
 {
     use RefreshesOnPaymentOrChargeChange;
 
-    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
+    private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
 
     protected static string $relationship = 'payments';
 

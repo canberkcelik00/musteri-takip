@@ -73,7 +73,7 @@ class CustomerServicesRelationManager extends RelationManager
      * options via {@see self::mobileEditAction()} at that width instead. `inline-flex` matches
      * Filament's own small table action display, so nothing shifts once it reappears at `md`.
      */
-    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
+    private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
 
     protected static string $relationship = 'customerServices';
 

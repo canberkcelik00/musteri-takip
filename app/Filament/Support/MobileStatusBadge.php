@@ -4,7 +4,7 @@ namespace App\Filament\Support;
 
 use Filament\Tables\Columns\Layout\Stack;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\HtmlString;
 
 /**
@@ -17,20 +17,20 @@ use Illuminate\Support\HtmlString;
  * in `index.blade.php` being gated on `! $hasColumnsLayout`) and by reproducing the regression
  * (column headers and row actions disappeared at every width, not just below `md`). A plain
  * `TextColumn::description()` accepts `Htmlable`, so the badge is rendered as real markup
- * (matching `<x-filament::badge>`) inside that description instead, wrapped in `md:hidden` so
- * it only shows below `md`; the column itself, and the table's classic rendering, stay intact.
+ * (matching `<x-filament::badge>`) inside that description instead, wrapped in the `fi-mobile-badge`
+ * class (`resources/css/filament/panel/theme.css`, `@apply md:hidden ...`) so it only shows below
+ * `md`; the column itself, and the table's classic rendering, stay intact. A raw `md:hidden`
+ * class here (T-70) was never actually built (T-71): Tailwind's content scanner does not emit
+ * variant-prefixed candidates found only in PHP-built strings, so a named, `@apply`-backed class
+ * is used instead (the same pattern Filament itself uses for its own responsive classes).
  */
 class MobileStatusBadge
 {
     public static function html(string $label, string $color): Htmlable
     {
-        return new HtmlString(Blade::render(
-            <<<'BLADE'
-                <span class="md:hidden mt-1 inline-block">
-                    <x-filament::badge :color="$color">{{ $label }}</x-filament::badge>
-                </span>
-                BLADE,
-            ['label' => $label, 'color' => $color],
-        ));
+        return new HtmlString(View::make('filament.support.mobile-status-badge', [
+            'label' => $label,
+            'color' => $color,
+        ])->render());
     }
 }

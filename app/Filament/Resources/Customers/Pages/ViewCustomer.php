@@ -36,11 +36,21 @@ use Livewire\Attributes\On;
  * left, information (contacts, billing, notes) on the right — and the destructive actions
  * (archive, delete) at the bottom, right-aligned and separate from both columns, not boxed in
  * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5), but
- * with the same top margin a section would have (T-70; sitting flush under the grid looked
- * attached to the shorter, right column). Contacts is wrapped in a heading-less Section (T-70)
- * so its padding matches "Fatura bilgileri"/"Notlar" and the right column's item spacing
- * matches the left column's — a bare Livewire component had neither on its own.
- * "Ödeme al" and "Hizmet ekle" are the page's header actions, level with the strip.
+ * with the same top margin a section would have (T-70/T-71; sitting flush under the grid looked
+ * attached to the shorter, right column). Contacts is a bare Livewire component, not wrapped in
+ * a Section (T-71 reverts a T-70 attempt that produced a visibly nested double card); its
+ * padding/spacing parity with "Fatura bilgileri"/"Notlar" instead comes from those two Sections
+ * each carrying their own `mt-6` (T-71 — the right column's own schema does not reliably apply a
+ * gap between adjacent plain Sections the way it does around a Livewire component).
+ * "Ödeme al" ve "Hizmet ekle" sayfa başlık eylemleri, şeritle aynı hizada.
+ *
+ * Bilinen sınırlama (T-71): açık borcu 3+ satır olan bazı müşterilerde (ör. Deniz Lojistik, id 4)
+ * sağ sütunun `Grid::make(1)` sarmalayıcısı 1350px'te "Fatura bilgileri"/"Notlar"ı dış
+ * `Grid::make(3)`'ün doğrudan çocuğu gibi (yanlış sütunda, yan yana) render ediyor — yalnız
+ * TARAYICIDA (ham sunucu HTML'i ve `$schema->toHtml()` her ikisi de doğru iç içe geçmeyi
+ * gösteriyor, kaynak PHP bileşen ağacı da doğru; kapsamlı Playwright/bisection denemeleriyle
+ * kök neden bulunamadı — bkz. docs/DECISIONS.md T-71). Diğer tüm örnek müşterilerde (1, 2, 3,
+ * 5–19) sorun yok.
  */
 class ViewCustomer extends ViewRecord
 {
@@ -112,8 +122,8 @@ class ViewCustomer extends ViewRecord
                 ]),
             Grid::make(3)
                 ->schema([
-                    Group::make($this->workColumn($customer))->columnSpan(2),
-                    Group::make($this->infoColumn($customer))->columnSpan(1),
+                    Group::make($this->workColumn($customer))->columnSpan(2)->key('work_column'),
+                    Grid::make(1)->schema($this->infoColumn($customer))->columnSpan(1)->key('info_column'),
                 ]),
             Actions::make([
                 ArchiveCustomerAction::make(),
@@ -164,18 +174,17 @@ class ViewCustomer extends ViewRecord
     private function infoColumn(Customer $customer): array
     {
         return [
-            Section::make()
-                ->schema([
-                    Livewire::make(ContactsRelationManager::class, [
-                        'ownerRecord' => $customer,
-                        'pageClass' => static::class,
-                    ])->key('contacts'),
-                ]),
+            Livewire::make(ContactsRelationManager::class, [
+                'ownerRecord' => $customer,
+                'pageClass' => static::class,
+            ])->key('contacts'),
             Section::make(__('customers.billing_section'))
                 ->afterHeader([EditAction::make()->color('gray')])
-                ->schema(CustomerInfolist::billingSchema()),
+                ->schema(CustomerInfolist::billingSchema())
+                ->extraAttributes(['class' => 'mt-6']),
             Section::make(__('customers.notes_section'))
-                ->schema(CustomerInfolist::notesSchema()),
+                ->schema(CustomerInfolist::notesSchema())
+                ->extraAttributes(['class' => 'mt-6']),
         ];
     }
 }

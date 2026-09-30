@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class CustomersTable
 {
-    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
+    private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
 
     public static function configure(Table $table): Table
     {

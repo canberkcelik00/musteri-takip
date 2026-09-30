@@ -51,7 +51,7 @@ class ChargesRelationManager extends RelationManager
      * Hides a row action's button below `md` (T-68); the row's description column opens the
      * same options via {@see self::mobileEditAction()} at that width instead.
      */
-    private const string HIDDEN_BELOW_MD = 'hidden md:inline-flex';
+    private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
 
     protected static string $relationship = 'charges';
 

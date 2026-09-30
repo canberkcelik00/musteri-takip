@@ -432,7 +432,7 @@ it('lays out contacts as a single stacked column, with no separate is_primary co
 
 // --- Duyarlılık: md altında satır eylemleri gizli, ilgili panel satırdan açılır -----
 
-const HIDDEN_BELOW_MD = ['class' => 'hidden md:inline-flex'];
+const HIDDEN_BELOW_MD = ['class' => 'fi-hidden-below-md'];
 
 it('hides the customer list\'s "Ödeme al" below md; the row already opens the card', function () {
     $table = Livewire::test(ListCustomers::class)->instance()->getTable();
@@ -490,12 +490,12 @@ it('adds a mobile-only status badge to the name description only for a cancelled
 
     $endingSoonHtml = $name->record($endingSoon)->getDescriptionBelow()->toHtml();
     expect($endingSoonHtml)->toContain('Yenilemesi yaklaşıyor')
-        ->and($endingSoonHtml)->toContain('md:hidden')
+        ->and($endingSoonHtml)->toContain('fi-mobile-badge')
         ->and($endingSoonHtml)->toContain('fi-color-warning');
 
     $cancelledHtml = $name->record($cancelled)->getDescriptionBelow()->toHtml();
     expect($cancelledHtml)->toContain('İptal edildi')
-        ->and($cancelledHtml)->toContain('md:hidden');
+        ->and($cancelledHtml)->toContain('fi-mobile-badge');
 });
 
 it('hides the open charges row actions below md; the description opens "Düzenle" with split/cancel in its footer', function () {
@@ -525,7 +525,7 @@ it('adds a mobile-only status badge under "Kalan" only for an overdue, partially
 
     $overdueHtml = $remaining->record($overdue)->getDescriptionBelow()->toHtml();
     expect($overdueHtml)->toContain('Gecikmiş (5 gün)')
-        ->and($overdueHtml)->toContain('md:hidden')
+        ->and($overdueHtml)->toContain('fi-mobile-badge')
         ->and($overdueHtml)->toContain('fi-color-danger');
 });
 
@@ -565,10 +565,22 @@ it('hides the recent payments row action below md; the amount opens the same del
 it('renders contacts, billing and notes as three separate cards on the card, with consistent spacing', function () {
     $customer = Customer::factory()->create();
 
-    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
+    $schema = Livewire::test(ViewCustomer::class, ['record' => $customer->id])
         ->assertOk()
         ->assertSeeLivewire(ContactsRelationManager::class)
-        ->assertSeeInOrder(['İlgili kişiler', 'Fatura bilgileri', 'Notlar']);
+        ->assertSeeInOrder(['İlgili kişiler', 'Fatura bilgileri', 'Notlar'])
+        ->instance()->getSchema('content');
+
+    $infoColumn = $schema->getComponent('info_column', withHidden: true);
+    expect($infoColumn)->not->toBeNull();
+
+    $items = $infoColumn->getChildSchema()->getComponents();
+    expect($items[0])->toBeInstanceOf(\Filament\Schemas\Components\Livewire::class);
+
+    $billing = $items[1];
+    $notes = $items[2];
+    expect($billing->getExtraAttributes())->toBe(['class' => 'mt-6'])
+        ->and($notes->getExtraAttributes())->toBe(['class' => 'mt-6']);
 });
 
 it('gives the danger actions row a normal top margin instead of sitting flush under the grid', function () {

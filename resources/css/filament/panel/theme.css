@@ -47,3 +47,21 @@ body {
 .fi-topbar-new-action {
     @apply hidden sm:block;
 }
+
+/*
+ * Responsive helpers for classes built at runtime from PHP strings (T-71): Tailwind's content
+ * scanner only finds literal class text, and variant-prefixed candidates built this way (e.g.
+ * `extraAttributes(['class' => 'hidden md:inline-flex'])`) were silently dropped even though the
+ * unprefixed half ("hidden") was picked up from elsewhere — confirmed by inspecting the compiled
+ * theme CSS after a fresh `npm run build`. Named classes with `@apply` sidestep content scanning
+ * entirely (the same pattern Filament itself uses for `{breakpoint}:fi-hidden`/`fi-visible` in
+ * `vendor/filament/tables/resources/css/header-cell.css`), so they work regardless of how the
+ * class ends up in the DOM.
+ */
+.fi-hidden-below-md {
+    @apply hidden md:inline-flex;
+}
+
+.fi-mobile-badge {
+    @apply md:hidden mt-1 inline-block;
+}
