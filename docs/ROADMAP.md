@@ -137,7 +137,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Yapılacak: "Arayüz ilkeleri" sekmesi `docs/UI.md` olarak repoya eklenir; `CLAUDE.md` ve `docs/*.md` listesine referans verilir. Önce "Ödeme al" / "Ödeme kaydet" tutarsızlığı (UI.md Kural 1) giderilir: her yerde "Ödeme al". Kod değişmez.
   - Kabul: Dosya repoda; kullanıcı `docs/UI.md`'yi onaylamış.
 - [x] **G-4.12 Tema ve görsel dil** — Bağımlılık: G-4.11
-  - Yapılacak: Filament özel teması `docs/UI.md` §6'ya göre hazırlanır. Açık tema varsayılan, koyu tema kullanıcı menüsünden seçilir. Marka rengi (#ff3800) yalnızca logo simgesinde ve seçili menüde; birincil düğme koyu lacivert (`primary`), marka rengiyle karışmaz. Durum renkleri sabit ve başka işte kullanılmaz (kırmızı gecikmiş/tehlikeli, turuncu kısmi/yaklaşan, yeşil ödendi, gri iptal/arşiv); normal durum renksiz düz metindir, `info` kullanılmaz. "Yaklaşan" (borç: 7 gün, hizmet: yenileme gün sayısı) modelde tek yerde tanımlanır. Tek yazı tipi (Inter, yerelden), sayılarda eş genişlikte rakamlar, tablo metni 14 px. Tablolarda kompakt, formlarda rahat boşluk. Sol üstte logo ve "Müşteri Takip". Tema derlemesi GitHub Actions paketine eklenir (CI'a `npm ci` + `npm run build`).
+  - Yapılacak: Filament özel teması `docs/UI.md` §6'ya göre hazırlanır. Açık tema varsayılan, koyu tema kullanıcı menüsünden seçilir. Marka rengi (#ff3800) yalnızca logo simgesinde ve seçili menü çizgisinde; birincil düğme (Filament primary) koyu lacivert. Durum renkleri sabit ve başka işte kullanılmaz (kırmızı gecikmiş/tehlikeli, turuncu (Amber) yaklaşan/kısmi, yeşil ödendi, gri iptal/arşiv); normal durum rozetsiz düz metin. "Yaklaşan" tanımı modelde tek yerde: borçta 7 gün içinde vadesi gelen (`Charge::isDueSoon`), hizmette ayarlardaki yenileme gün sayısı içinde bitecek (`CustomerService::isEndingSoon`). Tek yazı tipi (Inter, yerelden), sayılarda eş genişlikte rakamlar, tablo metni 14 px. Tablolarda kompakt, formlarda rahat boşluk. Sol üstte logo simgesi ve "Müşteri Takip". Tema derlemesi CI'a eklenir.
   - Kabul: Durum rozetleri her yerde renk ve metinle görünür; tüm testler yeşil.
 - [x] **G-4.13 Menü ve üst çubuk** — Bağımlılık: G-4.12
   - Yapılacak: Menü `docs/UI.md` §3'e göre kurulur: Bugün, Müşteriler, Tahsilat (Açık borçlar, Ödemeler), Katalog (Hizmetler, Paketler; kapalı başlar), Ayarlar (Genel, Ödeme yöntemleri; en altta). Üst çubuk her sayfada aynı yerde: solda arama kutusu, sağda "Ödeme al" birincil düğmesi ve "Yeni" menüsü (Müşteri, Elle borç). Ödeme formu (G-4.7) her sayfada yandan açılan panelde çalışır.
@@ -146,7 +146,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Yapılacak: Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arama; fare kullanmadan müşteriye gitme ve ödeme kaydetme. Alan adı `details` JSON'unda durduğu için arama yöntemi planda gösterilir.
   - Kabul: "logi.com.tr" yazınca Logi bulunur (testli); Ctrl+K + yazma + 1 tık.
 - [x] **G-4.15 Bugün sayfası (G-5.4'ten taşındı)** — Bağımlılık: G-4.13
-  - Yapılacak: Açılış sayfası `docs/UI.md` §5'e göre yapılır. Üst satırda dört sayı: para birimi başına toplam alacak, gecikmiş tutar ve adet, bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı; her sayı süzülmüş listeye gider. Altında öncelik sırasıyla Yapılacaklar: gecikmiş borçlar (en eski üstte, kaç gün geciktiğiyle), bu hafta vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi: "Ödeme al", "Ücretsiz devam et", "Ücretli yap". Liste boşsa "Bugün yapılacak bir şey yok". "Ücretsiz devam et" kararını tutacak bir alan veri modelinde yok; planda kullanıcıya sorulur.
+  - Yapılacak: Açılış sayfası `docs/UI.md` §5'e göre yapılır. Üst satırda dört sayı: para birimi başına toplam alacak, gecikmiş tutar ve adet, bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı; her sayı süzülmüş listeye gider. Altında öncelik sırasıyla Yapılacaklar: gecikmiş borçlar (en eski üstte, kaç gün geciktiğiyle), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi: "Ödeme al", "Ücretsiz devam et", "Ücretli yap". Liste boşsa "Bugün yapılacak bir şey yok". "Ücretsiz devam et" kararını tutacak bir alan veri modelinde yok; planda kullanıcıya sorulur.
   - Kabul: Örnek veriyle sayılar ve tutarlar doğru; gecikmiş borcun ödemesi 1 tık + tutar + 1 tık (testli).
 - [x] **G-4.16 Müşteri listesi ve kartı** — Bağımlılık: G-4.13
   - Yapılacak: Liste sütunları: kısa ad (kalın) + ünvan (soluk), açık borç (gecikmişse kırmızı), en yakın yenileme, aktif hizmet sayısı; satırda "Ödeme al" kısayolu; varsayılan sıralama gecikmiş borçlular üstte. Müşteri kartı iki sütun olur: başlık şeridinde açık borç, alacak bakiyesi, "Ödeme al" ve "Hizmet ekle"; sol sütunda hizmetler ("İptal edilenler (n)" katlanmış), açık borçlar, son 5 ödeme; sağ sütunda kişiler, fatura bilgileri, notlar; Arşivle ve Sil en altta, ayrı.
@@ -160,15 +160,44 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
 
 **Faz 4 bittiğinde:** Sistem elle kullanılabilir durumda; mevcut müşterilerini ve hizmetlerini girmeye başlayabilirsin.
 
+## Faz 4B – Görsel tasarım (yalnızca stil)
+
+Hedef: Faz 4'te oturan yerleşim ve akışlar aynen kalırken panelin görünümünün elden geçirilmesi. Bu fazda yalnızca stil değişir: tema CSS'i, renk, yazı, boşluk, köşe, kenarlık, gölge. Sayfa yerleşimi, sütunlar, düğme yerleri, metinler, iş kuralları ve Action'lar değişmez; iş mantığı hiç değişmez. Ölçüt: panel tasarım tuvalindeki C artboard'larıyla birebir aynı görünür. Önce CSS ve Filament ayarlarıyla yaklaşılır; CSS yetmezse yalnızca o bileşenin Blade görünümü geçersiz kılınır (işaretleme ve stil sınıfı; Action'lar, sorgular ve davranış aynı kalır).
+
+- [x] **K-4B.1 Tasarım geri bildirimi ve referanslar:** Görünüşünü beğenmediğin ekranların görüntüsünü kısa notla topla (örn. "her şey aynı gri", "kartlar sönük", "tablo sıkışık"). Görünüşünü beğendiğin 2–3 uygulamadan ekran görüntüsü ekle.
+- [x] **G-4B.1 Tasarım yönü önerisi** — Bağımlılık: K-4B.1
+  - Yapılacak: Tasarım yönleri Claude tuvalinde hazırlandı: [Müşteri Takip — Tasarım yönleri](https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6). Seçilen yön **C · Lacivert çerçeve**: koyu lacivert kenar menü, açık içerik, iri ve kalın başlık ve tutarlar, gölgesiz ve kenarlıkla ayrılan paneller, noktalı durum rozetleri. Seçim G-4B.2'de DECISIONS'a yazılır; uygulama koduna dokunulmaz. Birebir referans için C yönünün altı ekranı açık ve koyu temada tuvale eklendi ve onaylandı: Bugün, Müşteriler, müşteri kartı, Açık borçlar, ödeme paneli, hizmet ekleme formu. Tuval panelin tek görsel referansıdır.
+  - Kabul: Kullanıcı C yönünü seçti; tuvaldeki tüm ekranlar açık ve koyu temada hazır ve kullanıcı onaylı.
+- [x] **K-4B.2 Referans ekranların repoya alınması** — Bağımlılık: G-4B.1
+  - Yapılacak: Tuvaldeki C artboard'larını (6 ekran × açık/koyu = 12) tuvalin dışa aktarma menüsünden PNG olarak indir; `acik-bugun.png`, `koyu-bugun.png`, `acik-musteriler.png`, `koyu-musteriler.png`, `acik-kart.png`, `koyu-kart.png`, `acik-borclar.png`, `koyu-borclar.png`, `acik-odeme.png`, `koyu-odeme.png`, `acik-hizmet.png`, `koyu-hizmet.png` adlarıyla repoda `docs/design/referans/` altına koy ve commit et. Claude Code tuvale erişemez.
+  - Kabul: 12 dosya repoda. G-4B.3–G-4B.6'daki "tuvaldeki C artboard'ları" ifadesi bu dosyalardır.
+- [ ] **G-4B.2 Tasarım tokenları** — Bağımlılık: G-4B.1, K-4B.2
+  - Yapılacak: Seçilen yön değerleriyle `docs/UI.md` §6'ya eklenir: nötr gri skalası, primary lacivert skalası, durum renklerinin tonları (açık ve koyu tema), yazı ölçeği (sayfa başlığı, bölüm başlığı, gövde, tablo 14 px, yardımcı metin), boşluk ölçeği, köşe yarıçapı, kenarlık, gölge, odak halkası. Değerler Arayüz ilkeleri §6'daki C yönü token tablosundan alınır ve Filament temasında tek yerde tanımlanır; bileşen stillerinde sabit renk kodu yok. DECISIONS.md'ye tek satır eklenir: "Faz 4B: görsel yön C · Lacivert çerçeve seçildi; referans docs/design/referans/ (tuval: https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6)."
+  - Kabul: Metin kontrastı açık ve koyu temada en az 4,5:1; tema CI'da derleniyor; DECISIONS'a seçim satırı eklenmiş; testler yeşil.
+- [ ] **G-4B.3 Çerçeve: menü, üst çubuk, sayfa başlığı** — Bağımlılık: G-4B.2
+  - Yapılacak: Kenar menü (arka plan, grup başlıkları, seçili öğede marka çizgisi), üst çubuk (arama kutusu, "Ödeme al", "Yeni"), logo alanı ve sayfa başlıkları tokenlara göre stillenir.
+  - Kabul: Tüm sayfalarda çerçeve aynı görünür ve tuvaldeki C artboard'larıyla yan yana karşılaştırıldığında fark yok; testler yeşil.
+- [ ] **G-4B.4 Tablolar, rozetler ve filtre çipleri** — Bağımlılık: G-4B.2
+  - Yapılacak: Başlık satırı, satır yüksekliği, ayırıcı çizgi ve üzerine gelme rengi, tutar sütunları, durum rozetleri, filtre çipleri, boş tablo görünümü.
+  - Kabul: Durum rozetleri UI.md §6'daki renk anlamlarına uyar; tüm listeler aynı görünür ve tuvaldeki C artboard'larıyla yan yana karşılaştırıldığında fark yok; testler yeşil.
+- [ ] **G-4B.5 Kartlar, formlar ve yan panel** — Bağımlılık: G-4B.2
+  - Yapılacak: Bugün sayı kartları, müşteri kartı başlık şeridi (büyük tutarlar) ve bölüm kartları; form alanları, odak ve hata görünümü; yan panel; düğme hiyerarşisi (birincil, ikincil, tehlikeli); bildirimler.
+  - Kabul: Her ekranda tek birincil düğme görsel olarak belirgin; tehlikeli düğmeler ayırt edilir; kartlar, formlar ve yan panel tuvaldeki C artboard'larıyla yan yana karşılaştırıldığında fark yok; testler yeşil.
+- [ ] **G-4B.6 Koyu tema ve son kontrol** — Bağımlılık: G-4B.3, G-4B.4, G-4B.5
+  - Yapılacak: Tüm ekranlar koyu temada gözden geçirilir. Bugün, Müşteriler, müşteri kartı, Açık borçlar, ödeme paneli ve hizmet ekleme formunun açık/koyu ekran görüntüleri `docs/design/ekranlar/` altına alınır.
+  - Kabul: Yerleşim ve tık sayıları (UI.md §7) değişmemiş; her ekran açık ve koyu temada tuvaldeki C artboard'larıyla yan yana karşılaştırılmış, kalan fark yok ya da kullanıcı tarafından kabul edilmiş; tüm testler yeşil; kullanıcı onayı.
+
+**Faz 4B bittiğinde:** Panel aynı akışlarla, tutarlı ve bilinçli seçilmiş bir görsel dille çalışıyor; stil değerleri tek yerde ve belgelenmiş.
+
 ## Faz 5 – Yayına alma, panel ve MVP kapanışı
 
 Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini kendiliğinden söylemesi ve güvenle canlıya alınması. Yayına alma fazın başında kurulur ki panel ve özet e-postası canlıda denenebilsin.
 
-- [ ] **G-5.1 Yayın uç noktası ve cron yedeği** — Bağımlılık: Faz 4
+- [ ] **G-5.1 Yayın uç noktası ve cron yedeği** — Bağımlılık: Faz 4B
   - Yapılacak: Gizli anahtarla korunan yayın adresi; migration, önbellek yenileme ve gerekirse storage bağlantısını çalıştırır. Aynı kontrol zamanlayıcıda "yeni sürüm varsa bir kez yap" görevi olarak çalışır.
   - Kabul: Yanlış veya eksik anahtar reddedilir; doğru anahtarla komutlar bir kez çalışır; aynı sürüm için tekrar çalışmaz (hepsi testli).
 - [ ] **G-5.2 Otomatik yayına alma** — Bağımlılık: G-1.5, G-5.1
-  - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz. Filament'in `public/` altındaki dosyaları git'te değil, `composer install` sırasında üretilir; paket hazırlanırken Composer betikleri kapatılmamalı ve paketin Filament dosyalarını içerdiği kontrol edilmeli. Paket ayrıca CI'da üretilen `public/build` (özel tema, G-4.12) çıktısını içermeli; `npm ci` + `npm run build` adımı yayın paketine eklenir.
+  - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz. Paket, CI'da derlenen tema çıktısını (public/build) içermeli. Filament'in `public/` altındaki dosyaları git'te değil, `composer install` sırasında üretilir; paket hazırlanırken Composer betikleri kapatılmamalı ve paketin Filament dosyalarını içerdiği kontrol edilmeli.
   - Kabul: Gerekli GitHub secret'ları belgelenmiş; test başarısızsa yükleme yapılmaz.
 - [ ] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, \*/15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.

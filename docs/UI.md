@@ -1,6 +1,6 @@
 # Arayüz ilkeleri
 
-Bu dosya panelin nasıl daha kolay kullanılacağına dair kuralları toplar: ne nerede durur, nereden erişilir, nasıl görünür. G-4.12–G-4.18'in kabul ölçütüdür.
+Bu sekme, panelin nasıl daha kolay kullanılacağına dair kuralları toplar: ne nerede durur, nereden erişilir, nasıl görünür. Onaylandığında repoya `docs/UI.md` olarak girer ve G-4.12–G-4.18'in kabul ölçütü olur.
 
 **Ölçüt:** Her günlük iş, Excel'de yapmaktan daha az tık ve daha az düşünmeyle yapılabilmeli.
 
@@ -12,7 +12,7 @@ Tek kullanıcı var: işletme sahibi. Panel bir veri ambarı değil, iş listesi
 | --- | --- | --- |
 | Bugün ne yapmalıyım (gecikmişler, yaklaşan yenilemeler, ücretsiz kararlar) | Her gün | 0 tık: açılış sayfası |
 | Müşteri bulmak (kısa ad veya alan adıyla) | Her gün | 1 tık + yazma, her sayfadan |
-| Ödeme almak | Haftada birkaç | Her sayfadan 1 tıkla başlar; toplam 3 tık + tutar |
+| Ödeme kaydetmek | Haftada birkaç | Her sayfadan 1 tıkla başlar; toplam 3 tık + tutar |
 | Müşteri kartına bakmak | Her gün | Arama sonucundan 1 tık |
 | Hizmet eklemek | Haftalık | Kartın üstünden 1 tık |
 | Yeni müşteri eklemek | Aylık | Global "Yeni" menüsünden 1 tık |
@@ -25,7 +25,7 @@ Tek kullanıcı var: işletme sahibi. Panel bir veri ambarı değil, iş listesi
 
 Araştırmadan (başta Nielsen Norman Group'un uygulama tasarımı bulguları) bu projeye uyarlanan kurallar:
 
-1. **Tutarlılık (düğme ve mesaj etiketleri için):** Aynı iş her ekranda aynı kelimeyle, aynı yerde ve aynı görünümle durur. "Ödeme al" bir yerde "Ödeme kaydet", başka yerde "Tahsilat" olamaz.
+1. **Tutarlılık:** Aynı iş her ekranda aynı kelimeyle, aynı yerde ve aynı görünümle durur. "Ödeme al" bir yerde "Ödeme kaydet", başka yerde "Tahsilat" olamaz.
 2. **Varsayılanlar dolu gelir:** Her formda en olası değer hazır gelir (tarih bugün, para birimi açık borçtan, yöntem son kullanılan). Kullanıcı yalnızca farklı olanı yazar.
 3. **Sistem durumu görünür:** Her işlemden sonra ne olduğu tek cümleyle söylenir ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"). Bekleme 2 saniyeyi aşarsa yükleme göstergesi çıkar.
 4. **Hata mesajı neden ve nasıl söyler:** "Bir hata oluştu" yasak. Her mesaj sorunu ve çözümü söyler ("Önce müşterinin hizmetlerini iptal edin.").
@@ -36,7 +36,7 @@ Araştırmadan (başta Nielsen Norman Group'un uygulama tasarımı bulguları) b
 9. **Anlamsız bilgi yok:** Kayıt numarası (id), teknik kodlar tablolarda görünmez. İlk sütun her zaman insanın tanıdığı bilgidir (kısa ad, açıklama).
 10. **Kademeli gösterim:** Önce gereken azı gösterilir; ayrıntı ihtiyaç olunca açılır (ödeme dağıtımı, vergi bilgileri, kalem ayrıntıları katlanır bölümlerde).
 11. **Önemli olan üst-soldadır:** Göz sayfayı önce üstten soldan sağa, sonra sol kenardan aşağı tarar. En önemli sayılar üst satırda, en önemli sütun en soldadır.
-12. **Klavye:** Her sayfadan `Ctrl+K` ile arama/komut kutusu açılır; müşteriye gitmek ve ödeme almak fare kullanmadan yapılabilir.
+12. **Klavye:** Her sayfadan `Ctrl+K` ile arama/komut kutusu açılır; müşteriye gitmek ve ödeme kaydetmek fare kullanmadan yapılabilir.
 
 ## 3. Bilgi mimarisi (menü)
 
@@ -44,29 +44,29 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 | Sıra | Öğe | İçerik |
 | --- | --- | --- |
-| 1 | Bugün | Açılış sayfası: yapılacaklar ve özet sayılar |
-| 2 | Müşteriler | Liste ve kartlar |
-| 3 | Tahsilat | "Açık borçlar" ve "Ödemeler" aynı grupta |
-| 4 | Katalog | Hizmetler, Paketler (grup, kapalı başlar) |
-| 5 | Ayarlar | Genel ayarlar, Ödeme yöntemleri (en altta) |
+| 1 | **Bugün** | Açılış sayfası: yapılacaklar ve özet sayılar |
+| 2 | **Müşteriler** | Liste ve kartlar |
+| 3 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
+| 4 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
+| 5 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri (en altta) |
 
 **Üst çubuk (her sayfada aynı yerde):**
 
-- Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i"). (Arama davranışı G-4.14'te.)
-- Sağda: "Ödeme al" birincil düğmesi (en sık iş her sayfadan tek tık) ve "Yeni" menüsü (Müşteri, Elle borç). Dar ekranda arama önce daralır, "Yeni" menüsü `sm` altında gizlenir; "Ödeme al" her genişlikte kalır.
+- Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve **alan adıyla** arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i").
+- Sağda: **"Ödeme al"** birincil düğmesi (en sık iş her sayfadan tek tık) ve **"Yeni"** menüsü (Müşteri, Elle borç).
 
 ## 4. Yer kuralları: ne nerede durur
 
 | İşlem türü | Yeri | Örnek |
 | --- | --- | --- |
 | Her yerden gereken iş | Üst çubuk | Ara, Ödeme al, Yeni |
-| Sayfanın ana işi | Sayfa başlığının sağı, tek birincil düğme | Müşteriler: "Yeni müşteri" |
+| Sayfanın ana işi | Sayfa başlığının sağı, ikincil düğme | Müşteriler: "Yeni müşteri" |
 | Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" |
 | Kayda ait nadir iş | Kaydın kartında/sayfasında, adlandırılmış bölümde | Hizmet: "Ücretsiz yap", "Böl" |
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
 
-**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur — üst çubuktaki "Ödeme al". Sayfanın kendi ana işi (ör. "Yeni müşteri", "Borç ekle") aynı yerde durur ama ikincil (gri) görünür; kartın "Ödeme al" ve "Hizmet ekle" düğmeleri de ikincildir.
+**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al". Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
 
 ## 5. Ekran kuralları
 
@@ -86,7 +86,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 İki sütun; geniş sol sütun işe, dar sağ sütun bilgiye ayrılır.
 
-- **Başlık şeridi (tam genişlik):** Kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi; sağda ikincil "Ödeme al" ve "Hizmet ekle" (birincil düğme üst çubuktaki "Ödeme al"dır, §4).
+- **Başlık şeridi (tam genişlik):** Kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi; sağda "Ödeme al" ve "Hizmet ekle", ikisi de ikincil (ekranın tek birincil düğmesi üst çubuktaki "Ödeme al").
 - **Sol sütun, sırayla:**
   - Hizmetler: aktifler, kompakt satırlar (ad, alan adı, bitiş, fiyat, durum). İptal edilmişler katlanmış "İptal edilenler (2)" altında.
   - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar.
@@ -112,43 +112,53 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ## 6. Görsel dil
 
 - **Tema:** Açık tema varsayılan (uzun süre tablo okuma ve Excel alışkanlığı); koyu tema kullanıcı menüsünden seçilebilir.
-- **Marka rengi (#ff3800):** Yalnızca logo simgesinde ve seçili menü öğesinin sol kenar çizgisinde durur. Birincil düğmede veya durum rozetlerinde kullanılmaz; marka rengi kırmızı/turuncu durum renkleriyle karışır.
-- **`primary` (Filament rengi):** Birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu, odak çerçevesi) içindir; koyu lacivert. Marka veya durum rengi değildir.
-- **Durum renkleri:** Sabit ve yalnızca aşağıdaki dört anlam için kullanılır; `info` hiç kullanılmaz, renksiz (rozetsiz düz metin) beşinci bir "normal durum" seçeneğidir.
-
-  | Renk | Filament adı | Anlam |
-  | --- | --- | --- |
-  | Kırmızı | `danger` | Gecikmiş borç; Sil/İptal et |
-  | Turuncu | `warning` | Kısmi ödenmiş borç; vadesi yaklaşan borç; yenilemesi yaklaşan hizmet |
-  | Yeşil | `success` | Ödendi |
-  | Gri | `gray` | İptal edilmiş, arşivlenmiş |
-  | Renksiz | rozet yok | Açık borç (vadesi uzak), aktif hizmet (bitişi uzak) |
-
-- **"Yaklaşan" tanımı:** Borç için vade bugün ile bugün+7 gün arasında (dahil); hizmet için bitiş bugün ile bugün+yenileme gün sayısı arasında (dahil, Ayarlar'daki "yenileme gün sayısı"na bağlı). Görüntüleme durumudur; veritabanında veya borç/hizmet kayıtlarında saklanmaz, her gösterimde hesaplanır.
-- **Yazı:** Tek yazı tipi (Inter, yerelden yüklenir — dış bağlantı yok), sayılarda eş genişlikte rakamlar; tablo metni 14 px, başlıklar sade.
+- **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde ve seçili menü çizgisinde; kırmızı/turuncu durum renkleriyle karışmaması için birincil düğmede kullanılmaz. Filament primary koyu lacivert: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = iptal/arşiv. Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur.
+- **Yazı:** Tek yazı tipi Inter (yerel sunucudan, dış bağlantı yok), sayılarda eş genişlikte rakamlar; tablo metni 14 px, başlıklar sade.
 - **Yoğunluk:** Tablolarda kompakt satırlar (Excel'e yakın); formlarda rahat boşluk.
-- **Logo ve ad:** Sol üstte firma logosu (yer tutucu simge) ve "Müşteri Takip".
+- **Logo ve ad:** Sol üstte logo simgesi (#ff3800) ve "Müşteri Takip"; şimdilik yer tutucu simge, firma logosu gelince değiştirilir.
+- **Tasarım tokenları:** Seçilen yön C · Lacivert çerçeve ([tasarım tuvali](https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6)). Değerler aşağıdaki tabloda; koyu tema değerleri öneridir, G-4B.2'de 4,5:1 kontrastla doğrulanır.
+
+| Token | Açık tema | Koyu tema |
+| --- | --- | --- |
+| Kenar menü zemini | #0F1D33 | #0B1626 |
+| Kenar menü metni / grup başlığı | #C3CCD9 / #8A97AB | aynı |
+| Seçili menü öğesi | zemin #1B2D4B, metin #FFFFFF, solda 3 px #FF3800 çizgi | aynı |
+| Sayfa zemini | #F4F6F9 | #0E1520 |
+| Panel ve üst çubuk | #FFFFFF, kenarlık #E0E4EA | #151E2B, kenarlık #253142 |
+| Satır ayırıcı / tablo başlığı zemini | #EEF0F3 / #F8F9FB | #1E2836 / #19222F |
+| Metin / soluk metin | #121A27 / #566173 | #E6EAF0 / #9AA5B5 |
+| Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, düğme metni #0B1626 |
+| Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz | metin #F38B82, kenarlık #5C2A2A |
+| Rozet: kırmızı (zemin / metin / nokta) | #FDECEC / #9F1A1D / #D92D2D | zemin noktanın %16'sı, metin #F5A3A3 |
+| Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı, metin #F2C46B |
+| Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı, metin #8FD3A6 |
+| Rozet: gri | #EEF0F3 / #4A5361 / #8B94A1 | zemin #232D3B, metin #B4BDC9 |
+| Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px | aynı |
+| Yazı ölçeği | sayfa başlığı 26/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
+| Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
+| Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
+| Gölge | yok; ayrım kenarlıkla | yok |
+| Odak halkası | 2 px #1D3A6A, 2 px boşlukla | 2 px #6F93D6 |
 
 ## 7. Hedef tık sayıları (kabul ölçütü)
 
 | Akış | Hedef |
 | --- | --- |
 | Paneli açıp bugünkü işleri görmek | 0 tık |
-| Müşteriyi alan adıyla bulup kartını açmak | Ctrl+K + yazma + 1 |
-| Herhangi bir sayfadan ödeme almak | 1 (Ödeme al) + müşteri seç + tutar + 1 (Kaydet) |
+| Müşteriyi alan adıyla bulup kartını açmak | `Ctrl+K` + yazma + 1 |
+| Herhangi bir sayfadan ödeme kaydetmek | 1 (Ödeme al) + müşteri seç + tutar + 1 (Kaydet) |
 | Bugün listesinden gecikmiş borcun ödemesini almak | 1 (Ödeme al) + tutar + 1 |
 | Karttan hizmet eklemek | 1 + seçim + 1 |
 | Gecikmiş tüm borçları görmek | 1 (Bugün'deki sayı kartı) |
 
 ## 8. Şu anki panelden farklar
 
-- ~~Açılış sayfası boş: "Bugün" sayfası yok.~~ (G-4.15'te yapıldı.)
-- ~~Her sayfadan ödeme alma yok.~~ (G-4.13'te yapıldı.)
-- ~~Alan adıyla arama yok.~~ (G-4.14'te yapıldı.)
-- ~~Satır işlemleri "⋮" menülerinde gizli.~~ (G-4.17'de yapıldı.)
-- ~~Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor.~~ (G-4.16'da yapıldı.)
-- ~~Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok.~~ (G-4.13'te yapıldı.)
-- ~~Koyu tema ve varsayılan Filament görünümü; marka rengi, logo, durum rengi kuralları yok.~~ (G-4.12'de yapıldı.)
+- Açılış sayfası boş: "Bugün" sayfası yok (G-5.4 ana panel buraya çekilmeli).
+- Her sayfadan ödeme kaydetme ve alan adıyla arama yok. (Her sayfadan ödeme alma G-4.13'te giderildi; arama G-4.14'te.)
+- Satır işlemleri "⋮" menülerinde gizli.
+- Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor.
+- Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok. (G-4.13'te giderildi.)
+- Koyu tema ve varsayılan Filament görünümü; marka rengi, logo, durum rengi kuralları yok. (G-4.12'de giderildi.)
 
 ## 9. Kaynaklar
 
