@@ -159,9 +159,11 @@ it("shows a charge's linked service's domains as a faded line under its descript
     $serviceCharge = Charge::factory()->forCustomerService($service)->create();
     $manualCharge = Charge::factory()->for($customer)->create();
 
-    Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->assertTableColumnHasDescription('description', 'logi.com.tr', $serviceCharge)
-        ->assertTableColumnHasDescription('description', null, $manualCharge);
+    $column = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable()->getColumn('description');
+
+    expect($column->record($serviceCharge)->getDescriptionBelow()->toHtml())->toContain('logi.com.tr')
+        ->and($column->record($manualCharge)->getDescriptionBelow()->toHtml())->not->toContain('logi.com.tr');
 });
 
 it("shows the unique domains of the services behind a payment's allocated charges, and none without allocations", function () {
@@ -374,14 +376,24 @@ it('applies the same md split to status on the cancelled services table', functi
         ->and($table->getColumn('end_date')->getVisibleFrom())->toBe('md');
 });
 
-it('always shows description and remaining, which carries the state badge; there is no status column, and the date shows from md', function () {
+it('always shows description and remaining, which carries the state badge; there is no status column, and the due date column shows from xl', function () {
     $customer = Customer::factory()->create();
     $table = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
 
     expect($table->getColumn('description')->getVisibleFrom())->toBeNull()
         ->and($table->getColumn('remaining')->getVisibleFrom())->toBeNull()
         ->and($table->getColumn('status'))->toBeNull()
-        ->and($table->getColumn('due_date')->getVisibleFrom())->toBe('md');
+        ->and($table->getColumn('due_date')->getVisibleFrom())->toBe('xl');
+});
+
+it('renders the due date as dd.mm.yyyy under the charge description, below the xl column', function () {
+    $customer = Customer::factory()->create();
+    $charge = Charge::factory()->for($customer)->create(['description' => 'Yıllık hosting', 'due_date' => '2026-03-05']);
+
+    $table = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    expect($table->getColumn('description')->record($charge)->getDescriptionBelow()->toHtml())
+        ->toContain('05.03.2026');
 });
 
 it('keeps the classic table — real column headers, no card/stacked layout — for services, cancelled services, open charges and payments at every width', function () {

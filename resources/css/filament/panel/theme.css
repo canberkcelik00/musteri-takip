@@ -62,6 +62,18 @@ body {
     @apply hidden md:inline-flex;
 }
 
+/*
+ * The due date under a charge's description in the card's "Açık borçlar" (G-4.18): shown below
+ * `xl`, where the "Vade" column is hidden, so the date is visible exactly once at every width.
+ */
+.fi-due-below-xl {
+    @apply xl:hidden mt-1 block text-xs text-gray-500 dark:text-gray-400;
+}
+
+.fi-charge-domains {
+    overflow-wrap: anywhere;
+}
+
 .fi-mobile-badge {
     @apply md:hidden mt-1 inline-block;
 }

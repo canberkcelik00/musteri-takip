@@ -13,6 +13,7 @@ use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Providers\AppServiceProvider;
 use App\Support\Money;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -34,11 +35,13 @@ use Illuminate\Support\HtmlString;
  * cancel live in the edit panel's "Borç işlemleri" section, G-4.17) only call the Actions in
  * app/Actions; the rules live there. "Tüm borçlar" links to the customer's
  * full, unfiltered history in the menu's Borçlar list ({@see ChargeResource}).
- * Responsive (T-68/T-70/G-4.17, no horizontal scroll at 1280 px and up, classic table columns
+ * Responsive (T-68/T-70/G-4.17/G-4.18, no horizontal scroll at any width, classic table columns
  * kept intact at every width — no {@see Stack}/`Split`, see {@see ChargeStatusBadge}):
  * description (+ domains) and remaining always show, with the state badge under "Kalan" (only for
  * overdue, partially paid or due-soon — a plain open charge shows nothing) next to the "/ total"
- * line when applicable; there is no separate "Durum" column. The due date shows from `md`.
+ * line when applicable; there is no separate "Durum" column. The due date is a column from `xl`;
+ * below `xl` it is a faded line under the description instead, so it shows exactly once at every
+ * width and the table fits the card at 1024 px.
  */
 class ChargesRelationManager extends RelationManager
 {
@@ -83,14 +86,12 @@ class ChargesRelationManager extends RelationManager
                 TextColumn::make('description')
                     ->label(__('charges.description'))
                     ->wrap()
-                    ->description(fn (Charge $record): ?string => filled($domains = $record->customerService?->domains())
-                        ? implode(', ', $domains)
-                        : null)
+                    ->description(fn (Charge $record): Htmlable => $this->descriptionBelow($record))
                     ->action($this->mobileEditAction()),
                 TextColumn::make('due_date')
                     ->label(__('charges.due_date'))
                     ->date()
-                    ->visibleFrom('md'),
+                    ->visibleFrom('xl'),
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
@@ -135,6 +136,25 @@ class ChargesRelationManager extends RelationManager
     private function mobileEditAction(): Action
     {
         return EditChargeAction::make('editChargeMobile');
+    }
+
+    /**
+     * The description column's faded lines: the linked service's domains (if any) and, below `xl`
+     * where the "Vade" column is hidden, the formatted due date (`fi-due-below-xl`, theme.css). The
+     * domains may break anywhere (`fi-charge-domains`) so a long one never widens the narrow card.
+     */
+    private function descriptionBelow(Charge $record): Htmlable
+    {
+        $domains = $record->customerService?->domains();
+
+        $html = filled($domains)
+            ? '<span class="fi-charge-domains">'.e(implode(', ', $domains)).'</span>'
+            : '';
+        $html .= '<span class="fi-due-below-xl">'
+            .e(__('charges.due_date').': '.$record->due_date->format(AppServiceProvider::DATE_FORMAT))
+            .'</span>';
+
+        return new HtmlString($html);
     }
 
     /**
