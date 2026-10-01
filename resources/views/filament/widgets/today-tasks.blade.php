@@ -28,7 +28,7 @@
                                     </div>
 
                                     @unless ($charge->customer->isArchived())
-                                        {{ $this->recordPaymentAction()->arguments(['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) }}
+                                        {{ ($this->recordPaymentAction())(['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) }}
                                     @endunless
                                 </li>
                             @endforeach
@@ -64,7 +64,7 @@
                                     </div>
 
                                     @unless ($charge->customer->isArchived())
-                                        {{ $this->recordPaymentAction()->arguments(['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) }}
+                                        {{ ($this->recordPaymentAction())(['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) }}
                                     @endunless
                                 </li>
                             @endforeach
@@ -95,8 +95,8 @@
                                     </div>
 
                                     <div class="flex shrink-0 items-center gap-x-2">
-                                        {{ $this->confirmFreeContinuationAction()->arguments(['customerService' => $service->id]) }}
-                                        {{ $this->removeFreeAction()->arguments(['customerService' => $service->id]) }}
+                                        {{ ($this->confirmFreeContinuationAction())(['customerService' => $service->id]) }}
+                                        {{ ($this->removeFreeAction())(['customerService' => $service->id]) }}
                                     </div>
                                 </li>
                             @endforeach

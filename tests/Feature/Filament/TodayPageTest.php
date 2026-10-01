@@ -153,6 +153,19 @@ it('makes a service paid from the row action, creating a charge', function () {
         ->and($service->fresh()->charges()->exists())->toBeTrue();
 });
 
+it('renders row buttons that send their record id with the click', function () {
+    $service = CustomerService::factory()->free()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+    $customer = Customer::factory()->create();
+    Charge::factory()->for($customer)->create(['due_date' => '2026-06-01', 'amount' => 100000]);
+
+    $html = Livewire::test(TodayTasks::class)->html();
+
+    expect($html)
+        ->toContain("mountAction('confirmFreeContinuation', JSON.parse('{\u0022customerService\u0022:{$service->id}}')")
+        ->toContain("mountAction('removeFree', JSON.parse('{\u0022customerService\u0022:{$service->id}}')")
+        ->toContain("mountAction('recordPayment', JSON.parse('{\u0022customer\u0022:{$customer->id},\u0022currency\u0022:\u0022TRY\u0022}')");
+});
+
 it('does not offer "Ödeme al" for an archived customer\'s overdue charge', function () {
     $customer = Customer::factory()->create();
     Charge::factory()->for($customer)->create(['due_date' => '2026-06-01', 'amount' => 50000]);
