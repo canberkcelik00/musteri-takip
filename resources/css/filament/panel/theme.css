@@ -30,6 +30,7 @@
     --mt-sidebar-focus: #6f93d6;
     --mt-topbar-height: 62px;
     --mt-search-width: 380px;
+    --mt-table-search-width: 300px;
 
     --mt-page-bg: #f4f6f9;
     --mt-panel-bg: #ffffff;
@@ -37,6 +38,7 @@
     --mt-border-width: 1px;
     --mt-row-divider: #eef0f3;
     --mt-table-head-bg: #f8f9fb;
+    --mt-row-hover: #f8f9fb;
     --mt-text: #121a27;
     --mt-text-muted: #566173;
 
@@ -103,6 +105,7 @@
     --mt-border: #253142;
     --mt-row-divider: #1e2836;
     --mt-table-head-bg: #19222f;
+    --mt-row-hover: #19222f;
     --mt-text: #e6eaf0;
     --mt-text-muted: #9aa5b5;
 
@@ -435,4 +438,435 @@ body {
         @apply overflow-visible text-wrap;
         text-overflow: clip;
     }
+}
+
+/*
+ * Tables, status badges and filter chips (G-4B.4, docs/UI.md §5–6). Only tokens, no literal
+ * colors (TableStyleTest). The table card is bordered, not shadowed; the toolbar row holds the
+ * search field, the filter chips and, on the right, the record count, all on one line. Filament
+ * renders the toolbar inside `.fi-ta-header-ctn` and the chips as a sibling of it, so both
+ * wrappers are dissolved (`display: contents`) and the pieces are ordered inside `.fi-ta-main`
+ * instead of overriding the Blade view (T-80).
+ */
+.fi-hidden-from-md {
+    @apply md:hidden;
+}
+
+.fi-cell-from-md {
+    @apply hidden md:table-cell;
+}
+
+.fi-ta-ctn {
+    border: var(--mt-border-width) solid var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+}
+
+.fi-ta-ctn .fi-ta-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 12px;
+}
+
+.fi-ta-ctn .fi-ta-header-ctn,
+.fi-ta-ctn .fi-ta-header-toolbar {
+    display: contents;
+}
+
+.fi-ta-ctn .fi-ta-header-toolbar > .fi-ta-actions:empty {
+    display: none;
+}
+
+.fi-ta-ctn .fi-ta-header-toolbar > div:has(.fi-ta-search-field) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    order: 1;
+    margin: 12px 0 12px var(--mt-space-panel-head-x);
+}
+
+.fi-ta-ctn .fi-ta-search-field {
+    width: var(--mt-table-search-width);
+    max-width: 100%;
+}
+
+.fi-ta-ctn .fi-ta-search-field .fi-input-wrp {
+    border: var(--mt-border-width) solid var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+}
+
+.fi-ta-ctn .fi-ta-search-field .fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+    box-shadow: none;
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: var(--mt-focus-offset);
+}
+
+.fi-ta-ctn .fi-ta-search-field .fi-input::placeholder {
+    color: var(--mt-text-muted);
+}
+
+/*
+ * A header with a heading is a panel head of its own (the card's tables): a full-width row above
+ * the toolbar. A header with only a description is the record count ("8 müşteri"), which goes to
+ * the right end of the toolbar row.
+ */
+.fi-ta-ctn .fi-ta-header:has(.fi-ta-header-heading) {
+    flex: 1 0 100%;
+    order: 0;
+    padding: var(--mt-space-panel-head-y) var(--mt-space-panel-head-x);
+    border-bottom: var(--mt-border-width) solid var(--mt-border);
+}
+
+.fi-ta-ctn .fi-ta-header:not(:has(.fi-ta-header-heading)) {
+    order: 3;
+    margin: 12px var(--mt-space-panel-head-x) 12px auto;
+    padding: 0;
+    border: 0;
+}
+
+.fi-ta-ctn .fi-ta-header-heading {
+    font-size: var(--mt-text-section-title);
+    font-weight: var(--mt-weight-section-title);
+    color: var(--mt-text);
+}
+
+.fi-ta-ctn .fi-ta-header-description {
+    margin: 0;
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    order: 2;
+    margin: 12px 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators > :nth-child(1) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators-badges-ctn {
+    gap: 12px;
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators .fi-badge {
+    gap: 6px;
+    padding: 5px 12px;
+    border: var(--mt-border-width) solid var(--mt-border);
+    border-radius: 999px;
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+    font-size: var(--mt-text-body);
+    font-weight: var(--mt-weight-body);
+    color: var(--mt-text);
+}
+
+/* The icon is 12 px; the padding makes the button a 24 px target without moving anything. */
+.fi-ta-ctn .fi-ta-filter-indicators .fi-badge-delete-btn {
+    margin: -6px -6px -6px -4px;
+    padding: 6px;
+    color: var(--mt-text-muted);
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators .fi-badge-delete-btn:hover {
+    color: var(--mt-text);
+}
+
+.fi-ta-ctn .fi-ta-filter-indicators .fi-badge-delete-btn:focus-visible {
+    border-radius: 999px;
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: var(--mt-focus-offset);
+}
+
+.fi-ta-ctn .fi-ta-content-ctn,
+.fi-ta-ctn .fi-ta-empty-state,
+.fi-ta-ctn .fi-pagination {
+    order: 4;
+    flex: 1 0 100%;
+}
+
+.fi-ta-ctn .fi-pagination {
+    order: 5;
+    border-top: var(--mt-border-width) solid var(--mt-border);
+    color: var(--mt-text-muted);
+}
+
+/* Header row, rows, dividers and hover. */
+.fi-ta-ctn .fi-ta-table {
+    color: var(--mt-text);
+}
+
+.fi-ta-ctn .fi-ta-table > :not(:last-child) {
+    border-color: var(--mt-border);
+}
+
+.fi-ta-ctn .fi-ta-table > tbody > tr {
+    border-color: var(--mt-row-divider);
+}
+
+.fi-ta-ctn .fi-ta-header-cell,
+.fi-ta-ctn .fi-ta-actions-header-cell {
+    padding: var(--mt-space-cell-y) var(--mt-space-cell-x);
+    border-top: var(--mt-border-width) solid var(--mt-border);
+    background-color: var(--mt-table-head-bg);
+    font-size: var(--mt-text-help);
+    font-weight: 600;
+    color: var(--mt-text-muted);
+}
+
+.fi-ta-ctn .fi-ta-header-cell-sort-btn {
+    font: inherit;
+    color: inherit;
+}
+
+.fi-ta-ctn .fi-ta-row:hover {
+    background-color: var(--mt-row-hover);
+}
+
+/* The cell padding lives in the text; Filament's extra edge padding on the first and last cell would double it. */
+.fi-ta-ctn .fi-ta-cell {
+    padding-inline: 0;
+}
+
+.fi-ta-ctn .fi-ta-text:not(.fi-inline) {
+    padding: var(--mt-space-cell-y) var(--mt-space-cell-x);
+}
+
+.fi-ta-ctn .fi-ta-cell:has(.fi-ta-actions) {
+    padding: var(--mt-space-cell-y) var(--mt-space-cell-x);
+}
+
+.fi-ta-ctn .fi-ta-text-item {
+    font-size: var(--mt-text-table);
+    color: var(--mt-text);
+}
+
+.fi-ta-ctn .fi-font-bold {
+    font-weight: 600;
+}
+
+.fi-ta-ctn .fi-ta-text-description {
+    font-size: var(--mt-text-help);
+    color: var(--mt-text-muted);
+}
+
+.fi-ta-ctn .fi-ta-text-has-descriptions {
+    row-gap: 1px;
+}
+
+/* Amounts: right-aligned, semibold, the overdue color from the token. */
+.fi-ta-ctn .fi-money .fi-ta-text-item,
+.fi-ta-ctn .fi-money.fi-ta-total-amounts {
+    font-weight: 600;
+}
+
+.fi-ta-ctn .fi-money .fi-ta-text-item.fi-color-danger {
+    color: var(--mt-danger-text);
+}
+
+.fi-original-amount {
+    display: block;
+}
+
+/* Total row under the "Kalan" column. */
+.fi-ta-ctn .fi-ta-table > tfoot > tr > td {
+    padding: var(--mt-space-cell-y) var(--mt-space-cell-x);
+    font-size: var(--mt-text-table);
+    text-align: end;
+}
+
+.fi-ta-ctn .fi-ta-total-label {
+    color: var(--mt-text-muted);
+}
+
+.fi-ta-ctn .fi-ta-total-amounts {
+    color: var(--mt-text);
+}
+
+/*
+ * Status badges: a 6 px dot and the label, one fixed color per meaning (docs/UI.md §6): red =
+ * overdue, amber = due soon / partly paid, green = paid, gray = cancelled or archived. Only these
+ * four color classes are styled; a badge with another color (the filter chips above) keeps its
+ * own rules, and no color class means no badge at all (a plain state is plain text).
+ */
+.fi-badge.fi-color.fi-color-danger {
+    --mt-badge-bg: var(--mt-badge-red-bg);
+    --mt-badge-fg: var(--mt-badge-red-text);
+    --mt-badge-dot: var(--mt-badge-red-dot);
+}
+
+.fi-badge.fi-color.fi-color-warning {
+    --mt-badge-bg: var(--mt-badge-amber-bg);
+    --mt-badge-fg: var(--mt-badge-amber-text);
+    --mt-badge-dot: var(--mt-badge-amber-dot);
+}
+
+.fi-badge.fi-color.fi-color-success {
+    --mt-badge-bg: var(--mt-badge-green-bg);
+    --mt-badge-fg: var(--mt-badge-green-text);
+    --mt-badge-dot: var(--mt-badge-green-dot);
+}
+
+/*
+ * Filament draws its default color, gray, without any color class, so a badge with no color class
+ * is the gray one. That is only safe while every badge in the app has an explicit color; the one
+ * gray meaning is "cancelled / archived" (TableStyleTest scans the sources for a colorless badge).
+ */
+.fi-badge:not(.fi-color) {
+    --mt-badge-bg: var(--mt-badge-gray-bg);
+    --mt-badge-fg: var(--mt-badge-gray-text);
+    --mt-badge-dot: var(--mt-badge-gray-dot);
+}
+
+.fi-badge.fi-color:is(.fi-color-danger, .fi-color-warning, .fi-color-success):not(.fi-ta-filter-indicators *),
+.fi-badge:not(.fi-color):not(.fi-ta-filter-indicators *) {
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: var(--mt-radius-badge);
+    background-color: var(--mt-badge-bg);
+    box-shadow: none;
+    font-size: var(--mt-badge-font-size);
+    font-weight: var(--mt-badge-font-weight);
+    line-height: 1.3;
+    color: var(--mt-badge-fg);
+
+    &::before {
+        content: '';
+        flex-shrink: 0;
+        width: var(--mt-badge-dot-size);
+        height: var(--mt-badge-dot-size);
+        border-radius: 999px;
+        background-color: var(--mt-badge-dot);
+    }
+}
+
+/* Empty list: says what to do and keeps its action button (docs/UI.md §5). */
+.fi-ta-ctn .fi-ta-empty-state {
+    border-color: var(--mt-row-divider);
+}
+
+.fi-ta-ctn .fi-ta-empty-state-icon-bg {
+    background-color: var(--mt-row-divider);
+}
+
+.fi-ta-ctn .fi-ta-empty-state-icon-bg .fi-icon {
+    color: var(--mt-text-muted);
+}
+
+.fi-ta-ctn .fi-ta-empty-state-heading {
+    font-size: var(--mt-text-section-title);
+    font-weight: var(--mt-weight-section-title);
+    color: var(--mt-text);
+}
+
+.fi-ta-ctn .fi-ta-empty-state-description {
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+/*
+ * "Yapılacaklar" on the Today page: one table in the same card (G-4B.4, T-80), made from the
+ * same table classes, so it looks like the lists.
+ */
+.fi-today-tasks .fi-today-tasks-header {
+    display: flex;
+    flex: 1 0 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--mt-space-panel-head-y) var(--mt-space-panel-head-x);
+}
+
+.fi-today-tasks-heading {
+    font-size: var(--mt-text-section-title);
+    font-weight: var(--mt-weight-section-title);
+    color: var(--mt-text);
+}
+
+.fi-today-tasks-count {
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-today-tasks-empty {
+    flex: 1 0 100%;
+    padding: var(--mt-space-panel-head-x);
+    border-top: var(--mt-border-width) solid var(--mt-row-divider);
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-today-tasks .fi-ta-cell {
+    padding: var(--mt-space-cell-y) var(--mt-space-cell-x);
+    font-size: var(--mt-text-table);
+    color: var(--mt-text);
+}
+
+.fi-today-tasks .fi-ta-cell.fi-money {
+    font-weight: 600;
+    text-align: end;
+}
+
+/*
+ * Filament keeps table bodies on one line; this table wraps its text, and the buttons wrap too
+ * (a free-service row has two) instead of making the last column swallow the others.
+ */
+.fi-today-tasks .fi-ta-table > tbody {
+    white-space: normal;
+}
+
+.fi-today-tasks .fi-today-actions {
+    text-align: end;
+}
+
+.fi-today-tasks .fi-today-actions > * {
+    margin: 2px 0 2px 8px;
+}
+
+/* A badge keeps its whole label on one line instead of being cut ("Gecikmi…"); so do the amounts. */
+.fi-today-tasks .fi-badge:not(.fi-wrapped),
+.fi-today-tasks .fi-badge-label:not(.fi-wrapped),
+.fi-today-tasks .fi-ta-cell.fi-money {
+    @apply overflow-visible whitespace-nowrap;
+    text-overflow: clip;
+}
+
+.fi-today-customer {
+    font-weight: 600;
+    color: var(--mt-text);
+}
+
+.fi-today-customer-title {
+    font-size: var(--mt-text-help);
+    color: var(--mt-text-muted);
+}
+
+.fi-today-more {
+    display: flex;
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    padding: var(--mt-space-panel-head-y) var(--mt-space-panel-head-x);
+    border-top: var(--mt-border-width) solid var(--mt-row-divider);
+    font-size: var(--mt-text-body);
 }

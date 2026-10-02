@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Payments\RecordPayment;
 use App\Actions\Today\SummarizeToday;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
@@ -174,4 +175,61 @@ it('does not offer "Ödeme al" for an archived customer\'s overdue charge', func
     Livewire::test(TodayTasks::class)
         ->assertSee($customer->short_name) // still listed, per docs/UI.md's "sayı = liste"
         ->assertDontSee(__('payments.record'));
+});
+
+it('lists the three kinds of work as the rows of one table, in priority order, with the count in the heading', function () {
+    $overdue = Customer::factory()->create(['short_name' => 'Aaa Gecikmis']);
+    $dueSoon = Customer::factory()->create(['short_name' => 'Bbb Yaklasan']);
+    Charge::factory()->for($dueSoon)->create(['due_date' => '2026-06-18', 'amount' => 50000]);
+    Charge::factory()->for($overdue)->create(['due_date' => '2026-06-01', 'amount' => 100000]);
+    $free = CustomerService::factory()->free()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+
+    $html = Livewire::test(TodayTasks::class)
+        ->assertSeeInOrder(['Aaa Gecikmis', 'Bbb Yaklasan', $free->customer->short_name])
+        ->assertSee(__('today.tasks_count', ['count' => 3]))
+        ->assertSee([__('today.col_customer'), __('today.col_subject'), __('today.col_due'), __('today.col_status'), __('today.col_amount')])
+        ->html();
+
+    expect(substr_count($html, '<table'))->toBe(1);
+});
+
+it('shows "Karar bekliyor" as plain text, not as a badge, and "—" instead of an amount', function () {
+    CustomerService::factory()->free()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+
+    $html = Livewire::test(TodayTasks::class)
+        ->assertSee(__('today.awaiting_decision'))
+        ->assertSee(__('money.empty'))
+        ->html();
+
+    // The only thing on the page is a free service: nothing in it is a colored (or any) badge.
+    expect($html)->not->toContain('fi-badge');
+});
+
+it('puts "kısmi ödendi" after a partly paid charge and "ücretsiz" after a free service, in the subject', function () {
+    $customer = Customer::factory()->create();
+    $charge = Charge::factory()->for($customer)->create(['due_date' => '2026-06-01', 'amount' => 100000, 'description' => 'Hosting Pro']);
+    app(RecordPayment::class)->handle($customer, [
+        'amount' => 40000,
+        'currency' => $charge->currency,
+        'paid_on' => '2026-06-15',
+        'payment_method_id' => PaymentMethod::query()->firstOrFail()->id,
+    ], [$charge->id => 40000]);
+    $service = CustomerService::factory()->free()->create(['name' => 'Hosting Baslangic', 'start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+
+    Livewire::test(TodayTasks::class)
+        ->assertSee('Hosting Pro · '.__('today.partially_paid_suffix'))
+        ->assertSee($service->name.' · '.__('today.free_suffix'));
+});
+
+it('colors the status badge red for overdue and amber for due soon', function () {
+    Charge::factory()->create(['due_date' => '2026-06-01', 'amount' => 100000]);
+    $html = Livewire::test(TodayTasks::class)->html();
+
+    expect($html)->toContain('fi-color-danger')->not->toContain('fi-color-warning');
+
+    Charge::query()->delete();
+    Charge::factory()->create(['due_date' => '2026-06-18', 'amount' => 100000]);
+    $html = Livewire::test(TodayTasks::class)->html();
+
+    expect($html)->toContain('fi-color-warning')->not->toContain('fi-color-danger');
 });

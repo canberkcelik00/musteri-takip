@@ -12,6 +12,7 @@ use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Customer;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +33,7 @@ class CustomersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->description(fn (HasTable $livewire): string => __('customers.count', ['count' => $livewire->getAllTableRecordsCount()]))
             ->defaultSort(fn (Builder $query): Builder => $query->orderByDesc('has_overdue')->orderBy('short_name'))
             ->recordUrl(fn (Customer $record): string => CustomerResource::getUrl('view', ['record' => $record]))
             ->modifyQueryUsing(fn (Builder $query): Builder => self::withSummaries($query))

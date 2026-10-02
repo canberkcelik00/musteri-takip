@@ -73,7 +73,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ### Bugün (açılış sayfası)
 
 - **Üst satır, dört sayı:** Toplam alacak (para birimi başına), Gecikmiş tutar ve adet, Bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı. Her sayı tıklanınca ilgili süzülmüş listeye gider.
-- **Altında "Yapılacaklar" listesi,** öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir.
+- **Altında "Yapılacaklar" tek tablo olarak,** başlıkta iş sayısı ("6 iş"); sütunlar: Müşteri (kısa ad + ünvan), Konu, Vade / bitiş, Durum, Tutar, işlem. Satırlar öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir. Kısmi ödenmiş borcun konusu "… · kısmi ödendi", ücretsiz hizmetin "… · ücretsiz" olur; ücretsiz hizmetin durumu rozetsiz düz metin "Karar bekliyor", tutarı "—" yazılır (gri rozet yalnız iptal/arşivdir). `md` altında Konu ve Vade gizlenir.
 - Liste boşsa "Bugün yapılacak bir şey yok" yazar.
 
 ### Müşteri listesi
@@ -81,6 +81,12 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - Sütunlar: Kısa ad (kalın) + ticari ünvan (alt satırda, soluk), Açık borç (sağa hizalı; gecikmiş varsa kırmızı), En yakın yenileme, Aktif hizmet sayısı.
 - Satıra tıklamak kartı açar; satırda ayrıca "Ödeme al" kısayolu vardır.
 - Varsayılan sıralama: gecikmiş borcu olanlar üstte, sonra kısa ad.
+- Tablonun sağ üstünde süzülmüş kayıt sayısı durur ("8 müşteri").
+
+### Açık borçlar listesi
+
+- Sütunlar: Müşteri (kalın), Açıklama, Vade, Durum, Kalan (sağa hizalı). Durum rozeti `md` ve üstünde kendi sütunundadır (gecikmiş kırmızı, yaklaşan ve kısmi ödenmiş amber, ödendi yeşil, iptal gri; vadesi uzak açık borç rozetsiz "Açık"); `md` altında rozet Kalan'ın altına iner. Kısmi ödenmiş borçta Kalan'ın altında ilk tutar yazar ("4.000,00 TL'den").
+- Altta, para birimi başına "Toplam" satırı: süzülmüş ve aranmış listedeki açık borçların kalanı, Kalan sütununun altında; para birimleri toplanmaz. Açık borç listelenmiyorsa satır yoktur.
 
 ### Müşteri kartı
 
@@ -100,7 +106,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - Tutarlar sağa hizalı ve eş genişlikte rakamlarla yazılır; tarihler gg.aa.yyyy.
 - Durum her zaman renk **ve** metinle gösterilir (renk körlüğü ve yazdırma için).
 - Boş tablo ne yapılacağını söyler ve iş düğmesini gösterir ("Henüz hizmet yok — Hizmet ekle").
-- Varsayılan filtre görünür bir çip olarak durur ("Durum: Açık ×"); gizli filtre yoktur.
+- Varsayılan filtre görünür bir çip olarak durur ("Durum: Açık ×"); gizli filtre yoktur. Arama kutusu solda, çipler yanında, kayıt sayısı sağda tek satırdadır; çipin "×" düğmesi tıklanır ve klavyeyle erişilir.
 
 ### Formlar
 
@@ -126,6 +132,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Sayfa zemini | #F4F6F9 | #0E1520 |
 | Panel ve üst çubuk | #FFFFFF, kenarlık #E0E4EA | #151E2B, kenarlık #253142 |
 | Satır ayırıcı / tablo başlığı zemini | #EEF0F3 / #F8F9FB | #1E2836 / #19222F |
+| Satır üzerine gelme zemini | #F8F9FB | #19222F |
 | Metin / soluk metin | #121A27 / #566173 | #E6EAF0 / #9AA5B5 |
 | Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, düğme metni #0B1626 |
 | Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz | metin #F38B82, kenarlık #5C2A2A |
@@ -133,12 +140,13 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı (#151E2B üzerine: #342F24), metin #F2C46B, nokta #D98A00 |
 | Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı (#151E2B üzerine: #193232), metin #8FD3A6, nokta #2F9E55 |
 | Rozet: gri | #EEF0F3 / #4A5361 / #8B94A1 | zemin #232D3B, metin #B4BDC9 |
-| Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px | aynı |
+| Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px; yalnız kırmızı, amber, yeşil ve gri vardır; renk sınıfsız rozet (Filament'in varsayılan grisi) gri çizilir, bu yüzden uygulamada rengi verilmemiş rozet olmaz | aynı |
+| Filtre çipi | beyaz zemin, 1 px kenarlık, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | aynı |
 | Yazı ölçeği | sayfa başlığı 26/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
 | Tablo metni | 14 px / 400 | aynı |
 | Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
-| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px | aynı |
+| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px | aynı |
 | Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
 | Gölge | yok; ayrım kenarlıkla | yok |
 | Odak halkası | 2 px #1D3A6A, 2 px boşlukla; kenar menüde #6F93D6 | 2 px #6F93D6 (kenar menüde de aynı) |

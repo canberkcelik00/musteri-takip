@@ -1,117 +1,85 @@
 <x-filament-widgets::widget>
-    <x-filament::section :heading="__('today.tasks_heading')">
-        @if ($isEmpty)
-            <p class="fi-ta-text text-sm text-gray-500 dark:text-gray-400">
-                {{ __('today.empty') }}
-            </p>
-        @else
-            <div class="flex flex-col gap-y-6">
-                @if ($overdue['total'] > 0)
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-950 dark:text-white">
-                            {{ __('today.section_overdue') }}
-                        </h3>
+    <div class="fi-ta-ctn fi-today-tasks">
+        <div class="fi-ta-main">
+            <div class="fi-today-tasks-header">
+                <h3 class="fi-today-tasks-heading">{{ __('today.tasks_heading') }}</h3>
 
-                        <ul class="mt-2 divide-y divide-gray-100 dark:divide-white/10">
-                            @foreach ($overdue['items'] as $charge)
-                                <li class="flex items-center justify-between gap-x-4 py-2">
-                                    <div class="min-w-0 flex-1">
-                                        <a href="{{ $this->customerUrl($charge->customer) }}" class="fi-link text-sm font-medium text-primary-600 dark:text-primary-400">
-                                            {{ $charge->customer->short_name }}
-                                        </a>
-                                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $charge->description }}</p>
-                                    </div>
+                @unless ($isEmpty)
+                    <span class="fi-today-tasks-count">{{ __('today.tasks_count', ['count' => $taskCount]) }}</span>
+                @endunless
+            </div>
 
-                                    <div class="shrink-0 text-right">
-                                        <p class="text-sm font-medium tabular-nums text-gray-950 dark:text-white">{{ $this->chargeAmount($charge) }}</p>
-                                        <x-filament::badge color="danger">{{ $this->chargeStatusLabel($charge) }}</x-filament::badge>
-                                    </div>
+            @if ($isEmpty)
+                <p class="fi-today-tasks-empty">{{ __('today.empty') }}</p>
+            @else
+                <div class="fi-ta-content-ctn">
+                    <div class="fi-ta-content">
+                        <table class="fi-ta-table">
+                            <thead>
+                                <tr>
+                                    <th class="fi-ta-header-cell">{{ __('today.col_customer') }}</th>
+                                    <th class="fi-ta-header-cell fi-cell-from-md">{{ __('today.col_subject') }}</th>
+                                    <th class="fi-ta-header-cell fi-cell-from-md">{{ __('today.col_due') }}</th>
+                                    <th class="fi-ta-header-cell">{{ __('today.col_status') }}</th>
+                                    <th class="fi-ta-header-cell fi-align-end">{{ __('today.col_amount') }}</th>
+                                    <th class="fi-ta-header-cell"></th>
+                                </tr>
+                            </thead>
 
-                                    @unless ($charge->customer->isArchived())
-                                        {{ ($this->recordPaymentAction())(['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) }}
-                                    @endunless
-                                </li>
-                            @endforeach
-                        </ul>
-
-                        @if ($overdue['total'] > count($overdue['items']))
-                            <a href="{{ $overdueUrl }}" class="fi-link mt-2 inline-block text-sm font-medium text-primary-600 dark:text-primary-400">
-                                {{ __('today.view_all', ['count' => $overdue['total']]) }}
-                            </a>
-                        @endif
+                            <tbody>
+                                @foreach ($rows as $row)
+                                    <tr class="fi-ta-row">
+                                        <td class="fi-ta-cell">
+                                            <a href="{{ $this->customerUrl($row['customer']) }}" class="fi-today-customer">{{ $row['customer']->short_name }}</a>
+                                            @if (filled($row['customer']->legal_title))
+                                                <p class="fi-today-customer-title">{{ $row['customer']->legal_title }}</p>
+                                            @endif
+                                        </td>
+                                        <td class="fi-ta-cell fi-cell-from-md">{{ $row['subject'] }}</td>
+                                        <td class="fi-ta-cell fi-cell-from-md">{{ $row['date'] }}</td>
+                                        <td class="fi-ta-cell">
+                                            @if ($row['color'] !== null)
+                                                <x-filament::badge :color="$row['color']">{{ $row['status'] }}</x-filament::badge>
+                                            @else
+                                                {{ $row['status'] }}
+                                            @endif
+                                        </td>
+                                        <td class="fi-ta-cell fi-money">{{ $row['amount'] }}</td>
+                                        <td class="fi-ta-cell fi-today-actions">
+                                            @if ($row['type'] === 'charge')
+                                                @unless ($row['customer']->isArchived())
+                                                    {{ ($this->recordPaymentAction())(['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value]) }}
+                                                @endunless
+                                            @else
+                                                {{ ($this->confirmFreeContinuationAction())(['customerService' => $row['service']->id]) }}
+                                                {{ ($this->removeFreeAction())(['customerService' => $row['service']->id]) }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                @endif
+                </div>
 
-                @if ($due_soon['total'] > 0)
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-950 dark:text-white">
-                            {{ __('today.section_due_soon') }}
-                        </h3>
-
-                        <ul class="mt-2 divide-y divide-gray-100 dark:divide-white/10">
-                            @foreach ($due_soon['items'] as $charge)
-                                <li class="flex items-center justify-between gap-x-4 py-2">
-                                    <div class="min-w-0 flex-1">
-                                        <a href="{{ $this->customerUrl($charge->customer) }}" class="fi-link text-sm font-medium text-primary-600 dark:text-primary-400">
-                                            {{ $charge->customer->short_name }}
-                                        </a>
-                                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $charge->description }}</p>
-                                    </div>
-
-                                    <div class="shrink-0 text-right">
-                                        <p class="text-sm font-medium tabular-nums text-gray-950 dark:text-white">{{ $this->chargeAmount($charge) }}</p>
-                                        <x-filament::badge color="warning">{{ $this->chargeStatusLabel($charge) }}</x-filament::badge>
-                                    </div>
-
-                                    @unless ($charge->customer->isArchived())
-                                        {{ ($this->recordPaymentAction())(['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) }}
-                                    @endunless
-                                </li>
-                            @endforeach
-                        </ul>
+                @if ($overdue['total'] > count($overdue['items']) || $due_soon['total'] > count($due_soon['items']) || $free_decisions['row_total'] > count($free_decisions['items']))
+                    <div class="fi-today-more">
+                        @if ($overdue['total'] > count($overdue['items']))
+                            <a href="{{ $overdueUrl }}" class="fi-link">{{ __('today.section_overdue') }}: {{ __('today.view_all', ['count' => $overdue['total']]) }}</a>
+                        @endif
 
                         @if ($due_soon['total'] > count($due_soon['items']))
-                            <a href="{{ $dueSoonUrl }}" class="fi-link mt-2 inline-block text-sm font-medium text-primary-600 dark:text-primary-400">
-                                {{ __('today.view_all', ['count' => $due_soon['total']]) }}
-                            </a>
+                            <a href="{{ $dueSoonUrl }}" class="fi-link">{{ __('today.section_due_soon') }}: {{ __('today.view_all', ['count' => $due_soon['total']]) }}</a>
                         @endif
-                    </div>
-                @endif
-
-                @if ($free_decisions['total'] > 0)
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-950 dark:text-white">
-                            {{ __('today.section_free_decisions') }}
-                        </h3>
-
-                        <ul class="mt-2 divide-y divide-gray-100 dark:divide-white/10">
-                            @foreach ($free_decisions['items'] as $service)
-                                <li class="flex items-center justify-between gap-x-4 py-2">
-                                    <div class="min-w-0 flex-1">
-                                        <a href="{{ $this->customerUrl($service->customer) }}" class="fi-link text-sm font-medium text-primary-600 dark:text-primary-400">
-                                            {{ $service->customer->short_name }}
-                                        </a>
-                                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $service->name }} · {{ $service->end_date->format('d.m.Y') }}</p>
-                                    </div>
-
-                                    <div class="flex shrink-0 items-center gap-x-2">
-                                        {{ ($this->confirmFreeContinuationAction())(['customerService' => $service->id]) }}
-                                        {{ ($this->removeFreeAction())(['customerService' => $service->id]) }}
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
 
                         @if ($free_decisions['row_total'] > count($free_decisions['items']))
-                            <a href="{{ $freeDecisionsUrl }}" class="fi-link mt-2 inline-block text-sm font-medium text-primary-600 dark:text-primary-400">
-                                {{ __('today.view_all', ['count' => $free_decisions['total']]) }}
-                            </a>
+                            <a href="{{ $freeDecisionsUrl }}" class="fi-link">{{ __('today.section_free_decisions') }}: {{ __('today.view_all', ['count' => $free_decisions['total']]) }}</a>
                         @endif
                     </div>
                 @endif
-            </div>
-        @endif
-    </x-filament::section>
+            @endif
+        </div>
+    </div>
 
     <x-filament-actions::modals />
 </x-filament-widgets::widget>

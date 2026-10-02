@@ -4,6 +4,7 @@ return [
     'has_active_services' => 'Önce müşterinin hizmetlerini iptal edin.',
     'singular' => 'Müşteri',
     'plural' => 'Müşteriler',
+    'count' => ':count müşteri',
     'short_name' => 'Kısa ad',
     'legal_title' => 'Ticari ünvan',
     'tax_office' => 'Vergi dairesi',

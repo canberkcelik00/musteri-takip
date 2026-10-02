@@ -29,6 +29,9 @@ dataset('text pairs', [
     'amber rozet' => ['mt-badge-amber-text', 'mt-badge-amber-bg'],
     'yeşil rozet' => ['mt-badge-green-text', 'mt-badge-green-bg'],
     'gri rozet' => ['mt-badge-gray-text', 'mt-badge-gray-bg'],
+    'metin / satır üzerine gelme' => ['mt-text', 'mt-row-hover'],
+    'soluk metin / satır üzerine gelme' => ['mt-text-muted', 'mt-row-hover'],
+    'gecikmiş tutar / satır üzerine gelme' => ['mt-danger-text', 'mt-row-hover'],
 ]);
 
 it('keeps text contrast at least 4.5:1', function (string $theme, string $foreground, string $background) {

@@ -15,6 +15,7 @@ use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\PaymentMethod;
 use App\Models\User;
+use App\Support\Money;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
@@ -90,12 +91,25 @@ it('marks an open charge due within 7 days as due soon, in orange, and a farther
     expect($html)->toContain('Vadesi yaklaşıyor')
         ->and($html)->toContain('fi-color-warning');
 
-    // G-4.17: the state sits under "Kalan"; there is no separate "Durum" column any more.
-    $remaining = chargesPage()->instance()->getTable()->getColumn('remaining');
+    // G-4B.4 (T-80): from `md` up the state is a "Durum" column of its own again, as in the
+    // reference screen; the "Tutar" column is gone. Only a colored state is a badge: a plain
+    // open charge shows its state as plain text.
+    $table = chargesPage()->instance()->getTable();
+    $status = $table->getColumn('status');
 
-    expect(chargesPage()->instance()->getTable()->getColumn('status'))->toBeNull()
-        ->and($remaining->record($dueSoon)->getDescriptionBelow()->toHtml())->toContain('Vadesi yaklaşıyor')->toContain('fi-color-warning')
-        ->and($remaining->record($open)->getDescriptionBelow()->toHtml())->toBe('Açık');
+    expect($table->getColumn('amount'))->toBeNull()
+        ->and($status->record($dueSoon)->getState())->toBe('Vadesi yaklaşıyor')
+        ->and($status->isBadge())->toBeTrue()
+        ->and($status->getColor('Vadesi yaklaşıyor'))->toBe('warning')
+        ->and($status->record($open)->getState())->toBe('Açık')
+        ->and($status->record($open)->isBadge())->toBeFalse();
+
+    // Below `md` the "Durum" column is hidden: the badge moves under "Kalan" (a plain open
+    // charge has none).
+    $remaining = $table->getColumn('remaining');
+
+    expect($remaining->record($dueSoon)->getDescriptionBelow()->toHtml())->toContain('fi-mobile-badge')->toContain('Vadesi yaklaşıyor')->toContain('fi-color-warning')
+        ->and($remaining->record($open)->getDescriptionBelow())->toBeNull();
 });
 
 it('filters the list to overdue charges only', function () {
@@ -368,4 +382,59 @@ it('adds a manual charge from the topbar and shows it wherever the customer\'s d
         ->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT)
         ->assertOk()
         ->assertCanSeeTableRecords([$charge]);
+});
+
+/**
+ * The text of the list's total row (empty when the list has none).
+ */
+function chargesTotalRow(string $html): string
+{
+    preg_match('#<tfoot>.*?</tfoot>#s', $html, $match);
+
+    return $match[0] ?? '';
+}
+
+it('totals the remaining open debt per currency under "Kalan", minus partial payments, without paid or cancelled charges', function () {
+    $customer = Customer::factory()->create();
+    Charge::factory()->for($customer)->create(['amount' => 10000, 'currency' => Currency::Try, 'due_date' => '2026-07-10']);
+    $partial = Charge::factory()->for($customer)->create(['amount' => 20000, 'currency' => Currency::Try, 'due_date' => '2026-07-11']);
+    Charge::factory()->for($customer)->create(['amount' => 7000, 'currency' => Currency::Usd, 'due_date' => '2026-07-12']);
+    Charge::factory()->for($customer)->paid()->create(['amount' => 99900, 'currency' => Currency::Try]);
+    Charge::factory()->for($customer)->cancelled()->create(['amount' => 88800, 'currency' => Currency::Usd]);
+    payPartOf($partial, 5000);
+
+    $total = chargesTotalRow(chargesPage()->html());
+
+    // 100 TL + (200 TL - 50 TL) = 250 TL and 70 USD, each currency on its own line.
+    expect($total)->toContain(__('charges.total'))
+        ->toContain((new Money(25000, Currency::Try))->format())
+        ->toContain((new Money(7000, Currency::Usd))->format())
+        ->not->toContain((new Money(99900, Currency::Try))->format())
+        ->not->toContain((new Money(88800, Currency::Usd))->format());
+});
+
+it('follows the filters in the total row, never adds different currencies and has none when no open charge is listed', function () {
+    Charge::factory()->create(['amount' => 10000, 'currency' => Currency::Try, 'due_date' => '2026-07-10']);
+    Charge::factory()->create(['amount' => 7000, 'currency' => Currency::Usd, 'due_date' => '2026-07-12']);
+    Charge::factory()->paid()->create();
+
+    $usdOnly = chargesTotalRow(chargesPage()->filterTable('currency', 'USD')->html());
+
+    expect($usdOnly)->toContain((new Money(7000, Currency::Usd))->format())
+        ->not->toContain((new Money(10000, Currency::Try))->format());
+
+    expect(chargesPage()->filterTable('status', ChargeStatus::Paid->value)->html())->not->toContain('<tfoot');
+});
+
+it('writes the original amount under a partly paid charge with the right Turkish suffix, and only there', function () {
+    $lira = Charge::factory()->create(['amount' => 20000, 'currency' => Currency::Try]);
+    $euro = Charge::factory()->create(['amount' => 30000, 'currency' => Currency::Eur]);
+    Charge::factory()->create(['amount' => 40000, 'currency' => Currency::Try]);
+    payPartOf($lira, 5000);
+    payPartOf($euro, 5000);
+
+    chargesPage()
+        ->assertSee((new Money(20000, Currency::Try))->format()."'den")
+        ->assertSee((new Money(30000, Currency::Eur))->format()."'dan")
+        ->assertDontSee((new Money(40000, Currency::Try))->format()."'den");
 });

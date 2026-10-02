@@ -15,5 +15,6 @@ class MoneyColumn extends TextColumn
 
         $this->setUpMoneyFormatting();
         $this->alignEnd();
+        $this->extraCellAttributes(['class' => 'fi-money']);
     }
 }

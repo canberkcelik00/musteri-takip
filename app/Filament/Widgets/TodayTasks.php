@@ -61,6 +61,8 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
 
         return [
             ...$tasks,
+            'rows' => $this->rows($tasks),
+            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'],
             'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0,
             'overdueUrl' => ChargeResource::getUrl('index', ['filters' => ['only_overdue' => ['isActive' => true]]]),
             'dueSoonUrl' => ChargeResource::getUrl('index', ['filters' => ['due_soon' => ['isActive' => true]]]),
@@ -69,7 +71,47 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     }
 
     /**
-     * "12 gün gecikti" or "3 gün kaldı" / "Bugün vadesi geliyor" (docs/UI.md §5, §6), the same
+     * The three sections as the rows of one table, in priority order (overdue, due soon, free
+     * services awaiting a decision).
+     *
+     * @param  array<string, mixed>  $tasks
+     * @return list<array<string, mixed>>
+     */
+    private function rows(array $tasks): array
+    {
+        $rows = [];
+
+        foreach ([...$tasks['overdue']['items'], ...$tasks['due_soon']['items']] as $charge) {
+            $rows[] = [
+                'type' => 'charge',
+                'charge' => $charge,
+                'customer' => $charge->customer,
+                'subject' => $charge->description.($charge->isPartiallyPaid() ? ' · '.__('today.partially_paid_suffix') : ''),
+                'date' => $charge->due_date->format('d.m.Y'),
+                'status' => $this->chargeStatusLabel($charge),
+                'color' => $charge->isOverdue() ? 'danger' : 'warning',
+                'amount' => $this->chargeAmount($charge),
+            ];
+        }
+
+        foreach ($tasks['free_decisions']['items'] as $service) {
+            $rows[] = [
+                'type' => 'free',
+                'service' => $service,
+                'customer' => $service->customer,
+                'subject' => $service->name.' · '.__('today.free_suffix'),
+                'date' => $service->end_date->format('d.m.Y'),
+                'status' => __('today.awaiting_decision'),
+                'color' => null,
+                'amount' => __('money.empty'),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * "12 gün gecikti"or "3 gün kaldı" / "Bugün vadesi geliyor" (docs/UI.md §5, §6), the same
      * day counts ChargeStatusBadge uses for the charge lists.
      */
     public function chargeStatusLabel(Charge $charge): string

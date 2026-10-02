@@ -71,6 +71,56 @@ function designTokenBlock(string $selector): string
 }
 
 /**
+ * Colors a styled component rule may take: a token or one of these keywords, nothing else.
+ */
+const DESIGN_COLOR_VALUE = '/^(var\(--mt-[a-z0-9-]+\)|transparent|none|inherit|currentColor)$/';
+
+/**
+ * The text between the braces of every rule that starts with the given selector, nested rules
+ * included.
+ *
+ * @return array<int, string>
+ */
+function designRuleBodies(string $selector): array
+{
+    $css = (string) preg_replace('#/\*.*?\*/#s', '', designThemeCss());
+    $bodies = [];
+    $offset = 0;
+
+    while (preg_match('/^[ \t]*'.preg_quote($selector, '/').'\s*(?:,[^{]*)?\{/m', $css, $match, PREG_OFFSET_CAPTURE, $offset) === 1) {
+        $start = $match[0][1] + strlen($match[0][0]);
+        $depth = 1;
+        $position = $start;
+
+        while ($depth > 0 && $position < strlen($css)) {
+            $depth += match ($css[$position]) {
+                '{' => 1,
+                '}' => -1,
+                default => 0,
+            };
+            $position++;
+        }
+
+        $bodies[] = substr($css, $start, $position - $start - 1);
+        $offset = $position;
+    }
+
+    return $bodies;
+}
+
+/**
+ * Declarations of color properties in a rule body (`color`, `background`, `*-color`).
+ *
+ * @return array<int, array{string, string}>
+ */
+function designColorDeclarations(string $body): array
+{
+    preg_match_all('/^\s*(color|background|background-color|border-color|border-[a-z-]+-color|outline-color)\s*:\s*([^;]+);/m', $body, $matches, PREG_SET_ORDER);
+
+    return array_map(fn (array $match): array => [$match[1], trim($match[2])], $matches);
+}
+
+/**
  * @return array<string, string>
  */
 function designTokens(string $theme): array

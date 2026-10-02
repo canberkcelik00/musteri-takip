@@ -20,6 +20,12 @@ return [
     'remaining' => 'Kalan',
     'status' => 'Durum',
     'partially_paid' => 'Kısmi ödendi',
+    'total' => 'Toplam',
+    'original_amount' => [
+        'TRY' => ':amount\'den',
+        'USD' => ':amount\'den',
+        'EUR' => ':amount\'dan',
+    ],
     'overdue_days' => 'Gecikmiş (:count gün)',
     'due_soon' => 'Vadesi yaklaşıyor',
     'due_in_days' => ':count gün kaldı',
