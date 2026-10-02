@@ -13,7 +13,10 @@ use App\Models\PaymentAllocation;
 use App\Models\User;
 use App\Support\Money;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\SampleDataSeeder;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 function seededCustomer(string $shortName): Customer
 {
@@ -139,6 +142,53 @@ it('seeds without errors on edge dates', function (string $date) {
 
     expect(seededCustomer('Kaya Matbaa')->charges()->sole()->isOverdue())->toBeFalse();
 })->with(['2028-02-29', '2027-01-31', '2026-12-31']);
+
+it('seeds only the admin from the ADMIN_* values, with no user of its own', function () {
+    config()->set('app.admin', [
+        'name' => 'İşletme Sahibi',
+        'email' => 'sahip@example.com',
+        'password' => 'ilk-sifre',
+    ]);
+
+    $this->seed();
+
+    $admin = User::query()->sole();
+
+    expect($admin->email)->toBe('sahip@example.com')
+        ->and($admin->name)->toBe('İşletme Sahibi')
+        ->and(Hash::check('ilk-sifre', $admin->getAuthPassword()))->toBeTrue()
+        ->and(User::query()->where('email', 'test@example.com')->exists())->toBeFalse();
+});
+
+it('creates no user when the ADMIN_* values are empty', function () {
+    config()->set('app.admin', ['name' => null, 'email' => null, 'password' => null]);
+
+    $this->seed();
+
+    expect(User::query()->exists())->toBeFalse()
+        ->and(User::query()->where('email', 'test@example.com')->exists())->toBeFalse();
+});
+
+it('does not repeat the admin when seeded twice', function () {
+    config()->set('app.admin', [
+        'name' => 'İşletme Sahibi',
+        'email' => 'sahip@example.com',
+        'password' => 'ilk-sifre',
+    ]);
+
+    // The sample data is meant for `migrate:fresh --seed` and cannot be inserted twice (unique
+    // short names); a no-op in its place isolates the admin step, which must be repeatable.
+    $this->app->bind(SampleDataSeeder::class, fn () => new class extends Seeder
+    {
+        public function run(): void {}
+    });
+
+    $this->seed();
+    $this->seed();
+
+    expect(User::query()->where('email', 'sahip@example.com')->count())->toBe(1)
+        ->and(User::query()->count())->toBe(1);
+});
 
 it('refuses to run in production before writing anything', function () {
     app()->detectEnvironment(fn () => 'production');
