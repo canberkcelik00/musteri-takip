@@ -116,7 +116,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - **Yazı:** Tek yazı tipi Inter (yerel sunucudan, dış bağlantı yok), sayılarda eş genişlikte rakamlar; tablo metni 14 px, başlıklar sade.
 - **Yoğunluk:** Tablolarda kompakt satırlar (Excel'e yakın); formlarda rahat boşluk.
 - **Logo ve ad:** Sol üstte logo simgesi (#ff3800) ve "Müşteri Takip"; şimdilik yer tutucu simge, firma logosu gelince değiştirilir.
-- **Tasarım tokenları:** Seçilen yön C · Lacivert çerçeve ([tasarım tuvali](https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6)). Değerler aşağıdaki tabloda; koyu tema değerleri öneridir, G-4B.2'de 4,5:1 kontrastla doğrulanır.
+- **Tasarım tokenları:** Seçilen yön C · Lacivert çerçeve ([tasarım tuvali](https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6)). Değerler aşağıdaki tabloda; koyu tema değerleri G-4B.2'de doğrulandı: tüm metin/zemin çiftleri iki temada da en az 4,5:1 (`DesignTokensTest`). Değerler kodda tek yerde tanımlı: gri ve primary skalası `AdminPanelProvider::colors()` içinde (Filament düğme metni gibi kontrast seçimlerini bu paletten hesaplar); diğer tüm tokenlar `resources/css/filament/panel/theme.css` başındaki token bloğunda `--mt-*` değişkenleri olarak. Bileşen stilleri yalnızca bu değişkenleri ve palet sınıflarını kullanır; sabit renk kodu yazılmaz.
 
 | Token | Açık tema | Koyu tema |
 | --- | --- | --- |
@@ -129,16 +129,22 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Metin / soluk metin | #121A27 / #566173 | #E6EAF0 / #9AA5B5 |
 | Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, düğme metni #0B1626 |
 | Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz | metin #F38B82, kenarlık #5C2A2A |
-| Rozet: kırmızı (zemin / metin / nokta) | #FDECEC / #9F1A1D / #D92D2D | zemin noktanın %16'sı, metin #F5A3A3 |
-| Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı, metin #F2C46B |
-| Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı, metin #8FD3A6 |
+| Rozet: kırmızı (zemin / metin / nokta) | #FDECEC / #9F1A1D / #D92D2D | zemin noktanın %16'sı (#151E2B üzerine: #34202B), metin #F5A3A3, nokta #D92D2D |
+| Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı (#151E2B üzerine: #342F24), metin #F2C46B, nokta #D98A00 |
+| Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı (#151E2B üzerine: #193232), metin #8FD3A6, nokta #2F9E55 |
 | Rozet: gri | #EEF0F3 / #4A5361 / #8B94A1 | zemin #232D3B, metin #B4BDC9 |
 | Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px | aynı |
 | Yazı ölçeği | sayfa başlığı 26/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
+| Tablo metni | 14 px / 400 | aynı |
+| Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
 | Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
 | Gölge | yok; ayrım kenarlıkla | yok |
 | Odak halkası | 2 px #1D3A6A, 2 px boşlukla | 2 px #6F93D6 |
+| Gri skala (50–950) | #F8F9FB, #EEF0F3, #E0E4EA, #C3CCD9, #8B94A1, #6B7585, #566173, #3B4657, #253142, #151E2B, #0E1520 | aynı skala |
+| Primary lacivert skala (50–950) | #F1F5FB, #E1E9F6, #C6D5EE, #9DB6E2, #6F93D6, #3F68B0, #1D3A6A, #152C52, #10233F, #0C1A30, #08111F | aynı skala |
+
+Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 kenarlık, 600 soluk metin, 800 koyu kenarlık, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 600 düğme, 700 üzerine gelme ve 400 koyu temadaki primary'dir. Durum paletleri (danger = Red, warning = Amber, success = Green) Filament'in hazır paletleridir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
 
 ## 7. Hedef tık sayıları (kabul ölçütü)
 

@@ -4,16 +4,129 @@
 @source '../../../../resources/views/filament/**/*';
 
 /*
- * Brand color (#ff3800): used only for the logo mark and the active sidebar
- * item's indicator bar, never for buttons or status badges (docs/UI.md §6).
+ * Design tokens (docs/UI.md §6, direction C · Lacivert çerçeve, G-4B.2).
+ *
+ * The only place in this file where literal colors are allowed (enforced by DesignTokensTest).
+ * Component rules below use `var(--mt-*)` or Filament's palette utilities. The primary and gray
+ * scales live in AdminPanelProvider::colors() instead, because Filament picks text shades by
+ * contrast from the PHP palette.
+ *
+ * Brand color: used only for the logo mark and the active sidebar item's indicator bar, never
+ * for buttons or status badges.
+ *
+ * Note for G-4B.5: Filament's own button map uses primary-600 with a lighter 500 hover in light
+ * mode and primary-600 in dark mode; the tokens ask for a darker hover (--mt-primary-hover) and,
+ * in dark mode, --mt-primary (primary-400) with --mt-on-primary text.
  */
 :root {
-    --brand: #ff3800;
+    --mt-brand: #ff3800;
+
+    --mt-sidebar-bg: #0f1d33;
+    --mt-sidebar-text: #c3ccd9;
+    --mt-sidebar-group: #8a97ab;
+    --mt-sidebar-active-bg: #1b2d4b;
+    --mt-sidebar-active-text: #ffffff;
+    --mt-sidebar-active-bar: 3px;
+
+    --mt-page-bg: #f4f6f9;
+    --mt-panel-bg: #ffffff;
+    --mt-border: #e0e4ea;
+    --mt-border-width: 1px;
+    --mt-row-divider: #eef0f3;
+    --mt-table-head-bg: #f8f9fb;
+    --mt-text: #121a27;
+    --mt-text-muted: #566173;
+
+    --mt-primary: #1d3a6a;
+    --mt-primary-hover: #152c52;
+    --mt-on-primary: #ffffff;
+
+    --mt-danger-text: #b42318;
+    --mt-danger-border: #f1c4c0;
+    --mt-danger-bg: #ffffff;
+
+    --mt-badge-red-bg: #fdecec;
+    --mt-badge-red-text: #9f1a1d;
+    --mt-badge-red-dot: #d92d2d;
+    --mt-badge-amber-bg: #fdf2d8;
+    --mt-badge-amber-text: #7f4c00;
+    --mt-badge-amber-dot: #d98a00;
+    --mt-badge-green-bg: #e5f3e9;
+    --mt-badge-green-text: #1d6633;
+    --mt-badge-green-dot: #2f9e55;
+    --mt-badge-gray-bg: #eef0f3;
+    --mt-badge-gray-text: #4a5361;
+    --mt-badge-gray-dot: #8b94a1;
+    --mt-badge-dot-size: 6px;
+    --mt-badge-font-size: 12px;
+    --mt-badge-font-weight: 600;
+
+    --mt-text-page-title: 26px;
+    --mt-weight-page-title: 700;
+    --mt-text-amount: 30px;
+    --mt-weight-amount: 700;
+    --mt-tracking-amount: -0.01em;
+    --mt-text-section-title: 15px;
+    --mt-weight-section-title: 600;
+    --mt-text-body: 14px;
+    --mt-text-table: 14px;
+    --mt-weight-body: 400;
+    --mt-text-help: 13px;
+    --mt-text-help-small: 12px;
+
+    --mt-space-page-y: 24px;
+    --mt-space-page-x: 28px;
+    --mt-space-block: 18px;
+    --mt-space-cell-y: 9px;
+    --mt-space-cell-x: 14px;
+    --mt-space-panel-head-y: 12px;
+    --mt-space-panel-head-x: 16px;
+
+    --mt-radius: 6px;
+    --mt-radius-badge: 4px;
+    --mt-shadow: none;
+
+    --mt-focus-width: 2px;
+    --mt-focus-offset: 2px;
+    --mt-focus-color: #1d3a6a;
+}
+
+:root.dark {
+    --mt-sidebar-bg: #0b1626;
+
+    --mt-page-bg: #0e1520;
+    --mt-panel-bg: #151e2b;
+    --mt-border: #253142;
+    --mt-row-divider: #1e2836;
+    --mt-table-head-bg: #19222f;
+    --mt-text: #e6eaf0;
+    --mt-text-muted: #9aa5b5;
+
+    /* UI.md §6 gives no dark hover shade; it stays the primary itself until G-4B.5. */
+    --mt-primary: #6f93d6;
+    --mt-primary-hover: #6f93d6;
+    --mt-on-primary: #0b1626;
+
+    --mt-danger-text: #f38b82;
+    --mt-danger-border: #5c2a2a;
+    --mt-danger-bg: #151e2b;
+
+    /* Red, amber and green: 16% of the dot over the dark panel (#151e2b), as fixed values. */
+    --mt-badge-red-bg: #34202b;
+    --mt-badge-red-text: #f5a3a3;
+    --mt-badge-amber-bg: #342f24;
+    --mt-badge-amber-text: #f2c46b;
+    --mt-badge-green-bg: #193232;
+    --mt-badge-green-text: #8fd3a6;
+    --mt-badge-gray-bg: #232d3b;
+    --mt-badge-gray-text: #b4bdc9;
+
+    --mt-focus-color: #6f93d6;
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
     @apply border-s-[3px];
-    border-inline-start-color: var(--brand);
+    border-inline-start-color: var(--mt-brand);
 }
 
 /* Numbers keep a fixed width so amounts line up in tables (docs/UI.md §6). */

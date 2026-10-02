@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Providers\Filament\AdminPanelProvider;
 use Filament\Enums\ThemeMode;
 use Filament\Facades\Filament;
 use Filament\FontProviders\LocalFontProvider;
@@ -37,7 +38,7 @@ it('gives every fixed status meaning its own palette, distinct from primary', fu
     expect($palettes['danger'])->toBe(Color::Red)
         ->and($palettes['warning'])->toBe(Color::Amber)
         ->and($palettes['success'])->toBe(Color::Green)
-        ->and($palettes['gray'])->toBe(Color::Zinc)
+        ->and($palettes['gray'])->toBe(array_map(Color::convertToOklch(...), AdminPanelProvider::GRAY_SCALE))
         ->and($palettes['primary'])->not->toBe($palettes['danger'])
         ->and($palettes['primary'])->not->toBe($palettes['warning'])
         ->and($palettes['primary'])->not->toBe($palettes['success'])
