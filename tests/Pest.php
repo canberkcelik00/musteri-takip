@@ -52,3 +52,63 @@ function actionOffered(mixed $component, array|TestAction $path): bool
 
     return true;
 }
+
+function designThemeCss(): string
+{
+    return (string) file_get_contents(resource_path('css/filament/panel/theme.css'));
+}
+
+/**
+ * The body of the token rule with the given selector (`:root` or `:root.dark`).
+ */
+function designTokenBlock(string $selector): string
+{
+    $found = preg_match('/^'.preg_quote($selector, '/').'\s*\{(.*?)^\}/ms', designThemeCss(), $matches);
+
+    expect($found)->toBe(1, "Token block {$selector} is missing from the theme CSS.");
+
+    return $matches[1];
+}
+
+/**
+ * @return array<string, string>
+ */
+function designTokens(string $theme): array
+{
+    $tokens = [];
+
+    foreach ($theme === 'dark' ? [':root', ':root.dark'] : [':root'] as $selector) {
+        preg_match_all('/--(mt-[a-z0-9-]+)\s*:\s*([^;]+);/', designTokenBlock($selector), $matches, PREG_SET_ORDER);
+
+        foreach ($matches as [, $name, $value]) {
+            $tokens[$name] = trim($value);
+        }
+    }
+
+    return $tokens;
+}
+
+/**
+ * WCAG 2 relative luminance of a `#rrggbb` color.
+ */
+function designLuminance(string $hex): float
+{
+    $channels = array_map(
+        function (string $pair): float {
+            $value = hexdec($pair) / 255;
+
+            return $value <= 0.03928 ? $value / 12.92 : (($value + 0.055) / 1.055) ** 2.4;
+        },
+        str_split(ltrim($hex, '#'), 2),
+    );
+
+    return 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+}
+
+function designContrast(string $foreground, string $background): float
+{
+    $lighter = max(designLuminance($foreground), designLuminance($background));
+    $darker = min(designLuminance($foreground), designLuminance($background));
+
+    return ($lighter + 0.05) / ($darker + 0.05);
+}

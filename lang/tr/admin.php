@@ -5,4 +5,6 @@ return [
     'exists' => 'Yönetici kullanıcı zaten var, değişiklik yapılmadı: :email',
     'skipped' => 'ADMIN_NAME, ADMIN_EMAIL veya ADMIN_PASSWORD boş; yönetici oluşturma atlandı.',
     'brand_name' => 'Müşteri Takip',
+    'brand_mark' => 'MT',
+    'today_date_format' => 'j F Y, l',
 ];

@@ -174,7 +174,7 @@ Hedef: Faz 4'te oturan yerleşim ve akışlar aynen kalırken panelin görünüm
 - [x] **G-4B.2 Tasarım tokenları** — Bağımlılık: G-4B.1, K-4B.2
   - Yapılacak: Seçilen yön değerleriyle `docs/UI.md` §6'ya eklenir: nötr gri skalası, primary lacivert skalası, durum renklerinin tonları (açık ve koyu tema), yazı ölçeği (sayfa başlığı, bölüm başlığı, gövde, tablo 14 px, yardımcı metin), boşluk ölçeği, köşe yarıçapı, kenarlık, gölge, odak halkası. Değerler Arayüz ilkeleri §6'daki C yönü token tablosundan alınır ve Filament temasında tek yerde tanımlanır; bileşen stillerinde sabit renk kodu yok. DECISIONS.md'ye tek satır eklenir: "Faz 4B: görsel yön C · Lacivert çerçeve seçildi; referans docs/design/referans/ (tuval: https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6)."
   - Kabul: Metin kontrastı açık ve koyu temada en az 4,5:1; tema CI'da derleniyor; DECISIONS'a seçim satırı eklenmiş; testler yeşil.
-- [ ] **G-4B.3 Çerçeve: menü, üst çubuk, sayfa başlığı** — Bağımlılık: G-4B.2
+- [x] **G-4B.3 Çerçeve: menü, üst çubuk, sayfa başlığı** — Bağımlılık: G-4B.2
   - Yapılacak: Kenar menü (arka plan, grup başlıkları, seçili öğede marka çizgisi), üst çubuk (arama kutusu, "Ödeme al", "Yeni"), logo alanı ve sayfa başlıkları tokenlara göre stillenir.
   - Kabul: Tüm sayfalarda çerçeve aynı görünür ve tuvaldeki C artboard'larıyla yan yana karşılaştırıldığında fark yok; testler yeşil.
 - [ ] **G-4B.4 Tablolar, rozetler ve filtre çipleri** — Bağımlılık: G-4B.2

@@ -28,6 +28,14 @@ class Dashboard extends BaseDashboard
     }
 
     /**
+     * Today's date under the title ("1 Ekim 2026, Perşembe"), as in the design reference.
+     */
+    public function getSubheading(): string|Htmlable|null
+    {
+        return now()->locale(app()->getLocale())->translatedFormat(__('admin.today_date_format'));
+    }
+
+    /**
      * @return array<class-string>
      */
     public function getWidgets(): array

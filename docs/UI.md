@@ -138,9 +138,10 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Tablo metni | 14 px / 400 | aynı |
 | Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
+| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px | aynı |
 | Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
 | Gölge | yok; ayrım kenarlıkla | yok |
-| Odak halkası | 2 px #1D3A6A, 2 px boşlukla | 2 px #6F93D6 |
+| Odak halkası | 2 px #1D3A6A, 2 px boşlukla; kenar menüde #6F93D6 | 2 px #6F93D6 (kenar menüde de aynı) |
 | Gri skala (50–950) | #F8F9FB, #EEF0F3, #E0E4EA, #C3CCD9, #8B94A1, #6B7585, #566173, #3B4657, #253142, #151E2B, #0E1520 | aynı skala |
 | Primary lacivert skala (50–950) | #F1F5FB, #E1E9F6, #C6D5EE, #9DB6E2, #6F93D6, #3F68B0, #1D3A6A, #152C52, #10233F, #0C1A30, #08111F | aynı skala |
 
