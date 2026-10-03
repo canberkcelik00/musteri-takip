@@ -386,6 +386,28 @@ body {
     @apply me-auto min-w-0;
 }
 
+/*
+ * The search box is a flex item (`1 1 0%`) whose minimum width is its content, the 380 px field:
+ * on a phone it kept that width while its container shrank, and ran under "Ödeme al". With
+ * `min-width: 0` it shrinks to the room left, and "Ödeme al" keeps its label (docs/UI.md §2
+ * Kural 5).
+ */
+.fi-global-search {
+    @apply min-w-0;
+}
+
+/* The user menu keeps its size; only the search box gives way. */
+.fi-topbar-end > .fi-dropdown {
+    @apply shrink-0;
+}
+
+/* A phone has no Ctrl+K: below `sm` the key hint leaves room for the search box. */
+@media not all and (min-width: 40rem) {
+    .fi-global-search-field .fi-input-wrp-suffix {
+        display: none;
+    }
+}
+
 .fi-topbar-actions {
     @apply flex shrink-0 items-center gap-x-2;
 }

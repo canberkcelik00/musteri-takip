@@ -169,3 +169,23 @@ it('shows today\'s date under the "Bugün" title, in Istanbul time', function (C
     'noon in Istanbul' => fn () => Carbon::parse('2026-10-01 12:00', 'Europe/Istanbul'),
     'Istanbul is already the 1st when UTC is not' => fn () => Carbon::parse('2026-09-30 22:30', 'UTC'),
 ]);
+
+it('lets the search box shrink on a phone and keeps the user menu and "Ödeme al" at their size', function () {
+    // The search box is a flex item whose minimum width is its 380 px field; without
+    // `min-width: 0` it ran under "Ödeme al" at 375 px (G-4B.3 follow-up).
+    expect(implode("\n", designRuleBodies('.fi-global-search')))->toContain('min-w-0')
+        ->and(implode("\n", designRuleBodies('.fi-global-search-ctn')))->toContain('min-w-0')
+        ->and(implode("\n", designRuleBodies('.fi-topbar-end > .fi-dropdown')))->toContain('shrink-0')
+        ->and(implode("\n", designRuleBodies('.fi-topbar-actions')))->toContain('shrink-0');
+
+    // Only the key hint goes below `sm`, never the label of "Ödeme al" (docs/UI.md §2 Kural 5).
+    expect(designThemeCss())->toMatch('/not all and \(min-width: 40rem\)\s*\{\s*\.fi-global-search-field \.fi-input-wrp-suffix\s*\{\s*display:\s*none;/');
+});
+
+it('shows "Ödeme al" in the topbar with its label, not as an icon-only button', function () {
+    $this->get(Dashboard::getUrl())
+        ->assertOk()
+        ->assertSeeInOrder(['data-topbar-actions', __('payments.record')]);
+
+    expect(designThemeCss())->not->toMatch('/\.fi-topbar[^{]*\.fi-(btn|link)-label[^{]*\{[^}]*display:\s*none/');
+});
