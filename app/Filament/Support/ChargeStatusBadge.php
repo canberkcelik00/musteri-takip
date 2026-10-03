@@ -66,13 +66,13 @@ final class ChargeStatusBadge
     }
 
     /**
-     * The badge for narrow screens, under "Kalan" while the "Durum" column is hidden (below `md`);
+     * The badge for narrow screens, under "Kalan" while the "Durum" column is hidden (below `lg`);
      * null for a plain open charge, which has no colored state.
      */
     public static function mobileHtml(Charge $charge): ?Htmlable
     {
         $color = self::color($charge);
 
-        return $color === null ? null : MobileStatusBadge::html(self::label($charge), $color);
+        return $color === null ? null : MobileStatusBadge::html(self::label($charge), $color, 'fi-badge-below-lg');
     }
 }

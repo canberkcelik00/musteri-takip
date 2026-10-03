@@ -25,7 +25,7 @@ use Illuminate\Support\HtmlString;
 
 /**
  * The charge list (docs/UI.md §5; Faz 4B, G-4B.4): the state sits in its own "Durum" column from
- * `md` up, as in the reference screen (T-80), and under "Kalan" below `md`, where the column is
+ * `lg` up, as in the reference screen (T-80), and under "Kalan" below `lg`, where the column is
  * hidden; a total row per currency closes the list.
  */
 class ChargesTable
@@ -56,7 +56,7 @@ class ChargesTable
                     ->badge(fn (Charge $record): bool => ChargeStatusBadge::color($record) !== null)
                     ->color(fn (Charge $record): ?string => ChargeStatusBadge::color($record))
                     ->wrap()
-                    ->visibleFrom('md'),
+                    ->visibleFrom('lg'),
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
                     ->state(fn (Charge $record): ?int => $record->status === ChargeStatus::Open ? $record->remainingAmount() : null)
@@ -105,7 +105,7 @@ class ChargesTable
     }
 
     /**
-     * "4.000,00 TL'den" under "Kalan" for a partially paid charge, and, below `md` only, the state
+     * "4.000,00 TL'den" under "Kalan" for a partially paid charge, and, below `lg` only, the state
      * badge that the hidden "Durum" column would have shown.
      */
     private static function remainingDescription(Charge $record): ?Htmlable

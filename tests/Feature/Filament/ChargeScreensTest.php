@@ -91,7 +91,7 @@ it('marks an open charge due within 7 days as due soon, in orange, and a farther
     expect($html)->toContain('Vadesi yaklaşıyor')
         ->and($html)->toContain('fi-color-warning');
 
-    // G-4B.4 (T-80): from `md` up the state is a "Durum" column of its own again, as in the
+    // G-4B.4 (T-80): from `lg` up the state is a "Durum" column of its own again, as in the
     // reference screen; the "Tutar" column is gone. Only a colored state is a badge: a plain
     // open charge shows its state as plain text.
     $table = chargesPage()->instance()->getTable();
@@ -104,11 +104,18 @@ it('marks an open charge due within 7 days as due soon, in orange, and a farther
         ->and($status->record($open)->getState())->toBe('Açık')
         ->and($status->record($open)->isBadge())->toBeFalse();
 
-    // Below `md` the "Durum" column is hidden: the badge moves under "Kalan" (a plain open
+    // Below `lg` the "Durum" column is hidden: the badge moves under "Kalan" (a plain open
     // charge has none).
     $remaining = $table->getColumn('remaining');
 
-    expect($remaining->record($dueSoon)->getDescriptionBelow()->toHtml())->toContain('fi-mobile-badge')->toContain('Vadesi yaklaşıyor')->toContain('fi-color-warning')
+    // The column and its header appear from `lg` (1024 px), not `md`: at 768 px the extra column
+    // made the list wider than its card (T-80).
+    $html = chargesPage()->html();
+
+    expect($html)->toMatch('/fi-ta-header-cell-status[^"]*lg:fi-visible/')
+        ->and($html)->not->toMatch('/fi-ta-header-cell-status[^"]*md:fi-visible/');
+
+    expect($remaining->record($dueSoon)->getDescriptionBelow()->toHtml())->toContain('fi-badge-below-lg')->toContain('Vadesi yaklaşıyor')->toContain('fi-color-warning')
         ->and($remaining->record($open)->getDescriptionBelow())->toBeNull();
 });
 
@@ -404,6 +411,9 @@ it('totals the remaining open debt per currency under "Kalan", minus partial pay
     payPartOf($partial, 5000);
 
     $total = chargesTotalRow(chargesPage()->html());
+
+    // The total row's "Durum"-aligned cell follows the column: shown from `lg`, label below it.
+    expect($total)->toContain('fi-cell-from-lg')->toContain('fi-hidden-from-lg');
 
     // 100 TL + (200 TL - 50 TL) = 250 TL and 70 USD, each currency on its own line.
     expect($total)->toContain(__('charges.total'))

@@ -189,6 +189,10 @@ Hedef: Faz 4'te oturan yerleşim ve akışlar aynen kalırken panelin görünüm
   - Kabul edilen farklar (kullanıcı onaylı, G-4B.4): Açık borçlar'ın Toplam satırı referanstaki gibi tablonun sağ kenarında değil, Kalan sütununun altındadır (375 px'te Kalan'la hizalı kalması için).
   - Yapılacak: Tüm ekranlar koyu temada gözden geçirilir. Bugün, Müşteriler, müşteri kartı, Açık borçlar, ödeme paneli ve hizmet ekleme formunun açık/koyu ekran görüntüleri `docs/design/ekranlar/` altına alınır.
   - Kabul: Yerleşim ve tık sayıları (UI.md §7) değişmemiş; her ekran açık ve koyu temada tuvaldeki C artboard'larıyla yan yana karşılaştırılmış, kalan fark yok ya da kullanıcı tarafından kabul edilmiş; tüm testler yeşil; kullanıcı onayı.
+- [ ] **G-4B.7 Dar ekran düzeni: 375 px'te Müşteriler ve Açık borçlar tablolarında yatay kayma olmaması** — Bağımlılık: G-4B.4
+  - Not: G-4B.4'te yalnız Bugün'ün tablosu düzeltildi (375 px'te 496/341 → 341/341); Müşteriler ve Açık borçlar önceden de kayıyordu ve bu görevde bilerek düzeltilmedi (T-80). Ölçüm, tablo alanı scrollWidth/clientWidth (gerçek Chrome, örnek veri; 635db30^ → bugün): Müşteriler 768 px 762/712 → 723/710, 375 px 423/343 → 403/341; Açık borçlar 768 px 837/712 → 764/710, 1024 px 837/736 → 922/734, 375 px 821/343 → 764/341. Sayfanın kendisi hiçbir genişlikte kaymıyor; kayan, tablonun kart içindeki alanı.
+  - Yapılacak: Müşteriler ve Açık borçlar listelerinin dar ekran düzenini tasarla ve uygula (hangi sütunlar `md`/`lg` altında gizlenir, hangi bilgi satırın altına iner; tutar, durum ve "Ödeme al" görünür kalır). Açık borçlar'ın 1024 px'teki payı (Durum sütunu görünürken 922/734) da burada ele alınır. Önce sütun ve yerleşim önerisi sunulur, onay beklenir; iş mantığı ve Action'lar değişmez, yalnızca yerleşim ve görünürlük.
+  - Kabul: 375 px'te Müşteriler ve Açık borçlar'da tablo kart içinde yatay kaymaz (ölçülerek); 768 px'te de kaymaz, olmuyorsa nedeni DECISIONS'a yazılır; Toplam satırı Kalan'la hizalı kalır; UI.md §7 tık sayıları değişmez; testler yeşil.
 
 **Faz 4B bittiğinde:** Panel aynı akışlarla, tutarlı ve bilinçli seçilmiş bir görsel dille çalışıyor; stil değerleri tek yerde ve belgelenmiş.
 

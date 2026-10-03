@@ -478,6 +478,19 @@ body {
     @apply hidden md:table-cell;
 }
 
+/* The charge list shows "Durum" from `lg` (1024 px) up: at 768 px the extra column made it wider than its card. */
+.fi-hidden-from-lg {
+    @apply lg:hidden;
+}
+
+.fi-cell-from-lg {
+    @apply hidden lg:table-cell;
+}
+
+.fi-badge-below-lg {
+    @apply lg:hidden mt-1 inline-block;
+}
+
 .fi-ta-ctn {
     border: var(--mt-border-width) solid var(--mt-border);
     border-radius: var(--mt-radius);

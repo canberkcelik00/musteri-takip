@@ -26,11 +26,15 @@ use Illuminate\Support\HtmlString;
  */
 class MobileStatusBadge
 {
-    public static function html(string $label, string $color): Htmlable
+    /**
+     * @param  string  $class  The wrapper class that decides below which breakpoint the badge shows.
+     */
+    public static function html(string $label, string $color, string $class = 'fi-mobile-badge'): Htmlable
     {
         return new HtmlString(View::make('filament.support.mobile-status-badge', [
             'label' => $label,
             'color' => $color,
+            'class' => $class,
         ])->render());
     }
 }
