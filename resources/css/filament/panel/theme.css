@@ -870,3 +870,20 @@ body {
     border-top: var(--mt-border-width) solid var(--mt-row-divider);
     font-size: var(--mt-text-body);
 }
+
+/*
+ * Below `md` the Today table has three columns (customer with the state under the name, amount,
+ * buttons) and has to fit a 375 px phone without scrolling inside its card: the state badge may
+ * wrap and the cells take a narrower side padding.
+ */
+@media not all and (min-width: 48rem) {
+    .fi-today-tasks .fi-ta-cell,
+    .fi-today-tasks .fi-ta-header-cell {
+        padding-inline: 10px;
+    }
+
+    .fi-today-tasks .fi-mobile-badge .fi-badge:not(.fi-wrapped),
+    .fi-today-tasks .fi-mobile-badge .fi-badge-label:not(.fi-wrapped) {
+        @apply whitespace-normal;
+    }
+}

@@ -233,3 +233,14 @@ it('colors the status badge red for overdue and amber for due soon', function ()
 
     expect($html)->toContain('fi-color-warning')->not->toContain('fi-color-danger');
 });
+
+it('moves the state under the customer name below md, where the "Durum" column is hidden', function () {
+    Charge::factory()->create(['due_date' => '2026-06-01', 'amount' => 100000]);
+
+    $html = Livewire::test(TodayTasks::class)->html();
+
+    // The column and its header are shown from `md` up; below it the badge sits in the name cell.
+    expect($html)->toMatch('/<th class="fi-ta-header-cell fi-cell-from-md">\s*'.preg_quote(__('today.col_status'), '/').'/')
+        ->and($html)->toContain('fi-mobile-badge')
+        ->and(substr_count($html, 'fi-color-danger'))->toBe(2);
+});

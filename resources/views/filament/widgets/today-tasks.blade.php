@@ -20,7 +20,7 @@
                                     <th class="fi-ta-header-cell">{{ __('today.col_customer') }}</th>
                                     <th class="fi-ta-header-cell fi-cell-from-md">{{ __('today.col_subject') }}</th>
                                     <th class="fi-ta-header-cell fi-cell-from-md">{{ __('today.col_due') }}</th>
-                                    <th class="fi-ta-header-cell">{{ __('today.col_status') }}</th>
+                                    <th class="fi-ta-header-cell fi-cell-from-md">{{ __('today.col_status') }}</th>
                                     <th class="fi-ta-header-cell fi-align-end">{{ __('today.col_amount') }}</th>
                                     <th class="fi-ta-header-cell"></th>
                                 </tr>
@@ -34,10 +34,18 @@
                                             @if (filled($row['customer']->legal_title))
                                                 <p class="fi-today-customer-title">{{ $row['customer']->legal_title }}</p>
                                             @endif
+                                            {{-- Below `md` the "Durum" column is hidden; the state moves under the name. --}}
+                                            <div class="fi-mobile-badge">
+                                                @if ($row['color'] !== null)
+                                                    <x-filament::badge :color="$row['color']">{{ $row['status'] }}</x-filament::badge>
+                                                @else
+                                                    {{ $row['status'] }}
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="fi-ta-cell fi-cell-from-md">{{ $row['subject'] }}</td>
                                         <td class="fi-ta-cell fi-cell-from-md">{{ $row['date'] }}</td>
-                                        <td class="fi-ta-cell">
+                                        <td class="fi-ta-cell fi-cell-from-md">
                                             @if ($row['color'] !== null)
                                                 <x-filament::badge :color="$row['color']">{{ $row['status'] }}</x-filament::badge>
                                             @else
