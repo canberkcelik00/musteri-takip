@@ -135,7 +135,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Satır üzerine gelme zemini | #F8F9FB | #19222F |
 | Metin / soluk metin | #121A27 / #566173 | #E6EAF0 / #9AA5B5 |
 | Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, üzerine gelince #9DB6E2, düğme metni #0B1626 |
-| Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz; her yerde çizgilidir (onay penceresindeki gönder düğmesi dahil), dolu kırmızı zemin yoktur | metin #F38B82, kenarlık #5C2A2A |
+| Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz; her yerde çizgilidir (onay penceresindeki gönder düğmesi dahil), dolu kırmızı zemin yoktur. Üzerine gelince zemin #FDECEC (kırmızı rozet zemini) ve kenarlık #B42318 (metin rengi), metin aynı | metin #F38B82, kenarlık #5C2A2A; üzerine gelince zemin #34202B (kırmızı rozet zemini) ve kenarlık #F38B82 (metin rengi), metin aynı |
 | Rozet: kırmızı (zemin / metin / nokta) | #FDECEC / #9F1A1D / #D92D2D | zemin noktanın %16'sı (#151E2B üzerine: #34202B), metin #F5A3A3, nokta #D92D2D |
 | Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı (#151E2B üzerine: #342F24), metin #F2C46B, nokta #D98A00 |
 | Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı (#151E2B üzerine: #193232), metin #8FD3A6, nokta #2F9E55 |

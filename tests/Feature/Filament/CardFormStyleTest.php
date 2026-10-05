@@ -45,6 +45,8 @@ function cardFormRuleSelectors(): array
         '.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link',
         '.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link:hover',
         '.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger',
+        '.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover',
+        '.fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover',
         '.fi-section:not(.fi-section-not-contained):not(.fi-aside),',
         '.fi-section-header-heading',
         '.fi-section-header-description',
@@ -117,22 +119,48 @@ it('never gives a dangerous button a solid red fill, filled or outlined, on hove
         ...designRuleBodies('.fi-btn.fi-color-danger:not(.fi-outlined)'),
         ...designRuleBodies('.fi-btn.fi-outlined.fi-color-danger'),
         ...designRuleBodies('.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger'),
+        ...designRuleBodies('.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover'),
+        ...designRuleBodies('.fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover'),
     ];
 
     expect($bodies)->not->toBeEmpty();
 
     foreach ($bodies as $body) {
-        // No fill from Filament's danger palette, only the panel zemin and the row hover token.
+        // No fill from Filament's danger palette, only the panel zemin and the pale red badge fill (hover).
         expect($body)->not->toMatch('/var\(--(?:color|danger)-\d+\)/');
 
         preg_match_all('/(?<!-)(?:--(?:dark-)?(?:hover-)?bg|background(?:-color)?)\s*:\s*([^;]+);/', $body, $matches);
 
         foreach ($matches[1] as $value) {
-            expect(trim($value))->toBeIn(['var(--mt-danger-bg)', 'var(--mt-row-hover)']);
+            expect(trim($value))->toBeIn(['var(--mt-danger-bg)', 'var(--mt-badge-red-bg)']);
         }
 
         // Text and border come from the danger tokens (docs/UI.md §6).
         expect($body)->toMatch('/--mt-danger-(?:text|border)/');
+    }
+});
+
+it('draws a dangerous button on hover with the pale red fill and the danger text color as its border, from the tokens, contrast-checked in both themes', function () {
+    foreach ([
+        '.fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover',
+        '.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover',
+    ] as $selector) {
+        $body = implode('
+', designRuleBodies($selector));
+
+        expect($body)->toContain('border-color: var(--mt-danger-text)')
+            ->and($body)->toContain('background-color: var(--mt-badge-red-bg)');
+    }
+
+    expect(implode('
+', designRuleBodies('.fi-btn.fi-color-danger')))->toContain('--hover-bg: var(--mt-badge-red-bg)');
+
+    foreach (['light', 'dark'] as $theme) {
+        $tokens = designTokens($theme);
+
+        // Text on the hover fill 4.5:1, the hover border against the panel 3:1 (WCAG 2).
+        expect(designContrast($tokens['mt-danger-text'], $tokens['mt-badge-red-bg']))->toBeGreaterThanOrEqual(4.5)
+            ->and(designContrast($tokens['mt-danger-text'], $tokens['mt-panel-bg']))->toBeGreaterThanOrEqual(3.0);
     }
 });
 

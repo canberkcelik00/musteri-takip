@@ -968,8 +968,8 @@ body {
     --dark-bg: var(--mt-danger-bg);
     --text: var(--mt-danger-text);
     --dark-text: var(--mt-danger-text);
-    --hover-bg: var(--mt-row-hover);
-    --dark-hover-bg: var(--mt-row-hover);
+    --hover-bg: var(--mt-badge-red-bg);
+    --dark-hover-bg: var(--mt-badge-red-bg);
     --hover-text: var(--mt-danger-text);
     --dark-hover-text: var(--mt-danger-text);
     --tw-ring-color: var(--mt-danger-border);
@@ -990,6 +990,16 @@ body {
 
 .fi-btn.fi-outlined.fi-color-danger {
     border-color: var(--mt-danger-border);
+}
+
+/*
+ * A dangerous button on hover (docs/UI.md §6): the pale red badge fill and the danger text color as
+ * the border, in every form of the button; never a solid red fill. Written with `.fi-color` and the
+ * state selectors so it outranks Filament's own outlined hover tint.
+ */
+.fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover {
+    border-color: var(--mt-danger-text);
+    background-color: var(--mt-badge-red-bg);
 }
 
 /* The modal buttons ("Vazgeç" / "Kaydet" / confirmations) take the same looks through these rules. */
@@ -1025,6 +1035,11 @@ body {
 .fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger {
     border-color: var(--mt-danger-border);
     color: var(--mt-danger-text);
+}
+
+.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover {
+    border-color: var(--mt-danger-text);
+    background-color: var(--mt-badge-red-bg);
 }
 
 /* Links in a panel's header ("Tüm borçlar", "Düzenle"): underlined, in the interactive color. */
