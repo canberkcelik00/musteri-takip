@@ -981,14 +981,15 @@ body {
     background-color: var(--mt-danger-bg);
 }
 
+/* Outlined buttons draw their hairline as a border: the global `box-shadow: none` above also removes Filament's ring. */
 .fi-btn.fi-outlined {
-    --tw-shadow: 0 0 0 0 transparent;
-    --tw-ring-color: var(--mt-border);
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
     background-color: var(--mt-panel-bg);
 }
 
 .fi-btn.fi-outlined.fi-color-danger {
-    --tw-ring-color: var(--mt-danger-border);
+    border-color: var(--mt-danger-border);
 }
 
 /* The modal buttons ("Vazgeç" / "Kaydet" / confirmations) take the same looks through these rules. */

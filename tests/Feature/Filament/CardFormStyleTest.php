@@ -137,7 +137,7 @@ it('never gives a dangerous button a solid red fill, filled or outlined, on hove
 });
 
 it('draws a dangerous outlined button with the danger border token', function () {
-    expect(implode("\n", designRuleBodies('.fi-btn.fi-outlined.fi-color-danger')))->toContain('--tw-ring-color: var(--mt-danger-border)')
+    expect(implode("\n", designRuleBodies('.fi-btn.fi-outlined.fi-color-danger')))->toContain('border-color: var(--mt-danger-border)')
         ->and(implode("\n", designRuleBodies('.fi-btn.fi-color-danger:not(.fi-outlined)')))->toContain('border-color: var(--mt-danger-border)');
 });
 
