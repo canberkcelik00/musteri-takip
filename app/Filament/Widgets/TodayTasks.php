@@ -36,20 +36,29 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
 
     protected int|string|array $columnSpan = 'full';
 
+    /**
+     * The row buttons are secondary (gray, text only; G-4B.5, docs/UI.md §4 "Birincil düğme
+     * kuralı"): the one primary button of the page is "Ödeme al" in the top bar.
+     */
     public function recordPaymentAction(): Action
     {
         return RecordPaymentAction::make()
-            ->color('primary');
+            ->color('gray')
+            ->icon(null);
     }
 
     public function removeFreeAction(): Action
     {
-        return RemoveFreeFlagAction::make();
+        return RemoveFreeFlagAction::make()
+            ->color('gray')
+            ->icon(null);
     }
 
     public function confirmFreeContinuationAction(): Action
     {
-        return ConfirmFreeContinuationAction::make();
+        return ConfirmFreeContinuationAction::make()
+            ->color('gray')
+            ->icon(null);
     }
 
     /**

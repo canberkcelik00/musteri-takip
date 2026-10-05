@@ -58,26 +58,33 @@ use Illuminate\Support\HtmlString;
  * {@see CancelledCustomerServicesRelationManager} extends this for the card's collapsed
  * "İptal edilenler" section. The row actions (edit, mark free or paid, cancel, reactivate) only
  * call the matching Action in app/Actions/CustomerServices; the rules live there. The row
- * keeps only "Düzenle" (and "Yeniden aktif et" on a cancelled service, G-4.17); the rarer
+ * has no "Düzenle" button (G-4B.5, as in the reference screen): clicking the name opens the edit
+ * panel at every width; a cancelled service keeps "Yeniden aktif et" in its row (G-4.17). The rarer
  * actions live in the edit panel's "Hizmet işlemleri" section, with the dangerous ones (İptal et,
  * Sil) on a row of their own at its end. "Hizmet ekle"
  * (AssignCustomerServiceAction, T-66) is a page header action on the card, not a table action.
- * Responsive (T-68/T-70, no horizontal scroll at any width, classic table columns kept intact
- * at every width — no {@see Stack}/`Split`, see
- * {@see MobileStatusBadge}): name (+ domains) and price/status always show; end date and the
- * "Durum" column from `md`; below `md` the name's description carries a colored status badge
- * instead (hidden again from `md`, since the "Durum" column already shows it there).
+ * The active table's heading carries the "N aktif" count. Responsive (T-68/T-70/G-4B.5, no
+ * horizontal scroll at any width, classic table columns kept intact at every width — no
+ * {@see Stack}/`Split`, see {@see MobileStatusBadge}): name (+ domains) and price always show;
+ * end date from `md`; the "Durum" column from `xl` (the card's left column is narrow), below
+ * which the name's description carries a colored status badge instead.
  */
 class CustomerServicesRelationManager extends RelationManager
 {
     use RefreshesOnPaymentOrChargeChange;
 
     /**
-     * Hides a row action's button below `md` (T-68); the row's name column opens the same
-     * options via {@see self::mobileEditAction()} at that width instead. `inline-flex` matches
-     * Filament's own small table action display, so nothing shifts once it reappears at `md`.
+     * Hides a row action's button below `md` (T-68); the "Düzenle" panel the name opens holds the
+     * same option ("Hizmet işlemleri") at that width instead. `inline-flex` matches Filament's own
+     * small table action display, so nothing shifts once it reappears at `md`.
      */
     private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
+
+    /**
+     * The wrapper class of the status badge under the name: visible below `xl`, where the
+     * "Durum" column is hidden (theme.css; the card's left column is narrow).
+     */
+    private const string BADGE_BELOW_XL = 'fi-badge-below-xl';
 
     protected static string $relationship = 'customerServices';
 
@@ -114,12 +121,15 @@ class CustomerServicesRelationManager extends RelationManager
                 ->orderBy('end_date')
                 ->orderBy('id'))
             ->paginated(false)
+            ->description($this->status() === CustomerServiceStatus::Active
+                ? fn (): string => __('customer_services.active_count', ['count' => $this->customerOwner()->customerServices()->where('status', CustomerServiceStatus::Active)->count()])
+                : null)
             ->columns([
                 TextColumn::make('name')
                     ->label(__('customer_services.name'))
                     ->wrap()
                     ->description(fn (CustomerService $record): ?Htmlable => $this->nameDescription($record))
-                    ->action($this->mobileEditAction()),
+                    ->action($this->editAction()),
                 TextColumn::make('end_date')
                     ->label(__('customer_services.end_date'))
                     ->date()
@@ -129,7 +139,7 @@ class CustomerServicesRelationManager extends RelationManager
                     ->state(fn (CustomerService $record): int|string => $record->is_free ? __('customer_services.free') : $record->price),
                 TextColumn::make('status')
                     ->label(__('customer_services.status'))
-                    ->visibleFrom('md')
+                    ->visibleFrom('xl')
                     ->badge(fn (CustomerService $record): bool => $record->status === CustomerServiceStatus::Cancelled || $record->isEndingSoon())
                     ->state(fn (CustomerService $record): string => $record->status === CustomerServiceStatus::Active && $record->isEndingSoon()
                         ? __('customer_services.ending_soon')
@@ -141,7 +151,6 @@ class CustomerServicesRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
-                $this->editAction()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
                 $this->reactivateAction()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
             ])
             ->emptyStateHeading(__('customer_services.empty_heading'))
@@ -160,30 +169,17 @@ class CustomerServicesRelationManager extends RelationManager
     }
 
     /**
-     * The name column's click target below `md`, where the row buttons are hidden (T-68,
-     * G-4.17): the same "Düzenle" panel, whose "Hizmet işlemleri" section keeps the rarer
-     * actions (reactivate, mark free/paid, cancel, delete) reachable. Named distinctly from the
-     * row action ("editServiceMobile"): the table caches actions by name regardless of whether
-     * they came from a column or a row, so reusing the row action's name here would let
-     * whichever of the two is built last overwrite the other (confirmed by reproducing it).
-     */
-    private function mobileEditAction(): Action
-    {
-        return $this->editAction('editServiceMobile');
-    }
-
-    /**
-     * The name column's description (T-70): the service's domains, plus — only below `md`,
-     * where the "Durum" column is hidden — a colored status badge, for a cancelled or
-     * ending-soon service (a plain active one shows nothing, same as the desktop column).
+     * The name column's description (T-70, G-4B.5): the service's domains, plus — only below
+     * `xl`, where the "Durum" column is hidden — a colored status badge, for a cancelled or
+     * ending-soon service (a plain active one shows nothing, same as the column).
      */
     private function nameDescription(CustomerService $record): ?Htmlable
     {
         $domains = implode(', ', $record->domains());
 
         $badge = match (true) {
-            $record->status === CustomerServiceStatus::Cancelled => MobileStatusBadge::html($record->status->getLabel(), 'gray'),
-            $record->isEndingSoon() => MobileStatusBadge::html(__('customer_services.ending_soon'), 'warning'),
+            $record->status === CustomerServiceStatus::Cancelled => MobileStatusBadge::html($record->status->getLabel(), 'gray', self::BADGE_BELOW_XL),
+            $record->isEndingSoon() => MobileStatusBadge::html(__('customer_services.ending_soon'), 'warning', self::BADGE_BELOW_XL),
             default => null,
         };
 

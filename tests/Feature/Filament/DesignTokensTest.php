@@ -102,6 +102,7 @@ it('keeps the token table anchors in the scales', function () {
     expect(strtolower(AdminPanelProvider::PRIMARY_SCALE[600]))->toBe($light['mt-primary'])
         ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[700]))->toBe($light['mt-primary-hover'])
         ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[400]))->toBe($dark['mt-primary'])
+        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[300]))->toBe($dark['mt-primary-hover'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[50]))->toBe($light['mt-table-head-bg'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[100]))->toBe($light['mt-row-divider'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[200]))->toBe($light['mt-border'])

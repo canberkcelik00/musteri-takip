@@ -172,16 +172,27 @@ describe('rows', function () {
             ->and(rulesTable(ContactsRelationManager::class, $card)->getFlatRecordActions())->toHaveCount(0);
     });
 
-    it('offers "Ödeme al" and "Düzenle" on an open charge row, and neither on a paid or cancelled one', function () {
+    it('offers "Ödeme al" and "Düzenle" on an open charge row of the list, and neither on a paid or cancelled one', function () {
         $open = Charge::factory()->create();
         $paid = Charge::factory()->paid()->create();
         $cancelled = Charge::factory()->cancelled()->create();
 
-        foreach ([rulesTable(ListCharges::class), rulesTable(ChargesRelationManager::class, ['ownerRecord' => $open->customer, 'pageClass' => ViewCustomer::class])] as $table) {
-            expect(collect(visibleRowActions($table, $open))->map->getName()->all())->toBe(['recordPayment', 'editCharge'])
-                ->and(collect(visibleRowActions($table, $paid))->map->getName()->all())->toBe([])
-                ->and(collect(visibleRowActions($table, $cancelled))->map->getName()->all())->toBe([]);
-        }
+        $table = rulesTable(ListCharges::class);
+
+        expect(collect(visibleRowActions($table, $open))->map->getName()->all())->toBe(['recordPayment', 'editCharge'])
+            ->and(collect(visibleRowActions($table, $paid))->map->getName()->all())->toBe([])
+            ->and(collect(visibleRowActions($table, $cancelled))->map->getName()->all())->toBe([]);
+    });
+
+    it('offers only "Ödeme al" on an open charge row of the card, whose description opens "Düzenle" (G-4B.5)', function () {
+        $open = Charge::factory()->create();
+        $paid = Charge::factory()->paid()->create();
+
+        $table = rulesTable(ChargesRelationManager::class, ['ownerRecord' => $open->customer, 'pageClass' => ViewCustomer::class]);
+
+        expect(collect(visibleRowActions($table, $open))->map->getName()->all())->toBe(['recordPayment'])
+            ->and(collect(visibleRowActions($table, $paid))->map->getName()->all())->toBe([])
+            ->and($table->getColumn('description')->getAction())->not->toBeNull();
     });
 
     it('starts every table with a familiar column, never an id', function () {

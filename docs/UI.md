@@ -66,7 +66,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
 
-**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al". Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
+**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al" (yan panel açıkken panelin "Kaydet"i); tablo satırlarındaki, Bugün'deki ve filtre panelindeki düğmeler ikincildir. Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
 
 ## 5. Ekran kuralları
 
@@ -92,10 +92,10 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 İki sütun; geniş sol sütun işe, dar sağ sütun bilgiye ayrılır.
 
-- **Başlık şeridi (tam genişlik):** Kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi; sağda "Ödeme al" ve "Hizmet ekle", ikisi de ikincil (ekranın tek birincil düğmesi üst çubuktaki "Ödeme al").
+- **Başlık şeridi (tam genişlik, tek kenarlıklı kart):** Yol (Müşteriler / kısa ad), kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi (para birimi başına, toplanmaz); sağda "Ödeme al" ve "Hizmet ekle", ikisi de ikincil (ekranın tek birincil düğmesi üst çubuktaki "Ödeme al"). `xl` (1280 px) altında ad kendi satırına geçer, tutarlar ve düğmeler altına iner.
 - **Sol sütun, sırayla:**
-  - Hizmetler: aktifler, kompakt satırlar (ad, alan adı, bitiş, fiyat, durum). İptal edilmişler katlanmış "İptal edilenler (2)" altında.
-  - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar.
+  - Hizmetler: aktifler, kompakt satırlar (ad ve altında alan adı, bitiş, fiyat, durum); başlıkta sağda "N aktif" sayacı. Satırda düğme yoktur, hizmet adına tıklamak düzenleme panelini açar. "Durum" sütunu `xl`'den görünür; `xl` altında rozet (yalnız iptal ve yenilemesi yaklaşan) adın altına iner. İptal edilmişler katlanmış "İptal edilenler (2)" altında.
+  - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar. Satırda yalnız "Ödeme al" düğmesi vardır; borç açıklamasına tıklamak düzenleme panelini açar. "Vade" ve "Durum" sütunları `xl`'den görünür (karta özgü kural: sol sütun dar olduğu için Açık borçlar sayfasındaki `lg` kuralından farklıdır); `xl` altında vade açıklamanın altına, durum rozeti "Kalan"ın altına iner.
   - Son ödemeler: son 5; "Tüm ödemeler" bağlantısı.
 - **Sağ sütun:** Birincil kişi (telefon ve e-posta tıklanınca aranır/yazılır), diğer kişiler, fatura bilgileri, notlar. Düzenleme buradan.
 - **En altta, ayrı:** Arşivle, Sil.
@@ -112,7 +112,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 - Tek sütun, etiket alanın üstünde, zorunlu alanlar işaretli.
 - Varsayılanlar dolu; nadir alanlar katlanmış "Ayrıntılar" bölümünde.
-- Kaydet sağ altta birincil; Vazgeç onun solunda ikincil; tehlikeli işlem formda yok.
+- Kaydet sağ altta birincil; Vazgeç onun solunda ikincil; tehlikeli işlem formda yok. Yan panelin sağ üstünde simgesiz, metinli "Kapat" düğmesi durur.
 - Hata alanın hemen altında, alanı nasıl düzelteceğini söyleyerek.
 
 ## 6. Görsel dil
@@ -134,19 +134,19 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Satır ayırıcı / tablo başlığı zemini | #EEF0F3 / #F8F9FB | #1E2836 / #19222F |
 | Satır üzerine gelme zemini | #F8F9FB | #19222F |
 | Metin / soluk metin | #121A27 / #566173 | #E6EAF0 / #9AA5B5 |
-| Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, düğme metni #0B1626 |
-| Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz | metin #F38B82, kenarlık #5C2A2A |
+| Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, üzerine gelince #9DB6E2, düğme metni #0B1626 |
+| Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz; her yerde çizgilidir (onay penceresindeki gönder düğmesi dahil), dolu kırmızı zemin yoktur | metin #F38B82, kenarlık #5C2A2A |
 | Rozet: kırmızı (zemin / metin / nokta) | #FDECEC / #9F1A1D / #D92D2D | zemin noktanın %16'sı (#151E2B üzerine: #34202B), metin #F5A3A3, nokta #D92D2D |
 | Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı (#151E2B üzerine: #342F24), metin #F2C46B, nokta #D98A00 |
 | Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı (#151E2B üzerine: #193232), metin #8FD3A6, nokta #2F9E55 |
 | Rozet: gri | #EEF0F3 / #4A5361 / #8B94A1 | zemin #232D3B, metin #B4BDC9 |
 | Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px; yalnız kırmızı, amber, yeşil ve gri vardır; renk sınıfsız rozet (Filament'in varsayılan grisi) gri çizilir, bu yüzden uygulamada rengi verilmemiş rozet olmaz | aynı |
 | Filtre çipi | beyaz zemin, 1 px kenarlık, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | aynı |
-| Yazı ölçeği | sayfa başlığı 26/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
+| Yazı ölçeği | sayfa başlığı 26/700, yan panel başlığı 20/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
 | Tablo metni | 14 px / 400 | aynı |
 | Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
-| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px | aynı |
+| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px, yan panel 440 px (iç boşluk 24 px) | aynı |
 | Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
 | Gölge | yok; ayrım kenarlıkla | yok |
 | Odak halkası | 2 px #1D3A6A, 2 px boşlukla; kenar menüde #6F93D6 | 2 px #6F93D6 (kenar menüde de aynı) |

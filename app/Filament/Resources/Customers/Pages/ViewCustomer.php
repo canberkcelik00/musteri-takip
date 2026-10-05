@@ -28,11 +28,12 @@ use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 
 /**
- * The customer card (T-55, restructured in T-66 for G-4.16): a full-width strip (open debt,
- * credit balance), then two columns — the work (services, open charges, recent payments) on the
+ * The customer card (T-55, restructured in T-66 for G-4.16): a full-width header strip (name,
+ * open debt, credit balance, the two actions; G-4B.5, see {@see self::getHeader()}), then two columns — the work (services, open charges, recent payments) on the
  * left, information (contacts, billing, notes) on the right — and the destructive actions
  * (archive, delete) at the bottom, right-aligned and separate from both columns, not boxed in
  * their own card (T-67; a bordered Section around 0–1 button looked broken, docs/UI.md §5), with
@@ -82,6 +83,28 @@ class ViewCustomer extends ViewRecord
         return 'content';
     }
 
+    /**
+     * The header strip of the reference screen (G-4B.5): breadcrumb, short name and legal title on
+     * the left, the open debt and credit balance (per currency, never summed) in the middle, the
+     * two secondary actions on the right, all in one bordered card. The amounts are the same
+     * derived values the strip showed (Customer::openChargeTotals(), creditBalances()); the page
+     * heading, subheading and header actions are unchanged.
+     */
+    public function getHeader(): ?View
+    {
+        $customer = $this->getRecord();
+        assert($customer instanceof Customer);
+
+        return view('filament.customers.header', [
+            'breadcrumbs' => array_slice($this->getBreadcrumbs(), 0, -1, true),
+            'title' => $this->getTitle(),
+            'subheading' => $this->getSubheading(),
+            'openDebt' => $customer->openChargeTotals(),
+            'creditBalance' => $customer->creditBalances(),
+            'actions' => $this->getCachedHeaderActions(),
+        ]);
+    }
+
     protected function getHeaderActions(): array
     {
         $customer = $this->getRecord();
@@ -112,10 +135,6 @@ class ViewCustomer extends ViewRecord
         assert($customer instanceof Customer);
 
         return $schema->record($customer)->components([
-            Section::make()
-                ->schema([
-                    Grid::make(2)->schema(CustomerInfolist::stripSchema()),
-                ]),
             Grid::make(3)
                 ->schema([
                     Group::make($this->workColumn($customer))->columnSpan(2)->key('work_column'),
@@ -175,7 +194,7 @@ class ViewCustomer extends ViewRecord
             ])->key('contacts'),
             Section::make(__('customers.billing_section'))
                 ->key('billing_section')
-                ->afterHeader([EditCustomerAction::make()->color('gray')])
+                ->afterHeader([EditCustomerAction::make()->link()->icon(null)])
                 ->schema(CustomerInfolist::billingSchema()),
             Section::make(__('customers.notes_section'))
                 ->schema(CustomerInfolist::notesSchema()),

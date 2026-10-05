@@ -25,6 +25,7 @@ return [
     'free' => 'Ücretsiz',
     'status' => 'Durum',
     'ending_soon' => 'Yenilemesi yaklaşıyor',
+    'active_count' => ':count aktif',
 
     'assign' => 'Hizmet ekle',
     'assign_heading' => 'Hizmet ekle',

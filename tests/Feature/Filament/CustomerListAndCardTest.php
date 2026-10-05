@@ -357,32 +357,32 @@ it('always shows the identity and amount/status columns of the customer list, an
         ->and($table->getColumn('archived_at')->getVisibleFrom())->toBe('md');
 });
 
-it('always shows name and price; below md the desktop status column hides, unchanged at md+', function () {
+it('always shows name and price; the end date shows from md and the status column from xl (G-4B.5)', function () {
     $customer = Customer::factory()->create();
     $table = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
 
     expect($table->getColumn('name')->getVisibleFrom())->toBeNull()
         ->and($table->getColumn('price')->getVisibleFrom())->toBeNull()
-        ->and($table->getColumn('status')->getVisibleFrom())->toBe('md')
+        ->and($table->getColumn('status')->getVisibleFrom())->toBe('xl')
         ->and($table->getColumn('end_date')->getVisibleFrom())->toBe('md');
 });
 
-it('applies the same md split to status on the cancelled services table', function () {
+it('applies the same split to status on the cancelled services table', function () {
     $customer = Customer::factory()->create();
     $table = Livewire::test(CancelledCustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
 
     expect($table->getColumn('name')->getVisibleFrom())->toBeNull()
-        ->and($table->getColumn('status')->getVisibleFrom())->toBe('md')
+        ->and($table->getColumn('status')->getVisibleFrom())->toBe('xl')
         ->and($table->getColumn('end_date')->getVisibleFrom())->toBe('md');
 });
 
-it('always shows description and remaining, which carries the state badge; there is no status column, and the due date column shows from xl', function () {
+it('always shows description and remaining; the status and due date columns show from xl, below which the badge sits under "Kalan"', function () {
     $customer = Customer::factory()->create();
     $table = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
 
     expect($table->getColumn('description')->getVisibleFrom())->toBeNull()
         ->and($table->getColumn('remaining')->getVisibleFrom())->toBeNull()
-        ->and($table->getColumn('status'))->toBeNull()
+        ->and($table->getColumn('status')->getVisibleFrom())->toBe('xl')
         ->and($table->getColumn('due_date')->getVisibleFrom())->toBe('xl');
 });
 
@@ -453,7 +453,7 @@ it('hides the customer list\'s "Ödeme al" below md; the row already opens the c
     expect($table->getAction('recordPayment')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD);
 });
 
-it('hides the services row actions below md; the name opens "Düzenle" with the rare actions in its "Hizmet işlemleri" section', function () {
+it('has no "Düzenle" row button on the services; the name opens it at every width, with the rare actions in its "Hizmet işlemleri" section', function () {
     $customer = Customer::factory()->create();
     $active = CustomerService::factory()->for($customer)->create();
     $cancelled = CustomerService::factory()->for($customer)->cancelled()->create();
@@ -461,12 +461,14 @@ it('hides the services row actions below md; the name opens "Düzenle" with the 
     $manager = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class]);
     $table = $manager->instance()->getTable();
 
-    expect($table->getAction('editService')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD)
-        ->and($table->getAction('reactivate')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD);
+    // G-4B.5: satırda "Düzenle" düğmesi yok; ada tıklamak (sütun eylemi) paneli açar. Yeniden aktif
+    // et satırda kalır, md altında gizli.
+    expect(array_keys($table->getFlatRecordActions()))->toBe(['reactivate'])
+        ->and($table->getAction('reactivate')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD)
+        ->and($table->getColumn('name')->getAction()->getName())->toBe('editService');
 
-    // md altında: ada tıklamak "Düzenle"yi açar (editServiceMobile — satır eylemiyle aynı ad
-    // olsaydı ikisi tablonun eylem önbelleğinde çakışırdı); nadir işlemler o panelin altında.
-    $cancelOnMobile = sectionAction(TestAction::make('editServiceMobile')->table($active), 'cancelService', danger: true);
+    // Ada tıklamak "Düzenle"yi açar; nadir işlemler o panelin altında.
+    $cancelOnMobile = sectionAction(TestAction::make('editService')->table($active), 'cancelService', danger: true);
 
     $manager
         ->mountAction($cancelOnMobile)
@@ -475,23 +477,23 @@ it('hides the services row actions below md; the name opens "Düzenle" with the 
     // Reactivate yalnızca iptal edilmiş kayıtlarda görünür, yani gerçekte bu satır İptal
     // edilenler tablosundan (CancelledCustomerServicesRelationManager) tetiklenir.
     Livewire::test(CancelledCustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->mountAction(sectionAction(TestAction::make('editServiceMobile')->table($cancelled), 'reactivate'))
-        ->assertActionMounted(sectionAction(TestAction::make('editServiceMobile')->table($cancelled), 'reactivate'));
+        ->mountAction(sectionAction(TestAction::make('editService')->table($cancelled), 'reactivate'))
+        ->assertActionMounted(sectionAction(TestAction::make('editService')->table($cancelled), 'reactivate'));
 });
 
-it('deletes a service without a charge from the mobile edit panel\'s "Hizmet işlemleri" section', function () {
+it('deletes a service without a charge from the edit panel\'s "Hizmet işlemleri" section', function () {
     $customer = Customer::factory()->create();
     $service = CustomerService::factory()->for($customer)->create();
 
     Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->mountAction(sectionAction(TestAction::make('editServiceMobile')->table($service), 'delete', danger: true))
+        ->mountAction(sectionAction(TestAction::make('editService')->table($service), 'delete', danger: true))
         ->callMountedAction()
         ->assertNotified();
 
     expect(CustomerService::query()->whereKey($service->id)->exists())->toBeFalse();
 });
 
-it('adds a mobile-only status badge to the name description only for a cancelled or ending-soon service, never for a plain active one', function () {
+it('adds a below-xl status badge to the name description only for a cancelled or ending-soon service, never for a plain active one', function () {
     $this->travelTo('2026-06-10 12:00:00');
     $customer = Customer::factory()->create();
     $active = withDomainItems(CustomerService::factory()->for($customer)->create(['start_date' => '2025-12-10', 'end_date' => '2026-12-10']), []);
@@ -505,26 +507,27 @@ it('adds a mobile-only status badge to the name description only for a cancelled
 
     $endingSoonHtml = $name->record($endingSoon)->getDescriptionBelow()->toHtml();
     expect($endingSoonHtml)->toContain('Yenilemesi yaklaşıyor')
-        ->and($endingSoonHtml)->toContain('fi-mobile-badge')
+        ->and($endingSoonHtml)->toContain('fi-badge-below-xl')
         ->and($endingSoonHtml)->toContain('fi-color-warning');
 
     $cancelledHtml = $name->record($cancelled)->getDescriptionBelow()->toHtml();
     expect($cancelledHtml)->toContain('İptal edildi')
-        ->and($cancelledHtml)->toContain('fi-mobile-badge');
+        ->and($cancelledHtml)->toContain('fi-badge-below-xl');
 });
 
-it('hides only "Düzenle" below md and keeps "Ödeme al"; the description opens "Düzenle" with its "Borç işlemleri" section', function () {
+it('keeps only "Ödeme al" as a row button on the card\'s charges; the description opens "Düzenle" at every width, with its "Borç işlemleri" section', function () {
     $customer = Customer::factory()->create();
     $charge = Charge::factory()->for($customer)->create();
 
     $manager = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class]);
     $table = $manager->instance()->getTable();
 
-    expect($table->getAction('editCharge')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD)
-        ->and($table->getAction('recordPayment')->getExtraAttributes())->toBe([]);
+    expect(array_keys($table->getFlatRecordActions()))->toBe(['recordPayment'])
+        ->and($table->getAction('recordPayment')->getExtraAttributes())->toBe([])
+        ->and($table->getColumn('description')->getAction()->getName())->toBe('editCharge');
 
     $cancelOnMobile = [
-        TestAction::make('editChargeMobile')->table($charge),
+        TestAction::make('editCharge')->table($charge),
         TestAction::make('cancelCharge')->schemaComponent(RecordActionsSection::DANGER_ACTIONS_KEY),
     ];
 
@@ -533,7 +536,7 @@ it('hides only "Düzenle" below md and keeps "Ödeme al"; the description opens 
         ->assertActionMounted($cancelOnMobile);
 });
 
-it('adds a status badge under "Kalan" at every width, only for an overdue, partially paid or due-soon charge, never for a plain open one', function () {
+it('adds a status badge under "Kalan" below xl, only for an overdue, partially paid or due-soon charge, never for a plain open one', function () {
     $this->travelTo('2026-06-10 12:00:00');
     $customer = Customer::factory()->create();
     $open = Charge::factory()->for($customer)->create(['amount' => 100000, 'due_date' => '2026-07-10']);
@@ -546,7 +549,7 @@ it('adds a status badge under "Kalan" at every width, only for an overdue, parti
 
     $overdueHtml = $remaining->record($overdue)->getDescriptionBelow()->toHtml();
     expect($overdueHtml)->toContain('Gecikmiş (5 gün)')
-        ->and($overdueHtml)->not->toContain('fi-mobile-badge')
+        ->and($overdueHtml)->toContain('fi-badge-below-xl')
         ->and($overdueHtml)->toContain('fi-color-danger');
 });
 

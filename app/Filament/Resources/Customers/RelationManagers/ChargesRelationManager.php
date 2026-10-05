@@ -31,27 +31,22 @@ use Illuminate\Support\HtmlString;
  * allocations, not stored; a partially paid charge shows the original amount as a faded "/
  * total" line under the remaining amount. The description shows the linked service's domains
  * (if any, {@see CustomerService::domains()}) as a faded line; a manual charge
- * without a service has none. "Borç ekle" and the row actions ("Ödeme al", "Düzenle"; split and
- * cancel live in the edit panel's "Borç işlemleri" section, G-4.17) only call the Actions in
- * app/Actions; the rules live there. "Tüm borçlar" links to the customer's
+ * without a service has none. "Borç ekle" and the row's "Ödeme al" only call the Actions in
+ * app/Actions; the rules live there. "Düzenle" is no longer a row button (G-4B.5, as in the
+ * reference screen): clicking the description opens the same edit panel at every width, with
+ * split and cancel in its "Borç işlemleri" section (G-4.17). "Tüm borçlar" links to the customer's
  * full, unfiltered history in the menu's Borçlar list ({@see ChargeResource}).
- * Responsive (T-68/T-70/G-4.17/G-4.18, no horizontal scroll at any width, classic table columns
- * kept intact at every width — no {@see Stack}/`Split`, see {@see ChargeStatusBadge}):
- * description (+ domains) and remaining always show, with the state badge under "Kalan" (only for
- * overdue, partially paid or due-soon — a plain open charge shows nothing) next to the "/ total"
- * line when applicable; there is no separate "Durum" column. The due date is a column from `xl`;
- * below `xl` it is a faded line under the description instead, so it shows exactly once at every
- * width and the table fits the card at 1024 px.
+ * Responsive (T-68/T-70/G-4.17/G-4.18/G-4B.5, no horizontal scroll at any width, classic table
+ * columns kept intact at every width — no {@see Stack}/`Split`, see {@see ChargeStatusBadge}):
+ * description (+ domains) and remaining always show. The due date and the "Durum" column are
+ * columns from `xl` (card-specific: the left column is narrow); below `xl` the date is a faded
+ * line under the description and the state badge (only for overdue, partially paid or due-soon —
+ * a plain open charge shows nothing) sits under "Kalan" next to the "/ total" line, so each shows
+ * exactly once at every width and the table fits the card at 1024 px.
  */
 class ChargesRelationManager extends RelationManager
 {
     use RefreshesOnPaymentOrChargeChange;
-
-    /**
-     * Hides a row action's button below `md` (T-68); the row's description column opens the
-     * same options via {@see self::mobileEditAction()} at that width instead.
-     */
-    private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
 
     protected static string $relationship = 'charges';
 
@@ -87,10 +82,17 @@ class ChargesRelationManager extends RelationManager
                     ->label(__('charges.description'))
                     ->wrap()
                     ->description(fn (Charge $record): Htmlable => $this->descriptionBelow($record))
-                    ->action($this->mobileEditAction()),
+                    ->action(EditChargeAction::make()),
                 TextColumn::make('due_date')
                     ->label(__('charges.due_date'))
                     ->date()
+                    ->visibleFrom('xl'),
+                TextColumn::make('status')
+                    ->label(__('charges.status'))
+                    ->state(fn (Charge $record): ?string => ChargeStatusBadge::color($record) === null ? null : ChargeStatusBadge::label($record))
+                    ->badge()
+                    ->color(fn (Charge $record): ?string => ChargeStatusBadge::color($record))
+                    ->wrap()
                     ->visibleFrom('xl'),
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
@@ -116,26 +118,12 @@ class ChargesRelationManager extends RelationManager
                     ->icon(null)
                     ->color('gray')
                     ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open),
-                EditChargeAction::make()->icon(null)->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
             ])
             ->emptyStateHeading(__('charges.open_empty_heading'))
             ->emptyStateDescription(__('charges.open_empty_description'))
             ->emptyStateActions([
                 CreateManualChargeAction::make('createManualChargeEmpty')->customer($customer)->color('gray'),
             ]);
-    }
-
-    /**
-     * The description column's click target below `md`, where the "Düzenle" button is hidden
-     * (T-68, G-4.17): the same edit panel, whose "Borç işlemleri" section keeps "Böl" and "İptal
-     * et" reachable. "Ödeme al" stays a visible row button at every width, so taking a payment is
-     * one tap on mobile too. Named distinctly from the row action ("…Mobile"): the table caches
-     * actions by name regardless of whether they came from a column or a row, so reusing a name
-     * here would let one silently overwrite the other (confirmed by reproducing it).
-     */
-    private function mobileEditAction(): Action
-    {
-        return EditChargeAction::make('editChargeMobile');
     }
 
     /**
@@ -158,11 +146,11 @@ class ChargesRelationManager extends RelationManager
     }
 
     /**
-     * "Kalan"'s description: the "/ total" line for a partially paid charge, plus the state badge
-     * ({@see ChargeStatusBadge}) at every width for an overdue, partially paid or due-soon charge
-     * (a plain open one shows nothing; this table only ever lists open charges). G-4.17: this
-     * replaced the desktop "Durum" column, whose width pushed "Ödeme al" and "Düzenle" out of the
-     * card at 1280 px.
+     * "Kalan"'s description: the "/ total" line for a partially paid charge, plus — below `xl`
+     * only, where the "Durum" column is hidden — the state badge ({@see ChargeStatusBadge}) for an
+     * overdue, partially paid or due-soon charge (a plain open one shows nothing; this table only
+     * ever lists open charges). G-4B.5: the column is back from `xl` (the row now holds just
+     * "Ödeme al", so it fits; G-4.17 had removed it with "Düzenle" in the row).
      */
     private function remainingDescription(Charge $record): ?Htmlable
     {
@@ -170,7 +158,7 @@ class ChargesRelationManager extends RelationManager
             ? '/ '.(new Money($record->amount, $record->currency))->format()
             : null;
 
-        $badge = ChargeStatusBadge::html($record);
+        $badge = ChargeStatusBadge::mobileHtml($record, 'fi-badge-below-xl');
 
         if ($original === null && $badge === null) {
             return null;

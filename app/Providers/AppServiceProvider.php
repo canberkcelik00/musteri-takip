@@ -65,7 +65,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Table::configureUsing(fn (Table $table): Table => $table
             ->defaultDateDisplayFormat(self::DATE_FORMAT)
-            ->defaultDateTimeDisplayFormat(self::DATE_TIME_FORMAT));
+            ->defaultDateTimeDisplayFormat(self::DATE_TIME_FORMAT)
+            // The filter panel's "Uygula" is secondary: the one primary button of a screen is the top bar's "Ödeme al" (G-4B.5).
+            ->filtersApplyAction(fn (Action $action): Action => $action->color('gray')));
 
         Schema::configureUsing(fn (Schema $schema): Schema => $schema
             ->defaultDateDisplayFormat(self::DATE_FORMAT)

@@ -2,38 +2,15 @@
 
 namespace App\Filament\Resources\Customers\Schemas;
 
-use App\Filament\Infolists\Components\MoneyEntry;
-use App\Models\Customer;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\TextSize;
 
 /**
- * The customer card's parts (T-66): a full-width strip of open debt and credit balance (per
- * currency, never summed across currencies), and the two sections of the right-hand column
- * (billing details, notes). `ViewCustomer::content()` assembles these into the card's layout.
+ * The two sections of the customer card's right-hand column (billing details, notes), T-66.
+ * `ViewCustomer::content()` assembles them into the card's layout; the strip of open debt and
+ * credit balance moved into the page header in G-4B.5 (`ViewCustomer::getHeader()`).
  */
 class CustomerInfolist
 {
-    /**
-     * @return list<MoneyEntry>
-     */
-    public static function stripSchema(): array
-    {
-        return [
-            MoneyEntry::make('open_debt')
-                ->label(__('customers.open_debt'))
-                ->size(TextSize::Large)
-                ->weight(FontWeight::Bold)
-                ->state(fn (Customer $record): array => $record->openChargeTotals()),
-            MoneyEntry::make('credit_balance')
-                ->label(__('customers.credit_balance'))
-                ->size(TextSize::Large)
-                ->weight(FontWeight::Bold)
-                ->state(fn (Customer $record): array => $record->creditBalances()),
-        ];
-    }
-
     /**
      * @return list<TextEntry>
      */
@@ -42,15 +19,19 @@ class CustomerInfolist
         return [
             TextEntry::make('legal_title')
                 ->label(__('customers.legal_title'))
+                ->inlineLabel()
                 ->placeholder(__('money.empty')),
             TextEntry::make('tax_office')
                 ->label(__('customers.tax_office'))
+                ->inlineLabel()
                 ->placeholder(__('money.empty')),
             TextEntry::make('tax_number')
                 ->label(__('customers.tax_number'))
+                ->inlineLabel()
                 ->placeholder(__('money.empty')),
             TextEntry::make('billing_address')
                 ->label(__('customers.billing_address'))
+                ->inlineLabel()
                 ->placeholder(__('money.empty')),
         ];
     }

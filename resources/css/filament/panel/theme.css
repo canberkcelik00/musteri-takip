@@ -14,9 +14,10 @@
  * Brand color: used only for the logo mark and the active sidebar item's indicator bar, never
  * for buttons or status badges.
  *
- * Note for G-4B.5: Filament's own button map uses primary-600 with a lighter 500 hover in light
- * mode and primary-600 in dark mode; the tokens ask for a darker hover (--mt-primary-hover) and,
- * in dark mode, --mt-primary (primary-400) with --mt-on-primary text.
+ * Buttons (G-4B.5): Filament's own button map uses primary-600 with a lighter 500 hover in light
+ * mode and primary-600 in dark mode; the button rules below take --mt-primary, a darker
+ * --mt-primary-hover in the light theme and a lighter one (primary-300) in the dark theme, and
+ * --mt-on-primary text instead.
  */
 :root {
     --mt-brand: #ff3800;
@@ -78,6 +79,7 @@
     --mt-weight-body: 400;
     --mt-text-help: 13px;
     --mt-text-help-small: 12px;
+    --mt-text-panel-title: 20px;
 
     --mt-space-page-y: 24px;
     --mt-space-page-x: 28px;
@@ -86,6 +88,8 @@
     --mt-space-cell-x: 14px;
     --mt-space-panel-head-y: 12px;
     --mt-space-panel-head-x: 16px;
+    --mt-space-panel-body: 24px;
+    --mt-slideover-width: 440px;
 
     --mt-radius: 6px;
     --mt-radius-badge: 4px;
@@ -109,9 +113,8 @@
     --mt-text: #e6eaf0;
     --mt-text-muted: #9aa5b5;
 
-    /* UI.md §6 gives no dark hover shade; it stays the primary itself until G-4B.5. */
     --mt-primary: #6f93d6;
-    --mt-primary-hover: #6f93d6;
+    --mt-primary-hover: #9db6e2;
     --mt-on-primary: #0b1626;
 
     --mt-danger-text: #f38b82;
@@ -920,5 +923,452 @@ body {
     .fi-today-tasks .fi-mobile-badge .fi-badge:not(.fi-wrapped),
     .fi-today-tasks .fi-mobile-badge .fi-badge-label:not(.fi-wrapped) {
         @apply whitespace-normal;
+    }
+}
+
+/*
+ * Buttons: one primary, the rest secondary, dangerous ones outlined (G-4B.5, docs/UI.md §4 and
+ * §6). Filament colors a button through the `--bg`, `--text` and `--hover-*` variables (and their
+ * `--dark-*` twins, which the dark theme reads); setting them from the tokens here keeps every
+ * button of a kind the same everywhere, and the token values themselves flip with the theme.
+ * Primary is the navy fill; gray (Filament draws it without a color class) is a white button with
+ * a hairline; danger is never a solid red fill, in the filled and in the outlined form alike.
+ */
+.fi-btn {
+    border-radius: var(--mt-radius);
+    box-shadow: none;
+    font-weight: 600;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined) {
+    --bg: var(--mt-primary);
+    --dark-bg: var(--mt-primary);
+    --text: var(--mt-on-primary);
+    --dark-text: var(--mt-on-primary);
+    --hover-bg: var(--mt-primary-hover);
+    --dark-hover-bg: var(--mt-primary-hover);
+    --hover-text: var(--mt-on-primary);
+    --dark-hover-text: var(--mt-on-primary);
+}
+
+.fi-btn:not(.fi-color):not(.fi-outlined) {
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    background-color: var(--mt-panel-bg);
+    color: var(--mt-text);
+    --tw-ring-color: transparent;
+}
+
+.fi-btn:not(.fi-color):not(.fi-outlined):not(.fi-disabled):not([disabled]):hover {
+    background-color: var(--mt-row-hover);
+}
+
+.fi-btn.fi-color-danger {
+    --bg: var(--mt-danger-bg);
+    --dark-bg: var(--mt-danger-bg);
+    --text: var(--mt-danger-text);
+    --dark-text: var(--mt-danger-text);
+    --hover-bg: var(--mt-row-hover);
+    --dark-hover-bg: var(--mt-row-hover);
+    --hover-text: var(--mt-danger-text);
+    --dark-hover-text: var(--mt-danger-text);
+    --tw-ring-color: var(--mt-danger-border);
+}
+
+.fi-btn.fi-color-danger:not(.fi-outlined) {
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-danger-border);
+    background-color: var(--mt-danger-bg);
+}
+
+.fi-btn.fi-outlined {
+    --tw-shadow: 0 0 0 0 transparent;
+    --tw-ring-color: var(--mt-border);
+    background-color: var(--mt-panel-bg);
+}
+
+.fi-btn.fi-outlined.fi-color-danger {
+    --tw-ring-color: var(--mt-danger-border);
+}
+
+/* The modal buttons ("Vazgeç" / "Kaydet" / confirmations) take the same looks through these rules. */
+.fi-btn:focus-visible {
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: var(--mt-focus-offset);
+}
+
+/*
+ * Row buttons in tables: Filament renders a row action as a link; the reference shows a small
+ * bordered button (docs/UI.md §4). Only the look changes, the action and its place stay.
+ */
+.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link > .fi-icon {
+    display: none;
+}
+
+.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link {
+    padding: 3px 8px;
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    font-weight: 600;
+    color: var(--mt-text);
+    text-decoration: none;
+}
+
+.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link:hover {
+    background-color: var(--mt-row-hover);
+    text-decoration: none;
+}
+
+.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger {
+    border-color: var(--mt-danger-border);
+    color: var(--mt-danger-text);
+}
+
+/* Links in a panel's header ("Tüm borçlar", "Düzenle"): underlined, in the interactive color. */
+.fi-link.fi-color-primary,
+.fi-ta-header .fi-link,
+.fi-section-header .fi-link {
+    color: var(--mt-primary);
+    text-decoration: underline;
+}
+
+/*
+ * Cards (G-4B.5): sections and the Today numbers are hairline-bordered panels with no shadow and
+ * a 6 px corner. A section's header is its own row with a rule under it, the heading 15/600.
+ */
+.fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-wi-stats-overview-stat {
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+}
+
+.fi-section:not(.fi-section-not-contained):not(.fi-aside) > .fi-section-header {
+    padding: var(--mt-space-panel-head-y) var(--mt-space-panel-head-x);
+}
+
+.fi-section:not(.fi-section-not-contained).fi-section-has-header:not(.fi-collapsed) > .fi-section-content-ctn {
+    border-top: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+}
+
+.fi-section:not(.fi-section-not-contained):not(.fi-divided) > .fi-section-content-ctn > .fi-section-content {
+    padding: var(--mt-space-panel-head-x);
+}
+
+.fi-section-header-heading {
+    font-size: var(--mt-text-section-title);
+    font-weight: var(--mt-weight-section-title);
+    color: var(--mt-text);
+}
+
+.fi-section-header-description {
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+/* A table's heading with a description is the panel head with the count at its right end ("3 aktif"). */
+.fi-ta-ctn .fi-ta-header:has(.fi-ta-header-heading) > div:first-child:has(.fi-ta-header-description) {
+    display: flex;
+    flex: 1;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/*
+ * The four numbers of the Today page: label, big figure, small line. The figure of the overdue
+ * card is red; Filament colors the small line instead, which stays muted here.
+ */
+.fi-wi-stats-overview-stat {
+    padding: 18px 20px;
+}
+
+.fi-wi-stats-overview-stat:focus-visible {
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: var(--mt-focus-offset);
+    box-shadow: none;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: var(--mt-text-body);
+    font-weight: var(--mt-weight-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-size: var(--mt-text-amount);
+    font-weight: var(--mt-weight-amount);
+    letter-spacing: var(--mt-tracking-amount);
+    color: var(--mt-text);
+}
+
+.fi-wi-stats-overview-stat-description,
+.fi-wi-stats-overview-stat-description.fi-color {
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-wi-stats-overview-stat:has(.fi-wi-stats-overview-stat-description.fi-color-danger) .fi-wi-stats-overview-stat-value {
+    color: var(--mt-danger-text);
+}
+
+/*
+ * The customer card's header strip (ViewCustomer::getHeader): one bordered card, the name on the
+ * left, the two amounts in the middle, the actions on the right.
+ */
+.fi-customer-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 16px 40px;
+    padding: 20px 24px;
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+}
+
+.fi-customer-header .fi-header-actions-ctn {
+    align-self: center;
+}
+
+.fi-customer-header-amounts {
+    display: flex;
+    gap: 40px;
+    margin: 0;
+}
+
+.fi-customer-header-amount-label {
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-customer-header-amount-value {
+    margin: 0;
+    font-size: var(--mt-text-amount);
+    font-weight: var(--mt-weight-amount);
+    letter-spacing: var(--mt-tracking-amount);
+    line-height: 1.3;
+    color: var(--mt-text);
+    white-space: nowrap;
+}
+
+@media not all and (min-width: 64rem) {
+    .fi-customer-header {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fi-customer-header-amounts {
+        flex-wrap: wrap;
+        gap: 12px 32px;
+    }
+}
+
+/*
+ * Status badges that stand in for a hidden "Durum" column below `xl`, in the card's tables
+ * (G-4B.5): the card's left column is two thirds of the page, so the column only fits from 1280 px.
+ * The label wraps like the one under "Kalan" does (`fi-status-badge`).
+ */
+.fi-badge-below-xl {
+    @apply xl:hidden mt-1 block;
+
+    & .fi-badge:not(.fi-wrapped),
+    & .fi-badge-label:not(.fi-wrapped) {
+        @apply overflow-visible text-wrap;
+        text-overflow: clip;
+    }
+}
+
+/*
+ * Forms and the side panel (G-4B.5, docs/UI.md §5–6): a form is one column of bold labels over
+ * 6 px hairline fields; the focus ring is the token ring and an invalid field turns its border and
+ * its message red. The side panel (a slide-over) is 440 px wide with a ruled header and footer;
+ * Filament's close icon becomes the text "Kapat" (docs/UI.md §2 Kural 5: no icon without a label),
+ * taken from the button's own translated label.
+ */
+.fi-fo-field-label-content {
+    font-size: var(--mt-text-body);
+    font-weight: 600;
+    color: var(--mt-text);
+}
+
+.fi-fo-field-label-content .fi-fo-field-label-required-mark {
+    color: var(--mt-danger-text);
+}
+
+.fi-input-wrp {
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+}
+
+.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+    box-shadow: none;
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: var(--mt-focus-offset);
+}
+
+.fi-input-wrp.fi-invalid {
+    border-color: var(--mt-danger-text);
+}
+
+.fi-input-wrp.fi-invalid:not(.fi-disabled):focus-within {
+    outline-color: var(--mt-danger-text);
+}
+
+.fi-input-wrp.fi-disabled {
+    background-color: var(--mt-table-head-bg);
+}
+
+.fi-input-wrp .fi-input-wrp-label {
+    color: var(--mt-text-muted);
+}
+
+.fi-fo-field-wrp-error-message {
+    font-size: var(--mt-text-body);
+    color: var(--mt-danger-text);
+}
+
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window {
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+}
+
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window[class] {
+    max-width: var(--mt-slideover-width);
+    border-width: 0;
+    border-inline-start-width: var(--mt-border-width);
+    border-radius: 0;
+}
+
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window {
+    border-radius: var(--mt-radius);
+}
+
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-header {
+    padding: var(--mt-space-panel-head-y) var(--mt-space-panel-body);
+    border-bottom: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+}
+
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-heading {
+    font-size: var(--mt-text-panel-title);
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--mt-text);
+}
+
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-description {
+    font-size: var(--mt-text-body);
+    color: var(--mt-text-muted);
+}
+
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-content {
+    padding-inline: var(--mt-space-panel-body);
+}
+
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-footer {
+    padding: var(--mt-space-panel-head-x) var(--mt-space-panel-body);
+    border-top: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+}
+
+.fi-modal-close-btn {
+    inset-block-start: var(--mt-space-panel-head-y);
+    inset-inline-end: var(--mt-space-panel-body);
+    width: auto;
+    height: auto;
+    padding: 5px 12px;
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    font-size: var(--mt-text-body);
+    font-weight: 600;
+    color: var(--mt-text);
+}
+
+.fi-modal:not(.fi-modal-slide-over) .fi-modal-close-btn {
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
+}
+
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-heading {
+    color: var(--mt-text);
+}
+
+.fi-modal-close-btn .fi-icon {
+    display: none;
+}
+
+.fi-modal-close-btn::after {
+    content: attr(aria-label);
+}
+
+.fi-modal-close-btn:hover {
+    background-color: var(--mt-row-hover);
+}
+
+/* Notifications: a bordered panel, the status color only in the icon (docs/UI.md §6). */
+.fi-no-notification:not(.fi-inline),
+.fi-no-notification.fi-color:not(.fi-inline) {
+    border: var(--mt-border-width) solid transparent;
+    border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-panel-bg);
+    box-shadow: none;
+}
+
+.fi-no-notification .fi-no-notification-title {
+    font-weight: 600;
+    color: var(--mt-text);
+}
+
+.fi-no-notification .fi-no-notification-body,
+.fi-no-notification.fi-color .fi-no-notification-body {
+    color: var(--mt-text-muted);
+}
+
+/* The card's billing details: a muted label and its value on one row, as in the reference. */
+.fi-in-entry-label {
+    font-size: var(--mt-text-body);
+    font-weight: var(--mt-weight-body);
+    color: var(--mt-text-muted);
+}
+
+@media (min-width: 40rem) {
+    .fi-in-entry.fi-in-entry-has-inline-label {
+        grid-template-columns: 7.5rem minmax(0, 1fr);
+    }
+
+    .fi-in-entry.fi-in-entry-has-inline-label .fi-in-entry-content-col {
+        grid-column: span 1 / span 1;
+    }
+}
+
+/* From `lg` to `xl` the right column is only a third of the page: labels stack above their values again. */
+@media (min-width: 64rem) and (max-width: 79.99rem) {
+    .fi-in-entry.fi-in-entry-has-inline-label {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Under 1280 px the header strip has no room for all four parts on one row: the name takes its own row. */
+@media (min-width: 64rem) and (max-width: 79.99rem) {
+    .fi-customer-header {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .fi-customer-header-title {
+        grid-column: 1 / -1;
     }
 }
