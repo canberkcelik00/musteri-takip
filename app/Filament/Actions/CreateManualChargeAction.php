@@ -53,7 +53,6 @@ class CreateManualChargeAction extends Action
             ->label(__('charges.create'))
             ->icon(Heroicon::Plus)
             ->modalHeading(__('charges.create_heading'))
-            ->slideOver()
             ->fillForm(fn (): array => [
                 'customer_id' => $this->customer?->getKey(),
                 'currency' => Currency::Try->value,

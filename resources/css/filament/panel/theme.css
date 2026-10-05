@@ -89,7 +89,7 @@
     --mt-space-panel-head-y: 12px;
     --mt-space-panel-head-x: 16px;
     --mt-space-panel-body: 24px;
-    --mt-slideover-width: 440px;
+    --mt-modal-width: 640px;
 
     --mt-radius: 6px;
     --mt-radius-badge: 4px;
@@ -139,9 +139,9 @@
  *
  * From `lg` up the navy sidebar runs the full height of the window with the logo on top, and
  * the topbar sits to its right. The topbar starts after the sidebar (margin) instead of
- * overlapping it: Filament renders the action modals and slide-overs inside the topbar, whose
+ * overlapping it: Filament renders the action modals (the form windows) inside the topbar, whose
  * sticky z-30 stacking context caps their z-index, so a sidebar stacked above the topbar would
- * also cover the "Ödeme al" panel. The sidebar keeps Filament's own z-20 and stays below them.
+ * also cover the "Ödeme al" window. The sidebar keeps Filament's own z-20 and stays below them.
  * Below `lg` Filament's slide-in menu is kept; it only takes the navy colors.
  */
 .fi-body {
@@ -1201,11 +1201,14 @@ body {
 }
 
 /*
- * Forms and the side panel (G-4B.5, docs/UI.md §5–6): a form is one column of bold labels over
- * 6 px hairline fields; the focus ring is the token ring and an invalid field turns its border and
- * its message red. The side panel (a slide-over) is 440 px wide with a ruled header and footer;
- * Filament's close icon becomes the text "Kapat" (docs/UI.md §2 Kural 5: no icon without a label),
- * taken from the button's own translated label.
+ * Forms and the form window (G-4B.5, T-84, docs/UI.md §2 Kural 8, §5–6): a form is one column of
+ * bold labels over 6 px hairline fields; the focus ring is the token ring and an invalid field
+ * turns its border and its message red. Every form opens in the centered form window (the window
+ * class `fi-mt-form-modal`, AppServiceProvider::FORM_WINDOW_CLASS): 640 px wide, and on a narrow
+ * screen as wide as Filament's 16 px container margin allows, with a ruled sticky header and footer
+ * so a long form scrolls only its fields. The table's filter window has the same header, body and
+ * footer at Filament's filter width. Filament's close icon becomes the text "Kapat" (docs/UI.md §2
+ * Kural 5: no icon without a label), taken from the button's own translated label.
  */
 .fi-fo-field-label-content {
     font-size: var(--mt-text-body);
@@ -1255,52 +1258,82 @@ body {
 .fi-modal > .fi-modal-window-ctn > .fi-modal-window {
     border: var(--mt-border-width) solid transparent;
     border-color: var(--mt-border);
+    border-radius: var(--mt-radius);
     background-color: var(--mt-panel-bg);
     box-shadow: none;
 }
 
-.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window[class] {
-    max-width: var(--mt-slideover-width);
-    border-width: 0;
-    border-inline-start-width: var(--mt-border-width);
-    border-radius: 0;
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal {
+    max-width: var(--mt-modal-width);
 }
 
-.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window {
-    border-radius: var(--mt-radius);
+/*
+ * The window scrolls its fields under the sticky header (about 54 px) and footer (about 72 px): a
+ * field that takes the focus, by Tab or with a phone's keyboard open, scrolls clear of both (T-84).
+ */
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window {
+    scroll-padding-block: 64px 88px;
 }
 
-.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-header {
+/*
+ * On a very short screen (a small phone with its keyboard open) the two bars would leave too little
+ * room for a field: there they scroll with the form, and "Kaydet" is at its end (T-84).
+ */
+@media (max-height: 24rem) {
+    .fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal,
+    .fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window {
+        scroll-padding-block: 0;
+    }
+
+    .fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-header,
+    .fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-footer,
+    .fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-header,
+    .fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-footer {
+        position: static;
+    }
+}
+
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-header,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-header {
     padding: var(--mt-space-panel-head-y) var(--mt-space-panel-body);
     border-bottom: var(--mt-border-width) solid transparent;
     border-color: var(--mt-border);
+    border-radius: 0;
+    background-color: var(--mt-panel-bg);
 }
 
-.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-heading {
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-heading,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-heading {
     font-size: var(--mt-text-panel-title);
     font-weight: 700;
     line-height: 1.4;
     color: var(--mt-text);
 }
 
-.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-description {
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-description,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-description {
     font-size: var(--mt-text-body);
     color: var(--mt-text-muted);
 }
 
-.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-content {
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-content,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-content {
     padding-inline: var(--mt-space-panel-body);
 }
 
-.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window .fi-modal-footer {
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-footer,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-footer {
     padding: var(--mt-space-panel-head-x) var(--mt-space-panel-body);
     border-top: var(--mt-border-width) solid transparent;
     border-color: var(--mt-border);
+    border-radius: 0;
+    background-color: var(--mt-panel-bg);
 }
 
 .fi-modal-close-btn {
-    inset-block-start: var(--mt-space-panel-head-y);
-    inset-inline-end: var(--mt-space-panel-body);
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
     width: auto;
     height: auto;
     padding: 5px 12px;
@@ -1313,9 +1346,10 @@ body {
     color: var(--mt-text);
 }
 
-.fi-modal:not(.fi-modal-slide-over) .fi-modal-close-btn {
-    inset-block-start: 12px;
-    inset-inline-end: 12px;
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-close-btn,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-close-btn {
+    inset-block-start: var(--mt-space-panel-head-y);
+    inset-inline-end: var(--mt-space-panel-body);
 }
 
 .fi-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-heading {

@@ -15,6 +15,7 @@ use App\Livewire\TopbarActions;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\User;
+use App\Providers\AppServiceProvider;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
 
@@ -74,12 +75,13 @@ it('records a payment through the topbar with only the customer and the amount',
         ->and($charge->refresh()->allocatedAmount())->toBe(50000);
 });
 
-it('opens the payment form in a slide-over from the topbar', function () {
+it('opens the payment form in the form window from the topbar', function () {
     Livewire::test(TopbarActions::class)
         ->mountAction('recordPayment')
         ->assertActionMounted('recordPayment');
 
-    expect(RecordPaymentAction::make()->isModalSlideOver())->toBeTrue();
+    expect(RecordPaymentAction::make()->isModalSlideOver())->toBeFalse()
+        ->and(RecordPaymentAction::make()->getModalWidth())->toBe(AppServiceProvider::FORM_WINDOW_CLASS);
 });
 
 it('lets the "Yeni" menu create an unattached manual charge for a chosen customer', function () {
@@ -98,7 +100,7 @@ it('lets the "Yeni" menu create an unattached manual charge for a chosen custome
     expect($customer->charges()->sole()->description)->toBe('Kurulum');
 });
 
-it('lets the "Yeni" menu create a customer in a slide-over and opens its card', function () {
+it('lets the "Yeni" menu create a customer in the form window and opens its card', function () {
     Livewire::test(TopbarActions::class)
         ->mountAction('createCustomer')
         ->assertActionMounted('createCustomer')
@@ -106,6 +108,7 @@ it('lets the "Yeni" menu create a customer in a slide-over and opens its card', 
         ->callMountedAction()
         ->assertRedirect(CustomerResource::getUrl('view', ['record' => Customer::query()->sole()]));
 
-    expect(CreateCustomerAction::make()->isModalSlideOver())->toBeTrue()
+    expect(CreateCustomerAction::make()->isModalSlideOver())->toBeFalse()
+        ->and(CreateCustomerAction::make()->getModalWidth())->toBe(AppServiceProvider::FORM_WINDOW_CLASS)
         ->and(Customer::query()->sole()->primaryContact->name)->toBe('Ayşe Kaya');
 });

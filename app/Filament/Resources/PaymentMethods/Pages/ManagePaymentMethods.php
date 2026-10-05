@@ -13,7 +13,7 @@ class ManagePaymentMethods extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('payment_methods.add'))->slideOver()->color('gray'),
+            CreateAction::make()->label(__('payment_methods.add'))->color('gray'),
         ];
     }
 }

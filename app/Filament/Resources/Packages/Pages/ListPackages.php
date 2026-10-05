@@ -13,7 +13,7 @@ class ListPackages extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('packages.add'))->slideOver()->color('gray'),
+            CreateAction::make()->label(__('packages.add'))->color('gray'),
         ];
     }
 }

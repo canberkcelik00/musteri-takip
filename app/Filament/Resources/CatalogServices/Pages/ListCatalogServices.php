@@ -13,7 +13,7 @@ class ListCatalogServices extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('catalog_services.add'))->slideOver()->color('gray'),
+            CreateAction::make()->label(__('catalog_services.add'))->color('gray'),
         ];
     }
 }

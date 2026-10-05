@@ -44,12 +44,12 @@ class CatalogServicesTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
+                EditAction::make(),
             ])
             ->emptyStateHeading(__('catalog_services.empty_heading'))
             ->emptyStateDescription(__('catalog_services.empty_description'))
             ->emptyStateActions([
-                CreateAction::make('createEmpty')->label(__('catalog_services.add'))->slideOver()->color('gray'),
+                CreateAction::make('createEmpty')->label(__('catalog_services.add'))->color('gray'),
             ]);
     }
 }

@@ -45,13 +45,16 @@ use App\Models\Package;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\User;
+use App\Providers\AppServiceProvider;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
@@ -70,6 +73,17 @@ beforeEach(function () {
 function rulesTable(string $class, array $parameters = []): Table
 {
     return Livewire::test($class, $parameters)->instance()->getTable();
+}
+
+/**
+ * A form opens in the centered form window (T-84): the shared width class, sticky header and footer, no slide-over.
+ */
+function expectFormWindow(Action $action): void
+{
+    expect($action->isModalSlideOver())->toBeFalse("{$action->getName()} opens as a slide-over")
+        ->and($action->getModalWidth())->toBe(AppServiceProvider::FORM_WINDOW_CLASS, "{$action->getName()} has the form window width")
+        ->and($action->isModalHeaderSticky())->toBeTrue()
+        ->and($action->isModalFooterSticky())->toBeTrue();
 }
 
 /**
@@ -271,6 +285,36 @@ describe('panels', function () {
         }
     });
 
+    it('lays the resource forms out in one column, keeping the two-column sections inside them (T-84)', function () {
+        // ListRecords and ManageRecords give a form without its own columns a two-column grid from `lg`, and a
+        // Section takes one of those columns: the catalog form's section was squeezed into half the panel.
+        $catalog = CatalogService::factory()->create();
+        $package = Package::factory()->withCatalogServices()->create();
+        $method = PaymentMethod::query()->firstOrFail();
+
+        $forms = [
+            'catalog create' => Livewire::test(ListCatalogServices::class)->mountAction('create'),
+            'catalog edit' => Livewire::test(ListCatalogServices::class)->mountAction(TestAction::make('edit')->table($catalog)),
+            'package create' => Livewire::test(ListPackages::class)->mountAction('create'),
+            'package edit' => Livewire::test(ListPackages::class)->mountAction(TestAction::make('edit')->table($package)),
+            'payment method create' => Livewire::test(ManagePaymentMethods::class)->mountAction('create'),
+            'payment method edit' => Livewire::test(ManagePaymentMethods::class)->mountAction(TestAction::make('edit')->table($method)),
+        ];
+
+        foreach ($forms as $name => $component) {
+            $schema = $component->instance()->getSchema('mountedActionSchema0');
+
+            expect($schema->getColumns('lg'))->toBe(1, "{$name}: the form's own grid is one column");
+        }
+
+        foreach (['catalog create', 'package create'] as $name) {
+            $section = $forms[$name]->instance()->getSchema('mountedActionSchema0')->getComponents()[0];
+
+            expect($section)->toBeInstanceOf(Section::class)
+                ->and($section->getColumns('lg'))->toBe(2, "{$name}: the section keeps its two columns");
+        }
+    });
+
     it('keeps the panel footer to "Vazgeç" then "Kaydet", at the bottom right, with no danger action beside it', function () {
         $customer = Customer::factory()->create();
         $charge = Charge::factory()->for($customer)->create();
@@ -293,22 +337,61 @@ describe('panels', function () {
         foreach ($mounted as $component) {
             $action = $component->instance()->getMountedAction();
 
-            expect($action->isModalSlideOver())->toBeTrue()
-                ->and(array_keys($action->getModalFooterActions()))->toBe(['submit', 'cancel'])
+            expectFormWindow($action);
+
+            expect(array_keys($action->getModalFooterActions()))->toBe(['submit', 'cancel'])
                 ->and($action->getModalFooterActionsAlignment())->toBe(Alignment::End)
                 ->and($action->getModalCancelActionLabel())->toBe('Vazgeç')
                 ->and($action->getModalSubmitActionLabel())->toBe('Kaydet');
         }
     });
 
-    it('opens every create and edit form in a slide-over', function () {
+    it('opens every create and edit form in the centered form window, and a confirmation in the small dialog (T-84)', function () {
+        // Decision change (T-84, docs/UI.md §2 Kural 8): this replaced "opens every create and edit form in a slide-over".
         $customer = Customer::factory()->create();
+        $card = ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class];
 
-        expect(CreateCustomerAction::make()->isModalSlideOver())->toBeTrue()
-            ->and(EditCustomerAction::make()->isModalSlideOver())->toBeTrue()
-            ->and(RecordPaymentAction::make()->isModalSlideOver())->toBeTrue()
-            ->and(CreateManualChargeAction::make()->isModalSlideOver())->toBeTrue()
-            ->and(AssignCustomerServiceAction::make()->customer($customer)->isModalSlideOver())->toBeTrue();
+        $actions = [
+            CreateCustomerAction::make(),
+            EditCustomerAction::make(),
+            RecordPaymentAction::make(),
+            CreateManualChargeAction::make(),
+            AssignCustomerServiceAction::make()->customer($customer),
+        ];
+
+        $mounted = [
+            Livewire::test(ListCatalogServices::class)->mountAction(TestAction::make('edit')->table(CatalogService::factory()->create())),
+            Livewire::test(ListPackages::class)->mountAction(TestAction::make('edit')->table(Package::factory()->withCatalogServices()->create())),
+            Livewire::test(ManagePaymentMethods::class)->mountAction(TestAction::make('edit')->table(PaymentMethod::query()->firstOrFail())),
+            Livewire::test(ContactsRelationManager::class, $card)->mountAction(TestAction::make('create')->table()),
+            Livewire::test(ChargesRelationManager::class, $card)->mountAction(TestAction::make('editCharge')->table(Charge::factory()->for($customer)->create())),
+            Livewire::test(CustomerServicesRelationManager::class, $card)->mountAction(TestAction::make('editService')->table(CustomerService::factory()->for($customer)->create())),
+        ];
+
+        foreach ([...$actions, ...array_map(fn ($component): Action => $component->instance()->getMountedAction(), $mounted)] as $action) {
+            expectFormWindow($action);
+        }
+
+        $confirmation = Livewire::test(PaymentsRelationManager::class, $card)
+            ->mountAction(TestAction::make('deletePayment')->table(Payment::factory()->for($customer)->create()))
+            ->instance()->getMountedAction();
+
+        expect($confirmation->isConfirmationRequired())->toBeTrue()
+            ->and($confirmation->getModalWidth())->not->toBe(AppServiceProvider::FORM_WINDOW_CLASS)
+            ->and($confirmation->isModalHeaderSticky())->toBeFalse()
+            ->and($confirmation->isModalFooterSticky())->toBeFalse();
+    });
+
+    it('opens the table filters in a centered window with a sticky header and footer, not in a slide-over (T-84)', function () {
+        foreach ([ListCharges::class, ListPayments::class] as $page) {
+            $table = rulesTable($page);
+            $trigger = $table->getFiltersTriggerAction();
+
+            expect($table->getFiltersLayout())->toBe(FiltersLayout::Modal, $page)
+                ->and($trigger->isModalSlideOver())->toBeFalse()
+                ->and($trigger->isModalHeaderSticky())->toBeTrue()
+                ->and($trigger->isModalFooterSticky())->toBeTrue();
+        }
     });
 
     it('marks the dangerous actions red and gives each a confirmation or a form of its own', function () {

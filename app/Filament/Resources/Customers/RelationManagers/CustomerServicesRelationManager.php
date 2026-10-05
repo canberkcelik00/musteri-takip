@@ -202,7 +202,6 @@ class CustomerServicesRelationManager extends RelationManager
             ->label(__('customer_services.edit'))
             ->icon(Heroicon::PencilSquare)
             ->modalHeading(__('customer_services.edit_heading'))
-            ->slideOver()
             ->fillForm(fn (CustomerService $record): array => [
                 'price' => $record->price,
                 'currency' => $record->currency,

@@ -28,14 +28,14 @@ use Illuminate\Database\Eloquent\Model;
  * The customer's contacts, one stacked column each (T-67: name + "· Birincil" when primary,
  * title, phone as tel:, email as mailto:; blank ones drop out) so the card's narrow right
  * column never scrolls horizontally. No row action button (T-68, G-4.17 keeps this card free
- * of "⋮" menus): clicking the name opens the edit slide-over, wired as a **column** action
+ * of "⋮" menus): clicking the name opens the edit window, wired as a **column** action
  * ({@see TextColumn::action()}) rather than a table row action. A row action registered only
  * to be hidden() breaks Livewire's partial re-render once its form is filled (confirmed from
  * source and by reproducing it: `Filament\Support\Livewire\Partials\PartialsComponentHook`
  * renders the hidden trigger's own partial as an empty string, which then fails Livewire's
  * root-tag check) — a column action sidesteps that registry entirely and needs no hidden()
  * button at all. "Birincil yap" and "Sil" (both hidden for the primary contact, "Sil" red and
- * confirmed) live in the slide-over's "Kişi işlemleri" section ({@see RecordActionsSection},
+ * confirmed) live in the edit window's "Kişi işlemleri" section ({@see RecordActionsSection},
  * G-4.17) — not in its footer beside Kaydet — and cancel the panel (cancelParentActions())
  * instead of saving the form. Every change goes through the Actions in App\Actions\Contacts,
  * which keep exactly one primary contact.
@@ -149,7 +149,6 @@ class ContactsRelationManager extends RelationManager
     private function buildEditAction(): EditAction
     {
         return EditAction::make()
-            ->slideOver()
             ->schema([
                 ...$this->getContactFields(),
                 RecordActionsSection::make(

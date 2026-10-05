@@ -64,7 +64,6 @@ class RecordPaymentAction extends Action
             ->label(__('payments.record'))
             ->icon(Heroicon::Plus)
             ->modalHeading(__('payments.record_heading'))
-            ->slideOver()
             ->fillForm(fn (): array => $this->initialState())
             ->schema([
                 Select::make('customer_id')

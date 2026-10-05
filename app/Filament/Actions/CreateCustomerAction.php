@@ -10,7 +10,7 @@ use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;
 
 /**
- * The new-customer form in a slide-over: customer details and the first (primary) contact,
+ * The new-customer form in the form window: customer details and the first (primary) contact,
  * created together through CreateCustomer; afterwards the customer's card opens. Shared by the
  * customer list, its empty state and the topbar's "Yeni" menu, so the customer is created the
  * same way — and looks the same — everywhere.
@@ -30,7 +30,6 @@ class CreateCustomerAction extends Action
             ->label(__('customers.create'))
             ->icon(Heroicon::Plus)
             ->modalHeading(__('customers.create_heading'))
-            ->slideOver()
             ->model(Customer::class)
             ->schema([
                 CustomerForm::customerSection(),

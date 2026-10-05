@@ -33,7 +33,6 @@ class EditChargeAction extends Action
             ->label(__('charges.edit'))
             ->icon(Heroicon::PencilSquare)
             ->modalHeading(__('charges.edit_heading'))
-            ->slideOver()
             ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open)
             ->fillForm(fn (Charge $record): array => [
                 'amount' => $record->amount,

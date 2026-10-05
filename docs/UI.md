@@ -32,7 +32,7 @@ Araştırmadan (başta Nielsen Norman Group'un uygulama tasarımı bulguları) b
 5. **Etiketsiz simge yok:** Her düğmede metin vardır; simge yalnızca metnin yanında yardımcıdır.
 6. **"⋮" çöp çekmecesi yok:** İçinde ne olduğu belli olmayan "⋮" veya "Diğer" menüleri kullanılmaz. Sık işlemler satırda metinli durur; nadir işlemler kaydın kendi sayfasında/kartında, adlandırılmış bir bölümde durur.
 7. **Tehlikeli işlem ayrı durur:** Sil, İptal et gibi işlemler Kaydet'in yanında değil, ayrı, kırmızı ve onaylıdır. Yanlış tıklama ihtimali tasarımla düşürülür.
-8. **Bağlamı kapatma:** Formlar ortada ekranı kapatan pencere yerine yandan açılan panelde açılır; arkadaki kart görünür kalır (ödeme alırken açık borçları görmek gibi).
+8. **Bağlamı kapatma:** Formlar sayfanın üstünde, ortada açılan pencerede açılır; ayrı bir sayfaya gidilmez, pencere kapanınca kullanıcı aynı yerde kalır. Pencere bütün formlarda aynı genişliktedir ve dar ekranda ekrana sığar. Uzun formda başlık ile Vazgeç · Kaydet sabit kalır, yalnız alanlar kayar; klavyesi açık küçük telefonda olduğu gibi ekran çok kısaysa ikisi de formla birlikte kayar. Tablo filtreleri de aynı biçimde ortada açılır. (Kullanıcı kararı, T-84; önceki kural: formlar yandan açılan panelde açılır ve arkadaki kart görünür kalır.)
 9. **Anlamsız bilgi yok:** Kayıt numarası (id), teknik kodlar tablolarda görünmez. İlk sütun her zaman insanın tanıdığı bilgidir (kısa ad, açıklama).
 10. **Kademeli gösterim:** Önce gereken azı gösterilir; ayrıntı ihtiyaç olunca açılır (ödeme dağıtımı, vergi bilgileri, kalem ayrıntıları katlanır bölümlerde).
 11. **Önemli olan üst-soldadır:** Göz sayfayı önce üstten soldan sağa, sonra sol kenardan aşağı tarar. En önemli sayılar üst satırda, en önemli sütun en soldadır.
@@ -66,7 +66,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
 
-**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al" (yan panel açıkken panelin "Kaydet"i); tablo satırlarındaki, Bugün'deki ve filtre panelindeki düğmeler ikincildir. Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
+**Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al" (form penceresi açıkken pencerenin "Kaydet"i); tablo satırlarındaki, Bugün'deki ve filtre panelindeki düğmeler ikincildir. Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
 
 ## 5. Ekran kuralları
 
@@ -112,7 +112,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 - Tek sütun, etiket alanın üstünde, zorunlu alanlar işaretli.
 - Varsayılanlar dolu; nadir alanlar katlanmış "Ayrıntılar" bölümünde.
-- Kaydet sağ altta birincil; Vazgeç onun solunda ikincil; tehlikeli işlem formda yok. Yan panelin sağ üstünde simgesiz, metinli "Kapat" düğmesi durur.
+- Kaydet sağ altta birincil; Vazgeç onun solunda ikincil; tehlikeli işlem formda yok. Form penceresinin sağ üstünde simgesiz, metinli "Kapat" düğmesi durur.
 - Hata alanın hemen altında, alanı nasıl düzelteceğini söyleyerek.
 
 ## 6. Görsel dil
@@ -142,11 +142,11 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Rozet: gri | #EEF0F3 / #4A5361 / #8B94A1 | zemin #232D3B, metin #B4BDC9 |
 | Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px; yalnız kırmızı, amber, yeşil ve gri vardır; renk sınıfsız rozet (Filament'in varsayılan grisi) gri çizilir, bu yüzden uygulamada rengi verilmemiş rozet olmaz | aynı |
 | Filtre çipi | beyaz zemin, 1 px kenarlık, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | aynı |
-| Yazı ölçeği | sayfa başlığı 26/700, yan panel başlığı 20/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
+| Yazı ölçeği | sayfa başlığı 26/700, form penceresi başlığı 20/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
 | Tablo metni | 14 px / 400 | aynı |
 | Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
-| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px, yan panel 440 px (iç boşluk 24 px) | aynı |
+| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px, form penceresi 640 px, dar ekranda ekran genişliği − 2×16 px (iç boşluk 24 px) | aynı |
 | Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
 | Gölge | yok; ayrım kenarlıkla | yok |
 | Odak halkası | 2 px #1D3A6A, 2 px boşlukla; kenar menüde #6F93D6 | 2 px #6F93D6 (kenar menüde de aynı) |

@@ -24,10 +24,10 @@ use Filament\Facades\Filament;
 use Livewire\Livewire;
 
 /*
- * Cards, forms, the side panel and the button hierarchy (G-4B.5, docs/UI.md §4–6). The visual
- * match with the reference screens (docs/design/referans) is checked by eye; these tests pin what
- * can be pinned: colors only from tokens, one primary button per screen, dangerous buttons never a
- * solid red fill, the "Kapat" text on the side panel, and the card's header strip and tables.
+ * Cards, forms, the form window and the button hierarchy (G-4B.5, T-84, docs/UI.md §4–6). The
+ * visual match with the reference screens (docs/design/referans) is checked by eye; these tests pin
+ * what can be pinned: colors only from tokens, one primary button per screen, dangerous buttons
+ * never a solid red fill, the "Kapat" text on the form window, and the card's header strip and tables.
  */
 
 /**
@@ -62,6 +62,10 @@ function cardFormRuleSelectors(): array
         '.fi-input-wrp.fi-disabled',
         '.fi-fo-field-wrp-error-message',
         '.fi-modal > .fi-modal-window-ctn > .fi-modal-window',
+        '.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-header,',
+        '.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-heading,',
+        '.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-description,',
+        '.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-footer,',
         '.fi-modal-close-btn',
         '.fi-no-notification:not(.fi-inline),',
         '.fi-no-notification .fi-no-notification-title',
@@ -236,11 +240,37 @@ it('marks the delete and cancel buttons as danger, in the card and in the confir
     expect($mounted->getModalSubmitAction()->getColor())->toBe('danger');
 });
 
-it('gives the side panel a close button whose text is its own translated label', function () {
+it('gives the form window a close button whose text is its own translated label', function () {
     // Filament renders the close button as an icon button with this label as its aria-label; the theme shows it as text.
     expect(__('filament::components/modal.actions.close.label'))->toBe('Kapat')
-        ->and(implode("\n", designRuleBodies('.fi-modal-close-btn::after')))->toContain('content: attr(aria-label)')
-        ->and(implode("\n", designRuleBodies('.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window[class]')))->toContain('max-width: var(--mt-slideover-width)');
+        ->and(implode("\n", designRuleBodies('.fi-modal-close-btn::after')))->toContain('content: attr(aria-label)');
+});
+
+it('opens forms in one centered window of the token width, with the panel title and ruled header and footer (T-84)', function () {
+    // Decision change (T-84, docs/UI.md §2 Kural 8): this replaced the 440 px side panel (slide-over) rule.
+    $window = '.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal';
+    $header = implode("\n", designRuleBodies("{$window} > .fi-modal-header"));
+    $footer = implode("\n", designRuleBodies("{$window} > .fi-modal-footer"));
+
+    expect(designThemeCss())->toContain('--mt-modal-width: 640px;')
+        ->not->toContain('--mt-slideover-width')
+        ->not->toContain('fi-modal-slide-over')
+        ->and(implode("\n", designRuleBodies($window)))->toContain('max-width: var(--mt-modal-width)')
+        ->and(implode("\n", designRuleBodies("{$window} .fi-modal-heading")))->toContain('font-size: var(--mt-text-panel-title)')->toContain('font-weight: 700')
+        ->and($header)->toContain('border-bottom: var(--mt-border-width) solid')->toContain('background-color: var(--mt-panel-bg)')
+        ->and($footer)->toContain('border-top: var(--mt-border-width) solid')->toContain('background-color: var(--mt-panel-bg)');
+});
+
+it('keeps a focused field clear of the sticky bars, and lets the bars scroll with the form on a very short screen (T-84)', function () {
+    // Measured in Chrome at 375×400 and 375×300 (a phone with its keyboard open): no field under either bar.
+    $window = '.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal';
+    $css = (string) preg_replace('#/\*.*?\*/#s', '', designThemeCss());
+
+    expect(implode("\n", designRuleBodies($window)))->toContain('scroll-padding-block: 64px 88px')
+        ->toContain('scroll-padding-block: 0')
+        ->and(implode("\n", designRuleBodies("{$window} > .fi-modal-header")))->toContain('position: static')
+        ->and(implode("\n", designRuleBodies("{$window} > .fi-modal-footer")))->toContain('position: static')
+        ->and($css)->toMatch('/@media \(max-height: 24rem\) \{\s*\.fi-modal > \.fi-modal-window-ctn > \.fi-modal-window\.fi-mt-form-modal,/');
 });
 
 it('gives form fields the token focus ring and an invalid field the danger border', function () {

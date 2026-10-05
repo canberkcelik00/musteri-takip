@@ -133,7 +133,7 @@ it('deletes a contact that is not primary, from the edit panel', function () {
         ->and($this->primary->refresh()->is_primary)->toBeTrue();
 });
 
-it('has no row action button; the name column itself opens the edit slide-over', function () {
+it('has no row action button; the name column itself opens the edit window', function () {
     $manager = contactsManager($this->customer)
         ->assertActionExists(TestAction::make('edit')->table($this->primary));
 

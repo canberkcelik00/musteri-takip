@@ -32,12 +32,12 @@ class PaymentMethodsTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
+                EditAction::make(),
             ])
             ->emptyStateHeading(__('payment_methods.empty_heading'))
             ->emptyStateDescription(__('payment_methods.empty_description'))
             ->emptyStateActions([
-                CreateAction::make('createEmpty')->label(__('payment_methods.add'))->slideOver()->color('gray'),
+                CreateAction::make('createEmpty')->label(__('payment_methods.add'))->color('gray'),
             ]);
     }
 }

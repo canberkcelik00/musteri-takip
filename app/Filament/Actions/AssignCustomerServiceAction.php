@@ -62,7 +62,6 @@ class AssignCustomerServiceAction extends Action
         $this
             ->label(__('customer_services.assign'))
             ->modalHeading(__('customer_services.assign_heading'))
-            ->slideOver()
             ->schema([
                 Select::make('sold')
                     ->label(__('customer_services.sold'))

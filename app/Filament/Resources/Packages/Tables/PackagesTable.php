@@ -39,12 +39,12 @@ class PackagesTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
+                EditAction::make(),
             ])
             ->emptyStateHeading(__('packages.empty_heading'))
             ->emptyStateDescription(__('packages.empty_description'))
             ->emptyStateActions([
-                CreateAction::make('createEmpty')->label(__('packages.add'))->slideOver()->color('gray'),
+                CreateAction::make('createEmpty')->label(__('packages.add'))->color('gray'),
             ]);
     }
 }
