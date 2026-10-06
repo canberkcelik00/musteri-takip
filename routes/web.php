@@ -2,6 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// A view route (not a closure) so that `route:cache` can cache the routes.
+Route::view('/', 'welcome');

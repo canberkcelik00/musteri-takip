@@ -21,6 +21,7 @@
 /public/hot
 /public/js/filament
 /public/storage
+/RELEASE
 /storage/*.key
 /storage/pail
 /vendor

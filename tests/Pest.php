@@ -1,10 +1,12 @@
 <?php
 
+use App\Actions\Deploy\ArtisanRunner;
 use App\Filament\Support\RecordActionsSection;
 use App\Livewire\TopbarActions;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
 use PHPUnit\Framework\AssertionFailedError;
 use Tests\TestCase;
@@ -173,4 +175,110 @@ function mountedActionWindowText(mixed $component): string
     $schema = (fn () => $this->getMountedActionSchema())->call($component->instance());
 
     return trim((string) preg_replace('/\s+/', ' ', strip_tags($schema->toHtml())));
+}
+
+const DEPLOY_TEST_KEY = 'deploy-test-key-0123456789abcdef-xyz';
+
+const DEPLOY_STEPS = ['optimize:clear', 'filament:clear-cached-components', 'migrate', 'optimize', 'filament:cache-components'];
+
+/**
+ * The temporary directory the running deploy test created, or null. Kept here instead of being
+ * derived from config on cleanup: an empty config value would resolve to the project root.
+ */
+function deployTestDirectory(?string $set = null, bool $forget = false): ?string
+{
+    static $directory = null;
+
+    if ($forget) {
+        $directory = null;
+    }
+
+    if ($set !== null) {
+        $directory = $set;
+    }
+
+    return $directory;
+}
+
+/**
+ * Point the deploy at a temporary directory, set the deploy key and replace the Artisan
+ * runner with one that records the commands instead of running them (a real `optimize`
+ * would write cache files into the test environment).
+ *
+ * @return object{calls: list<string>}
+ */
+function prepareDeploy(?string $release = 'release-1', ?string $failingCommand = null): object
+{
+    $directory = sys_get_temp_dir().DIRECTORY_SEPARATOR.'deploy-test-'.uniqid();
+    mkdir($directory);
+    deployTestDirectory($directory);
+
+    config()->set('app.deploy', [
+        'key' => DEPLOY_TEST_KEY,
+        'release_file' => $directory.'/RELEASE',
+        'state_file' => $directory.'/deployed-release',
+    ]);
+
+    if ($release !== null) {
+        file_put_contents($directory.'/RELEASE', $release);
+    }
+
+    return swapArtisanRunner($failingCommand);
+}
+
+/**
+ * @return object{calls: list<string>}
+ */
+function swapArtisanRunner(?string $failingCommand = null): object
+{
+    $runner = new class($failingCommand) extends ArtisanRunner
+    {
+        /** @var list<string> */
+        public array $calls = [];
+
+        public function __construct(private readonly ?string $failingCommand) {}
+
+        public function run(string $command, array $parameters = []): int
+        {
+            $this->calls[] = $command;
+
+            return $command === $this->failingCommand ? 1 : 0;
+        }
+    };
+
+    app()->instance(ArtisanRunner::class, $runner);
+
+    return $runner;
+}
+
+function deployedRelease(): ?string
+{
+    $directory = deployTestDirectory();
+
+    return $directory !== null && is_file($directory.'/deployed-release')
+        ? (string) file_get_contents($directory.'/deployed-release')
+        : null;
+}
+
+/**
+ * Remove the directory `prepareDeploy()` created, and nothing else: it must be a
+ * `deploy-test-*` directory directly inside the system temp directory.
+ */
+function cleanUpDeploy(): void
+{
+    $directory = deployTestDirectory();
+    deployTestDirectory(forget: true);
+
+    if ($directory === null) {
+        return;
+    }
+
+    $real = realpath($directory);
+    $temp = realpath(sys_get_temp_dir());
+
+    if ($real === false || $temp === false || dirname($real) !== $temp || ! str_starts_with(basename($real), 'deploy-test-')) {
+        return;
+    }
+
+    File::deleteDirectory($real);
 }

@@ -211,9 +211,10 @@ Hedef: Faz 4'te oturan yerleşim ve akışlar aynen kalırken panelin görünüm
 
 Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini kendiliğinden söylemesi ve güvenle canlıya alınması. Yayına alma fazın başında kurulur ki panel ve özet e-postası canlıda denenebilsin.
 
-- [ ] **G-5.1 Yayın uç noktası ve cron yedeği** — Bağımlılık: Faz 4B
+- [x] **G-5.1 Yayın uç noktası ve cron yedeği** — Bağımlılık: Faz 4B
   - Yapılacak: Gizli anahtarla korunan yayın adresi; migration, önbellek yenileme ve gerekirse storage bağlantısını çalıştırır. Aynı kontrol zamanlayıcıda "yeni sürüm varsa bir kez yap" görevi olarak çalışır.
   - Kabul: Yanlış veya eksik anahtar reddedilir; doğru anahtarla komutlar bir kez çalışır; aynı sürüm için tekrar çalışmaz (hepsi testli).
+  - Kapanış notu (T-87): Sürüm paketteki `RELEASE` dosyasıyla anlaşılır; `storage:link` çalıştırılmaz (kullanıcı kararı). Durum kodları: 200 yayınlandı veya güncel, 403 anahtar hatalı, 409 meşgul, 422 `RELEASE` yok, 500 hata (yalnız genel mesaj). G-5.2 için notlar T-87'de.
 - [ ] **G-5.2 Otomatik yayına alma** — Bağımlılık: G-1.5, G-5.1
   - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz. Paket, CI'da derlenen tema çıktısını (public/build) içermeli. Filament'in `public/` altındaki dosyaları git'te değil, `composer install` sırasında üretilir; paket hazırlanırken Composer betikleri kapatılmamalı ve paketin Filament dosyalarını içerdiği kontrol edilmeli.
   - Kabul: Gerekli GitHub secret'ları belgelenmiş; test başarısızsa yükleme yapılmaz.

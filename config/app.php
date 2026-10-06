@@ -139,4 +139,21 @@ return [
         'password' => env('ADMIN_PASSWORD'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy
+    |--------------------------------------------------------------------------
+    |
+    | `key` protects the deploy endpoint (at least 32 characters, otherwise every
+    | request is refused). `release_file` is the id file the deploy package ships;
+    | `state_file` holds the id that was deployed last.
+    |
+    */
+
+    'deploy' => [
+        'key' => env('DEPLOY_KEY'),
+        'release_file' => base_path('RELEASE'),
+        'state_file' => storage_path('app/deployed-release'),
+    ],
+
 ];
