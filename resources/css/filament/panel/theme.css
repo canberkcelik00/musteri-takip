@@ -602,6 +602,16 @@ body {
     }
 }
 
+/* From `md` to `lg` there is room for the badge under "Kalan" on one line (768 px, G-4B.7). */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+    .fi-badge-below-lg {
+        & .fi-badge:not(.fi-wrapped),
+        & .fi-badge-label:not(.fi-wrapped) {
+            white-space: nowrap;
+        }
+    }
+}
+
 .fi-ta-ctn {
     border: var(--mt-border-width) solid var(--mt-border);
     border-radius: var(--mt-radius);

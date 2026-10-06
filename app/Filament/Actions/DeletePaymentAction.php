@@ -32,8 +32,11 @@ class DeletePaymentAction extends Action
             ->modalDescription(__('payments.delete_description'))
             ->successNotificationTitle(__('payments.deleted'))
             ->action(function (Payment $record, DeletePayment $deletePayment, Component $livewire): void {
-                $deletePayment->handle($record);
+                $reopened = $deletePayment->handle($record);
 
+                $this->successNotificationTitle($reopened > 0
+                    ? __('payments.deleted_reopened', ['count' => $reopened])
+                    : __('payments.deleted'));
                 $this->success();
 
                 $livewire->dispatch(RecordPaymentAction::PAYMENTS_CHANGED_EVENT);

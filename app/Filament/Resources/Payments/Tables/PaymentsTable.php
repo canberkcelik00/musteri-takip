@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Payments\Tables;
 
 use App\Filament\Actions\DeletePaymentAction;
 use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Actions\ViewPaymentAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -13,9 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * The payment list. Responsive like the card's "Son ödemeler" (T-68, G-4B.7, no horizontal
  * scroll from 375 px): customer, date and amount always show; the customer wraps, the payment
- * method shows from `md` and the note from `lg`. Below `md` the row's "Sil" is hidden and the
- * amount opens the same confirmation instead, as on the card's "Son ödemeler" (T-69); the
- * date does not wrap, so the delete column would not fit a phone.
+ * method shows from `md` and the note from `lg`. Below `md` the row's "Sil" is hidden (the
+ * date does not wrap, so the delete column would not fit a phone); the amount opens the payment's
+ * detail window at every width, where "Sil" is the last, separate, confirmed action (T-85) — a
+ * click on an amount never deletes.
  */
 class PaymentsTable
 {
@@ -36,7 +38,7 @@ class PaymentsTable
                     ->date(),
                 MoneyColumn::make('amount')
                     ->label(__('payments.amount'))
-                    ->action(DeletePaymentAction::make('deletePaymentMobile')),
+                    ->action(ViewPaymentAction::make()),
                 TextColumn::make('paymentMethod.name')
                     ->label(__('payments.payment_method'))
                     ->visibleFrom('md'),

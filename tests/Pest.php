@@ -162,3 +162,15 @@ function designContrast(string $foreground, string $background): float
 
     return ($lighter + 0.05) / ($darker + 0.05);
 }
+
+/**
+ * The text of the window the Livewire test component has mounted an action in (G-4B.7): Filament
+ * renders an action's modal through a partial that the test's `html()` does not contain, so the
+ * mounted action's schema is rendered directly.
+ */
+function mountedActionWindowText(mixed $component): string
+{
+    $schema = (fn () => $this->getMountedActionSchema())->call($component->instance());
+
+    return trim((string) preg_replace('/\s+/', ' ', strip_tags($schema->toHtml())));
+}

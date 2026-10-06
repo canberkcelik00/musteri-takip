@@ -227,7 +227,7 @@ it('asks for a confirmation before deleting a payment and reopens the charges it
 
     cardPayments($customer)
         ->callAction(paymentRowAction('deletePayment', $payment))
-        ->assertNotified('Ödeme silindi.');
+        ->assertNotified('Ödeme silindi, 1 borç yeniden açıldı.');
 
     expect(Payment::query()->count())->toBe(0)
         ->and(PaymentAllocation::query()->count())->toBe(0)

@@ -102,3 +102,16 @@ it('closes the reopened charge from the balance and keeps the rest as balance', 
         ->and($charge->remainingAmount())->toBe(0)
         ->and($customer->creditBalances())->toEqual(['TRY' => new Money(100000, Currency::Try)]);
 });
+
+it('returns how many paid charges it reopened, none for a charge that was only partly paid', function () {
+    $customer = Customer::factory()->create();
+    Charge::factory()->for($customer)->create(['amount' => 100000, 'due_date' => '2026-03-01']);
+    Charge::factory()->for($customer)->create(['amount' => 200000, 'due_date' => '2026-03-02']);
+    $closesBoth = recordPaymentToDelete($customer, 300000);
+
+    expect(app(DeletePayment::class)->handle($closesBoth))->toBe(2);
+
+    $partly = recordPaymentToDelete($customer, 60000);
+
+    expect(app(DeletePayment::class)->handle($partly))->toBe(0);
+});

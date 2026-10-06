@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Filament\Actions\DeletePaymentAction;
 use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Actions\ViewPaymentAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -26,8 +27,9 @@ use Illuminate\Database\Eloquent\Model;
  * customer's full history in the menu's Ödemeler list ({@see PaymentResource}).
  * Responsive (T-68, no horizontal scroll at any width): date and amount (+ domains) always
  * show; payment method from `md`, note from `lg`. Below `md` the row action button (delete) is
- * hidden and the amount column opens the same confirmation instead — there is no "edit" for a
- * payment (T-42), so deleting is the only, already-confirmed option either way. The domains line
+ * hidden. The amount opens the payment's detail window at every width ({@see ViewPaymentAction}):
+ * there is no "edit" for a payment (T-42), and "Sil" is the window's last, separate, confirmed
+ * action (T-85) — a click on an amount never deletes. The domains line
  * may break anywhere below `xl` (`fi-wrap-description`, G-4B.7) so a long one never widens the
  * card at 1024 px.
  */
@@ -74,7 +76,7 @@ class PaymentsRelationManager extends RelationManager
                     ->description(fn (Payment $record): ?string => filled($domains = $record->domains())
                         ? implode(', ', $domains)
                         : null)
-                    ->action(DeletePaymentAction::make('deletePaymentMobile')),
+                    ->action(ViewPaymentAction::make()),
                 TextColumn::make('paymentMethod.name')
                     ->label(__('payments.payment_method'))
                     ->visibleFrom('md'),

@@ -54,7 +54,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 - Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve **alan adıyla** arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i").
 - Sağda: **"Ödeme al"** birincil düğmesi (en sık iş her sayfadan tek tık) ve **"Yeni"** menüsü (Müşteri, Elle borç).
-- **Dar ekranda (`sm`, 640 px altı):** arama kutusunun yerinde ikincil, metinli bir **"Ara"** düğmesi durur (Kural 5: etiketsiz simge yok); tıklanınca arama üst çubuğun tamamını kaplayarak açılır, yanında metinli **"Kapat"** durur; "Kapat" veya Esc kapatır. Sonuçlar ve sonuçlardaki "Ödeme al" aynıdır. "Yeni" menüsü bu genişlikte gizlidir. (G-4B.7)
+- **Dar ekranda (`sm`, 640 px altı):** arama kutusunun yerinde ikincil, metinli bir **"Ara"** düğmesi durur (Kural 5: etiketsiz simge yok); tıklanınca arama üst çubuğun tamamını kaplayarak açılır, yanında metinli **"Kapat"** durur; "Kapat" veya Esc kapatır. `Ctrl+K` bu genişlikte de aynı alanı açıp odağı ona verir. Sonuçlar ve sonuçlardaki "Ödeme al" aynıdır. "Yeni" menüsü bu genişlikte gizlidir. (G-4B.7)
 
 ## 4. Yer kuralları: ne nerede durur
 
@@ -67,7 +67,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
 
-**Dar ekranda borç satırı (kullanıcı kararı, G-4B.7):** Açık borçlar listesinde `md` (768 px) altında satırda yalnız "Ödeme al" vardır; borcu düzenlemek, bölmek ve iptal etmek müşteri kartından yapılır. Bu genişlikte §1'deki "Borç satırından 2 tık" hedefi aşılır: müşteri adı → karttaki borç açıklaması → işlem = 3 tık. Katalog hizmetlerinde ve Ödemeler'de de `md` altında satır düğmesi yerine ad / tutar aynı işi açar (tık sayısı aynı).
+**Dar ekranda borç satırı (kullanıcı kararı, G-4B.7):** Açık borçlar listesinde `md` (768 px) altında satırda yalnız "Ödeme al" vardır; borcu düzenlemek, bölmek ve iptal etmek müşteri kartından yapılır. Bu genişlikte §1'deki "Borç satırından 2 tık" hedefi aşılır: müşteri adı → karttaki borç açıklaması → işlem = 3 tık. Katalog hizmetlerinde `md` altında satır düğmesi yerine ad aynı düzenleme penceresini açar (tık sayısı aynı). Ödemeler'de `md` altında satırdaki "Sil" yoktur; silmek için tutara tıklanır, açılan ödeme ayrıntı penceresinin en altındaki ayrı "Sil" kullanılır: 2 tık + onay (tutar → Sil → onay). Tutara tıklamak hiçbir zaman doğrudan silmez.
 
 **Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al" (form penceresi açıkken pencerenin "Kaydet"i); tablo satırlarındaki, Bugün'deki ve filtre panelindeki düğmeler ikincildir. Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
 
@@ -112,7 +112,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - Durum her zaman renk **ve** metinle gösterilir (renk körlüğü ve yazdırma için).
 - Boş tablo ne yapılacağını söyler ve iş düğmesini gösterir ("Henüz hizmet yok — Hizmet ekle").
 - Varsayılan filtre görünür bir çip olarak durur ("Durum: Açık ×"); gizli filtre yoktur. Arama kutusu solda, çipler yanında, kayıt sayısı sağda tek satırdadır; çipin "×" düğmesi tıklanır ve klavyeyle erişilir.
-- **Dar ekran (G-4B.7):** hiçbir liste ve kart tablosu 375–1440 px'te kartın içinde yatay kaymaz. Tanıdık bilgi ve tutar hep görünür ve uzun metin sarar; ikincil sütunlar `md`/`lg`'den görünür. Ödemeler: Yöntem `md`'den, Not `lg`'den; `md` altında "Sil" yerine tutara tıklamak aynı onayı açar. Katalog hizmetleri: Tür ve rozet `md`'den; hizmet adı bağlantı gibi çizilir ve her genişlikte düzenlemeyi açar, `md` altında satırdaki "Düzenle" yoktur. Paketler: içerdiği hizmetler ve rozet `md`'den. Müşteri kartında uzun alan adı ve e-posta `xl` altında kelime ortasından kırılabilir.
+- **Dar ekran (G-4B.7):** hiçbir liste ve kart tablosu 375–1440 px'te kartın içinde yatay kaymaz. Tanıdık bilgi ve tutar hep görünür ve uzun metin sarar; ikincil sütunlar `md`/`lg`'den görünür. Ödemeler: Yöntem `md`'den, Not `lg`'den; `md` altında satırdaki "Sil" yoktur. Tutara tıklamak her genişlikte (kartın Son ödemeler'inde de) ödeme ayrıntı penceresini açar: tarih, müşteri, tutar, yöntem, açıklama ve varsa "… alacak bakiyesine eklendi" satırı; dağıtım satırları (borç, tutar, kaynak) "Dağıtım (n)" başlıklı katlanır bölümde, kapalı başlar; en altta, ayrı bir "Ödeme işlemleri" bölümünde kırmızı çizgili, onaylı "Sil" durur ve altında pencerenin metinli "Kapat" düğmesi vardır. Silme sonrası bildirim sonucu tek cümleyle söyler ("Ödeme silindi, 2 borç yeniden açıldı."). Katalog hizmetleri: Tür ve rozet `md`'den; hizmet adı bağlantı gibi çizilir ve her genişlikte düzenlemeyi açar, `md` altında satırdaki "Düzenle" yoktur. Paketler: içerdiği hizmetler ve rozet `md`'den. Müşteri kartında uzun alan adı ve e-posta `xl` altında kelime ortasından kırılabilir.
 
 ### Formlar
 

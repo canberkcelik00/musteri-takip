@@ -3,12 +3,42 @@
     button opens it over the whole topbar. The open state is the class `fi-topbar-search-open` on the topbar, which the
     theme turns into the overlay; "Kapat" (search-close) and Esc close it. The search container gets the id the button
     points at (`aria-controls`); a Livewire re-render of the container drops an id added from outside, so it is set again.
+    The panel's search shortcut (Ctrl+K) opens it too: Filament binds that key with Mousetrap, which keeps only one
+    handler per key, so a second binding would replace Filament's; a plain keydown listener runs beside it instead,
+    only while this button is displayed (the CSS decides what narrow is) and the search is closed. Filament's own
+    handler then finds the field visible and focuses it, which our focus repeats harmlessly.
 --}}
 <div
     class="fi-search-open"
     x-data="{
         expanded: false,
         topbar: null,
+        bindings: @js(filament()->getGlobalSearchKeyBindings()),
+        narrow() {
+            return getComputedStyle(this.$el).display !== 'none'
+        },
+        matches(event) {
+            return this.bindings.some((binding) => {
+                const parts = binding.toLowerCase().split('+')
+                const key = parts.pop()
+                const modifierOk = parts.includes('mod')
+                    ? (event.ctrlKey || event.metaKey)
+                    : (event.ctrlKey === parts.includes('ctrl') && event.metaKey === parts.includes('meta'))
+
+                return event.key.toLowerCase() === key
+                    && modifierOk
+                    && event.altKey === parts.includes('alt')
+                    && event.shiftKey === parts.includes('shift')
+            })
+        },
+        onShortcut(event) {
+            if (! this.narrow() || this.expanded || ! this.matches(event)) {
+                return
+            }
+
+            event.preventDefault()
+            this.open()
+        },
         open() {
             this.expanded = true
             this.topbar.classList.add('fi-topbar-search-open')
@@ -38,6 +68,7 @@
     x-init="topbar = $el.closest('.fi-topbar'); bindContainer()"
     x-on:close-topbar-search.window="expanded && close()"
     x-on:keydown.escape.window="expanded && close()"
+    x-on:keydown.window="onShortcut($event)"
 >
     <x-filament::button
         color="gray"

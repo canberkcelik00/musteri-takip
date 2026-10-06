@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\ServiceType;
 use App\Filament\Resources\Charges\ChargeResource;
@@ -567,21 +568,39 @@ it('keeps the partially paid "/ total" line alongside the status badge', functio
         ->and($html)->toContain(__('charges.partially_paid'));
 });
 
-it('hides the recent payments row action below md; the amount opens the same delete confirmation', function () {
+it('hides the recent payments row action below md; the amount opens the detail window, whose separate, confirmed "Sil" is the only way to delete (G-4B.7)', function () {
     $customer = Customer::factory()->create();
-    $payment = Payment::factory()->for($customer)->create();
+    $charge = Charge::factory()->for($customer)->paid()->create(['amount' => 50000, 'currency' => Currency::Try]);
+    $payment = Payment::factory()->for($customer)->create(['amount' => 50000, 'currency' => Currency::Try]);
+    PaymentAllocation::factory()->create(['payment_id' => $payment->id, 'charge_id' => $charge->id, 'amount' => 50000]);
 
     $manager = Livewire::test(PaymentsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class]);
     $table = $manager->instance()->getTable();
 
-    expect($table->getAction('deletePayment')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD);
+    expect($table->getAction('deletePayment')->getExtraAttributes())->toBe(HIDDEN_BELOW_MD)
+        ->and($table->getColumn('amount')->getAction()->getName())->toBe('viewPayment');
 
-    $manager
-        ->mountAction(TestAction::make('deletePaymentMobile')->table($payment))
-        ->callMountedAction()
-        ->assertNotified();
+    $view = TestAction::make('viewPayment')->table($payment);
+    $delete = sectionAction($view, 'deletePaymentFromDetail', danger: true);
 
-    expect(Payment::query()->whereKey($payment->id)->exists())->toBeFalse();
+    // Clicking the amount opens the window and deletes nothing, not even after the confirmation is mounted.
+    $window = Livewire::test(PaymentsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->mountAction($view);
+
+    expect($window->instance()->getMountedAction()->getName())->toBe('viewPayment')
+        ->and(mountedActionWindowText($window))->toContain('Ödeme işlemleri')
+        ->and(Payment::query()->whereKey($payment->id)->exists())->toBeTrue();
+
+    $manager->mountAction($delete)->assertActionMounted($delete);
+
+    expect($manager->instance()->getMountedAction()->isConfirmationRequired())->toBeTrue()
+        ->and(Payment::query()->whereKey($payment->id)->exists())->toBeTrue()
+        ->and($charge->refresh()->status)->toBe(ChargeStatus::Paid);
+
+    $manager->callMountedAction()->assertNotified('Ödeme silindi, 1 borç yeniden açıldı.');
+
+    expect(Payment::query()->whereKey($payment->id)->exists())->toBeFalse()
+        ->and($charge->refresh()->status)->toBe(ChargeStatus::Open)
+        ->and($manager->get('mountedActions'))->toBe([]);
 });
 
 // --- Kart düzeni: bölüm boşlukları, sağa yaslı Arşivle/Sil satırı ---------
