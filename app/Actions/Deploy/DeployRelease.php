@@ -4,6 +4,7 @@ namespace App\Actions\Deploy;
 
 use App\Actions\EnsureAdminUser;
 use App\Enums\DeployResult;
+use BladeUI\Icons\IconsManifest;
 use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Support\Facades\Cache;
@@ -17,6 +18,7 @@ class DeployRelease
     public function __construct(
         private readonly ArtisanRunner $artisan,
         private readonly EnsureAdminUser $ensureAdminUser,
+        private readonly IconsManifest $iconsManifest,
     ) {}
 
     /**
@@ -97,11 +99,15 @@ class DeployRelease
      * Filament's component cache is handled explicitly: `optimize` only knows it when it
      * runs in the console, not when the deploy endpoint calls it. The combined
      * `filament:optimize(-clear)` is not used because it also calls the Blade Icons
-     * commands, which are not registered in a web request; the icon manifest is skipped.
+     * commands, which are not registered in a web request, so the icon manifest is not
+     * cached here. The console `optimize` does write it, though, and `icons:clear` cannot
+     * run in a web request: the package's own class removes the stale manifest instead
+     * (it knows the file path, so no path is repeated here).
      */
     private function prepare(): void
     {
         $this->run('optimize:clear');
+        $this->iconsManifest->delete();
         $this->run('filament:clear-cached-components');
         $this->run('migrate', ['--force' => true]);
 

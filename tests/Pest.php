@@ -3,8 +3,10 @@
 use App\Actions\Deploy\ArtisanRunner;
 use App\Filament\Support\RecordActionsSection;
 use App\Livewire\TopbarActions;
+use BladeUI\Icons\IconsManifest;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
@@ -222,6 +224,8 @@ function prepareDeploy(?string $release = 'release-1', ?string $failingCommand =
     if ($release !== null) {
         file_put_contents($directory.'/RELEASE', $release);
     }
+
+    app()->instance(IconsManifest::class, new IconsManifest(new Filesystem, $directory.'/blade-icons.php'));
 
     return swapArtisanRunner($failingCommand);
 }

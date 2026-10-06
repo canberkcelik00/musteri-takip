@@ -68,6 +68,35 @@ it('runs the deploy steps once and remembers the release', function () {
         ->and(User::where('email', 'sahip@example.com')->exists())->toBeTrue();
 });
 
+it('removes the stale icon manifest that the console optimize wrote', function () {
+    prepareDeploy('release-1');
+    $manifest = deployTestDirectory().'/blade-icons.php';
+    file_put_contents($manifest, '<?php return [];');
+
+    $this->postJson('/deploy', headers: deployHeaders())->assertOk();
+
+    expect(file_exists($manifest))->toBeFalse();
+});
+
+it('removes the icon manifest before the later steps, so a failed deploy leaves no stale one', function () {
+    Log::spy();
+    prepareDeploy('release-1', failingCommand: 'migrate');
+    $manifest = deployTestDirectory().'/blade-icons.php';
+    file_put_contents($manifest, '<?php return [];');
+
+    $this->postJson('/deploy', headers: deployHeaders())->assertStatus(500);
+
+    expect(file_exists($manifest))->toBeFalse();
+});
+
+it('deploys when there is no icon manifest', function () {
+    prepareDeploy('release-1');
+
+    expect(file_exists(deployTestDirectory().'/blade-icons.php'))->toBeFalse();
+
+    $this->postJson('/deploy', headers: deployHeaders())->assertOk()->assertJson(['status' => 'deployed']);
+});
+
 it('does not run again for the same release', function () {
     $runner = prepareDeploy('release-1');
 
