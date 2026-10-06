@@ -77,6 +77,69 @@ it('matches each stat to the list its link opens', function () {
         ->assertCanSeeTableRecords([$renewingCustomer]);
 });
 
+it('counts renewing services, not customers, and shows the nearest end date; the link still opens their customers (G-4B.6)', function () {
+    app(Settings::class)->set(SettingKey::RenewalLeadDays, '45');
+
+    $twoServices = Customer::factory()->create();
+    CustomerService::factory()->for($twoServices)->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+    CustomerService::factory()->for($twoServices)->free()->create(['start_date' => '2025-07-25', 'end_date' => '2026-07-25']);
+    $oneService = Customer::factory()->create();
+    CustomerService::factory()->for($oneService)->create(['start_date' => '2025-06-18', 'end_date' => '2026-06-18']);
+
+    // Outside the 45 day window, cancelled, or owned by an archived customer: not counted.
+    CustomerService::factory()->for($oneService)->create(['start_date' => '2025-08-15', 'end_date' => '2026-08-15']);
+    CustomerService::factory()->for($oneService)->cancelled()->create(['start_date' => '2025-06-19', 'end_date' => '2026-06-19']);
+    $archived = Customer::factory()->create();
+    CustomerService::factory()->for($archived)->create(['start_date' => '2025-06-16', 'end_date' => '2026-06-16']);
+    $archived->archive();
+
+    $summary = app(SummarizeToday::class)->handle();
+
+    expect($summary['renewal_services_count'])->toBe(3)
+        ->and($summary['nearest_renewal']->toDateString())->toBe('2026-06-18')
+        ->and($summary['renewal_customers_count'])->toBe(2)
+        ->and($summary['renewal_lead_days'])->toBe(45);
+
+    Livewire::test(TodayStats::class)
+        ->assertSee('45 gün içinde yenilenecek')
+        ->assertSee('3 hizmet')
+        ->assertSee('En yakını 18.06.2026');
+
+    Livewire::test(ListCustomers::class)->filterTable('renewal_soon', true)
+        ->assertCanSeeTableRecords([$twoServices, $oneService])
+        ->assertCanNotSeeTableRecords([$archived]);
+});
+
+it('shows the charge counts under the overdue and due-this-month totals, and other currencies under the total (G-4B.6)', function () {
+    Charge::factory()->create(['due_date' => '2026-06-01', 'amount' => 70000]); // overdue
+    Charge::factory()->create(['due_date' => '2026-06-20', 'amount' => 30000]); // due this month
+    Charge::factory()->create(['due_date' => '2026-06-30', 'amount' => 12000, 'currency' => Currency::Usd]); // due this month
+    Charge::factory()->create(['due_date' => '2026-07-10', 'amount' => 50000]); // next month
+
+    $summary = app(SummarizeToday::class)->handle();
+
+    expect($summary['overdue_count'])->toBe(1)
+        ->and($summary['due_this_month_count'])->toBe(2);
+
+    Livewire::test(TodayStats::class)
+        ->assertSeeInOrder([__('today.total_debt'), '1.500 TL', '+ 120 USD'])
+        ->assertSeeInOrder([__('today.overdue'), '700 TL', '1 borç'])
+        ->assertSeeInOrder([__('today.due_this_month'), '300 TL + 120 USD', '2 borç']);
+});
+
+it('leaves the lines below the numbers out when there is nothing to count (G-4B.6)', function () {
+    $summary = app(SummarizeToday::class)->handle();
+
+    expect($summary['due_this_month_count'])->toBe(0)
+        ->and($summary['renewal_services_count'])->toBe(0)
+        ->and($summary['nearest_renewal'])->toBeNull();
+
+    Livewire::test(TodayStats::class)
+        ->assertSee('0 hizmet')
+        ->assertDontSee('En yakını')
+        ->assertDontSee('+ ');
+});
+
 it('caps the overdue section at 10 rows and links to the full filtered list', function () {
     Charge::factory()->count(11)->sequence(
         ...collect(range(0, 10))->map(fn (int $i): array => ['due_date' => Carbon::parse('2026-05-01')->addDays($i)])->all(),

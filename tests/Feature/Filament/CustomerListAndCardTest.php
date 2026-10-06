@@ -253,7 +253,7 @@ it('shows only "Kalan" for an open charge, and a faded "/ total" line under it o
     $remaining = $manager->instance()->getTable()->getColumn('remaining');
 
     expect($remaining->record($open)->getDescriptionBelow())->toBeNull();
-    expect($remaining->record($partial)->getDescriptionBelow()->toHtml())->toContain('/ 4.000 TL');
+    expect($remaining->record($partial)->getDescriptionBelow()->toHtml())->toContain(e("4.000 TL'den"))->not->toContain('/ ');
 });
 
 // --- "Tüm borçlar" / "Tüm ödemeler" bağlantıları --------------------------
@@ -554,7 +554,7 @@ it('adds a status badge under "Kalan" below xl, only for an overdue, partially p
         ->and($overdueHtml)->toContain('fi-color-danger');
 });
 
-it('keeps the partially paid "/ total" line alongside the status badge', function () {
+it('keeps the partially paid original amount line ("4.000 TL\'den") alongside the status badge', function () {
     $this->travelTo('2026-06-10 12:00:00');
     $customer = Customer::factory()->create();
     $partial = Charge::factory()->for($customer)->create(['amount' => 400000, 'due_date' => '2026-07-10']);
@@ -564,7 +564,7 @@ it('keeps the partially paid "/ total" line alongside the status badge', functio
         ->instance()->getTable()->getColumn('remaining')
         ->record($partial)->getDescriptionBelow()->toHtml();
 
-    expect($html)->toContain('/ 4.000 TL')
+    expect($html)->toContain(e("4.000 TL'den"))
         ->and($html)->toContain(__('charges.partially_paid'));
 });
 

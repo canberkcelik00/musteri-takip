@@ -7,7 +7,6 @@ use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
 use App\Models\Customer;
 use Filament\Actions\Action;
-use Filament\Support\Icons\Heroicon;
 
 /**
  * The new-customer form in the form window: customer details and the first (primary) contact,
@@ -28,7 +27,6 @@ class CreateCustomerAction extends Action
 
         $this
             ->label(__('customers.create'))
-            ->icon(Heroicon::Plus)
             ->modalHeading(__('customers.create_heading'))
             ->model(Customer::class)
             ->schema([

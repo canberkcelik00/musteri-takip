@@ -3,9 +3,11 @@
 return [
     'total_debt' => 'Toplam alacak',
     'overdue' => 'Gecikmiş',
-    'overdue_count' => ':count borç',
+    'charge_count' => ':count borç',
     'due_this_month' => 'Bu ay vadesi gelen',
-    'renewals' => 'Yenilemesi yaklaşan müşteri',
+    'renewals' => ':days gün içinde yenilenecek',
+    'service_count' => ':count hizmet',
+    'nearest_renewal' => 'En yakını :date',
 
     'tasks_heading' => 'Yapılacaklar',
     'tasks_count' => ':count iş',

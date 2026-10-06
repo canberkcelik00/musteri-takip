@@ -146,7 +146,7 @@ class ChargesRelationManager extends RelationManager
     }
 
     /**
-     * "Kalan"'s description: the "/ total" line for a partially paid charge, plus — below `xl`
+     * "Kalan"'s description: the original amount ("4.000 TL'den", G-4B.6) for a partially paid charge, plus — below `xl`
      * only, where the "Durum" column is hidden — the state badge ({@see ChargeStatusBadge}) for an
      * overdue, partially paid or due-soon charge (a plain open one shows nothing; this table only
      * ever lists open charges). G-4B.5: the column is back from `xl` (the row now holds just
@@ -155,7 +155,7 @@ class ChargesRelationManager extends RelationManager
     private function remainingDescription(Charge $record): ?Htmlable
     {
         $original = $record->isPartiallyPaid()
-            ? '/ '.(new Money($record->amount, $record->currency))->format()
+            ? __('charges.original_amount.'.$record->currency->value, ['amount' => (new Money($record->amount, $record->currency))->format()])
             : null;
 
         $badge = ChargeStatusBadge::mobileHtml($record, 'fi-badge-below-xl');

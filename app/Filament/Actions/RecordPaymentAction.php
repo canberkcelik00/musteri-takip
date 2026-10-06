@@ -25,7 +25,6 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Livewire\Component;
@@ -62,7 +61,6 @@ class RecordPaymentAction extends Action
 
         $this
             ->label(__('payments.record'))
-            ->icon(Heroicon::Plus)
             ->modalHeading(__('payments.record_heading'))
             ->fillForm(fn (): array => $this->initialState())
             ->schema([

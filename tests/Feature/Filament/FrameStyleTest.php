@@ -1,5 +1,8 @@
 <?php
 
+use App\Filament\Actions\CreateCustomerAction;
+use App\Filament\Actions\CreateManualChargeAction;
+use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\ManageSettings;
 use App\Filament\Resources\CatalogServices\CatalogServiceResource;
@@ -10,6 +13,7 @@ use App\Filament\Resources\PaymentMethods\PaymentMethodResource;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Models\Customer;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Illuminate\Support\Carbon;
 
@@ -188,4 +192,36 @@ it('shows "Ödeme al" in the topbar with its label, not as an icon-only button',
         ->assertSeeInOrder(['data-topbar-actions', __('payments.record')]);
 
     expect(designThemeCss())->not->toMatch('/\.fi-topbar[^{]*\.fi-(btn|link)-label[^{]*\{[^}]*display:\s*none/');
+});
+
+it('hides the "… > Liste" trail on list pages only; the customer card keeps its own trail (G-4B.6)', function () {
+    expect(implode("\n", designRuleBodies('.fi-resource-list-records-page .fi-header .fi-breadcrumbs')))
+        ->toMatch('/display:\s*none;/');
+
+    $this->get(ChargeResource::getUrl('index'))->assertOk()->assertSee('fi-resource-list-records-page', false);
+
+    $customer = Customer::factory()->create();
+    $this->get(CustomerResource::getUrl('view', ['record' => $customer]))
+        ->assertOk()
+        ->assertDontSee('fi-resource-list-records-page', false)
+        ->assertSee('fi-breadcrumbs', false);
+});
+
+it('draws "Ödeme al", "Yeni müşteri" and "Elle borç ekle" as text buttons without a "+" icon (G-4B.6)', function () {
+    expect(RecordPaymentAction::make()->getIcon())->toBeNull()
+        ->and(CreateCustomerAction::make()->getIcon())->toBeNull()
+        ->and(CreateManualChargeAction::make()->getIcon())->toBeNull();
+
+    $customer = Customer::factory()->create();
+    $searchActions = CustomerResource::getGlobalSearchResultActions($customer);
+
+    expect($searchActions)->not->toBeEmpty()
+        ->and(collect($searchActions)->map(fn (Action $action): mixed => $action->getIcon())->filter()->all())->toBeEmpty();
+});
+
+it('hides only the "⋮" icon of the topbar\'s "Yeni" menu, never its label (G-4B.6)', function () {
+    expect(implode("\n", designRuleBodies('.fi-topbar-new-action .fi-btn > .fi-icon')))->toMatch('/display:\s*none;/')
+        ->and(designThemeCss())->not->toMatch('/\.fi-topbar-new-action[^{]*\.fi-btn-label[^{]*\{[^}]*display:\s*none/');
+
+    $this->get(Dashboard::getUrl())->assertOk()->assertSeeInOrder(['fi-topbar-new-action', __('navigation.new')], false);
 });

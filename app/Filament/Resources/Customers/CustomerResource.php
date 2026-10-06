@@ -129,7 +129,6 @@ class CustomerResource extends Resource
         return [
             Action::make('recordPayment')
                 ->label(__('payments.record'))
-                ->icon(Heroicon::Plus)
                 ->dispatch(TopbarActions::OPEN_RECORD_PAYMENT_EVENT, ['customer' => $record->getKey()]),
         ];
     }

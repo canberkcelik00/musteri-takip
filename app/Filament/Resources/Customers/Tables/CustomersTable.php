@@ -58,6 +58,7 @@ class CustomersTable
                     ->visibleFrom('md'),
                 TextColumn::make('active_services_count')
                     ->label(__('customers.active_services_count'))
+                    ->alignEnd()
                     ->sortable()
                     ->visibleFrom('lg'),
                 TextColumn::make('archived_at')

@@ -16,7 +16,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
 
 /**
@@ -51,7 +50,6 @@ class CreateManualChargeAction extends Action
 
         $this
             ->label(__('charges.create'))
-            ->icon(Heroicon::Plus)
             ->modalHeading(__('charges.create_heading'))
             ->fillForm(fn (): array => [
                 'customer_id' => $this->customer?->getKey(),

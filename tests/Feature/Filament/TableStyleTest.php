@@ -17,6 +17,7 @@ use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Filament\Support\Enums\Alignment;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -55,6 +56,7 @@ function tableRuleSelectors(): array
         '.fi-ta-ctn .fi-ta-text-item',
         '.fi-ta-ctn .fi-ta-text-description',
         '.fi-ta-ctn .fi-money .fi-ta-text-item.fi-color-danger',
+        '.fi-ta-ctn .fi-ta-table > tfoot',
         '.fi-ta-ctn .fi-ta-total-label',
         '.fi-ta-ctn .fi-ta-total-amounts',
         '.fi-ta-ctn .fi-ta-empty-state',
@@ -280,4 +282,29 @@ it('renders the Today page tasks as a table with the shared table classes', func
 
     expect(designThemeCss())->toContain('.fi-today-tasks')
         ->and(designRuleBodies('.fi-today-tasks .fi-ta-cell'))->not->toBeEmpty();
+});
+
+it('draws the total row on the panel itself, not on Filament\'s gray footer (G-4B.6)', function () {
+    expect(implode("\n", designRuleBodies('.fi-ta-ctn .fi-ta-table > tfoot')))
+        ->toMatch('/background-color:\s*transparent;/');
+});
+
+it('keeps a free-service row\'s two Today buttons side by side only from xl, where the table still fits (G-4B.6)', function () {
+    $xlBodies = collect(designRuleBodies('@media (min-width: 80rem)'))
+        ->filter(fn (string $body): bool => str_contains($body, '.fi-today-tasks .fi-today-actions'));
+
+    expect($xlBodies)->toHaveCount(1)
+        ->and($xlBodies->first())->toMatch('/\.fi-today-tasks \.fi-today-actions\s*\{\s*white-space:\s*nowrap;\s*\}/');
+
+    // Below xl the buttons may wrap: the only nowrap on the actions cell is the one above.
+    $nowrapRules = collect(designRuleBodies('.fi-today-tasks .fi-today-actions'))
+        ->filter(fn (string $body): bool => str_contains($body, 'nowrap'));
+
+    expect($nowrapRules)->toHaveCount(1);
+});
+
+it('right-aligns the active service count on the customer list like the other numbers (G-4B.6)', function () {
+    $column = Livewire::test(ListCustomers::class)->instance()->getTable()->getColumn('active_services_count');
+
+    expect($column->getAlignment())->toBe(Alignment::End);
 });
