@@ -11,6 +11,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * The package list. Responsive (G-4B.7, no horizontal scroll from 320 px): name and price always
+ * show, the name wraps; the included services and the archive badge show from `md`.
+ */
 class PackagesTable
 {
     public static function configure(Table $table): Table
@@ -21,11 +25,13 @@ class PackagesTable
             ->columns([
                 TextColumn::make('name')
                     ->label(__('packages.name'))
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('catalogServices.name')
                     ->label(__('packages.catalog_services'))
-                    ->listWithLineBreaks(),
+                    ->listWithLineBreaks()
+                    ->visibleFrom('md'),
                 MoneyColumn::make('price')
                     ->label(__('packages.price'))
                     ->sortable(),
@@ -33,7 +39,8 @@ class PackagesTable
                     ->label(__('archive.status'))
                     ->badge()
                     ->color('gray')
-                    ->state(fn (Package $record): ?string => $record->isArchived() ? __('archive.status_archived') : null),
+                    ->state(fn (Package $record): ?string => $record->isArchived() ? __('archive.status_archived') : null)
+                    ->visibleFrom('md'),
             ])
             ->filters([
                 ArchivedFilter::make(),

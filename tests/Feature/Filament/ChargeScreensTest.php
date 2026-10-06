@@ -412,8 +412,12 @@ it('totals the remaining open debt per currency under "Kalan", minus partial pay
 
     $total = chargesTotalRow(chargesPage()->html());
 
-    // The total row's "Durum"-aligned cell follows the column: shown from `lg`, label below it.
-    expect($total)->toContain('fi-cell-from-lg')->toContain('fi-hidden-from-lg');
+    // The total row's label sits in whichever cell ends right before "Kalan" (G-4B.7): the single
+    // cell below `md`, the three-column cell from `md`, the "Durum"-aligned cell from `lg`.
+    expect($total)->toContain('fi-cell-below-md')
+        ->toContain('fi-cell-from-md')
+        ->toContain('fi-cell-from-lg')
+        ->toContain('fi-hidden-from-lg');
 
     // 100 TL + (200 TL - 50 TL) = 250 TL and 70 USD, each currency on its own line.
     expect($total)->toContain(__('charges.total'))
@@ -447,4 +451,48 @@ it('writes the original amount under a partly paid charge with the right Turkish
         ->assertSee((new Money(20000, Currency::Try))->format()."'den")
         ->assertSee((new Money(30000, Currency::Eur))->format()."'dan")
         ->assertDontSee((new Money(40000, Currency::Try))->format()."'den");
+});
+
+// --- Dar ekran düzeni (G-4B.7): 375 px'e kadar yatay kayma yok ---------------
+
+it('wraps the customer and the description of the charge list, which shows "Açıklama" and "Vade" from md', function () {
+    $table = chargesPage()->instance()->getTable();
+
+    expect($table->getColumn('customer.short_name')->canWrap())->toBeTrue()
+        ->and($table->getColumn('customer.short_name')->getVisibleFrom())->toBeNull()
+        ->and($table->getColumn('description')->canWrap())->toBeTrue()
+        ->and($table->getColumn('description')->getVisibleFrom())->toBe('md')
+        ->and($table->getColumn('due_date')->getVisibleFrom())->toBe('md')
+        ->and($table->getColumn('status')->getVisibleFrom())->toBe('lg')
+        ->and($table->getColumn('status')->getExtraAttributes())->toBe(['class' => 'fi-badge-wrap'])
+        ->and($table->getColumn('remaining')->getVisibleFrom())->toBeNull();
+});
+
+it('puts the description and the due date under the customer name for narrow screens, escaped', function () {
+    $charge = Charge::factory()->create(['description' => '<b>Hosting & SSL</b>', 'due_date' => '2026-03-05']);
+
+    $html = chargesPage()->instance()->getTable()
+        ->getColumn('customer.short_name')->record($charge)->getDescriptionBelow()->toHtml();
+
+    expect($html)->toContain('fi-line-below-md')
+        ->toContain('&lt;b&gt;Hosting &amp; SSL&lt;/b&gt;')
+        ->not->toContain('<b>')
+        ->toContain(__('charges.due_date').': 05.03.2026');
+});
+
+it('hides "Düzenle" below md and keeps "Ödeme al" in the row at every width', function () {
+    $table = chargesPage()->instance()->getTable();
+
+    expect($table->getAction('editCharge')->getExtraAttributes())->toBe(['class' => 'fi-hidden-below-md'])
+        ->and($table->getAction('recordPayment')->getExtraAttributes())->toBe([]);
+});
+
+it('still finds a charge by its description although the column is hidden on narrow screens', function () {
+    $match = Charge::factory()->create(['description' => 'Kurumsal e-posta yenileme']);
+    $other = Charge::factory()->create(['description' => 'Alan adı yenileme']);
+
+    chargesPage()
+        ->searchTable('Kurumsal')
+        ->assertCanSeeTableRecords([$match])
+        ->assertCanNotSeeTableRecords([$other]);
 });

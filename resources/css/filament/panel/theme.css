@@ -420,6 +420,63 @@ body {
 }
 
 /*
+ * Narrow-screen search (G-4B.7, docs/UI.md §2 Kural 5; markup in filament/panel/search-open and
+ * search-close): below `sm` the search box would shrink to 42 px at 320 px, so a text "Ara" button
+ * stands in for it. The button adds `fi-topbar-search-open` to the topbar; then the search takes
+ * the whole topbar with a "Kapat" beside the field and the rest of the topbar steps aside. From
+ * `sm` up neither button shows and nothing changes.
+ */
+.fi-search-open,
+.fi-search-close {
+    display: none;
+}
+
+@media not all and (min-width: 40rem) {
+    .fi-search-open {
+        display: block;
+        flex-shrink: 0;
+        margin-inline-end: auto;
+    }
+
+    .fi-global-search-ctn {
+        display: none;
+    }
+
+    /* 16 px instead of the page's 28 px: at 320 px the field would be 194 px, under the 200 px it needs. */
+    .fi-topbar.fi-topbar-search-open {
+        padding-inline: 16px;
+    }
+
+    .fi-topbar-search-open .fi-global-search-ctn {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: 8px;
+        margin-inline-end: 0;
+    }
+
+    .fi-topbar-search-open .fi-global-search {
+        flex: 1 1 auto;
+    }
+
+    .fi-topbar-search-open .fi-global-search-field .fi-input-wrp {
+        width: 100%;
+    }
+
+    .fi-topbar-search-open .fi-search-close {
+        display: inline-flex;
+        flex-shrink: 0;
+    }
+
+    .fi-topbar-search-open .fi-search-open,
+    .fi-topbar-search-open .fi-topbar-actions,
+    .fi-topbar-search-open .fi-topbar-end > .fi-dropdown,
+    .fi-topbar-search-open .fi-topbar-open-sidebar-btn {
+        display: none;
+    }
+}
+
+/*
  * Responsive helpers for classes built at runtime from PHP strings (T-71): Tailwind's content
  * scanner only finds literal class text, and variant-prefixed candidates built this way (e.g.
  * `extraAttributes(['class' => 'hidden md:inline-flex'])`) were silently dropped even though the
@@ -481,6 +538,43 @@ body {
     @apply hidden md:table-cell;
 }
 
+/*
+ * Narrow-screen layout of the lists (G-4B.7): the faded lines under a name that stand in for the
+ * columns hidden below `md` (charge list), and the total row's cell for the single column before
+ * "Kalan" there.
+ */
+.fi-line-below-md {
+    @apply block md:hidden;
+}
+
+.fi-cell-below-md {
+    @apply table-cell md:hidden;
+}
+
+/*
+ * A long word or address (domain list, e-mail) may break anywhere instead of widening the table.
+ * Only below `xl`: `anywhere` also lowers the column's minimum width, so the table hands the
+ * column less room, and at 1280 px that broke "anadolugida.com.tr" in the card's "Son ödemeler"
+ * although everything fit (measured, G-4B.7). From `xl` up the table is as it was.
+ */
+@media not all and (min-width: 80rem) {
+    .fi-wrap-anywhere,
+    .fi-wrap-description .fi-ta-text-description {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+
+/*
+ * A name that opens its edit window when clicked (the catalog list, G-4B.7): drawn as the panel's
+ * links are (primary color, underlined, see "Links in a panel's header" below) so it reads as
+ * clickable.
+ */
+.fi-ta-ctn .fi-ta-text-item.fi-ta-name-link {
+    color: var(--mt-primary);
+    text-decoration: underline;
+}
+
 /* The charge list shows "Durum" from `lg` (1024 px) up: at 768 px the extra column made it wider than its card. */
 .fi-hidden-from-lg {
     @apply lg:hidden;
@@ -490,8 +584,22 @@ body {
     @apply hidden lg:table-cell;
 }
 
+/*
+ * The badge labels in the charge list wrap rather than keep a column wide (G-4B.7): "Gecikmiş (96
+ * gün)" under "Kalan" below `lg`, and in the "Durum" column from `lg`, where it was 7 px too wide
+ * for the table at 1024 px. They keep their single line wherever there is room.
+ */
 .fi-badge-below-lg {
     @apply lg:hidden mt-1 inline-block;
+}
+
+.fi-badge-below-lg,
+.fi-badge-wrap {
+    & .fi-badge:not(.fi-wrapped),
+    & .fi-badge-label:not(.fi-wrapped) {
+        @apply overflow-visible text-wrap;
+        text-overflow: clip;
+    }
 }
 
 .fi-ta-ctn {

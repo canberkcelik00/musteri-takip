@@ -55,6 +55,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ContactsRelationManager extends RelationManager
 {
+    /**
+     * Name, title and e-mail wrap and may break anywhere (G-4B.7): at 1024 px the narrow right
+     * column held a long address 2–22 px wider than the card.
+     */
+    private const string WRAP_ANYWHERE = 'fi-wrap-anywhere';
+
     protected static string $relationship = 'contacts';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
@@ -88,12 +94,16 @@ class ContactsRelationManager extends RelationManager
                     TextColumn::make('name')
                         ->label(__('contacts.name'))
                         ->weight(FontWeight::Bold)
+                        ->wrap()
+                        ->extraAttributes(['class' => self::WRAP_ANYWHERE])
                         ->formatStateUsing(fn (Contact $record): string => $record->is_primary
                             ? $record->name.' · '.__('contacts.is_primary')
                             : $record->name)
                         ->action($this->buildEditAction()),
                     TextColumn::make('title')
                         ->label(__('contacts.title'))
+                        ->wrap()
+                        ->extraAttributes(['class' => self::WRAP_ANYWHERE])
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->title)),
                     TextColumn::make('phone')
                         ->label(__('contacts.phone'))
@@ -101,6 +111,8 @@ class ContactsRelationManager extends RelationManager
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->phone)),
                     TextColumn::make('email')
                         ->label(__('contacts.email'))
+                        ->wrap()
+                        ->extraAttributes(['class' => self::WRAP_ANYWHERE])
                         ->url(fn (Contact $record): ?string => filled($record->email) ? "mailto:{$record->email}" : null)
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->email)),
                 ]),

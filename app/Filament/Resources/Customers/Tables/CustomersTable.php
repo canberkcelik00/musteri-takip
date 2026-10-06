@@ -24,7 +24,8 @@ use Illuminate\Database\Eloquent\Builder;
  * Responsive (T-68, no horizontal scroll at any width): short name + legal title and the open
  * debt (identity + amount) always show; next renewal from `md`, active service count from `lg`.
  * "Ödeme al" is hidden below `md` too; the row is already clickable to the customer card
- * (`recordUrl()`), the natural place to record a payment below that width.
+ * (`recordUrl()`), the natural place to record a payment below that width. The short name and
+ * title wrap (G-4B.7), so the table fits its card at every width from 320 px.
  */
 class CustomersTable
 {
@@ -41,6 +42,7 @@ class CustomersTable
                 TextColumn::make('short_name')
                     ->label(__('customers.short_name'))
                     ->weight(FontWeight::Bold)
+                    ->wrap()
                     ->description(fn (Customer $record): ?string => $record->legal_title)
                     ->searchable()
                     ->sortable(),

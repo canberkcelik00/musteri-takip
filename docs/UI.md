@@ -54,6 +54,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 - Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve **alan adıyla** arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i").
 - Sağda: **"Ödeme al"** birincil düğmesi (en sık iş her sayfadan tek tık) ve **"Yeni"** menüsü (Müşteri, Elle borç).
+- **Dar ekranda (`sm`, 640 px altı):** arama kutusunun yerinde ikincil, metinli bir **"Ara"** düğmesi durur (Kural 5: etiketsiz simge yok); tıklanınca arama üst çubuğun tamamını kaplayarak açılır, yanında metinli **"Kapat"** durur; "Kapat" veya Esc kapatır. Sonuçlar ve sonuçlardaki "Ödeme al" aynıdır. "Yeni" menüsü bu genişlikte gizlidir. (G-4B.7)
 
 ## 4. Yer kuralları: ne nerede durur
 
@@ -61,10 +62,12 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | --- | --- | --- |
 | Her yerden gereken iş | Üst çubuk | Ara, Ödeme al, Yeni |
 | Sayfanın ana işi | Sayfa başlığının sağı, ikincil düğme | Müşteriler: "Yeni müşteri" |
-| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" |
+| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
 | Kayda ait nadir iş | Kaydın kartında/sayfasında, adlandırılmış bölümde | Hizmet: "Ücretsiz yap", "Böl" |
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
+
+**Dar ekranda borç satırı (kullanıcı kararı, G-4B.7):** Açık borçlar listesinde `md` (768 px) altında satırda yalnız "Ödeme al" vardır; borcu düzenlemek, bölmek ve iptal etmek müşteri kartından yapılır. Bu genişlikte §1'deki "Borç satırından 2 tık" hedefi aşılır: müşteri adı → karttaki borç açıklaması → işlem = 3 tık. Katalog hizmetlerinde ve Ödemeler'de de `md` altında satır düğmesi yerine ad / tutar aynı işi açar (tık sayısı aynı).
 
 **Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al" (form penceresi açıkken pencerenin "Kaydet"i); tablo satırlarındaki, Bugün'deki ve filtre panelindeki düğmeler ikincildir. Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
 
@@ -82,11 +85,13 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - Satıra tıklamak kartı açar; satırda ayrıca "Ödeme al" kısayolu vardır.
 - Varsayılan sıralama: gecikmiş borcu olanlar üstte, sonra kısa ad.
 - Tablonun sağ üstünde süzülmüş kayıt sayısı durur ("8 müşteri").
+- Dar ekran (G-4B.7): kısa ad ve ünvan sarar; En yakın yenileme `md`'den, Aktif hizmet sayısı `lg`'den görünür; satırdaki "Ödeme al" `md`'den görünür, altında satıra tıklayıp karta gidilir.
 
 ### Açık borçlar listesi
 
 - Sütunlar: Müşteri (kalın), Açıklama, Vade, Durum, Kalan (sağa hizalı). Durum rozeti `lg` (1024 px) ve üstünde kendi sütunundadır (gecikmiş kırmızı, yaklaşan ve kısmi ödenmiş amber, ödendi yeşil, iptal gri; vadesi uzak açık borç rozetsiz "Açık"); `lg` altında rozet Kalan'ın altına iner. Kısmi ödenmiş borçta Kalan'ın altında ilk tutar yazar ("4.000,00 TL'den").
-- Altta, para birimi başına "Toplam" satırı: süzülmüş ve aranmış listedeki açık borçların kalanı, Kalan sütununun altında; para birimleri toplanmaz. Açık borç listelenmiyorsa satır yoktur.
+- Altta, para birimi başına "Toplam" satırı: süzülmüş ve aranmış listedeki açık borçların kalanı, Kalan sütununun altında; para birimleri toplanmaz. Açık borç listelenmiyorsa satır yoktur. Toplam her genişlikte Kalan ile aynı kenardadır.
+- Dar ekran (G-4B.7): Müşteri ve Açıklama sarar; Açıklama ve Vade sütunları `md`'den görünür. `md` altında Müşteri sütunu önde kalır, açıklama ve "Vade: gg.aa.yyyy" müşteri adının altında soluk satırlar olur; satırda yalnız "Ödeme al" kalır (§4'teki not). Durum rozeti sarar.
 
 ### Müşteri kartı
 
@@ -107,6 +112,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - Durum her zaman renk **ve** metinle gösterilir (renk körlüğü ve yazdırma için).
 - Boş tablo ne yapılacağını söyler ve iş düğmesini gösterir ("Henüz hizmet yok — Hizmet ekle").
 - Varsayılan filtre görünür bir çip olarak durur ("Durum: Açık ×"); gizli filtre yoktur. Arama kutusu solda, çipler yanında, kayıt sayısı sağda tek satırdadır; çipin "×" düğmesi tıklanır ve klavyeyle erişilir.
+- **Dar ekran (G-4B.7):** hiçbir liste ve kart tablosu 375–1440 px'te kartın içinde yatay kaymaz. Tanıdık bilgi ve tutar hep görünür ve uzun metin sarar; ikincil sütunlar `md`/`lg`'den görünür. Ödemeler: Yöntem `md`'den, Not `lg`'den; `md` altında "Sil" yerine tutara tıklamak aynı onayı açar. Katalog hizmetleri: Tür ve rozet `md`'den; hizmet adı bağlantı gibi çizilir ve her genişlikte düzenlemeyi açar, `md` altında satırdaki "Düzenle" yoktur. Paketler: içerdiği hizmetler ve rozet `md`'den. Müşteri kartında uzun alan adı ve e-posta `xl` altında kelime ortasından kırılabilir.
 
 ### Formlar
 

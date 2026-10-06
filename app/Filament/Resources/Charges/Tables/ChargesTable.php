@@ -11,6 +11,7 @@ use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Support\ChargeStatusBadge;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
+use App\Providers\AppServiceProvider;
 use App\Support\Money;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
@@ -26,10 +27,15 @@ use Illuminate\Support\HtmlString;
 /**
  * The charge list (docs/UI.md §5; Faz 4B, G-4B.4): the state sits in its own "Durum" column from
  * `lg` up, as in the reference screen (T-80), and under "Kalan" below `lg`, where the column is
- * hidden; a total row per currency closes the list.
+ * hidden; a total row per currency closes the list. Responsive (G-4B.7, no horizontal scroll
+ * from 320 px): the customer and the description wrap; "Açıklama" and "Vade" show from `md`,
+ * below it they are faded lines under the customer, and the row's "Düzenle" is hidden (the card
+ * is the place to edit, docs/UI.md §4; "Ödeme al" stays).
  */
 class ChargesTable
 {
+    private const string HIDDEN_BELOW_MD = 'fi-hidden-below-md';
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -42,20 +48,26 @@ class ChargesTable
                 TextColumn::make('customer.short_name')
                     ->label(__('charges.customer'))
                     ->weight(FontWeight::Bold)
+                    ->wrap()
+                    ->description(fn (Charge $record): Htmlable => self::linesBelowCustomer($record))
                     ->searchable()
                     ->url(fn (Charge $record): string => CustomerResource::getUrl('view', ['record' => $record->customer_id])),
                 TextColumn::make('description')
                     ->label(__('charges.description'))
-                    ->searchable(),
+                    ->wrap()
+                    ->searchable()
+                    ->visibleFrom('md'),
                 TextColumn::make('due_date')
                     ->label(__('charges.due_date'))
-                    ->date(),
+                    ->date()
+                    ->visibleFrom('md'),
                 TextColumn::make('status')
                     ->label(__('charges.status'))
                     ->state(fn (Charge $record): string => ChargeStatusBadge::label($record))
                     ->badge(fn (Charge $record): bool => ChargeStatusBadge::color($record) !== null)
                     ->color(fn (Charge $record): ?string => ChargeStatusBadge::color($record))
                     ->wrap()
+                    ->extraAttributes(['class' => 'fi-badge-wrap'])
                     ->visibleFrom('lg'),
                 MoneyColumn::make('remaining')
                     ->label(__('charges.remaining'))
@@ -94,7 +106,9 @@ class ChargesTable
                     ->icon(null)
                     ->color('gray')
                     ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open),
-                EditChargeAction::make()->icon(null),
+                EditChargeAction::make()
+                    ->icon(null)
+                    ->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
             ])
             ->contentFooter(fn (HasTable $livewire): ?View => self::totalFooter($livewire))
             ->emptyStateHeading(__('charges.empty_heading'))
@@ -102,6 +116,21 @@ class ChargesTable
             ->emptyStateActions([
                 CreateManualChargeAction::make()->color('gray'),
             ]);
+    }
+
+    /**
+     * What the hidden "Açıklama" and "Vade" columns would have shown, as faded lines under the
+     * customer's name below `md` (`fi-line-below-md`, theme.css): the description and
+     * "Vade: gg.aa.yyyy". From `md` up the lines are hidden and the columns take over.
+     */
+    private static function linesBelowCustomer(Charge $record): Htmlable
+    {
+        return new HtmlString(
+            '<span class="fi-line-below-md fi-wrap-anywhere">'.e($record->description).'</span>'
+            .'<span class="fi-line-below-md">'
+            .e(__('charges.due_date').': '.$record->due_date->format(AppServiceProvider::DATE_FORMAT))
+            .'</span>'
+        );
     }
 
     /**

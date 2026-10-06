@@ -708,3 +708,37 @@ it('keeps the right column correctly nested for a customer with 2 contacts, matc
         ->and($html)->toContain('Fatura bilgileri')
         ->and($html)->toContain('Notlar');
 });
+
+// --- Dar ekran düzeni (G-4B.7): sarma, kart tablolarında 1024 px taşması --------
+
+it('wraps the short name and title of the customer list so it fits its card from 375 px', function () {
+    $table = Livewire::test(ListCustomers::class)->instance()->getTable();
+
+    expect($table->getColumn('short_name')->canWrap())->toBeTrue();
+});
+
+it('lets the recent payments\' domains line break below xl without touching its text', function () {
+    $customer = Customer::factory()->create();
+    $service = withDomainItems(CustomerService::factory()->for($customer)->create(), ['uzun-bir-alan-adi.logi.com.tr']);
+    $charge = Charge::factory()->forCustomerService($service)->create();
+    $payment = Payment::factory()->for($customer)->create();
+    PaymentAllocation::factory()->create(['payment_id' => $payment->id, 'charge_id' => $charge->id, 'amount' => $charge->amount]);
+
+    $column = Livewire::test(PaymentsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable()->getColumn('amount');
+
+    expect($column->getExtraAttributes())->toBe(['class' => 'fi-wrap-description'])
+        ->and($column->record($payment)->getDescriptionBelow())->toBe('uzun-bir-alan-adi.logi.com.tr');
+});
+
+it('wraps and may break the name, title and e-mail of a contact so a long address never widens the card', function () {
+    $customer = Customer::factory()->create();
+    $table = Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->instance()->getTable();
+
+    foreach (['name', 'title', 'email'] as $name) {
+        $column = $table->getColumn($name);
+
+        expect($column->canWrap())->toBeTrue()
+            ->and($column->getExtraAttributes())->toBe(['class' => 'fi-wrap-anywhere']);
+    }
+});

@@ -80,6 +80,16 @@ class AdminPanelProvider extends PanelProvider
             // 12, §7); the suffix shows the binding inside the field itself.
             ->globalSearchKeyBindings(['mod+k'])
             ->globalSearchFieldKeyBindingSuffix()
+            // Below `sm` the search box gives way to a text "Ara" button that opens it over the
+            // topbar, with a "Kapat" beside the field (G-4B.7, docs/UI.md §2 Kural 5).
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+                fn (): string => view('filament.panel.search-open')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_END,
+                fn (): string => view('filament.panel.search-close')->render(),
+            )
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => Blade::render('@livewire(\App\Livewire\TopbarActions::class)'),

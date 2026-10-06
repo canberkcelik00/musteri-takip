@@ -10,4 +10,6 @@ return [
     'new' => 'Yeni',
     'new_customer' => 'Müşteri',
     'new_manual_charge' => 'Elle borç',
+    'search_open' => 'Ara',
+    'search_close' => 'Kapat',
 ];

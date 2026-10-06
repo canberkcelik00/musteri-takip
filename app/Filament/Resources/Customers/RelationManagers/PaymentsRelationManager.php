@@ -27,7 +27,9 @@ use Illuminate\Database\Eloquent\Model;
  * Responsive (T-68, no horizontal scroll at any width): date and amount (+ domains) always
  * show; payment method from `md`, note from `lg`. Below `md` the row action button (delete) is
  * hidden and the amount column opens the same confirmation instead — there is no "edit" for a
- * payment (T-42), so deleting is the only, already-confirmed option either way.
+ * payment (T-42), so deleting is the only, already-confirmed option either way. The domains line
+ * may break anywhere below `xl` (`fi-wrap-description`, G-4B.7) so a long one never widens the
+ * card at 1024 px.
  */
 class PaymentsRelationManager extends RelationManager
 {
@@ -68,6 +70,7 @@ class PaymentsRelationManager extends RelationManager
                     ->date(),
                 MoneyColumn::make('amount')
                     ->label(__('payments.amount'))
+                    ->extraAttributes(['class' => 'fi-wrap-description'])
                     ->description(fn (Payment $record): ?string => filled($domains = $record->domains())
                         ? implode(', ', $domains)
                         : null)
