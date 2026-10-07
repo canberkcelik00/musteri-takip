@@ -59,3 +59,30 @@ docker compose exec app php artisan test      # testler
 - Claude Code'u başlatmadan önce `docker compose up -d` çalıştırılmalı, yoksa Boost MCP bağlanamaz (`.mcp.json` sunucuyu `app` konteynerinde çalıştırır).
 - Boost yönergelerini ve skill'lerini güncellemek için: `docker compose exec app php artisan boost:update`. `AGENTS.md` ve `.claude/skills` Boost tarafından yönetilir; elle düzenlenmez.
 - `boost:install` yeniden çalıştırılırsa `.mcp.json` Windows PHP'sini çağıracak şekilde yeniden yazılabilir; komutun `docker compose exec -T app php artisan boost:mcp` kaldığını kontrol edin.
+
+## Yayına alma
+
+`main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa yükleme yapılmaz:
+
+1. `composer install --no-dev` (Filament'in `public/` dosyaları bu sırada üretilir) ve `npm run build` ile paket hazırlanır. Pakette `.env`, `storage` içeriği ve `bootstrap/cache` önbellekleri yoktur.
+2. Dosyalar FTPS ile yüklenir; yalnız değişen dosyalar gider. Sunucuda doğan dosyalara (`.env`, `storage` içeriği) dokunulmaz.
+3. Hostingteki eski `bootstrap/cache` önbellekleri silinir, en son `RELEASE` dosyası yüklenir.
+4. Yayın adresi (`POST /deploy`) çağrılır: migration ve önbellek yenileme. Adres meşgulse (409) birkaç kez yeniden denenir; çağrı başarısız olsa bile cron yayını sonraki çalışmada tamamlar.
+
+GitHub'da **Settings → Secrets and variables → Actions** altına girilecek secret'lar:
+
+| Secret | Ne | Örnek |
+| --- | --- | --- |
+| `FTP_SERVER` | FTP sunucusunun adı; FTPS sertifikasındaki adla aynı olmalı | `ftp.alan.adi` |
+| `FTP_USERNAME` | cPanel FTP kullanıcısı | `deploy@alan.adi` |
+| `FTP_PASSWORD` | O FTP kullanıcısının şifresi | |
+| `FTP_SERVER_DIR` | Projenin hostingteki klasörü (kök dizinin `public`'i gösterdiği klasör); `/` ile biter | `/musteri-takip/` |
+| `DEPLOY_URL` | Yayın adresi | `https://alan.adi/deploy` |
+| `DEPLOY_KEY` | Yayın anahtarı; `openssl rand -hex 32` ile üretilir, aynı değer hostingteki `.env`'de `DEPLOY_KEY` olarak durur | |
+
+Notlar:
+
+- Bağlantı açık FTPS'tir (explicit, port 21) ve sertifika doğrulanır.
+- Secret'ların hiçbiri girilmemişse yayın işi uyarıyla atlanır; bir kısmı eksikse eksikleri sayarak başarısız olur.
+- Hostingteki PHP sürümü 8.3 olmalı: paket `composer.lock` ve `composer.json`'daki platform ayarına (8.3) göre kurulur, `vendor/composer/platform_check.php` farklı sürümde uygulamayı açmaz.
+- Yükleme aracı sunucuda proje klasörüne `.ftp-deploy-sync-state.json` dosyasını yazar; silinirse sonraki yayında tüm dosyalar yeniden yüklenir.

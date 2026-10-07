@@ -215,9 +215,10 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Gizli anahtarla korunan yayın adresi; migration, önbellek yenileme ve gerekirse storage bağlantısını çalıştırır. Aynı kontrol zamanlayıcıda "yeni sürüm varsa bir kez yap" görevi olarak çalışır.
   - Kabul: Yanlış veya eksik anahtar reddedilir; doğru anahtarla komutlar bir kez çalışır; aynı sürüm için tekrar çalışmaz (hepsi testli).
   - Kapanış notu (T-87): Sürüm paketteki `RELEASE` dosyasıyla anlaşılır; `storage:link` çalıştırılmaz (kullanıcı kararı). Durum kodları: 200 yayınlandı veya güncel, 403 anahtar hatalı, 409 meşgul, 422 `RELEASE` yok, 500 hata (yalnız genel mesaj). G-5.2 için notlar T-87'de.
-- [ ] **G-5.2 Otomatik yayına alma** — Bağımlılık: G-1.5, G-5.1
+- [x] **G-5.2 Otomatik yayına alma** — Bağımlılık: G-1.5, G-5.1
   - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz. Paket, CI'da derlenen tema çıktısını (public/build) içermeli. Filament'in `public/` altındaki dosyaları git'te değil, `composer install` sırasında üretilir; paket hazırlanırken Composer betikleri kapatılmamalı ve paketin Filament dosyalarını içerdiği kontrol edilmeli.
   - Kabul: Gerekli GitHub secret'ları belgelenmiş; test başarısızsa yükleme yapılmaz.
+  - Kapanış notu (T-88): Yükleme FTP-Deploy-Action (SHA'ya sabit) + lftp (eski önbellekleri silme, en son `RELEASE`); secret'lar README "Yayına alma" bölümünde; hiçbiri girilmemişse yayın uyarıyla atlanır. Gerçek yükleme K-5.1'de secret'lar girilince denenecek.
 - [ ] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, \*/15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.
   - Kabul: Rehber ekran adımlarıyla, SSH gerektirmeden takip edilebilir.

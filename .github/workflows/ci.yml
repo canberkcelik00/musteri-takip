@@ -6,7 +6,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A run on main may be uploading to the hosting; it is never cancelled halfway.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   tests:
@@ -82,3 +83,197 @@ jobs:
 
       - name: Pest
         run: composer test
+
+  deploy-settings:
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    outputs:
+      enabled: ${{ steps.settings.outputs.enabled }}
+
+    steps:
+      - name: Check deploy settings
+        id: settings
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          names=(FTP_SERVER FTP_USERNAME FTP_PASSWORD FTP_SERVER_DIR DEPLOY_URL DEPLOY_KEY)
+          missing=()
+          for name in "${names[@]}"; do
+            if [ -z "${!name}" ]; then
+              missing+=("$name")
+            fi
+          done
+
+          if [ "${#missing[@]}" -eq "${#names[@]}" ]; then
+            echo "::warning::Yayın ayarları (GitHub secret'ları) girilmemiş; yükleme atlandı."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Eksik GitHub secret'ları: ${missing[*]}"
+            exit 1
+          fi
+
+          if [ "${FTP_SERVER_DIR: -1}" != "/" ]; then
+            echo "::error::FTP_SERVER_DIR / ile bitmeli."
+            exit 1
+          fi
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: [tests, deploy-settings]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.deploy-settings.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, pdo_mysql, gd, zip
+          coverage: none
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Prepare environment
+        run: cp .env.example .env
+
+      # Composer scripts stay on: filament:upgrade writes Filament's public assets.
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+
+      - name: Install front-end dependencies
+        run: npm ci
+
+      - name: Build theme
+        run: npm run build
+
+      - name: Prepare package
+        run: |
+          items=()
+          for item in app bootstrap config database lang public resources routes storage vendor artisan composer.json composer.lock; do
+            if [ -e "$item" ]; then
+              items+=("$item")
+            fi
+          done
+
+          mkdir dist
+          rsync -a --relative \
+            --include='/bootstrap/cache/.gitignore' --exclude='/bootstrap/cache/*' \
+            --include='/storage/**/' --include='/storage/**/.gitignore' --exclude='/storage/**' \
+            --exclude='/public/hot' --exclude='/public/storage' \
+            --exclude='/database/*.sqlite*' \
+            "${items[@]}" dist/
+
+      - name: Verify package
+        run: |
+          fail() {
+            echo "::error::$1"
+            exit 1
+          }
+
+          [ -f dist/public/build/manifest.json ] || fail "Pakette public/build/manifest.json yok."
+          for dir in public/js/filament public/css/filament public/fonts/filament; do
+            [ -n "$(ls -A "dist/$dir" 2>/dev/null)" ] || fail "Pakette $dir boş veya yok."
+          done
+          [ ! -e dist/.env ] || fail "Pakette .env var."
+          [ ! -e dist/RELEASE ] || fail "Pakette RELEASE var; en son ayrı yüklenir."
+          [ -z "$(find dist/bootstrap/cache -mindepth 1 ! -name .gitignore)" ] || fail "Pakette bootstrap/cache önbelleği var."
+          [ -z "$(find dist/storage -type f ! -name .gitignore)" ] || fail "Pakette storage içeriği var."
+
+      - name: Upload files
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          security: strict
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          log-level: minimal
+          exclude: |
+            **/.git/**
+            .env
+            RELEASE
+
+      - name: Remove stale caches and upload RELEASE
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+        run: |
+          printf '%s' "$GITHUB_SHA" > RELEASE
+          sudo apt-get update && sudo apt-get install -y lftp
+
+          lftp --env-password -u "$FTP_USERNAME" "ftp://$FTP_SERVER" <<LFTP
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate yes
+          set cmd:fail-exit yes
+          cd "$FTP_SERVER_DIR"
+          set cmd:fail-exit no
+          mrm bootstrap/cache/*.php
+          rm -rf bootstrap/cache/filament
+          set cmd:fail-exit yes
+          put RELEASE
+          LFTP
+
+      - name: Call deploy endpoint
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          for attempt in $(seq 1 10); do
+            if ! status=$(curl -sS -o body.txt -w '%{http_code}' --max-time 900 -X POST \
+              -H "Authorization: Bearer $DEPLOY_KEY" "$DEPLOY_URL"); then
+              echo "::error::Yayın adresine ulaşılamadı."
+              exit 1
+            fi
+
+            if [ "$status" = "200" ]; then
+              cat body.txt
+              exit 0
+            fi
+
+            if [ "$status" != "409" ]; then
+              echo "::error::Yayın adresi $status döndü."
+              cat body.txt
+              exit 1
+            fi
+
+            echo "Yayın meşgul (409), deneme $attempt/10; 30 sn sonra yeniden denenecek."
+            sleep 30
+          done
+
+          echo "::error::Yayın 10 denemede de meşguldü (409)."
+          exit 1
