@@ -219,9 +219,10 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: `main` dalına her güncellemede testler geçerse `vendor` ve arayüz dosyalarıyla paket hazırlanır, FTPS ile yüklenir, ardından yayın adresi çağrılır. `.env` ve `storage` içeriği asla üzerine yazılmaz. Paket, CI'da derlenen tema çıktısını (public/build) içermeli. Filament'in `public/` altındaki dosyaları git'te değil, `composer install` sırasında üretilir; paket hazırlanırken Composer betikleri kapatılmamalı ve paketin Filament dosyalarını içerdiği kontrol edilmeli.
   - Kabul: Gerekli GitHub secret'ları belgelenmiş; test başarısızsa yükleme yapılmaz.
   - Kapanış notu (T-88): Yükleme FTP-Deploy-Action (SHA'ya sabit) + lftp (eski önbellekleri silme, en son `RELEASE`); secret'lar README "Yayına alma" bölümünde; hiçbiri girilmemişse yayın uyarıyla atlanır. Gerçek yükleme K-5.1'de secret'lar girilince denenecek.
-- [ ] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
+- [x] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, \*/15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.
   - Kabul: Rehber ekran adımlarıyla, SSH gerektirmeden takip edilebilir.
+  - Kapanış notu (T-89): Rehber 14 adımdır (Türkçe cPanel menü adları); cron ilk yayından önce kurulur; alt alan adı ve `FTP_SERVER_DIR=/` (README secret örnekleri buna göre güncellendi). Test eklenmedi (kullanıcı kararı); gerçek uygulama K-5.1'de.
 - [ ] **K-5.1 Hosting kurulumu ve ilk yayın:** Rehberi uygula, GitHub secret'larını gir, ilk yayını başlat ve panele canlıda giriş yap.
 - [x] **G-5.4 Ana panel** — G-4.15'e (Bugün sayfası) taşındı; numara boşluk kalmasın diye durur.
   - Yapılacak: Yok; iş G-4.15'te yapılır.

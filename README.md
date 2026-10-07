@@ -62,6 +62,8 @@ docker compose exec app php artisan test      # testler
 
 ## Yayına alma
 
+Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md).
+
 `main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa yükleme yapılmaz:
 
 1. `composer install --no-dev` (Filament'in `public/` dosyaları bu sırada üretilir) ve `npm run build` ile paket hazırlanır. Pakette `.env`, `storage` içeriği ve `bootstrap/cache` önbellekleri yoktur.
@@ -76,8 +78,8 @@ GitHub'da **Settings → Secrets and variables → Actions** altına girilecek s
 | `FTP_SERVER` | FTP sunucusunun adı; FTPS sertifikasındaki adla aynı olmalı | `ftp.alan.adi` |
 | `FTP_USERNAME` | cPanel FTP kullanıcısı | `deploy@alan.adi` |
 | `FTP_PASSWORD` | O FTP kullanıcısının şifresi | |
-| `FTP_SERVER_DIR` | Projenin hostingteki klasörü (kök dizinin `public`'i gösterdiği klasör); `/` ile biter | `/musteri-takip/` |
-| `DEPLOY_URL` | Yayın adresi | `https://alan.adi/deploy` |
+| `FTP_SERVER_DIR` | Projenin hostingteki klasörü: FTP hesabının ana dizini proje klasörü ise `/`; `/` ile biter | `/` |
+| `DEPLOY_URL` | Yayın adresi | `https://panel.alan.adi/deploy` |
 | `DEPLOY_KEY` | Yayın anahtarı; `openssl rand -hex 32` ile üretilir, aynı değer hostingteki `.env`'de `DEPLOY_KEY` olarak durur | |
 
 Notlar:
