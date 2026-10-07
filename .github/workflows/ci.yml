@@ -133,7 +133,7 @@ jobs:
     needs: [tests, deploy-settings]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.deploy-settings.outputs.enabled == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 240
 
     concurrency:
       group: deploy

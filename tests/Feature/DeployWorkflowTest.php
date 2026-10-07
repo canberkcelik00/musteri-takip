@@ -56,7 +56,7 @@ it('never cancels a deploy halfway', function () {
 });
 
 it('limits how long a deploy and its endpoint call may run', function () {
-    expect(ciWorkflow()['jobs']['deploy']['timeout-minutes'])->toBe(90)
+    expect(ciWorkflow()['jobs']['deploy']['timeout-minutes'])->toBe(240)
         ->and(deployStep('Call deploy endpoint')['timeout-minutes'])->toBe(20);
 });
 
