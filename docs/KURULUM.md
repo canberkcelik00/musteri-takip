@@ -28,17 +28,31 @@ Sürüm 8.3 değilse uygulama açılmaz: paket PHP 8.3'e göre kurulur ve `vendo
 
 Uygulama doğrudan `public_html` klasörüne kurulur; ayrı klasör ya da ek alt alan adı gerekmez. cPanel → **Dosya Yöneticisi** (File Manager) → `public_html` klasörünü açın ve **boş olduğundan emin olun**: hosting'in koyduğu `index.html`, `cgi-bin` gibi varsayılan dosyaları silin. `.htaccess` ve `error_log` varsa dokunmayın (gizli dosyaları görmek için 10. adımdaki ayarı açın).
 
-Yayın bu klasörün içine `app`, `config`, `vendor`, `public` gibi klasörleri ve `.env` dosyasını koyar. Bu yüzden **belge kökü `public_html` kalırsa `.env` ve kod web'den indirilebilir**; belge kökünü bir sonraki adımda `public_html/public` yapmak zorunludur.
+Yayın bu klasörün içine `app`, `config`, `vendor`, `public` gibi klasörleri ve `.env` dosyasını koyar. Bu yüzden belge kökü `public_html` olduğu sürece `.env` ve kod web'den indirilebilir; bunu bir sonraki adımdaki `.htaccess` kuralı engeller. **Kuralı ilk yayından önce ekleyin.**
 
-## 3. Alt alan adının belge kökü
+## 3. Web erişimini `public` klasörüne kapatma (`.htaccess`)
 
-Uygulamayı kuracağınız alt alan adı (`panel.alan.adi`) hostingte zaten tanımlıdır; yeni alan adı oluşturmayın.
+Alt alan adı cPanel'de ana alan adı sayıldığı için belge kökü değiştirilemez; bunun yerine `public_html/.htaccess` dosyasındaki bir kural tüm istekleri `public/` klasörüne yönlendirir. Böylece `/.env` ya da `/vendor/...` istekleri `public/` altında aranır, bulunmaz ve 404 döner.
 
-1. cPanel → **Alan Adları** (Domains) → `panel.alan.adi` satırında **Yönet** (Manage).
-2. **Belge Kökü** (Document Root) alanına `public_html/public` yazın → **Güncelle** (Update). "Belge Kökünü Paylaş" (Share document root) seçeneği görünüyorsa kapalı olmalı.
-3. Alan adı **ana alan adı** (Main Domain) ise cPanel belge kökünü değiştirmeye izin vermeyebilir. Bu durumda devam etmeyin: `.env` açıkta kalmasın diye `public_html` köküne ek bir koruma gerekir; geliştiriciye bildirin.
+1. Dosya Yöneticisi'nde (gizli dosyalar açık, bkz. 10. adım) `public_html/.htaccess` dosyasına sağ tık → **Düzenle** (Edit). Dosya yoksa **+ Dosya** ile oluşturun.
+2. Aşağıdaki satırları dosyanın **en üstüne** yapıştırın; cPanel'in yazdığı mevcut satırlara (`# php -- BEGIN cPanel-generated handler` bloğu: PHP sürümünü belirler) dokunmayın, **silmeyin**. → **Değişiklikleri Kaydet** (Save Changes).
 
-`DEPLOY_URL` değeriniz (12. adım) buradan gelir: `https://panel.alan.adi/deploy`.
+```apache
+# Müşteri Takip: kod ve .env web'den erişilemez olsun
+<FilesMatch "^\.(?!well-known)">
+    Require all denied
+</FilesMatch>
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+```
+
+Kural bilerek `<IfModule>` içinde değildir: Apache bu kuralları anlayamazsa site 500 verir, `.env` açıkta kalmaz. Yayın bu dosyaya dokunmaz.
+
+Kontrol (ilk yayından sonra, 13. adım): `https://panel.alan.adi/.env` ve `https://panel.alan.adi/vendor/autoload.php` adresleri **404 ya da 403** vermeli. Biri dosya içeriği gösterirse bu kural çalışmıyordur; hemen `.env`'i silip bu adımı gözden geçirin.
+
+`DEPLOY_URL` değeriniz (12. adım) bu alt alan adından gelir: `https://panel.alan.adi/deploy`.
 
 ## 4. SSL (HTTPS)
 
@@ -175,6 +189,7 @@ Hiçbiri girilmemişse yayın işi uyarıyla atlanır; bir kısmı eksikse eksik
 2. İlk yükleme yaklaşık 14,5 bin dosyadır ve hostingin hızına göre uzun sürebilir; sonraki yayınlar yalnız değişen dosyaları yükler. İş en çok 240 dakika çalışır.
 3. Yükleme bitince yayın adresi çağrılır: tablolar oluşturulur (migration), önbellekler yenilenir ve `ADMIN_*` değerleriyle yönetici kullanıcı oluşturulur.
 4. `https://panel.alan.adi/panel` adresini açın → `ADMIN_EMAIL` ve `ADMIN_PASSWORD` ile giriş yapın.
+5. 3. adımdaki kontrolü yapın: `/.env` ve `/vendor/autoload.php` adresleri 404 ya da 403 vermeli.
 
 ## 14. Sorun giderme
 
@@ -187,7 +202,7 @@ Yayın adresi başarısız olsa bile yüklenen sürümü cron 15 dakika içinde 
 | 409 | Yayın başka bir çağrıyla meşgul; Actions 30 sn arayla 10 kez kendisi dener. |
 | 500 | Dosya Yöneticisi → `public_html/storage/logs/laravel.log` son satırlarına bakın. |
 | FTP adımında sertifika hatası | `FTP_SERVER` sertifikadaki adla aynı değil (8. adım). |
-| `/panel` 404 ya da dizin listesi | Belge kökü `public_html/public` değil (3. adım). Dizin listesi görünüyorsa `.env` de açıkta olabilir: hemen düzeltin. |
+| `/panel` 404 ya da dizin listesi | `public_html/.htaccess` kuralı eksik ya da yanlış (3. adım). Dizin listesi görünüyorsa `.env` de açıkta olabilir: hemen düzeltin. |
 | Boş sayfa ya da "PHP sürümü" hatası | Alan adının PHP sürümü 8.3 değil ya da eklenti eksik (1. adım). |
 | Giriş yapılamıyor | `.env`'de `ADMIN_*` üçü de dolu mu? İlk yayın başarıyla bittikten sonra kullanıcı oluşur; yayın bitmeden giriş olmaz. |
 | E-posta gitmiyor ya da spam'e düşüyor | `MAIL_*` değerlerini ve 7. adımdaki SPF/DKIM sonucunu kontrol edin. |
