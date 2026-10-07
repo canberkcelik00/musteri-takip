@@ -222,7 +222,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
 - [x] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, \*/15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.
   - Kabul: Rehber ekran adımlarıyla, SSH gerektirmeden takip edilebilir.
-  - Kapanış notu (T-89): Rehber 14 adımdır (Türkçe cPanel menü adları); cron ilk yayından önce kurulur; alt alan adı ve `FTP_SERVER_DIR=/` (README secret örnekleri buna göre güncellendi). Test eklenmedi (kullanıcı kararı); gerçek uygulama K-5.1'de.
+  - Kapanış notu (T-89): Rehber 14 adımdır (Türkçe cPanel menü adları); cron ilk yayından önce kurulur; mevcut alt alan adı, proje `public_html` içinde ve `FTP_SERVER_DIR=/` (README secret örnekleri buna göre güncellendi). Test eklenmedi (kullanıcı kararı); gerçek uygulama K-5.1'de.
 - [ ] **K-5.1 Hosting kurulumu ve ilk yayın:** Rehberi uygula, GitHub secret'larını gir, ilk yayını başlat ve panele canlıda giriş yap.
 - [x] **G-5.4 Ana panel** — G-4.15'e (Bugün sayfası) taşındı; numara boşluk kalmasın diye durur.
   - Yapılacak: Yok; iş G-4.15'te yapılır.

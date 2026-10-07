@@ -9,7 +9,7 @@ Rehberde şu yer tutucular geçer; kendi değerlerinizle değiştirin:
 | Yer tutucu | Anlamı |
 | --- | --- |
 | `alan.adi` | Sahip olduğunuz alan adı |
-| `panel.alan.adi` | Uygulamanın yayınlanacağı alt alan adı |
+| `panel.alan.adi` | Uygulamanın yayınlanacağı mevcut alt alan adı |
 | `KULLANICI` | cPanel kullanıcı adınız (cPanel'in sağ panelinde "Geçerli kullanıcı" olarak görünür) |
 
 ## 0. Gerekenler
@@ -20,22 +20,23 @@ Rehberde şu yer tutucular geçer; kendi değerlerinizle değiştirin:
 
 ## 1. PHP 8.3 ve eklentiler
 
-1. cPanel → **MultiPHP Yöneticisi** (MultiPHP Manager) → `panel.alan.adi` alan adını seçin → PHP sürümü **8.3** → **Uygula**. (Alt alan adını 3. adımda oluşturacaksınız; sürümü o zaman da ayarlayabilirsiniz.)
-2. cPanel → **MultiPHP INI Düzenleyicisi** ya da **PHP Eklentileri** (Select PHP Version / PHP Extensions) → şunların işaretli olduğundan emin olun: `intl`, `pdo_mysql`, `gd`, `zip` (yerel ortam ve CI ile aynı), ayrıca Laravel'in gerektirdiği `mbstring`, `openssl`, `fileinfo`, `tokenizer`, `xml`, `ctype`, `curl`.
+1. cPanel → **MultiPHP Yöneticisi** (MultiPHP Manager) → `panel.alan.adi` alan adını seçin → PHP sürümü **8.3** → **Uygula**. 2. cPanel → **MultiPHP INI Düzenleyicisi** ya da **PHP Eklentileri** (Select PHP Version / PHP Extensions) → şunların işaretli olduğundan emin olun: `intl`, `pdo_mysql`, `gd`, `zip` (yerel ortam ve CI ile aynı), ayrıca Laravel'in gerektirdiği `mbstring`, `openssl`, `fileinfo`, `tokenizer`, `xml`, `ctype`, `curl`.
 
 Sürüm 8.3 değilse uygulama açılmaz: paket PHP 8.3'e göre kurulur ve `vendor/composer/platform_check.php` farklı sürümde çalışmayı reddeder.
 
 ## 2. Proje klasörü
 
-cPanel → **Dosya Yöneticisi** (File Manager) → ana dizinde (`/home/KULLANICI`) **+ Klasör** ile `musteri-takip` oluşturun. Klasör `public_html`'in **dışında** olmalı: `.env` ve uygulama kodu web'den erişilemez kalır, yalnız `musteri-takip/public` yayınlanır.
+Uygulama doğrudan `public_html` klasörüne kurulur; ayrı klasör ya da ek alt alan adı gerekmez. cPanel → **Dosya Yöneticisi** (File Manager) → `public_html` klasörünü açın ve **boş olduğundan emin olun**: hosting'in koyduğu `index.html`, `cgi-bin` gibi varsayılan dosyaları silin. `.htaccess` ve `error_log` varsa dokunmayın (gizli dosyaları görmek için 10. adımdaki ayarı açın).
 
-## 3. Alt alan adı ve belge kökü
+Yayın bu klasörün içine `app`, `config`, `vendor`, `public` gibi klasörleri ve `.env` dosyasını koyar. Bu yüzden **belge kökü `public_html` kalırsa `.env` ve kod web'den indirilebilir**; belge kökünü bir sonraki adımda `public_html/public` yapmak zorunludur.
 
-Ana alan adının belge kökü değiştirilemediği için uygulama bir alt alan adında yayınlanır.
+## 3. Alt alan adının belge kökü
 
-1. cPanel → **Alan Adları** (Domains) → **Alan Adı Oluştur** (Create A New Domain).
-2. Alan adı: `panel.alan.adi`. **"Belge Kökünü Paylaş" / "Share document root" kutusunu kapatın.**
-3. Belge Kökü: `musteri-takip/public` → **Gönder**.
+Uygulamayı kuracağınız alt alan adı (`panel.alan.adi`) hostingte zaten tanımlıdır; yeni alan adı oluşturmayın.
+
+1. cPanel → **Alan Adları** (Domains) → `panel.alan.adi` satırında **Yönet** (Manage).
+2. **Belge Kökü** (Document Root) alanına `public_html/public` yazın → **Güncelle** (Update). "Belge Kökünü Paylaş" (Share document root) seçeneği görünüyorsa kapalı olmalı.
+3. Alan adı **ana alan adı** (Main Domain) ise cPanel belge kökünü değiştirmeye izin vermeyebilir. Bu durumda devam etmeyin: `.env` açıkta kalmasın diye `public_html` köküne ek bir koruma gerekir; geliştiriciye bildirin.
 
 `DEPLOY_URL` değeriniz (12. adım) buradan gelir: `https://panel.alan.adi/deploy`.
 
@@ -69,7 +70,7 @@ Uygulama bu hesabla e-posta gönderir (10. adımdaki `MAIL_*` değerleri).
 ## 8. FTP hesabı
 
 1. cPanel → **FTP Hesapları** (FTP Accounts) → yeni hesap: kullanıcı adı `deploy` (tam hali `deploy@alan.adi`), güçlü şifre.
-2. **Dizin** (Directory) alanına `musteri-takip` yazın; hesap yalnızca proje klasörünü görür. Bu yüzden yükleme klasörü `FTP_SERVER_DIR` için `/` olur.
+2. **Dizin** (Directory) alanına `public_html` yazın; hesap yalnızca proje klasörünü görür. Bu yüzden yükleme klasörü `FTP_SERVER_DIR` için `/` olur.
 3. Aynı sayfada hesabın satırında **FTP İstemcisini Yapılandır** (Configure FTP Client) → **FTP sunucusu** adını not edin (örn. `sunucu123.hosting.com`).
 
 Yayın FTPS ile (açık, port 21) ve sertifika doğrulamasıyla yapılır. `FTP_SERVER` sertifikadaki adla aynı olmalıdır: çoğu reseller'da bu `ftp.alan.adi` değil, sunucunun kendi adıdır. Eşleşmezse yayın sertifika hatasıyla düşer.
@@ -88,7 +89,7 @@ openssl rand -hex 32                                      # DEPLOY_KEY (64 karak
 ## 10. Hostingte `.env`
 
 1. Dosya Yöneticisi → sağ üstte **Ayarlar** (Settings) → **Gizli dosyaları göster** (Show Hidden Files) → Kaydet.
-2. `musteri-takip` klasörüne girin → **+ Dosya** → adı `.env` → oluşturun → sağ tık → **Düzenle** (Edit).
+2. `public_html` klasörüne girin → **+ Dosya** → adı `.env` → oluşturun → sağ tık → **Düzenle** (Edit).
 3. Aşağıdakini yapıştırıp `<...>` yerlerini doldurun:
 
 ```dotenv
@@ -146,7 +147,7 @@ Uygulama her işini tek bir cron çağrısından yürütür; `app:deploy` komutu
 2. Komut:
 
 ```text
-/opt/cpanel/ea-php83/root/usr/bin/php /home/KULLANICI/musteri-takip/artisan schedule:run >> /dev/null 2>&1
+/opt/cpanel/ea-php83/root/usr/bin/php /home/KULLANICI/public_html/artisan schedule:run >> /dev/null 2>&1
 ```
 
 PHP yolunda **8.3 yazmalıdır**: `/usr/local/bin/php` gibi kısa yollar başka bir sürümü çalıştırabilir. Hostingde EasyApache varsa yol yukarıdaki gibidir; CloudLinux ise `/opt/alt/php83/usr/bin/php` olur. Hangisinin var olduğunu Dosya Yöneticisi'nden o klasöre bakarak görebilirsiniz. Ana dizin yolu (`/home/KULLANICI`) cPanel'in sol/sağ panelinde yazar.
@@ -184,9 +185,9 @@ Yayın adresi başarısız olsa bile yüklenen sürümü cron 15 dakika içinde 
 | Actions'ta "Yayın adresi 403 döndü" | `DEPLOY_KEY` GitHub'da ve hostingteki `.env`'de farklı ya da 32 karakterden kısa. İkisini aynı yapın. |
 | 422 | Sunucuda `RELEASE` dosyası yok: yükleme tamamlanmamış. İşi yeniden çalıştırın. |
 | 409 | Yayın başka bir çağrıyla meşgul; Actions 30 sn arayla 10 kez kendisi dener. |
-| 500 | Dosya Yöneticisi → `musteri-takip/storage/logs/laravel.log` son satırlarına bakın. |
+| 500 | Dosya Yöneticisi → `public_html/storage/logs/laravel.log` son satırlarına bakın. |
 | FTP adımında sertifika hatası | `FTP_SERVER` sertifikadaki adla aynı değil (8. adım). |
-| `/panel` 404 ya da dizin listesi | Belge kökü `musteri-takip/public` değil (3. adım). |
+| `/panel` 404 ya da dizin listesi | Belge kökü `public_html/public` değil (3. adım). Dizin listesi görünüyorsa `.env` de açıkta olabilir: hemen düzeltin. |
 | Boş sayfa ya da "PHP sürümü" hatası | Alan adının PHP sürümü 8.3 değil ya da eklenti eksik (1. adım). |
 | Giriş yapılamıyor | `.env`'de `ADMIN_*` üçü de dolu mu? İlk yayın başarıyla bittikten sonra kullanıcı oluşur; yayın bitmeden giriş olmaz. |
 | E-posta gitmiyor ya da spam'e düşüyor | `MAIL_*` değerlerini ve 7. adımdaki SPF/DKIM sonucunu kontrol edin. |
