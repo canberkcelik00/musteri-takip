@@ -55,6 +55,11 @@ it('never cancels a deploy halfway', function () {
         ->and($workflow['jobs']['deploy']['concurrency'])->toBe(['group' => 'deploy', 'cancel-in-progress' => false]);
 });
 
+it('limits how long a deploy and its endpoint call may run', function () {
+    expect(ciWorkflow()['jobs']['deploy']['timeout-minutes'])->toBe(90)
+        ->and(deployStep('Call deploy endpoint')['timeout-minutes'])->toBe(20);
+});
+
 it('builds the package with production dependencies, Composer scripts and the theme', function () {
     $install = deployStep('Install production dependencies')['run'];
 

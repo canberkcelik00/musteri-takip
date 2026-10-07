@@ -133,6 +133,7 @@ jobs:
     needs: [tests, deploy-settings]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.deploy-settings.outputs.enabled == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     concurrency:
       group: deploy
@@ -249,6 +250,8 @@ jobs:
           LFTP
 
       - name: Call deploy endpoint
+        # One call may run up to 15 minutes (migrations); 409 retries add about 5.
+        timeout-minutes: 20
         env:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}

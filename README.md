@@ -85,4 +85,5 @@ Notlar:
 - Bağlantı açık FTPS'tir (explicit, port 21) ve sertifika doğrulanır.
 - Secret'ların hiçbiri girilmemişse yayın işi uyarıyla atlanır; bir kısmı eksikse eksikleri sayarak başarısız olur.
 - Hostingteki PHP sürümü 8.3 olmalı: paket `composer.lock` ve `composer.json`'daki platform ayarına (8.3) göre kurulur, `vendor/composer/platform_check.php` farklı sürümde uygulamayı açmaz.
+- İlk yükleme (~14,5 bin dosya) hostingin hızına göre uzun sürebilir; sonraki yayınlar yalnız değişen dosyaları yükler. Yayın işi en çok 90 dk çalışır.
 - Yükleme aracı sunucuda proje klasörüne `.ftp-deploy-sync-state.json` dosyasını yazar; silinirse sonraki yayında tüm dosyalar yeniden yüklenir.
