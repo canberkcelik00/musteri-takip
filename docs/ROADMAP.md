@@ -252,3 +252,4 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
 ## Faz 6 ve sonrası
 
 Teklifler ve sonraki fazların görevleri, MVP bitip sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.
+
