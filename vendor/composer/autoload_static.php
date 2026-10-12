@@ -725,6 +725,7 @@ class ComposerStaticInit45cfd8cb52957bc24f8f738bc9daa754
         'App\\Actions\\Customers\\DeleteCustomer' => __DIR__ . '/../..' . '/app/Actions/Customers/DeleteCustomer.php',
         'App\\Actions\\Deploy\\ArtisanRunner' => __DIR__ . '/../..' . '/app/Actions/Deploy/ArtisanRunner.php',
         'App\\Actions\\Deploy\\ClearStaleBootstrapCache' => __DIR__ . '/../..' . '/app/Actions/Deploy/ClearStaleBootstrapCache.php',
+        'App\\Actions\\Deploy\\CurrentCommit' => __DIR__ . '/../..' . '/app/Actions/Deploy/CurrentCommit.php',
         'App\\Actions\\Deploy\\DeployRelease' => __DIR__ . '/../..' . '/app/Actions/Deploy/DeployRelease.php',
         'App\\Actions\\EnsureAdminUser' => __DIR__ . '/../..' . '/app/Actions/EnsureAdminUser.php',
         'App\\Actions\\Packages\\DeletePackage' => __DIR__ . '/../..' . '/app/Actions/Packages/DeletePackage.php',

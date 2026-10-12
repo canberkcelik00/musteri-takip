@@ -44,6 +44,7 @@ return array(
     'App\\Actions\\Customers\\DeleteCustomer' => $baseDir . '/app/Actions/Customers/DeleteCustomer.php',
     'App\\Actions\\Deploy\\ArtisanRunner' => $baseDir . '/app/Actions/Deploy/ArtisanRunner.php',
     'App\\Actions\\Deploy\\ClearStaleBootstrapCache' => $baseDir . '/app/Actions/Deploy/ClearStaleBootstrapCache.php',
+    'App\\Actions\\Deploy\\CurrentCommit' => $baseDir . '/app/Actions/Deploy/CurrentCommit.php',
     'App\\Actions\\Deploy\\DeployRelease' => $baseDir . '/app/Actions/Deploy/DeployRelease.php',
     'App\\Actions\\EnsureAdminUser' => $baseDir . '/app/Actions/EnsureAdminUser.php',
     'App\\Actions\\Packages\\DeletePackage' => $baseDir . '/app/Actions/Packages/DeletePackage.php',
