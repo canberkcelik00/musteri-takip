@@ -1,6 +1,6 @@
 # Hosting Kurulum Rehberi
 
-Bu rehber uygulamayı cPanel'li (reseller) hostinge kurar. SSH ve sunucuda Composer gerekmez: her şey cPanel ekranlarından, GitHub'dan ve kendi bilgisayarınızdan yapılır. Yayın düzeni: GitHub Actions testleri geçen her sürümün hazır paketini (`vendor` ve derlenmiş dosyalar) `main` dalına ekler; hosting `main`'i cPanel'in Git ekranından çeker, ardından yayın adresi tarayıcıda bir kez açılır ([README "Yayına alma"](../README.md#yayına-alma)).
+Bu rehber uygulamayı cPanel'li (reseller) hostinge kurar. SSH ve sunucuda Composer gerekmez: her şey cPanel ekranlarından, GitHub'dan ve kendi bilgisayarınızdan yapılır. Yayın düzeni: kendi bilgisayarınızda `./yayin.sh` testleri çalıştırır, hazır paketi (`vendor` ve derlenmiş dosyalar) `main` dalına commit edip gönderir; hosting `main`'i cPanel'in Git ekranından çeker, ardından yayın adresi tarayıcıda bir kez açılır ([README "Yayına alma"](../README.md#yayına-alma)).
 
 Adımlar uygulama sırasıyla yazılmıştır; sırayı bozmayın. Menü adları Türkçe cPanel'e göredir, parantez içinde İngilizcesi verilir.
 
@@ -172,8 +172,8 @@ Yeni bir sürüm çekilip yayın adresi henüz açılmadıysa cron, veritabanı 
 
 ## 11. İlk yayın
 
-1. `main` dalına bir commit gönderin (ya da GitHub → **Actions** → `main`'deki son **CI** çalışması → **Re-run all jobs**). Testler geçince yayın işi `main`'e "Paket …" commit'ini ekler; GitHub'da commit listesinde görünür.
-2. cPanel → **Git™ Sürüm Kontrolü** → depo satırında **Yönet** (Manage) → **Çek veya Dağıt** (Pull or Deploy) → **Uzaktan Güncelle** (Update from Remote). **HEAD Commit** "Paket …" ile başlamalı.
+1. Kendi bilgisayarınızda, Git Bash ile proje klasöründe (Docker çalışırken) `./yayin.sh` çalıştırın. Testler, kod stili ve statik analiz geçerse paket "Yayın paketi: …" commit'i olarak `main`'e gönderilir (5–6 dakika sürer). Biri düşerse hiçbir şey gönderilmez.
+2. cPanel → **Git™ Sürüm Kontrolü** → depo satırında **Yönet** (Manage) → **Çek veya Dağıt** (Pull or Deploy) → **Uzaktan Güncelle** (Update from Remote). **HEAD Commit** "Yayın paketi: …" olmalı.
    - Daha önce `production` dalını kullandıysanız önce **Temel Bilgiler** (Basic Information) → **Kullanıma Alınan Dal** (Checked-Out Branch): `main` → **Güncelle** (Update).
 3. Tarayıcıda `https://panel.alan.adi/deploy?key=DEPLOY_KEY` adresini açın (`DEPLOY_KEY` yerine 8. adımdaki anahtar). Tablolar oluşturulur (migration), önbellekler yenilenir ve `ADMIN_*` değerleriyle yönetici kullanıcı oluşturulur. Sayfada "Yeni sürüm yayına alındı." yazmalı.
 4. `https://panel.alan.adi/panel` adresini açın → `ADMIN_EMAIL` ve `ADMIN_PASSWORD` ile giriş yapın.
@@ -182,18 +182,18 @@ Yeni bir sürüm çekilip yayın adresi henüz açılmadıysa cron, veritabanı 
 
 ## 12. Sonraki yayınlar
 
-1. `main`'e gönderin; GitHub → **Actions**'ta CI yeşil olunca "Paket …" commit'i `main`'dedir. Testler, Pint ya da Larastan düşerse paket eklenmez.
+1. Değişikliklerinizi commit edin, sonra `./yayin.sh` çalıştırın.
 2. cPanel → **Git™ Sürüm Kontrolü** → **Yönet** → **Çek veya Dağıt** → **Uzaktan Güncelle**.
 3. `https://panel.alan.adi/deploy?key=DEPLOY_KEY` adresini açın. Adresi tarayıcıda yer imi olarak saklayabilirsiniz.
 
-Yayın paketi `main`'e CI tarafından eklendiği için kendi bilgisayarınızda bir sonraki gönderimden önce `git pull` yapın (VS Code'daki "Sync" bunu kendisi yapar).
+`./yayin.sh` commit edilmemiş değişiklik varken ya da `main` dışında bir dalda çalışmaz. Yalnızca kod değişikliklerini göndermek (yayınlamadan) isterseniz normal `git push` yeterli; GitHub Actions her gönderimde testleri çalıştırır. cPanel'de **Uzaktan Güncelle**'yi yalnızca `./yayin.sh`'tan sonra yapın: normal gönderimde `vendor` ve `RELEASE` güncellenmez.
 
 ## 13. Sorun giderme
 
 | Belirti | Neden ve çözüm |
 | --- | --- |
 | "Uzaktan Güncelle" ya da dal değiştirme yerel değişiklik hatası veriyor | Klasörde depodaki dosyalardan farklılaşmış dosyalar var (örn. eski FTP yüklemesinden kalanlar). Cron İşleri'ne **Her dakika** çalışan geçici bir iş ekleyin: `cd /home/KULLANICI/public_html && /usr/local/cpanel/3rdparty/bin/git fetch origin main && /usr/local/cpanel/3rdparty/bin/git checkout -f -B main origin/main`. İki dakika bekleyip geçici işi silin. Bu komut yalnız depodaki dosyaları `main`'deki haline getirir; `.env`, `.htaccess` ve `storage` içeriğine dokunmaz. |
-| Actions'ta "Commit package to main" adımı kırmızı | Adımın çıktısına bakın. "main bu çalışmadan sonra ilerledi" uyarısı hata değildir: paketi yeni çalışma ekler. Yazma izni hatasında depo ayarlarında **Settings → Actions → General → Workflow permissions** "Read and write permissions" yapın. |
+| `./yayin.sh` "Paket dışında değişen dosyalar var" diyor | Paket hazırlanırken başka dosyalar da değişmiş; hiçbir şey gönderilmemiştir. Listelenen dosyalara bakıp hepsini commit edin (hazırlanan paket dosyaları da bu commit'e girebilir, sorun değil) ve betiği yeniden çalıştırın. |
 | Yayın adresi "Yetkisiz istek." diyor | Adresteki anahtar `.env`'deki `DEPLOY_KEY` ile aynı değil ya da `DEPLOY_KEY` 32 karakterden kısa. |
 | Yayın adresi "Yayın sırasında hata oluştu" diyor | `public_html/storage/logs/laravel.log` son satırlarına bakın; sorunu giderip adresi yeniden açın. Başarısız yayın tekrar denenebilir. |
 | İlk yayın migration'da yarıda kaldı, yeniden açınca günlükte "already exists" yazıyor | İlk kurulumda veritabanında henüz veri yoktur: cPanel → **phpMyAdmin** → soldan veritabanını seçin → **Tümünü işaretle** (Check all) → **Seçilenlerle: Kaldır** (Drop) → onaylayın. Sonra yayın adresini yeniden açın. **Uygulama kullanılmaya başladıktan sonra bunu yapmayın**; verilerin hepsi silinir. |

@@ -14,17 +14,11 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
-/public/css/filament
 /public/fonts-manifest.dev.json
-/public/fonts/filament
 /public/hot
-/public/js/filament
 /public/storage
-/RELEASE
 /storage/*.key
 /storage/pail
-/vendor
 _ide_helper.php
 Homestead.json
 Homestead.yaml

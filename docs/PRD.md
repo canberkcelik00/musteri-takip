@@ -305,7 +305,7 @@ Proje Laravel 13 ve PHP 8.3+ ile, tamamen Claude Code tarafından geliştirilece
 
 **Yayına alma (SSH ve Composer yok, PHP 8.3 seçilebilir)**
 
-- Kod GitHub'da tutulur. Her yayın için GitHub Actions testleri çalıştırır, Composer bağımlılıklarını (`vendor`) ve arayüz dosyalarını hazırlar, hazır paketi `main` dalına ekler. Hosting `main`'i cPanel'in Git ekranından çeker. Sunucuda Composer gerekmez.
+- Kod GitHub'da tutulur. Her yayın için geliştiricinin bilgisayarındaki yayın betiği testleri çalıştırır, Composer bağımlılıklarını (`vendor`) ve arayüz dosyalarını hazırlar, hazır paketi `main` dalına gönderir. Hosting `main`'i cPanel'in Git ekranından çeker. Sunucuda Composer gerekmez.
 - Çektikten sonra kullanıcı tarayıcıda gizli anahtarlı yayın adresini bir kez açar; veritabanı güncellemeleri (migration) ve önbellek yenileme hemen çalışır. SSH ve yayın için cron gerekmez.
 - Cron 15 dakikada bir çalıştığı için zamanlanmış işler "tam dakikada çalış" yerine "henüz yapılmadıysa yap" mantığıyla yazılır: borç oluşturma ve dönem ilerletme her çalışmada kontrol edilir, günlük özet ayarlanan saatten sonraki ilk çalışmada bir kez gönderilir. Atlanan bir cron çalışması hiçbir işi kaybettirmez.
 - İlk kurulumda elle yapılacaklar: cPanel'de PHP 8.3 seçmek, veritabanı açmak, alan adının kök dizinini projenin `public` klasörüne yönlendirmek, `.env` dosyasını Dosya Yöneticisi'nden oluşturmak, */15 cron görevini eklemek. Bunlar için adım adım kurulum rehberi yazılacak.

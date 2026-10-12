@@ -64,22 +64,18 @@ docker compose exec app php artisan test      # testler
 
 Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md).
 
-Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. `main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa paket eklenmez:
+Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. Sunucuda Composer olmadığı için canlı paket (`vendor` dev paketleri olmadan, derlenmiş tema, Filament dosyaları ve `RELEASE`) depoda durur ve yerelde hazırlanır.
 
-1. `composer install --no-dev` (Filament'in `public/` dosyaları bu sırada üretilir) ve `npm run build` çalışır.
-2. `vendor`, `public/build`, Filament dosyaları ve `RELEASE` (commit kimliği) `main`'e `Paket <sha> [skip ci]` commit'i olarak eklenir. `.env`, `storage` içeriği ve önbellekler hiçbir zaman eklenmez; geçmiş yeniden yazılmaz.
+Yayın üç adımdır:
 
-Yayını tamamlamak için:
-
-1. cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt** → **Uzaktan Güncelle**.
-2. Tarayıcıda `https://ALAN_ADI/deploy?key=DEPLOY_KEY` adresini açın: migration'lar çalışır, önbellekler yenilenir (`DeployRelease`). Aynı sürüm için yeniden açmak bir şey yapmaz.
+1. Git Bash'te, Docker çalışırken: `./yayin.sh`. Betik önce testleri, Pint'i ve Larastan'ı çalıştırır; biri düşerse durur. Sonra `vendor`'u `--no-dev` ile geçici bir konteynerde proje klasörüne kurar (`app` konteynerinin dev paketli `vendor` birimine dokunmaz), temayı derler, `RELEASE`'e kaynak commit kimliğini yazar, yalnızca paket dosyalarını "Yayın paketi: …" commit'i olarak ekler ve `main`'e gönderir.
+2. cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt** → **Uzaktan Güncelle**.
+3. Tarayıcıda `https://ALAN_ADI/deploy?key=DEPLOY_KEY`: migration'lar çalışır, önbellekler yenilenir (`DeployRelease`). Aynı sürüm için yeniden açmak bir şey yapmaz.
 
 Notlar:
 
+- GitHub Actions (`.github/workflows/ci.yml`) her gönderimde yalnızca testleri çalıştırır; depoya yazmaz, secret gerekmez.
 - Çekmeden sonraki ilk istek, eski sürümün `bootstrap/cache` dosyalarını Laravel açılmadan önce siler (`ClearStaleBootstrapCache`); yeni kod eski önbellekle açılmaz.
-- `vendor` ve derlenmiş dosyalar `.gitignore`'da kalır: yereldeki (dev paketli) `vendor` yanlışlıkla commit edilmez; CI bunları `--force` ile ekler.
-- CI `main`'e commit eklediği için yerelde bir sonraki push'tan önce `git pull` gerekir.
-- GitHub secret'ı gerekmez; yayın işi yalnızca kendi `GITHUB_TOKEN`'ıyla yazar.
 - Depo public olmalı: hosting kimlik bilgisi olmadan çeker.
 - Hostingte doğan dosyalar (`.env`, `storage` içeriği, önbellekler, `public_html/.htaccess`) depoya girmez ve çekme onlara dokunmaz.
 - Hostingteki PHP sürümü 8.3 olmalı: paket `composer.lock` ve `composer.json`'daki platform ayarına (8.3) göre kurulur, `vendor/composer/platform_check.php` farklı sürümde uygulamayı açmaz.

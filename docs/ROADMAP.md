@@ -221,12 +221,14 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Kapanış notu (T-88): Yükleme FTP-Deploy-Action (SHA'ya sabit) + lftp (eski önbellekleri silme, en son `RELEASE`); secret'lar README "Yayına alma" bölümünde; hiçbiri girilmemişse yayın uyarıyla atlanır. Gerçek yükleme K-5.1'de secret'lar girilince denenecek.
   - Düzeltme (T-90): Canlıda FTP yüklemesi bağlantı kesintileriyle tamamlanamadı; paket artık `production` dalına yazılır, hosting cPanel Git ile çeker (`.cpanel.yml` + cron yedeği). Secret gerekmez.
   - Düzeltme (T-91): Ayrı dal, `.cpanel.yml` ve yayın cron'u kalktı. CI paketi (`vendor`, derlenmiş dosyalar, `RELEASE`) `main`'e `[skip ci]` commit'i olarak ekler; hosting `main`'i çeker, yayın `/deploy?key=…` adresi tarayıcıda açılınca tamamlanır. Eski önbellekleri `ClearStaleBootstrapCache` Laravel açılmadan siler.
+  - Düzeltme (T-93): Paketi yerelde `./yayin.sh` hazırlar (testler, `vendor --no-dev` geçici konteynerde, tema, `RELEASE`) ve `main`'e gönderir; CI yalnız test çalıştırır, bot commit'i yok.
 - [x] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, \*/15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.
   - Kabul: Rehber ekran adımlarıyla, SSH gerektirmeden takip edilebilir.
   - Kapanış notu (T-89): Rehber 14 adımdır (Türkçe cPanel menü adları); cron ilk yayından önce kurulur; mevcut alt alan adı, proje `public_html` içinde (`.htaccess` ile `public/` yönlendirmesi) ve `FTP_SERVER_DIR=/` (README secret örnekleri buna göre güncellendi). Test eklenmedi (kullanıcı kararı); gerçek uygulama K-5.1'de.
   - Güncelleme (T-90): Rehber yeni yayın düzenine göre 13 adım oldu: FTP hesabı ve secret adımları kalktı; depo cPanel Git ile `public_html`'e klonlanır, ilk yayında `production` dalına geçilir.
   - Güncelleme (T-91): Hosting `main`'i izler; `DEPLOY_KEY` geri geldi; cron yalnız `schedule:run`; yayın adımları "Uzaktan Güncelle → yayın adresini aç".
+  - Güncelleme (T-93): Yayın adımları "`./yayin.sh` → Uzaktan Güncelle → yayın adresini aç".
 - [ ] **K-5.1 Hosting kurulumu ve ilk yayın:** Rehberi uygula, hostingi `main` dalına geçir, yayın adresini aç ve panele canlıda giriş yap.
 - [x] **G-5.4 Ana panel** — G-4.15'e (Bugün sayfası) taşındı; numara boşluk kalmasın diye durur.
   - Yapılacak: Yok; iş G-4.15'te yapılır.
