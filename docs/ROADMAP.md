@@ -222,6 +222,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Düzeltme (T-90): Canlıda FTP yüklemesi bağlantı kesintileriyle tamamlanamadı; paket artık `production` dalına yazılır, hosting cPanel Git ile çeker (`.cpanel.yml` + cron yedeği). Secret gerekmez.
   - Düzeltme (T-91): Ayrı dal, `.cpanel.yml` ve yayın cron'u kalktı. CI paketi (`vendor`, derlenmiş dosyalar, `RELEASE`) `main`'e `[skip ci]` commit'i olarak ekler; hosting `main`'i çeker, yayın `/deploy?key=…` adresi tarayıcıda açılınca tamamlanır. Eski önbellekleri `ClearStaleBootstrapCache` Laravel açılmadan siler.
   - Düzeltme (T-93): Paketi yerelde `./yayin.sh` hazırlar (testler, `vendor --no-dev` geçici konteynerde, tema, `RELEASE`) ve `main`'e gönderir; CI yalnız test çalıştırır, bot commit'i yok.
+  - Düzeltme (T-94): Paketi yine CI hazırlar ama yalnız değiştiyse `main`'e commit eder (mesaj neyin değiştiğini ve kaynak commit'i söyler); `RELEASE` ve `yayin.sh` kalktı, yayın kimliği sunucudaki git commit'i.
 - [x] **G-5.3 Kurulum rehberi** — Bağımlılık: G-5.2
   - Yapılacak: `docs/KURULUM.md`: cPanel'de PHP 8.3, veritabanı, kök dizini `public`'e yönlendirme, `.env`, \*/15 cron, e-posta hesabı, SPF/DKIM kontrolü, GitHub secret'ları.
   - Kabul: Rehber ekran adımlarıyla, SSH gerektirmeden takip edilebilir.
@@ -229,6 +230,7 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Güncelleme (T-90): Rehber yeni yayın düzenine göre 13 adım oldu: FTP hesabı ve secret adımları kalktı; depo cPanel Git ile `public_html`'e klonlanır, ilk yayında `production` dalına geçilir.
   - Güncelleme (T-91): Hosting `main`'i izler; `DEPLOY_KEY` geri geldi; cron yalnız `schedule:run`; yayın adımları "Uzaktan Güncelle → yayın adresini aç".
   - Güncelleme (T-93): Yayın adımları "`./yayin.sh` → Uzaktan Güncelle → yayın adresini aç".
+  - Güncelleme (T-94): Yayın adımları "push → CI yeşil → Uzaktan Güncelle → yayın adresini aç".
 - [ ] **K-5.1 Hosting kurulumu ve ilk yayın:** Rehberi uygula, hostingi `main` dalına geçir, yayın adresini aç ve panele canlıda giriş yap.
 - [x] **G-5.4 Ana panel** — G-4.15'e (Bugün sayfası) taşındı; numara boşluk kalmasın diye durur.
   - Yapılacak: Yok; iş G-4.15'te yapılır.

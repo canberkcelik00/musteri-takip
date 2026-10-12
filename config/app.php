@@ -145,14 +145,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | `key` protects the deploy endpoint (at least 32 characters, otherwise every
-    | request is refused). `release_file` is the id file the deploy package ships;
-    | `state_file` holds the id that was deployed last.
+    | request is refused). `git_directory` is the repository whose current commit is
+    | the release id; `state_file` holds the id that was deployed last.
     |
     */
 
     'deploy' => [
         'key' => env('DEPLOY_KEY'),
-        'release_file' => base_path('RELEASE'),
+        'git_directory' => base_path('.git'),
         'state_file' => storage_path('app/deployed-release'),
     ],
 

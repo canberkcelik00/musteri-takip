@@ -82,3 +82,111 @@ jobs:
 
       - name: Pest
         run: composer test
+
+  # The hosting pulls main with cPanel Git, so the production package (vendor without dev
+  # packages, the theme, Filament's public assets) lives in main. This job commits it only
+  # when it actually changed; a push that changes neither composer.lock nor the design adds
+  # no commit.
+  deploy:
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, pdo_mysql, gd, zip
+          coverage: none
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Prepare environment
+        run: cp .env.example .env
+
+      # Composer scripts stay on: filament:upgrade writes Filament's public assets. No
+      # --optimize-autoloader: its class map lists every app class, so vendor would change
+      # with every new class.
+      - name: Install production dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --no-progress
+
+      - name: Install front-end dependencies
+        run: npm ci
+
+      - name: Build theme
+        run: npm run build
+
+      - name: Verify package
+        run: |
+          fail() {
+            echo "::error::$1"
+            exit 1
+          }
+
+          [ -f vendor/autoload.php ] || fail "vendor/autoload.php yok."
+          [ -f public/build/manifest.json ] || fail "public/build/manifest.json yok."
+          for dir in public/js/filament public/css/filament public/fonts/filament; do
+            [ -n "$(ls -A "$dir" 2>/dev/null)" ] || fail "$dir boş veya yok."
+          done
+
+      - name: Commit package if it changed
+        run: |
+          fail() {
+            echo "::error::$1"
+            exit 1
+          }
+
+          git fetch --depth=1 origin main
+          if [ "$(git rev-parse FETCH_HEAD)" != "$GITHUB_SHA" ]; then
+            echo "main bu çalışmadan sonra ilerledi; paketi yeni çalışma değerlendirir."
+            exit 0
+          fi
+
+          # Composer writes the root commit id into installed.php on every install; on its own
+          # that is not a package change.
+          if git diff --quiet -- vendor ':(exclude)vendor/composer/installed.php'; then
+            git checkout -- vendor/composer/installed.php
+          fi
+
+          # Forced: a vendor package's own .gitignore must not drop its files from the package.
+          git add --all --force -- vendor public/build public/js/filament public/css/filament public/fonts/filament
+
+          if git diff --cached --quiet; then
+            echo "Canlı paket değişmedi; commit gerekmiyor."
+            exit 0
+          fi
+
+          unexpected="$(git diff --cached --name-only | grep -Ev '^(vendor/|public/build/|public/(js|css|fonts)/filament/)' || true)"
+          [ -z "$unexpected" ] || fail "Paket dışında değişen dosyalar var: $unexpected"
+
+          changes=()
+          git diff --cached --quiet -- vendor || changes+=("Composer bağımlılıkları (vendor) güncellendi")
+          git diff --cached --quiet -- public/build || changes+=("tema yeniden derlendi")
+          git diff --cached --quiet -- public/js/filament public/css/filament public/fonts/filament || changes+=("Filament dosyaları güncellendi")
+          summary="$(printf '%s, ' "${changes[@]}")"
+          source_subject="$(git log -1 --format=%s "$GITHUB_SHA")"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -q -m "Yayın paketi: ${summary%, }" -m "Kaynak: ${GITHUB_SHA:0:8} ${source_subject}"
+          git push origin HEAD:refs/heads/main

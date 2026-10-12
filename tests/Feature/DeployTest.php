@@ -159,14 +159,14 @@ it('runs again when a new release is uploaded', function () {
     $runner = prepareDeploy('release-1');
 
     $this->postJson('/deploy', headers: deployHeaders())->assertOk();
-    file_put_contents(config('app.deploy.release_file'), "release-2\n");
+    pullDeployRelease("release-2\n");
     $this->postJson('/deploy', headers: deployHeaders())->assertOk()->assertJson(['status' => 'deployed']);
 
     expect($runner->calls)->toBe([...DEPLOY_STEPS, ...DEPLOY_STEPS])
         ->and(deployedRelease())->toBe('release-2');
 });
 
-it('answers 422 without doing anything when there is no RELEASE file', function () {
+it('answers 422 without doing anything when the commit cannot be read', function () {
     $runner = prepareDeploy(null);
 
     $this->postJson('/deploy', headers: deployHeaders())

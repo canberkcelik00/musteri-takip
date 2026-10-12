@@ -64,19 +64,26 @@ docker compose exec app php artisan test      # testler
 
 Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md).
 
-Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. Sunucuda Composer olmadığı için canlı paket (`vendor` dev paketleri olmadan, derlenmiş tema, Filament dosyaları ve `RELEASE`) depoda durur ve yerelde hazırlanır.
+Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. Sunucuda Composer olmadığı için canlı paket (`vendor` dev paketleri olmadan, derlenmiş tema, Filament dosyaları) depoda durur.
 
-Yayın üç adımdır:
+`main`'e her push'ta GitHub Actions (`.github/workflows/ci.yml`) testleri, Pint'i ve Larastan'ı çalıştırır. Hepsi geçerse yayın işi `composer install --no-dev` ve `npm run build` ile paketi hazırlar ve **yalnızca paket değiştiyse** `main`'e bir commit ekler:
 
-1. Git Bash'te, Docker çalışırken: `./yayin.sh`. Betik önce testleri, Pint'i ve Larastan'ı çalıştırır; biri düşerse durur. Sonra `vendor`'u `--no-dev` ile geçici bir konteynerde proje klasörüne kurar (`app` konteynerinin dev paketli `vendor` birimine dokunmaz), temayı derler, `RELEASE`'e kaynak commit kimliğini yazar, yalnızca paket dosyalarını "Yayın paketi: …" commit'i olarak ekler ve `main`'e gönderir.
-2. cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt** → **Uzaktan Güncelle**.
-3. Tarayıcıda `https://ALAN_ADI/deploy?key=DEPLOY_KEY`: migration'lar çalışır, önbellekler yenilenir (`DeployRelease`). Aynı sürüm için yeniden açmak bir şey yapmaz.
+- Başlık neyin değiştiğini söyler: `Yayın paketi: Composer bağımlılıkları (vendor) güncellendi`, `… tema yeniden derlendi`, `… Filament dosyaları güncellendi`.
+- Gövdede kaynak commit yazar: `Kaynak: 1a2b3c4d G-4.3: …`.
+- Yalnızca PHP kodu, test ya da doküman değiştiyse commit eklenmez.
+- Geçmiş yeniden yazılmaz; çalışma sırasında `main` ilerlediyse paketi yeni çalışma değerlendirir.
+
+Yayını tamamlamak için:
+
+1. cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt** → **Uzaktan Güncelle**.
+2. Tarayıcıda `https://ALAN_ADI/deploy?key=DEPLOY_KEY`: migration'lar çalışır, önbellekler yenilenir (`DeployRelease`). Yayın kimliği sunucudaki deponun commit'idir (`CurrentCommit`, `.git` dosyalarından okunur); aynı commit için yeniden açmak bir şey yapmaz.
 
 Notlar:
 
-- GitHub Actions (`.github/workflows/ci.yml`) her gönderimde yalnızca testleri çalıştırır; depoya yazmaz, secret gerekmez.
-- Çekmeden sonraki ilk istek, eski sürümün `bootstrap/cache` dosyalarını Laravel açılmadan önce siler (`ClearStaleBootstrapCache`); yeni kod eski önbellekle açılmaz.
-- Depo public olmalı: hosting kimlik bilgisi olmadan çeker.
+- Paket commit'i eklendiyse yerelde bir sonraki push'tan önce `git pull` gerekir.
+- `vendor`, `--optimize-autoloader` olmadan kurulur: o seçenek her yeni uygulama sınıfında `vendor`'u değiştirirdi. `app.css` Tailwind kaynaklarını açıkça listeler (`source(none)`), böylece takip edilen `vendor` ya da dokümanlar temayı değiştirmez.
+- Çekmeden sonraki ilk istek, eski sürümün `bootstrap/cache` dosyalarını Laravel açılmadan önce siler (`ClearStaleBootstrapCache`).
+- Depo public olmalı: hosting kimlik bilgisi olmadan çeker. GitHub secret'ı gerekmez.
 - Hostingte doğan dosyalar (`.env`, `storage` içeriği, önbellekler, `public_html/.htaccess`) depoya girmez ve çekme onlara dokunmaz.
 - Hostingteki PHP sürümü 8.3 olmalı: paket `composer.lock` ve `composer.json`'daki platform ayarına (8.3) göre kurulur, `vendor/composer/platform_check.php` farklı sürümde uygulamayı açmaz.
 - Cron yalnızca uygulamanın zamanlanmış işleri içindir (`schedule:run`); yayınla ilgisi yoktur.

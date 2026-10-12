@@ -24,7 +24,7 @@ class DeployRelease
     /**
      * Prepare the uploaded release (migrations, caches) when it has not been deployed yet.
      *
-     * The release id is the content of the RELEASE file the deploy package ships; the
+     * The release id is the commit the hosting's repository is on (pulled with cPanel Git); the
      * last deployed id is kept in the storage directory, which a deploy never overwrites.
      * The id is stored only after every step succeeded, so a failed deploy is tried
      * again on the next call. A file lock keeps the endpoint and the cron from
@@ -138,7 +138,7 @@ class DeployRelease
 
     private function currentRelease(): ?string
     {
-        return $this->readId((string) config('app.deploy.release_file'));
+        return (new CurrentCommit((string) config('app.deploy.git_directory')))->id();
     }
 
     private function deployedRelease(): ?string

@@ -15,7 +15,7 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 require __DIR__.'/../vendor/autoload.php';
 
 // Drop the previous release's framework caches after a pull...
-(new ClearStaleBootstrapCache(__DIR__.'/../RELEASE', __DIR__.'/../bootstrap/cache'))->handle();
+(new ClearStaleBootstrapCache(__DIR__.'/../.git', __DIR__.'/../bootstrap/cache'))->handle();
 
 // Bootstrap Laravel and handle the request...
 /** @var Application $app */

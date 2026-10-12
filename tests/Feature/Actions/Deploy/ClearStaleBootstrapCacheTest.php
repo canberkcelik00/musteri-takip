@@ -25,7 +25,7 @@ function staleCacheDirectory(): string
 
 function clearStaleBootstrapCache(string $cache): bool
 {
-    return (new ClearStaleBootstrapCache(deployTestDirectory().'/RELEASE', $cache))->handle();
+    return (new ClearStaleBootstrapCache(deployTestDirectory().'/.git', $cache))->handle();
 }
 
 /**
@@ -39,7 +39,7 @@ function cacheEntries(string $cache): array
     return $entries;
 }
 
-it('removes the caches of the previous release once a new release was pulled', function () {
+it('removes the caches of the previous release once a new commit was pulled', function () {
     prepareDeploy('release-2');
     $cache = staleCacheDirectory();
     file_put_contents($cache.'/release', 'release-1');
@@ -69,7 +69,7 @@ it('touches nothing while the release is the same', function () {
         ->and(is_file($cache.'/filament/components.php'))->toBeTrue();
 });
 
-it('touches nothing when there is no RELEASE file', function (?string $release) {
+it('touches nothing when the commit cannot be read', function (?string $release) {
     prepareDeploy($release);
     $cache = staleCacheDirectory();
     $before = cacheEntries($cache);

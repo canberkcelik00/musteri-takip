@@ -26,7 +26,7 @@ it('deploys a new release once', function () {
         ->and(deployedRelease())->toBe('release-1');
 });
 
-it('does nothing and succeeds when there is no RELEASE file', function () {
+it('does nothing and succeeds when the commit cannot be read', function () {
     $runner = prepareDeploy(null);
 
     $this->artisan('app:deploy')->assertSuccessful();
@@ -62,12 +62,12 @@ it('skips the customer service job while an uploaded release is not deployed yet
 
     expect($process->filtersPass(app()))->toBeTrue();
 
-    file_put_contents(config('app.deploy.release_file'), 'release-2');
+    pullDeployRelease('release-2');
 
     expect($process->filtersPass(app()))->toBeFalse();
 });
 
-it('runs the customer service job when there is no RELEASE file', function () {
+it('runs the customer service job when the commit cannot be read', function () {
     prepareDeploy(null);
 
     expect(scheduledEvent('app:process-customer-services')->filtersPass(app()))->toBeTrue();

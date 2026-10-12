@@ -217,17 +217,33 @@ function prepareDeploy(?string $release = 'release-1', ?string $failingCommand =
 
     config()->set('app.deploy', [
         'key' => DEPLOY_TEST_KEY,
-        'release_file' => $directory.'/RELEASE',
+        'git_directory' => $directory.'/.git',
         'state_file' => $directory.'/deployed-release',
     ]);
 
     if ($release !== null) {
-        file_put_contents($directory.'/RELEASE', $release);
+        pullDeployRelease($release);
     }
 
     app()->instance(IconsManifest::class, new IconsManifest(new Filesystem, $directory.'/blade-icons.php'));
 
     return swapArtisanRunner($failingCommand);
+}
+
+/**
+ * Simulate a pull in the temporary repository `prepareDeploy()` created: main moves to the
+ * given commit id, the way cPanel Git leaves `.git` after "Update from Remote".
+ */
+function pullDeployRelease(string $release): void
+{
+    $git = deployTestDirectory().'/.git';
+
+    if (! is_dir($git.'/refs/heads')) {
+        mkdir($git.'/refs/heads', recursive: true);
+        file_put_contents($git.'/HEAD', "ref: refs/heads/main\n");
+    }
+
+    file_put_contents($git.'/refs/heads/main', $release);
 }
 
 /**

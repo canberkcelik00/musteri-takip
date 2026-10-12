@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 use Throwable;
 
 #[Signature('app:deploy')]
-#[Description('Prepare the uploaded release (migrations, caches) when it has not been deployed yet')]
+#[Description('Prepare the pulled release (migrations, caches) when it has not been deployed yet')]
 class RunDeploy extends Command
 {
     /**
