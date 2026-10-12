@@ -196,6 +196,7 @@ Yayın paketi `main`'e CI tarafından eklendiği için kendi bilgisayarınızda 
 | Actions'ta "Commit package to main" adımı kırmızı | Adımın çıktısına bakın. "main bu çalışmadan sonra ilerledi" uyarısı hata değildir: paketi yeni çalışma ekler. Yazma izni hatasında depo ayarlarında **Settings → Actions → General → Workflow permissions** "Read and write permissions" yapın. |
 | Yayın adresi "Yetkisiz istek." diyor | Adresteki anahtar `.env`'deki `DEPLOY_KEY` ile aynı değil ya da `DEPLOY_KEY` 32 karakterden kısa. |
 | Yayın adresi "Yayın sırasında hata oluştu" diyor | `public_html/storage/logs/laravel.log` son satırlarına bakın; sorunu giderip adresi yeniden açın. Başarısız yayın tekrar denenebilir. |
+| İlk yayın migration'da yarıda kaldı, yeniden açınca günlükte "already exists" yazıyor | İlk kurulumda veritabanında henüz veri yoktur: cPanel → **phpMyAdmin** → soldan veritabanını seçin → **Tümünü işaretle** (Check all) → **Seçilenlerle: Kaldır** (Drop) → onaylayın. Sonra yayın adresini yeniden açın. **Uygulama kullanılmaya başladıktan sonra bunu yapmayın**; verilerin hepsi silinir. |
 | 500 | Dosya Yöneticisi → `public_html/storage/logs/laravel.log` son satırlarına bakın. |
 | `/panel` 404 ya da dizin listesi | `public_html/.htaccess` kuralı eksik ya da yanlış (3. adım). Dizin listesi görünüyorsa `.env` de açıkta olabilir: hemen düzeltin. |
 | Boş sayfa ya da "PHP sürümü" hatası | Alan adının PHP sürümü 8.3 değil ya da eklenti eksik (1. adım). |
