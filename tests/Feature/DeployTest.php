@@ -105,6 +105,16 @@ it('runs the deploy steps once and remembers the release', function () {
         ->and(User::where('email', 'sahip@example.com')->exists())->toBeTrue();
 });
 
+it('does not flush the database cache, whose table does not exist before the first migration', function () {
+    $runner = prepareDeploy('release-1');
+
+    $this->postJson('/deploy', headers: deployHeaders())->assertOk();
+
+    expect($runner->calls[0])->toBe('optimize:clear')
+        ->and($runner->parameters[0])->toBe(['--except' => 'cache'])
+        ->and(array_search('optimize:clear', $runner->calls, true))->toBeLessThan(array_search('migrate', $runner->calls, true));
+});
+
 it('removes the stale icon manifest that the console optimize wrote', function () {
     prepareDeploy('release-1');
     $manifest = deployTestDirectory().'/blade-icons.php';

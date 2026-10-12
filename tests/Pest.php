@@ -231,7 +231,7 @@ function prepareDeploy(?string $release = 'release-1', ?string $failingCommand =
 }
 
 /**
- * @return object{calls: list<string>}
+ * @return object{calls: list<string>, parameters: list<array<string, mixed>>}
  */
 function swapArtisanRunner(?string $failingCommand = null): object
 {
@@ -240,11 +240,15 @@ function swapArtisanRunner(?string $failingCommand = null): object
         /** @var list<string> */
         public array $calls = [];
 
+        /** @var list<array<string, mixed>> */
+        public array $parameters = [];
+
         public function __construct(private readonly ?string $failingCommand) {}
 
         public function run(string $command, array $parameters = []): int
         {
             $this->calls[] = $command;
+            $this->parameters[] = $parameters;
 
             return $command === $this->failingCommand ? 1 : 0;
         }
