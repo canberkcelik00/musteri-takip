@@ -36,16 +36,11 @@ function deployStep(string $name): array
 }
 
 it('deploys only after the tests pass on a push to main', function () {
-    $jobs = ciWorkflow()['jobs'];
+    $deploy = ciWorkflow()['jobs']['deploy'];
 
-    foreach (['deploy-settings', 'deploy'] as $job) {
-        expect((array) $jobs[$job]['needs'])->toContain('tests')
-            ->and($jobs[$job]['if'])->toContain("github.event_name == 'push'")
-            ->toContain("github.ref == 'refs/heads/main'");
-    }
-
-    expect($jobs['deploy']['needs'])->toContain('deploy-settings')
-        ->and($jobs['deploy']['if'])->toContain("needs.deploy-settings.outputs.enabled == 'true'");
+    expect((array) $deploy['needs'])->toBe(['tests'])
+        ->and($deploy['if'])->toContain("github.event_name == 'push'")
+        ->toContain("github.ref == 'refs/heads/main'");
 });
 
 it('never cancels a deploy halfway', function () {
@@ -55,9 +50,11 @@ it('never cancels a deploy halfway', function () {
         ->and($workflow['jobs']['deploy']['concurrency'])->toBe(['group' => 'deploy', 'cancel-in-progress' => false]);
 });
 
-it('limits how long a deploy and its endpoint call may run', function () {
-    expect(ciWorkflow()['jobs']['deploy']['timeout-minutes'])->toBe(240)
-        ->and(deployStep('Call deploy endpoint')['timeout-minutes'])->toBe(20);
+it('limits how long a deploy may run and lets it write only repository contents', function () {
+    $deploy = ciWorkflow()['jobs']['deploy'];
+
+    expect($deploy['timeout-minutes'])->toBe(30)
+        ->and($deploy['permissions'])->toBe(['contents' => 'write']);
 });
 
 it('builds the package with production dependencies, Composer scripts and the theme', function () {
@@ -83,45 +80,51 @@ it('keeps .env, storage content and caches out of the package', function () {
         ->toContain('dist/storage');
 });
 
-it('checks that the package contains the theme and the Filament assets', function () {
-    expect(deployStep('Verify package')['run'])->toContain('dist/public/build/manifest.json')
+it('checks that the package contains the theme, the Filament assets and the cPanel tasks', function () {
+    expect(deployStep('Prepare package')['run'])->toContain('.cpanel.yml')
+        ->and(deployStep('Verify package')['run'])->toContain('dist/public/build/manifest.json')
         ->toContain('public/js/filament')
         ->toContain('public/css/filament')
-        ->toContain('public/fonts/filament');
+        ->toContain('public/fonts/filament')
+        ->toContain('dist/.cpanel.yml');
 });
 
-it('uploads the files, then RELEASE, then calls the deploy endpoint', function () {
-    $upload = deployStep('Upload files');
-    $release = deployStep('Remove stale caches and upload RELEASE')['run'];
-    $call = deployStep('Call deploy endpoint')['run'];
+it('publishes the verified package to the production branch without rewriting its history', function () {
+    $publish = deployStep('Publish to production branch')['run'];
 
-    expect($upload['uses'])->toMatch('/^SamKirkland\/FTP-Deploy-Action@[0-9a-f]{40}$/')
-        ->and($upload['with']['protocol'])->toBe('ftps')
-        ->and(explode("\n", trim($upload['with']['exclude'])))->toContain('.env', 'RELEASE')
-        ->and($release)->toContain('mrm bootstrap/cache/*.php')
-        ->toContain('rm -rf bootstrap/cache/filament')
-        ->toContain('set ssl:verify-certificate yes')
-        ->and(strrpos($release, 'put RELEASE'))->toBeGreaterThan(strrpos($release, 'set cmd:fail-exit yes'))
-        ->and($call)->toContain('Authorization: Bearer $DEPLOY_KEY')
-        ->toContain('"409"')
-        ->not->toContain('set -x')
-        ->and(deployStepIndex('Verify package'))->toBeLessThan(deployStepIndex('Upload files'))
-        ->and(deployStepIndex('Upload files'))->toBeLessThan(deployStepIndex('Remove stale caches and upload RELEASE'))
-        ->and(deployStepIndex('Remove stale caches and upload RELEASE'))->toBeLessThan(deployStepIndex('Call deploy endpoint'));
+    expect($publish)->toContain('printf \'%s\' "$GITHUB_SHA" > dist/RELEASE')
+        ->toContain('rsync -a --delete')
+        ->toContain('git -C release push origin HEAD:refs/heads/production')
+        ->not->toMatch('/push[^\n]*(--force|\s-f\b|\+HEAD)/')
+        ->and(deployStepIndex('Verify package'))->toBeLessThan(deployStepIndex('Publish to production branch'))
+        ->and(array_key_last(deploySteps()))->toBe(deployStepIndex('Publish to production branch'));
 });
 
-it('documents and checks every secret the workflow uses', function () {
+it('never commits files that are created on the hosting', function () {
+    $publish = deployStep('Publish to production branch')['run'];
+    $gitignore = str($publish)->after("<<'GITIGNORE'")->before('GITIGNORE')->explode("\n")
+        ->map(fn (string $line): string => trim($line))
+        ->filter()
+        ->values()
+        ->all();
+
+    expect($gitignore)->toContain('/.env', '/.htaccess', 'error_log', '/public/storage');
+});
+
+it('needs no secrets', function () {
     preg_match_all('/secrets\.([A-Z0-9_]+)/', file_get_contents(base_path('.github/workflows/ci.yml')), $matches);
-    $secrets = collect($matches[1])->unique()->reject(fn (string $name): bool => $name === 'GITHUB_TOKEN');
 
-    $readme = file_get_contents(base_path('README.md'));
-    $deploySection = str($readme)->after('## Yayına alma')->before("\n## ")->toString();
-    $settingsCheck = ciWorkflow()['jobs']['deploy-settings']['steps'][0]['run'];
+    expect($matches[1])->toBe([])
+        ->and(ciWorkflow()['jobs'])->not->toHaveKey('deploy-settings')
+        ->and(collect(deploySteps())->pluck('uses')->filter()->implode(' '))->not->toContain('FTP-Deploy-Action');
+});
 
-    expect($secrets)->not->toBeEmpty();
+it('clears stale caches before cPanel runs the deploy command', function () {
+    $tasks = Yaml::parseFile(base_path('.cpanel.yml'))['deployment']['tasks'];
 
-    foreach ($secrets as $secret) {
-        expect($deploySection)->toContain("`{$secret}`")
-            ->and($settingsCheck)->toContain($secret);
-    }
+    expect($tasks)->toBe([
+        '/bin/rm -f bootstrap/cache/*.php',
+        '/bin/rm -rf bootstrap/cache/filament',
+        '/opt/cpanel/ea-php83/root/usr/bin/php artisan app:deploy',
+    ]);
 });

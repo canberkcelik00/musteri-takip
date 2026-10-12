@@ -13,7 +13,7 @@ Artisan::command('inspire', function () {
  * The hosting cron calls `schedule:run` every 15 minutes; every call runs these, so a
  * cron call that drifts by a minute is not skipped. The actions only do what is not done yet.
  *
- * The deploy is the backup of the deploy endpoint and runs first. It has its own file
+ * The deploy is the backup of cPanel's deploy task (.cpanel.yml) and runs first. It has its own file
  * lock, so it needs no `withoutOverlapping` (which would use the database cache that
  * does not exist before the first deploy).
  */

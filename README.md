@@ -64,28 +64,21 @@ docker compose exec app php artisan test      # testler
 
 Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md).
 
-`main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa yükleme yapılmaz:
+Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `production` dalında tutar. `main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa `production` değişmez:
 
 1. `composer install --no-dev` (Filament'in `public/` dosyaları bu sırada üretilir) ve `npm run build` ile paket hazırlanır. Pakette `.env`, `storage` içeriği ve `bootstrap/cache` önbellekleri yoktur.
-2. Dosyalar FTPS ile yüklenir; yalnız değişen dosyalar gider. Sunucuda doğan dosyalara (`.env`, `storage` içeriği) dokunulmaz.
-3. Hostingteki eski `bootstrap/cache` önbellekleri silinir, en son `RELEASE` dosyası yüklenir.
-4. Yayın adresi (`POST /deploy`) çağrılır: migration ve önbellek yenileme. Adres meşgulse (409) birkaç kez yeniden denenir; çağrı başarısız olsa bile cron yayını sonraki çalışmada tamamlar.
+2. Paket `RELEASE` dosyasıyla (commit kimliği) birlikte `production` dalına yeni bir commit olarak yazılır; dalın geçmişi hiç yeniden yazılmaz.
 
-GitHub'da **Settings → Secrets and variables → Actions** altına girilecek secret'lar:
+Yayını tamamlamak için cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt**:
 
-| Secret | Ne | Örnek |
-| --- | --- | --- |
-| `FTP_SERVER` | FTP sunucusunun adı; FTPS sertifikasındaki adla aynı olmalı | `ftp.alan.adi` |
-| `FTP_USERNAME` | cPanel FTP kullanıcısı | `deploy@alan.adi` |
-| `FTP_PASSWORD` | O FTP kullanıcısının şifresi | |
-| `FTP_SERVER_DIR` | Projenin hostingteki klasörü: FTP hesabının ana dizini proje klasörü ise `/`; `/` ile biter | `/` |
-| `DEPLOY_URL` | Yayın adresi | `https://panel.alan.adi/deploy` |
-| `DEPLOY_KEY` | Yayın anahtarı; `openssl rand -hex 32` ile üretilir, aynı değer hostingteki `.env`'de `DEPLOY_KEY` olarak durur | |
+1. **Uzaktan Güncelle** yeni sürümü çeker.
+2. **HEAD Commit'i Dağıt** `.cpanel.yml`'deki görevleri çalıştırır: eski önbellekleri siler ve `php artisan app:deploy` (migration, önbellek yenileme). Düğmeye basılmazsa aynı işi cron en geç 15 dakika içinde yapar.
 
 Notlar:
 
-- Bağlantı açık FTPS'tir (explicit, port 21) ve sertifika doğrulanır.
-- Secret'ların hiçbiri girilmemişse yayın işi uyarıyla atlanır; bir kısmı eksikse eksikleri sayarak başarısız olur.
+- GitHub secret'ı gerekmez; yayın işi `production` dalına yalnızca kendi `GITHUB_TOKEN`'ıyla yazar.
+- Depo public olmalı: hosting kimlik bilgisi olmadan çeker.
+- `production` dalında `.github/` yoktur; bu dala yapılan push CI'ı tetiklemez.
+- Hostingte doğan dosyalar (`.env`, `storage` içeriği, önbellekler, `public_html/.htaccess`) depoya girmez ve çekme onlara dokunmaz.
 - Hostingteki PHP sürümü 8.3 olmalı: paket `composer.lock` ve `composer.json`'daki platform ayarına (8.3) göre kurulur, `vendor/composer/platform_check.php` farklı sürümde uygulamayı açmaz.
-- İlk yükleme (~14,5 bin dosya) hostingin hızına göre uzun sürebilir; sonraki yayınlar yalnız değişen dosyaları yükler. Yükleme aracı hangi dosyaların yüklendiğini en sonda kaydettiği için kesilen bir yükleme yeniden çalıştırıldığında her şey baştan yüklenir; bu yüzden yayın işinin sınırı geniş tutuldu (en çok 240 dk).
-- Yükleme aracı sunucuda proje klasörüne `.ftp-deploy-sync-state.json` dosyasını yazar; silinirse sonraki yayında tüm dosyalar yeniden yüklenir.
+- `vendor` güncellemeleri `production` dalının geçmişinde birikir; dal yalnız hostingin çektiği paketi taşır, `main`'e karışmaz.
