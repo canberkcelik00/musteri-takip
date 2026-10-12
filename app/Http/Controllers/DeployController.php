@@ -17,7 +17,7 @@ class DeployController extends Controller
     public function __invoke(Request $request, DeployRelease $deployRelease): JsonResponse
     {
         if (! $this->hasValidKey($request)) {
-            return response()->json(['status' => 'forbidden', 'message' => __('deploy.forbidden')], 403);
+            return $this->respond(['status' => 'forbidden', 'message' => __('deploy.forbidden')], 403);
         }
 
         // A dropped connection or the host's time limit must not stop a migration half way.
@@ -28,21 +28,35 @@ class DeployController extends Controller
             $result = $deployRelease->handle();
         } catch (Throwable) {
             // The details are already in the log; the response never carries them.
-            return response()->json(['status' => 'failed', 'message' => __('deploy.failed')], 500);
+            return $this->respond(['status' => 'failed', 'message' => __('deploy.failed')], 500);
         }
 
-        return response()->json(['status' => $result->value, 'message' => $result->message()], $result->httpStatus());
+        return $this->respond(['status' => $result->value, 'message' => $result->message()], $result->httpStatus());
     }
 
+    /**
+     * The key comes as a bearer token (POST) or, when the address is opened in a browser
+     * after a pull, as the `key` query parameter.
+     */
     private function hasValidKey(Request $request): bool
     {
         $key = config('app.deploy.key');
-        $token = $request->bearerToken();
+        $token = $request->bearerToken() ?? $request->query('key');
 
         if (! is_string($key) || strlen($key) < self::MIN_KEY_LENGTH || ! is_string($token)) {
             return false;
         }
 
         return hash_equals($key, $token);
+    }
+
+    /**
+     * Unescaped, so the Turkish message stays readable when the address is opened in a browser.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function respond(array $data, int $status): JsonResponse
+    {
+        return response()->json($data, $status, options: JSON_UNESCAPED_UNICODE);
     }
 }

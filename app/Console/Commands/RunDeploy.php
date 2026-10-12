@@ -14,8 +14,8 @@ use Throwable;
 class RunDeploy extends Command
 {
     /**
-     * Execute the console command. The scheduler runs this as the backup of the deploy
-     * endpoint, so a missing release or an already deployed one is not an error.
+     * Execute the console command. A manual alternative to the deploy address, so a
+     * missing release or an already deployed one is not an error.
      */
     public function handle(DeployRelease $deployRelease): int
     {

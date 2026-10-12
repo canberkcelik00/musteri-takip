@@ -14,10 +14,19 @@ function deployHeaders(?string $key = DEPLOY_TEST_KEY): array
     return $key === null ? [] : ['Authorization' => 'Bearer '.$key];
 }
 
+/**
+ * The address opened in a browser after a pull, with the key as a query parameter.
+ */
+function deployAddress(?string $key = DEPLOY_TEST_KEY): string
+{
+    return $key === null ? '/deploy' : '/deploy?'.http_build_query(['key' => $key]);
+}
+
 it('refuses a missing or wrong key', function (?string $key) {
     $runner = prepareDeploy();
 
     $this->postJson('/deploy', headers: deployHeaders($key))->assertForbidden();
+    $this->getJson(deployAddress($key))->assertForbidden();
 
     expect($runner->calls)->toBe([])
         ->and(deployedRelease())->toBeNull();
@@ -32,6 +41,7 @@ it('refuses every request when the configured key is shorter than 32 characters'
     config()->set('app.deploy.key', 'short-key');
 
     $this->postJson('/deploy', headers: deployHeaders('short-key'))->assertForbidden();
+    $this->getJson(deployAddress('short-key'))->assertForbidden();
 
     expect($runner->calls)->toBe([])
         ->and(deployedRelease())->toBeNull();
@@ -43,14 +53,41 @@ it('refuses every request when no key is configured', function (?string $configu
 
     $this->postJson('/deploy', headers: deployHeaders(''))->assertForbidden();
     $this->postJson('/deploy')->assertForbidden();
+    $this->getJson(deployAddress(''))->assertForbidden();
+    $this->getJson('/deploy')->assertForbidden();
 
     expect($runner->calls)->toBe([]);
 })->with([[null], ['']]);
 
-it('only accepts POST', function () {
+it('refuses a key given as a list', function () {
     $runner = prepareDeploy();
 
-    $this->getJson('/deploy', deployHeaders())->assertStatus(405);
+    $this->getJson('/deploy?key[]='.DEPLOY_TEST_KEY)->assertForbidden();
+
+    expect($runner->calls)->toBe([]);
+});
+
+it('deploys when the address is opened in a browser with the key', function () {
+    $runner = prepareDeploy('release-1');
+
+    $response = $this->get(deployAddress())
+        ->assertOk()
+        ->assertJson(['status' => 'deployed', 'message' => __('deploy.deployed')]);
+
+    expect($runner->calls)->toBe(DEPLOY_STEPS)
+        ->and(deployedRelease())->toBe('release-1')
+        ->and($response->getContent())->toContain(__('deploy.deployed'));
+
+    $this->get(deployAddress())->assertOk()->assertJson(['status' => 'up_to_date']);
+
+    expect($runner->calls)->toBe(DEPLOY_STEPS);
+});
+
+it('accepts only GET and POST', function () {
+    $runner = prepareDeploy();
+
+    $this->putJson('/deploy', headers: deployHeaders())->assertStatus(405);
+    $this->deleteJson('/deploy', headers: deployHeaders())->assertStatus(405);
 
     expect($runner->calls)->toBe([]);
 });

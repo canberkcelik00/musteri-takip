@@ -64,21 +64,23 @@ docker compose exec app php artisan test      # testler
 
 Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md).
 
-Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `production` dalında tutar. `main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa `production` değişmez:
+Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. `main` dalına her push'ta GitHub Actions (`.github/workflows/ci.yml`) şunları yapar; testler, Pint veya Larastan başarısızsa paket eklenmez:
 
-1. `composer install --no-dev` (Filament'in `public/` dosyaları bu sırada üretilir) ve `npm run build` ile paket hazırlanır. Pakette `.env`, `storage` içeriği ve `bootstrap/cache` önbellekleri yoktur.
-2. Paket `RELEASE` dosyasıyla (commit kimliği) birlikte `production` dalına yeni bir commit olarak yazılır; dalın geçmişi hiç yeniden yazılmaz.
+1. `composer install --no-dev` (Filament'in `public/` dosyaları bu sırada üretilir) ve `npm run build` çalışır.
+2. `vendor`, `public/build`, Filament dosyaları ve `RELEASE` (commit kimliği) `main`'e `Paket <sha> [skip ci]` commit'i olarak eklenir. `.env`, `storage` içeriği ve önbellekler hiçbir zaman eklenmez; geçmiş yeniden yazılmaz.
 
-Yayını tamamlamak için cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt**:
+Yayını tamamlamak için:
 
-1. **Uzaktan Güncelle** yeni sürümü çeker.
-2. **HEAD Commit'i Dağıt** `.cpanel.yml`'deki görevleri çalıştırır: eski önbellekleri siler ve `php artisan app:deploy` (migration, önbellek yenileme). Düğmeye basılmazsa aynı işi cron en geç 15 dakika içinde yapar.
+1. cPanel → Git Sürüm Kontrolü → **Yönet** → **Çek veya Dağıt** → **Uzaktan Güncelle**.
+2. Tarayıcıda `https://ALAN_ADI/deploy?key=DEPLOY_KEY` adresini açın: migration'lar çalışır, önbellekler yenilenir (`DeployRelease`). Aynı sürüm için yeniden açmak bir şey yapmaz.
 
 Notlar:
 
-- GitHub secret'ı gerekmez; yayın işi `production` dalına yalnızca kendi `GITHUB_TOKEN`'ıyla yazar.
+- Çekmeden sonraki ilk istek, eski sürümün `bootstrap/cache` dosyalarını Laravel açılmadan önce siler (`ClearStaleBootstrapCache`); yeni kod eski önbellekle açılmaz.
+- `vendor` ve derlenmiş dosyalar `.gitignore`'da kalır: yereldeki (dev paketli) `vendor` yanlışlıkla commit edilmez; CI bunları `--force` ile ekler.
+- CI `main`'e commit eklediği için yerelde bir sonraki push'tan önce `git pull` gerekir.
+- GitHub secret'ı gerekmez; yayın işi yalnızca kendi `GITHUB_TOKEN`'ıyla yazar.
 - Depo public olmalı: hosting kimlik bilgisi olmadan çeker.
-- `production` dalında `.github/` yoktur; bu dala yapılan push CI'ı tetiklemez.
 - Hostingte doğan dosyalar (`.env`, `storage` içeriği, önbellekler, `public_html/.htaccess`) depoya girmez ve çekme onlara dokunmaz.
 - Hostingteki PHP sürümü 8.3 olmalı: paket `composer.lock` ve `composer.json`'daki platform ayarına (8.3) göre kurulur, `vendor/composer/platform_check.php` farklı sürümde uygulamayı açmaz.
-- `vendor` güncellemeleri `production` dalının geçmişinde birikir; dal yalnız hostingin çektiği paketi taşır, `main`'e karışmaz.
+- Cron yalnızca uygulamanın zamanlanmış işleri içindir (`schedule:run`); yayınla ilgisi yoktur.

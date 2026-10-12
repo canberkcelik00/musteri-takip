@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function (): void {
             // Outside the web group on purpose: no session, CSRF or throttle (they use the
             // database, which does not exist yet on the first deploy). The key guards it.
-            Route::post('/deploy', DeployController::class)->name('deploy');
+            Route::match(['get', 'post'], '/deploy', DeployController::class)->name('deploy');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

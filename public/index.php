@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Deploy\ClearStaleBootstrapCache;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,9 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
+
+// Drop the previous release's framework caches after a pull...
+(new ClearStaleBootstrapCache(__DIR__.'/../RELEASE', __DIR__.'/../bootstrap/cache'))->handle();
 
 // Bootstrap Laravel and handle the request...
 /** @var Application $app */

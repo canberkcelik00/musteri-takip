@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    # The job pushes the built package to the production branch.
+    # The job commits the built package to main.
     permissions:
       contents: write
 
@@ -136,23 +136,6 @@ jobs:
       - name: Build theme
         run: npm run build
 
-      - name: Prepare package
-        run: |
-          items=()
-          for item in app bootstrap config database lang public resources routes storage vendor artisan composer.json composer.lock .cpanel.yml; do
-            if [ -e "$item" ]; then
-              items+=("$item")
-            fi
-          done
-
-          mkdir dist
-          rsync -a --relative \
-            --include='/bootstrap/cache/.gitignore' --exclude='/bootstrap/cache/*' \
-            --include='/storage/**/' --include='/storage/**/.gitignore' --exclude='/storage/**' \
-            --exclude='/public/hot' --exclude='/public/storage' \
-            --exclude='/database/*.sqlite*' \
-            "${items[@]}" dist/
-
       - name: Verify package
         run: |
           fail() {
@@ -160,51 +143,37 @@ jobs:
             exit 1
           }
 
-          [ -f dist/public/build/manifest.json ] || fail "Pakette public/build/manifest.json yok."
+          [ -f public/build/manifest.json ] || fail "public/build/manifest.json yok."
           for dir in public/js/filament public/css/filament public/fonts/filament; do
-            [ -n "$(ls -A "dist/$dir" 2>/dev/null)" ] || fail "Pakette $dir boş veya yok."
+            [ -n "$(ls -A "$dir" 2>/dev/null)" ] || fail "$dir boş veya yok."
           done
-          [ -f dist/.cpanel.yml ] || fail "Pakette .cpanel.yml yok."
-          [ ! -e dist/.env ] || fail "Pakette .env var."
-          [ ! -e dist/RELEASE ] || fail "Pakette RELEASE var; yayın adımında yazılır."
-          [ -z "$(find dist/bootstrap/cache -mindepth 1 ! -name .gitignore)" ] || fail "Pakette bootstrap/cache önbelleği var."
-          [ -z "$(find dist/storage -type f ! -name .gitignore)" ] || fail "Pakette storage içeriği var."
+          [ -f vendor/autoload.php ] || fail "vendor/autoload.php yok."
 
-      # The hosting's clone of the repository tracks the production branch and pulls it
-      # from cPanel. Files created on the hosting (.env, storage content, caches, the
-      # .htaccess that routes requests to public/) are never committed.
-      - name: Publish to production branch
+      # The hosting's clone of the repository tracks main and pulls it from cPanel, so the
+      # built files are committed to main itself. Only these paths are added: .env, storage
+      # content and caches never enter the commit. A newer push publishes its own package.
+      - name: Commit package to main
         run: |
-          printf '%s' "$GITHUB_SHA" > dist/RELEASE
-          cat > dist/.gitignore <<'GITIGNORE'
-          /.env
-          /.htaccess
-          /.ftp-deploy-sync-state.json
-          /public/hot
-          /public/storage
-          error_log
-          GITIGNORE
+          fail() {
+            echo "::error::$1"
+            exit 1
+          }
 
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
-          if git ls-remote --exit-code --heads origin production > /dev/null; then
-            git fetch --depth=1 origin production
-            git worktree add --detach release FETCH_HEAD
-          else
-            git worktree add --detach release
-            git -C release checkout --orphan production
-            git -C release rm -r -q --cached .
+          git fetch --depth=1 origin main
+          if [ "$(git rev-parse FETCH_HEAD)" != "$GITHUB_SHA" ]; then
+            echo "main bu çalışmadan sonra ilerledi; paketi yeni çalışma yayınlar."
+            exit 0
           fi
 
-          rsync -a --delete --exclude='/.git' dist/ release/
+          printf '%s' "$GITHUB_SHA" > RELEASE
 
-          # Forced: package files that a vendor's own .gitignore matches must ship too.
-          git -C release add --all --force .
-          if git -C release diff --cached --quiet; then
-            echo "production dalı zaten bu sürümde."
-          else
-            git -C release commit -q -m "Release $GITHUB_SHA"
-          fi
+          # Forced: the paths are ignored for local work, and a vendor's own .gitignore must not drop its files.
+          git add --all --force vendor public/build public/js/filament public/css/filament public/fonts/filament RELEASE
 
-          git -C release push origin HEAD:refs/heads/production
+          unexpected="$(git diff --cached --name-only | grep -Ev '^(vendor/|public/build/|public/(js|css|fonts)/filament/|RELEASE$)' || true)"
+          [ -z "$unexpected" ] || fail "Pakette beklenmeyen dosyalar var: $unexpected"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -q -m "Paket $GITHUB_SHA [skip ci]"
+          git push origin HEAD:refs/heads/main

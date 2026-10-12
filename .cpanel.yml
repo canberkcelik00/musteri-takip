@@ -1,6 +1,0 @@
----
-deployment:
-  tasks:
-    - /bin/rm -f bootstrap/cache/*.php
-    - /bin/rm -rf bootstrap/cache/filament
-    - /opt/cpanel/ea-php83/root/usr/bin/php artisan app:deploy

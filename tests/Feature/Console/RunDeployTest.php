@@ -46,13 +46,10 @@ it('fails with a generic message when a step fails', function () {
     expect(deployedRelease())->toBeNull();
 });
 
-it('is scheduled on every scheduler call before the customer service job', function () {
-    $events = collect(app(Schedule::class)->events());
-    $deploy = scheduledEvent('app:deploy');
-    $process = scheduledEvent('app:process-customer-services');
+it('is not scheduled: a release is deployed by opening the deploy address', function () {
+    $commands = collect(app(Schedule::class)->events())->map(fn (Event $event): string => (string) $event->command);
 
-    expect($deploy->expression)->toBe('* * * * *')
-        ->and($events->search($deploy))->toBeLessThan($events->search($process));
+    expect($commands->filter(fn (string $command): bool => str_contains($command, 'app:deploy')))->toBeEmpty();
 });
 
 it('skips the customer service job while an uploaded release is not deployed yet', function () {
