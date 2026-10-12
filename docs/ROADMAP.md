@@ -231,7 +231,8 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Güncelleme (T-91): Hosting `main`'i izler; `DEPLOY_KEY` geri geldi; cron yalnız `schedule:run`; yayın adımları "Uzaktan Güncelle → yayın adresini aç".
   - Güncelleme (T-93): Yayın adımları "`./yayin.sh` → Uzaktan Güncelle → yayın adresini aç".
   - Güncelleme (T-94): Yayın adımları "push → CI yeşil → Uzaktan Güncelle → yayın adresini aç".
-- [ ] **K-5.1 Hosting kurulumu ve ilk yayın:** Rehberi uygula, hostingi `main` dalına geçir, yayın adresini aç ve panele canlıda giriş yap.
+- [x] **K-5.1 Hosting kurulumu ve ilk yayın:** Rehberi uygula, hostingi `main` dalına geçir, yayın adresini aç ve panele canlıda giriş yap.
+  - Kapanış notu: 2026-10-12 canlıda tamamlandı (T-94 düzeni). Yolda çıkan ve düzeltilen hatalar: ilk yayında olmayan `cache` tablosu (T-91), hostingin MyISAM varsayılanı (T-92). `production` dalı, eski secret'lar ve FTP hesabı silindi; `/.env` ve `/vendor/autoload.php` web'den erişilemiyor.
 - [x] **G-5.4 Ana panel** — G-4.15'e (Bugün sayfası) taşındı; numara boşluk kalmasın diye durur.
   - Yapılacak: Yok; iş G-4.15'te yapılır.
   - Kabul: G-4.15'in kabul ölçütleri.
