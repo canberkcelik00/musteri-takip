@@ -244,9 +244,10 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Zamanlayıcının son çalışma zamanı kaydedilir; 1 saatten uzun süredir çalışmadıysa Bugün sayfasında uyarı görünür. Son çalışmada hata veren hizmet varsa (G-3.9'daki hata yalıtımı) Bugün sayfasında bu da uyarı olarak gösterilir.
   - Kabul: Süre aşılınca uyarı görünür, çalışınca kaybolur (testli).
   - Kapanış notu (T-98): Kayıt `app:process-customer-services` sonunda ayarlara yazılır. Kullanıcı kararları: hiç çalışmamışsa da uyarı görünür; bekleyen yayın yüzünden atlanıyorsa ayrı metin ("Yayın adresini açın"); hata veren hizmetler en çok 5 adla, müşteri kartına bağlantılı. Yayından sonra ilk cron çalışmasına kadar (en çok 15 dk) 'hiç çalışmadı' uyarısı görünebilir.
-- [ ] **G-5.7 MVP son kontrol** — Bağımlılık: G-5.1…G-5.6
+- [x] **G-5.7 MVP son kontrol** — Bağımlılık: G-5.1…G-5.6
   - Yapılacak: Ana akışların ekran üzerinden uçtan uca testi (müşteri ekle → hizmet ata → ödeme al → yenileme → iptal); birkaç yüz müşterilik örnek veriyle listelerin hız kontrolü; tüm dokümanların güncelliği.
   - Kabul: Tüm testler yeşil; ROADMAP ve DECISIONS güncel.
+  - Kapanış notu (T-99): Ana akış `MvpFlowTest` ile ekran bileşenleri üzerinden, hız `ListPerformanceTest` ile (5 ve 300 müşteride eşit sorgu sayısı) doğrulandı; Bugün'ün Yapılacaklar listesindeki satır başına sorgu düzeltildi, ölçümler ve doküman düzeltmeleri T-99'da.
 - [ ] **G-5.8 Canlıya geçiş kontrol listesi** — Bağımlılık: G-5.7
   - Yapılacak: `docs/CANLIYA_GECIS.md`: canlı ortam ayarları (hata ayrıntıları kapalı, HTTPS), test e-postası, ayarların doldurulması, ilk girişten sonra panelden şifrenin değiştirilmesi ve hostingdeki .env'den ADMIN\_PASSWORD satırının silinmesi, örnek verinin canlıda olmadığının kontrolü, canlı ortamın APP\_KEY değerinin güvenli bir yerde yedeklenmesi (değişir veya kaybolursa şifreli lisans anahtarları okunamaz).
   - Kabul: Liste ekran adımlarıyla takip edilebilir.

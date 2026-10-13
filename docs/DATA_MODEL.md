@@ -210,6 +210,8 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | digest_time | 09:00 | Özet e-postasının saati |
 | notification_email | — | Özetin gideceği adres |
 | digest_last_run_at | — | İç durum, ekranda yok: özetin son ele alındığı an (ISO tarih-saat); bir sonraki özetin "yeni borçlar" aralığı buradan başlar |
+| scheduler_last_run_at | — | İç durum, ekranda yok: `app:process-customer-services` komutunun son bitiş anı (ISO tarih-saat); Bugün sayfasındaki zamanlayıcı uyarısı buradan hesaplanır (G-5.6) |
+| scheduler_failed_service_ids | — | İç durum, ekranda yok: son çalışmada hata veren müşteri hizmetlerinin id'leri (JSON liste); hatasız çalışmada silinir (G-5.6) |
 | quote_validity_days | 15 | Teklif geçerlilik süresi (Faz 6) |
 | quote_bcc_email | — | Gönderilen tekliflerin kopyasının gideceği adres (Faz 6) |
 | company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6) |

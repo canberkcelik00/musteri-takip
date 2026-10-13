@@ -175,10 +175,10 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 
 ## 8. Şu anki panelden farklar
 
-- Açılış sayfası boş: "Bugün" sayfası yok (G-5.4 ana panel buraya çekilmeli).
+- Açılış sayfası boş: "Bugün" sayfası yok. (G-4.15'te giderildi; G-5.4 buraya taşınmıştı.)
 - Her sayfadan ödeme kaydetme ve alan adıyla arama yok. (Her sayfadan ödeme alma G-4.13'te giderildi; arama G-4.14'te.)
-- Satır işlemleri "⋮" menülerinde gizli.
-- Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor.
+- Satır işlemleri "⋮" menülerinde gizli. (G-4.17'de giderildi.)
+- Müşteri kartı tek sütun ve çok uzun; kişiler ve geçmiş kayıtlar işin önüne geçiyor. (G-4.16'da giderildi.)
 - Menü sırası ve adları sıklığa göre değil; "Tahsilat" grubu yok. (G-4.13'te giderildi.)
 - Koyu tema ve varsayılan Filament görünümü; marka rengi, logo, durum rengi kuralları yok. (G-4.12'de giderildi.)
 

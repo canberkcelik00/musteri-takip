@@ -5,6 +5,7 @@ namespace App\Filament\Actions;
 use App\Actions\CustomerServices\RemoveCustomerServiceFreeFlag;
 use App\Enums\CustomerServiceStatus;
 use App\Exceptions\InvalidCustomerService;
+use App\Filament\Concerns\ResolvesCustomerServiceArgument;
 use App\Filament\Forms\Components\MoneyInput;
 use App\Filament\Support\FieldError;
 use App\Models\CustomerService;
@@ -22,6 +23,8 @@ use Livewire\Component;
  */
 class RemoveFreeFlagAction extends Action
 {
+    use ResolvesCustomerServiceArgument;
+
     public static function getDefaultName(): ?string
     {
         return 'removeFree';
@@ -29,10 +32,8 @@ class RemoveFreeFlagAction extends Action
 
     public function getRecord(bool $withDefault = true): CustomerService|array|null
     {
-        $customerServiceId = $this->getArguments()['customerService'] ?? null;
-
-        if ($customerServiceId !== null) {
-            return CustomerService::query()->find($customerServiceId);
+        if (($this->getArguments()['customerService'] ?? null) !== null) {
+            return $this->customerServiceFromArguments();
         }
 
         return parent::getRecord($withDefault);

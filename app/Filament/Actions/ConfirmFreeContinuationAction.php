@@ -3,6 +3,7 @@
 namespace App\Filament\Actions;
 
 use App\Actions\CustomerServices\ConfirmFreeContinuation;
+use App\Filament\Concerns\ResolvesCustomerServiceArgument;
 use App\Models\CustomerService;
 use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;
@@ -15,6 +16,8 @@ use Filament\Support\Icons\Heroicon;
  */
 class ConfirmFreeContinuationAction extends Action
 {
+    use ResolvesCustomerServiceArgument;
+
     public static function getDefaultName(): ?string
     {
         return 'confirmFreeContinuation';
@@ -22,9 +25,7 @@ class ConfirmFreeContinuationAction extends Action
 
     public function getRecord(bool $withDefault = true): CustomerService|array|null
     {
-        $customerServiceId = $this->getArguments()['customerService'] ?? null;
-
-        return $customerServiceId !== null ? CustomerService::query()->find($customerServiceId) : null;
+        return $this->customerServiceFromArguments();
     }
 
     protected function setUp(): void

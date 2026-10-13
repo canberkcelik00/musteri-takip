@@ -11,6 +11,7 @@ use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Resources\Customers\CustomerResource;
 use App\Models\Charge;
 use App\Models\Customer;
+use App\Models\CustomerService;
 use App\Support\Money;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -19,6 +20,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * The "Yapılacaklar" list on "Bugün" (docs/UI.md §5): three sections in priority order, each
@@ -37,6 +39,14 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     protected int|string|array $columnSpan = 'full';
 
     /**
+     * The free-decision services of the rows being rendered, handed to the row actions so they
+     * do not look each service up again (set while the view data is built; not Livewire state).
+     *
+     * @var Collection<int, CustomerService>|null
+     */
+    protected ?Collection $freeServices = null;
+
+    /**
      * The row buttons are secondary (gray, text only; G-4B.5, docs/UI.md §4 "Birincil düğme
      * kuralı"): the one primary button of the page is "Ödeme al" in the top bar.
      */
@@ -50,6 +60,7 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     public function removeFreeAction(): Action
     {
         return RemoveFreeFlagAction::make()
+            ->knownServices($this->freeServices)
             ->color('gray')
             ->icon(null);
     }
@@ -57,6 +68,7 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     public function confirmFreeContinuationAction(): Action
     {
         return ConfirmFreeContinuationAction::make()
+            ->knownServices($this->freeServices)
             ->color('gray')
             ->icon(null);
     }
@@ -67,6 +79,7 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     protected function getViewData(): array
     {
         $tasks = app(ListTodayTasks::class)->handle();
+        $this->freeServices = $tasks['free_decisions']['items']->keyBy('id');
 
         return [
             ...$tasks,
