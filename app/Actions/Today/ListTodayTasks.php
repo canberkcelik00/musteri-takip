@@ -26,7 +26,7 @@ class ListTodayTasks
     public function handle(int $limit = 10): array
     {
         return [
-            'overdue' => $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['overdue']), $limit),
+            'overdue' => $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['overdueOfUnarchivedCustomers']), $limit),
             'due_soon' => $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['dueSoon']), $limit),
             'free_decisions' => $this->freeDecisionSection($limit),
         ];

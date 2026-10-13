@@ -19,8 +19,8 @@ use Illuminate\Database\Eloquent\Collection;
  *   with source `credit_balance`, at any time), so the e-mail can say it was closed from the balance.
  * - free_decisions: free services awaiting a continuation decision; the scope only counts active
  *   services, so cancelled ones are left out.
- * - overdue: the same query as the "Bugün" page's overdue section (ListTodayTasks), plus the
- *   archived-customer filter that page does not have.
+ * - overdue: Charge::overdueOfUnarchivedCustomers(), the same query as the "Bugün" page's
+ *   overdue section (ListTodayTasks).
  */
 class BuildDigest
 {
@@ -86,8 +86,7 @@ class BuildDigest
     private function overdue(): Collection
     {
         return Charge::query()
-            ->overdue()
-            ->whereHas('customer', fn (Builder $query): Builder => $query->notArchived())
+            ->overdueOfUnarchivedCustomers()
             ->with('customer')
             ->withSum('allocations', 'amount')
             ->orderBy('due_date')

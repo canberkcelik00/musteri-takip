@@ -26,13 +26,15 @@ beforeEach(function () {
 it('opens the overdue-filtered charge list from the stat url', function () {
     $overdue = Charge::factory()->create(['due_date' => '2026-06-01', 'description' => 'Gecikmiş borç']);
     $future = Charge::factory()->create(['due_date' => '2026-06-25', 'description' => 'Gelecek borç']);
+    Charge::factory()->for(Customer::factory()->archived())->create(['due_date' => '2026-06-01', 'description' => 'Arşivli müşterinin borcu']);
 
     $url = ChargeResource::getUrl('index', ['filters' => ['only_overdue' => ['isActive' => true]]]);
 
     $this->get($url)
         ->assertOk()
         ->assertSee('Gecikmiş borç')
-        ->assertDontSee('Gelecek borç');
+        ->assertDontSee('Gelecek borç')
+        ->assertDontSee('Arşivli müşterinin borcu');
 });
 
 it('opens the renewal-filtered customer list from the stat url', function () {

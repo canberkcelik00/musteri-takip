@@ -58,12 +58,12 @@ it('matches each stat to the list its link opens', function () {
     Livewire::test(ListCharges::class)
         ->assertCanSeeTableRecords([$archivedCharge, $overdue, $openFuture]);
 
-    // Overdue: 50000 (archived) + 70000 = 120000, 2 charges — matches the only_overdue list.
-    expect($summary['overdue']['TRY']->amount)->toBe(120000)
-        ->and($summary['overdue_count'])->toBe(2);
+    // Overdue: 70000, 1 charge; the archived customer's is left out — matches the only_overdue list.
+    expect($summary['overdue']['TRY']->amount)->toBe(70000)
+        ->and($summary['overdue_count'])->toBe(1);
     Livewire::test(ListCharges::class)->filterTable('only_overdue', true)
-        ->assertCanSeeTableRecords([$archivedCharge, $overdue])
-        ->assertCanNotSeeTableRecords([$openFuture]);
+        ->assertCanSeeTableRecords([$overdue])
+        ->assertCanNotSeeTableRecords([$archivedCharge, $openFuture]);
 
     // Due this month: 30000 — matches the due_this_month list.
     expect($summary['due_this_month']['TRY']->amount)->toBe(30000);
@@ -230,13 +230,13 @@ it('renders row buttons that send their record id with the click', function () {
         ->toContain("mountAction('recordPayment', JSON.parse('{\u0022customer\u0022:{$customer->id},\u0022currency\u0022:\u0022TRY\u0022}')");
 });
 
-it('does not offer "Ödeme al" for an archived customer\'s overdue charge', function () {
+it('does not list an archived customer\'s overdue charge', function () {
     $customer = Customer::factory()->create();
     Charge::factory()->for($customer)->create(['due_date' => '2026-06-01', 'amount' => 50000]);
     $customer->archive();
 
     Livewire::test(TodayTasks::class)
-        ->assertSee($customer->short_name) // still listed, per docs/UI.md's "sayı = liste"
+        ->assertDontSee($customer->short_name)
         ->assertDontSee(__('payments.record'));
 });
 

@@ -198,6 +198,22 @@ class Charge extends Model
     }
 
     /**
+     * {@see self::overdue()} without the charges of archived customers: archived records
+     * disappear from the lists and the digest (docs/PRD.md). The one query behind the
+     * "Bugün" page's overdue stat and section, the charge list's "only overdue" filter they
+     * link to, and the digest's overdue section, so the numbers and the lists agree.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function overdueOfUnarchivedCustomers(Builder $query): void
+    {
+        $query
+            ->scopes(['overdue'])
+            ->whereHas('customer', fn (Builder $customers): Builder => $customers->scopes(['notArchived']));
+    }
+
+    /**
      * Open charges due from today through the end of the current calendar month
      * (docs/UI.md §5's "bu ay vadesi gelen"), overdue ones counted separately and not here.
      *

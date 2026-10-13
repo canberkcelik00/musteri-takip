@@ -44,6 +44,16 @@ it('separates the overdue total and count from the open total', function () {
         ->and($summary['overdue_count'])->toBe(1);
 });
 
+it('leaves the overdue charges of archived customers out of the overdue total and count', function () {
+    Charge::factory()->create(['due_date' => '2026-06-14', 'amount' => 100000]);
+    Charge::factory()->for(Customer::factory()->archived())->create(['due_date' => '2026-06-14', 'amount' => 70000]);
+
+    $summary = summarizeToday();
+
+    expect($summary['overdue'])->toEqual(['TRY' => new Money(100000, Currency::Try)])
+        ->and($summary['overdue_count'])->toBe(1);
+});
+
 it('counts the remaining amount of a partially paid overdue charge', function () {
     $charge = Charge::factory()->create(['due_date' => '2026-06-01', 'amount' => 100000]);
     $payment = Payment::factory()->for($charge->customer)->create(['amount' => 40000, 'currency' => $charge->currency]);

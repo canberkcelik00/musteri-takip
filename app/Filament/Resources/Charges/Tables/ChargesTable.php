@@ -83,7 +83,7 @@ class ChargesTable
                 Filter::make('only_overdue')
                     ->label(__('charges.only_overdue'))
                     ->toggle()
-                    ->query(fn (Builder $query): Builder => $query->scopes(['overdue'])),
+                    ->query(fn (Builder $query): Builder => $query->scopes(['overdueOfUnarchivedCustomers'])),
                 Filter::make('due_this_month')
                     ->label(__('charges.due_this_month'))
                     ->toggle()

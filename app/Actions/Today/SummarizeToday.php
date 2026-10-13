@@ -30,7 +30,7 @@ class SummarizeToday
             ->withSum('allocations', 'amount')
             ->get();
 
-        $overdueCharges = $openCharges->filter(fn (Charge $charge): bool => $charge->isOverdue());
+        $overdueCharges = Charge::query()->overdueOfUnarchivedCustomers()->withSum('allocations', 'amount')->get();
         $dueThisMonthCharges = Charge::query()->dueThisMonth()->withSum('allocations', 'amount')->get();
 
         $renewingServices = CustomerService::query()
