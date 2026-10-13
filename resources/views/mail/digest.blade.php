@@ -21,10 +21,10 @@
 <p class="dg-heading">{{ __('digest.new_charges') }} ({{ $newCharges->count() }})</p>
 <table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
 <tr>
-<th class="dg-th">{{ __('digest.column.customer') }}</th>
-<th class="dg-th">{{ __('digest.column.service') }}</th>
-<th class="dg-th dg-num">{{ __('digest.column.amount') }}</th>
-<th class="dg-th">{{ __('digest.column.due') }}</th>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.customer') }}</th>
+<th class="dg-th" width="34%" style="width: 34%;">{{ __('digest.column.service') }}</th>
+<th class="dg-th dg-num" width="18%" style="width: 18%;">{{ __('digest.column.amount') }}</th>
+<th class="dg-th" width="18%" style="width: 18%;">{{ __('digest.column.due') }}</th>
 </tr>
 @foreach ($newCharges as $charge)
 @php($creditAmount = (int) $charge->credit_balance_amount)
@@ -32,12 +32,12 @@
 <td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
 <td class="dg-td">{{ $charge->description }}
 @if ($creditAmount > 0 && $creditAmount < $charge->amount)
-<span class="dg-note">{{ __('digest.partly_from_credit', ['amount' => (new Money($creditAmount, $charge->currency))->format()]) }}</span>
+<span class="dg-note" style="color: #566173;">{{ __('digest.partly_from_credit', ['amount' => (new Money($creditAmount, $charge->currency))->format()]) }}</span>
 @endif
 </td>
 <td class="dg-td dg-num">{{ (new Money($charge->amount, $charge->currency))->format() }}
 @if ($charge->payment_badge !== null && $charge->payment_badge['state'] === 'partially_paid')
-<span class="dg-note">{{ __('digest.remaining', ['amount' => (new Money($charge->remainingAmount(), $charge->currency))->format()]) }}</span>
+<span class="dg-note" style="color: #566173;">{{ __('digest.remaining', ['amount' => (new Money($charge->remainingAmount(), $charge->currency))->format()]) }}</span>
 @endif
 </td>
 <td class="dg-td dg-nowrap">{{ $charge->due_date->format('d.m.Y') }}
@@ -55,9 +55,9 @@
 <p class="dg-hint">{{ __('digest.free_question') }}</p>
 <table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
 <tr>
-<th class="dg-th">{{ __('digest.column.customer') }}</th>
-<th class="dg-th">{{ __('digest.column.service') }}</th>
-<th class="dg-th">{{ __('digest.column.ends') }}</th>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.customer') }}</th>
+<th class="dg-th" width="50%" style="width: 50%;">{{ __('digest.column.service') }}</th>
+<th class="dg-th" width="20%" style="width: 20%;">{{ __('digest.column.ends') }}</th>
 </tr>
 @foreach ($freeDecisions as $customerService)
 <tr>
@@ -73,15 +73,15 @@
 <p class="dg-heading">{{ __('digest.overdue') }} ({{ $overdue->count() }})</p>
 <table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
 <tr>
-<th class="dg-th">{{ __('digest.column.customer') }}</th>
-<th class="dg-th">{{ __('digest.column.service') }}</th>
-<th class="dg-th dg-num">{{ __('digest.column.remaining') }}</th>
-<th class="dg-th">{{ __('digest.column.overdue') }}</th>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.customer') }}</th>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.service') }}</th>
+<th class="dg-th dg-num" width="18%" style="width: 18%;">{{ __('digest.column.remaining') }}</th>
+<th class="dg-th" width="22%" style="width: 22%;">{{ __('digest.column.overdue') }}</th>
 </tr>
 @foreach ($overdue as $charge)
 <tr>
 <td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
-<td class="dg-td">{{ $charge->description }}<span class="dg-note">{{ __('digest.column.due') }} {{ $charge->due_date->format('d.m.Y') }}</span></td>
+<td class="dg-td">{{ $charge->description }}<span class="dg-note" style="color: #566173;">{{ __('digest.column.due') }} {{ $charge->due_date->format('d.m.Y') }}</span></td>
 <td class="dg-td dg-num">{{ (new Money($charge->remainingAmount(), $charge->currency))->format() }}</td>
 <td class="dg-td dg-nowrap">@include('mail.digest.badge', ['color' => 'danger', 'label' => __('charges.overdue_days', ['count' => $charge->daysOverdue()])])</td>
 </tr>

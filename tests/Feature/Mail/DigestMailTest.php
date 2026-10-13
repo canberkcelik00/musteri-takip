@@ -192,3 +192,27 @@ it('has a plain text version without HTML', function () {
         ->assertSeeInText('Panele git');
     expect($mail->render())->toBeString();
 });
+
+it('gives the columns fixed widths, with the customer column the widest of the short ones', function () {
+    $this->travelTo('2026-10-15 08:00:00');
+    Charge::factory()->create(['due_date' => '2026-12-01']);
+    CustomerService::factory()->free()->create(['start_date' => '2025-11-01', 'end_date' => '2026-11-01']);
+    Charge::factory()->create(['due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
+
+    $html = digestMailFor()->render();
+
+    foreach ([30, 34, 18, 50, 20, 22] as $width) {
+        expect($html)->toContain('width="'.$width.'%"')->and($html)->toContain('width: '.$width.'%;');
+    }
+});
+
+it('writes the remaining amount note in the muted text color, not the link color', function () {
+    $partly = Charge::factory()->create(['amount' => 200000, 'due_date' => '2026-12-01']);
+    PaymentAllocation::factory()->create(['charge_id' => $partly->id, 'amount' => 50000]);
+
+    $html = digestMailFor()->render();
+
+    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #566173;[^>]*>\s*Kalan 1\.500 TL/')
+        ->and($html)->toContain('.dg-note')
+        ->and($html)->toContain('color: #9aa5b5 !important');
+});
