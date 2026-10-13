@@ -1,62 +1,94 @@
 @php
     use App\Support\Money;
+
+    $newCharges = $digest['new_charges'];
+    $freeDecisions = $digest['free_decisions'];
+    $overdue = $digest['overdue'];
+    $counts = collect([
+        'new_charges' => $newCharges->count(),
+        'free_decisions' => $freeDecisions->count(),
+        'overdue' => $overdue->count(),
+    ])->filter()->map(fn (int $count, string $key): string => __('digest.count.'.$key, ['count' => $count]));
+    $overdueTotals = Money::formatTotals(Money::sumByCurrency(
+        $overdue->map(fn ($charge): Money => new Money($charge->remainingAmount(), $charge->currency)),
+    ));
 @endphp
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('digest.subject.'.$frequency->value, ['date' => $date->format('d.m.Y')]) }}</title>
-</head>
-<body style="margin: 0; padding: 24px 16px; background: #ffffff; color: #1f2937; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.5;">
-<div style="max-width: 640px; margin: 0 auto;">
-    <h1 style="margin: 0 0 4px; font-size: 20px;">{{ __('digest.title.'.$frequency->value) }}</h1>
-    <p style="margin: 0 0 24px; color: #6b7280;">{{ $date->format('d.m.Y') }}</p>
+<x-mail::message>
+<p class="dg-title">{{ __('digest.title.'.$frequency->value) }} – {{ $date->format('d.m.Y') }}</p>
+<p class="dg-summary">{{ $counts->implode(' · ') }}</p>
 
-    @if ($digest['new_charges']->isNotEmpty())
-        <h2 style="margin: 0 0 8px; font-size: 16px;">{{ __('digest.new_charges') }} ({{ $digest['new_charges']->count() }})</h2>
-        <ul style="margin: 0 0 24px; padding-left: 20px;">
-            @foreach ($digest['new_charges'] as $charge)
-                @php($creditAmount = (int) $charge->credit_balance_amount)
-                <li style="margin-bottom: 6px;">
-                    <a href="{{ $customerUrl($charge->customer_id) }}" style="color: #1d4ed8; font-weight: bold;">{{ $charge->customer->short_name }}</a>
-                    — {{ $charge->description }} · {{ (new Money($charge->amount, $charge->currency))->format() }} · {{ __('digest.due_on', ['date' => $charge->due_date->format('d.m.Y')]) }}
-                    @if ($creditAmount >= $charge->amount)
-                        · <span style="color: #047857;">{{ __('digest.closed_from_credit') }}</span>
-                    @elseif ($creditAmount > 0)
-                        · <span style="color: #047857;">{{ __('digest.partly_from_credit', ['amount' => (new Money($creditAmount, $charge->currency))->format()]) }}</span>
-                    @endif
-                </li>
-            @endforeach
-        </ul>
-    @endif
+@if ($newCharges->isNotEmpty())
+<p class="dg-heading">{{ __('digest.new_charges') }} ({{ $newCharges->count() }})</p>
+<table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<th class="dg-th">{{ __('digest.column.customer') }}</th>
+<th class="dg-th">{{ __('digest.column.service') }}</th>
+<th class="dg-th dg-num">{{ __('digest.column.amount') }}</th>
+<th class="dg-th">{{ __('digest.column.due') }}</th>
+</tr>
+@foreach ($newCharges as $charge)
+@php($creditAmount = (int) $charge->credit_balance_amount)
+<tr>
+<td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
+<td class="dg-td">{{ $charge->description }}
+@if ($creditAmount > 0 && $creditAmount < $charge->amount)
+<span class="dg-note">{{ __('digest.partly_from_credit', ['amount' => (new Money($creditAmount, $charge->currency))->format()]) }}</span>
+@endif
+</td>
+<td class="dg-td dg-num">{{ (new Money($charge->amount, $charge->currency))->format() }}
+@if ($charge->payment_badge !== null && $charge->payment_badge['state'] === 'partially_paid')
+<span class="dg-note">{{ __('digest.remaining', ['amount' => (new Money($charge->remainingAmount(), $charge->currency))->format()]) }}</span>
+@endif
+</td>
+<td class="dg-td dg-nowrap">{{ $charge->due_date->format('d.m.Y') }}
+@if ($charge->payment_badge !== null)
+<br>@include('mail.digest.badge', ['color' => $charge->payment_badge['color'], 'label' => $charge->payment_badge['label']])
+@endif
+</td>
+</tr>
+@endforeach
+</table>
+@endif
 
-    @if ($digest['free_decisions']->isNotEmpty())
-        <h2 style="margin: 0 0 8px; font-size: 16px;">{{ __('digest.free_decisions') }} ({{ $digest['free_decisions']->count() }})</h2>
-        <p style="margin: 0 0 8px; color: #6b7280;">{{ __('digest.free_question') }}</p>
-        <ul style="margin: 0 0 24px; padding-left: 20px;">
-            @foreach ($digest['free_decisions'] as $customerService)
-                <li style="margin-bottom: 6px;">
-                    <a href="{{ $customerUrl($customerService->customer_id) }}" style="color: #1d4ed8; font-weight: bold;">{{ $customerService->customer->short_name }}</a>
-                    — {{ $customerService->name }} · {{ __('digest.ends_on', ['date' => $customerService->end_date->format('d.m.Y')]) }}
-                </li>
-            @endforeach
-        </ul>
-    @endif
+@if ($freeDecisions->isNotEmpty())
+<p class="dg-heading">{{ __('digest.free_decisions') }} ({{ $freeDecisions->count() }})</p>
+<p class="dg-hint">{{ __('digest.free_question') }}</p>
+<table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<th class="dg-th">{{ __('digest.column.customer') }}</th>
+<th class="dg-th">{{ __('digest.column.service') }}</th>
+<th class="dg-th">{{ __('digest.column.ends') }}</th>
+</tr>
+@foreach ($freeDecisions as $customerService)
+<tr>
+<td class="dg-td"><a href="{{ $customerUrl($customerService->customer_id) }}">{{ $customerService->customer->short_name }}</a></td>
+<td class="dg-td">{{ $customerService->name }}</td>
+<td class="dg-td dg-nowrap">{{ $customerService->end_date->format('d.m.Y') }}</td>
+</tr>
+@endforeach
+</table>
+@endif
 
-    @if ($digest['overdue']->isNotEmpty())
-        <h2 style="margin: 0 0 8px; font-size: 16px;">{{ __('digest.overdue') }} ({{ $digest['overdue']->count() }})</h2>
-        <ul style="margin: 0 0 24px; padding-left: 20px;">
-            @foreach ($digest['overdue'] as $charge)
-                <li style="margin-bottom: 6px;">
-                    <a href="{{ $customerUrl($charge->customer_id) }}" style="color: #1d4ed8; font-weight: bold;">{{ $charge->customer->short_name }}</a>
-                    — {{ $charge->description }} · {{ __('digest.remaining', ['amount' => (new Money($charge->remainingAmount(), $charge->currency))->format()]) }} · {{ __('digest.due_on', ['date' => $charge->due_date->format('d.m.Y')]) }} · <span style="color: #b91c1c;">{{ __('digest.days_overdue', ['days' => $charge->daysOverdue()]) }}</span>
-                </li>
-            @endforeach
-        </ul>
-    @endif
+@if ($overdue->isNotEmpty())
+<p class="dg-heading">{{ __('digest.overdue') }} ({{ $overdue->count() }})</p>
+<table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<th class="dg-th">{{ __('digest.column.customer') }}</th>
+<th class="dg-th">{{ __('digest.column.service') }}</th>
+<th class="dg-th dg-num">{{ __('digest.column.remaining') }}</th>
+<th class="dg-th">{{ __('digest.column.overdue') }}</th>
+</tr>
+@foreach ($overdue as $charge)
+<tr>
+<td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
+<td class="dg-td">{{ $charge->description }}<span class="dg-note">{{ __('digest.column.due') }} {{ $charge->due_date->format('d.m.Y') }}</span></td>
+<td class="dg-td dg-num">{{ (new Money($charge->remainingAmount(), $charge->currency))->format() }}</td>
+<td class="dg-td dg-nowrap">@include('mail.digest.badge', ['color' => 'danger', 'label' => __('charges.overdue_days', ['count' => $charge->daysOverdue()])])</td>
+</tr>
+@endforeach
+</table>
+<p class="dg-total">{{ __('digest.total') }}: {{ $overdueTotals }}</p>
+@endif
 
-    <p style="margin: 0;"><a href="{{ $panelUrl }}" style="color: #1d4ed8;">{{ __('digest.open_panel') }}</a></p>
-</div>
-</body>
-</html>
+<x-mail::button :url="$panelUrl">{{ __('digest.open_panel') }}</x-mail::button>
+</x-mail::message>

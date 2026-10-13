@@ -1,0 +1,270 @@
+/*
+ * The digest e-mail's theme: the panel's light tokens (docs/UI.md §6, theme.css), copied here
+ * because an e-mail cannot read the panel's CSS variables. MailThemeTest keeps every color
+ * in this file and in the dark rules of layout.blade.php equal to a panel token.
+ * The inliner copies these rules into style="" attributes; the dark and narrow-screen rules
+ * live in layout.blade.php, whose <style> block the e-mail clients keep.
+ */
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #f4f6f9;
+    color: #121a27;
+    height: 100%;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+body,
+p,
+td,
+th,
+a,
+span,
+h1,
+h2 {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #1d3a6a;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Layout */
+
+.wrapper {
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.header {
+    padding: 24px 0 16px;
+    text-align: center;
+}
+
+.header a {
+    color: #121a27;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.body {
+    background-color: #f4f6f9;
+    border-bottom: 1px solid #f4f6f9;
+    border-top: 1px solid #f4f6f9;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    background-color: #ffffff;
+    border: 1px solid #e0e4ea;
+    border-radius: 6px;
+    margin: 0 auto;
+    padding: 0;
+    width: 600px;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 24px;
+}
+
+.footer {
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 600px;
+}
+
+.footer p {
+    color: #566173;
+    font-size: 12px;
+    text-align: center;
+}
+
+.subcopy {
+    border-top: 1px solid #e0e4ea;
+    margin-top: 24px;
+    padding-top: 24px;
+}
+
+/* Digest */
+
+.dg-title {
+    color: #121a27;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 4px;
+}
+
+.dg-summary {
+    color: #566173;
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+
+.dg-heading {
+    color: #121a27;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 24px 0 8px;
+}
+
+.dg-hint {
+    color: #566173;
+    font-size: 13px;
+    margin: 0 0 8px;
+}
+
+.dg-table {
+    border: 1px solid #e0e4ea;
+    border-collapse: separate;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.dg-th {
+    background-color: #f8f9fb;
+    border-bottom: 1px solid #e0e4ea;
+    color: #566173;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 14px;
+    text-align: left;
+}
+
+.dg-td {
+    border-bottom: 1px solid #eef0f3;
+    color: #121a27;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 9px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.dg-td a {
+    color: #1d3a6a;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.dg-num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.dg-nowrap {
+    white-space: nowrap;
+}
+
+.dg-note {
+    color: #566173;
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.dg-total {
+    color: #121a27;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 8px 0 0;
+    text-align: right;
+}
+
+/* Badges: dot + text, four colors only (docs/UI.md §6) */
+
+.badge {
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-top: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.badge-red {
+    background-color: #fdecec;
+    color: #9f1a1d;
+}
+
+.badge-red .badge-dot {
+    color: #d92d2d;
+}
+
+.badge-amber {
+    background-color: #fdf2d8;
+    color: #7f4c00;
+}
+
+.badge-amber .badge-dot {
+    color: #d98a00;
+}
+
+.badge-green {
+    background-color: #e5f3e9;
+    color: #1d6633;
+}
+
+.badge-green .badge-dot {
+    color: #2f9e55;
+}
+
+.badge-gray {
+    background-color: #eef0f3;
+    color: #4a5361;
+}
+
+.badge-gray .badge-dot {
+    color: #8b94a1;
+}
+
+/* Button */
+
+.action {
+    margin: 24px auto 0;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 6px;
+    color: #ffffff;
+    display: inline-block;
+    font-weight: 600;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.button-blue,
+.button-primary {
+    background-color: #1d3a6a;
+    border-bottom: 10px solid #1d3a6a;
+    border-left: 20px solid #1d3a6a;
+    border-right: 20px solid #1d3a6a;
+    border-top: 10px solid #1d3a6a;
+}

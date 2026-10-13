@@ -67,14 +67,19 @@ it('shows the three sections in Turkish with a link to the customer card on ever
     $mail = digestMailFor();
 
     $mail->assertSeeInOrderInHtml([
-        'Aylık özet',
+        'Aylık özet – 15.10.2026',
+        '1 yeni borç · 1 karar bekliyor · 1 gecikmiş',
         'Son özetten bu yana oluşan borçlar (1)',
-        'Logi', 'Hosting 2026–2027', '4.000,50 TL', 'vade 01.11.2026',
+        'Müşteri', 'Hizmet', 'Tutar', 'Vade',
+        'Logi', 'Hosting 2026–2027', '4.000,50 TL', '01.11.2026',
         'Ücretsiz devam kararı bekleyenler (1)',
         'Yeni döneme ücretsiz devam edecek mi?',
-        'Acme', 'Alan adı', 'bitiş 01.11.2026',
+        'Müşteri', 'Hizmet', 'Bitiş',
+        'Acme', 'Alan adı', '01.11.2026',
         'Vadesi geçmiş borçlar (1)',
-        'Mavi', 'SSL', 'kalan 350 USD', 'vade 01.09.2026', '44 gün gecikti',
+        'Müşteri', 'Hizmet', 'Kalan', 'Gecikme',
+        'Mavi', 'SSL', 'Vade 01.09.2026', '350 USD', 'Gecikmiş (44 gün)',
+        'Toplam: 350 USD',
         'Panele git',
     ]);
 
@@ -93,7 +98,7 @@ it('leaves out empty sections', function () {
         ->assertDontSeeInHtml('Ücretsiz devam kararı bekleyenler');
 });
 
-it('says when a new charge was closed fully or partly from the credit balance', function () {
+it('shows a payment badge on a new charge and a note when it was partly paid from the credit balance', function () {
     $closed = Charge::factory()->paid()->create(['description' => 'Alan adı', 'amount' => 100000, 'due_date' => '2026-12-01']);
     PaymentAllocation::factory()->fromCreditBalance()->create(['charge_id' => $closed->id, 'amount' => 100000]);
 
@@ -102,17 +107,88 @@ it('says when a new charge was closed fully or partly from the credit balance', 
 
     Charge::factory()->create(['description' => 'SSL', 'amount' => 40000, 'due_date' => '2026-12-01']);
 
-    digestMailFor()->assertSeeInOrderInHtml([
-        'Alan adı', 'alacak bakiyesinden kapatıldı',
-        'Hosting', '500 TL alacak bakiyesinden düşüldü',
+    $mail = digestMailFor();
+
+    $mail->assertSeeInOrderInHtml([
+        'Alan adı', 'Bakiyeden kapatıldı',
+        'Hosting', '500 TL alacak bakiyesinden düşüldü', 'Kalan 1.500 TL', 'Kısmi ödendi',
         'SSL',
     ]);
+    expect(substr_count($mail->render(), 'badge-green'))->toBeGreaterThan(0)
+        ->and(substr_count($mail->render(), 'Bakiyeden kapatıldı'))->toBe(1);
 });
 
-it('does not mark a charge paid by a payment as closed from the credit balance', function () {
+it('shows Ödendi on a new charge paid by a payment, not the credit balance badge', function () {
     $paid = Charge::factory()->paid()->create(['description' => 'Hosting', 'amount' => 100000, 'due_date' => '2026-12-01']);
     PaymentAllocation::factory()->create(['charge_id' => $paid->id, 'amount' => 100000]);
 
     digestMailFor()->assertSeeInHtml('Hosting')
+        ->assertSeeInHtml('Ödendi')
+        ->assertDontSeeInHtml('Bakiyeden kapatıldı')
         ->assertDontSeeInHtml('alacak bakiyesinden');
+});
+
+it('shows no badge on an open new charge, even when it is already overdue', function () {
+    Charge::factory()->create(['description' => 'Gecikmiş yeni', 'amount' => 100000, 'due_date' => '2026-09-01']);
+
+    $html = digestMailFor()->render();
+
+    // The overdue section has one badge for it; the new-charges row has none.
+    expect(substr_count($html, 'Gecikmiş (44 gün)'))->toBe(1)
+        ->and($html)->not->toContain('Vadesi yaklaşıyor');
+});
+
+it('totals the overdue charges per currency without adding them together', function () {
+    Charge::factory()->create(['amount' => 1000000, 'currency' => Currency::Try, 'due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
+    Charge::factory()->create(['amount' => 165000, 'currency' => Currency::Try, 'due_date' => '2026-09-02', 'created_at' => '2026-08-01 10:00:00']);
+    Charge::factory()->create(['amount' => 5900, 'currency' => Currency::Usd, 'due_date' => '2026-09-06', 'created_at' => '2026-08-01 10:00:00']);
+
+    digestMailFor()->assertSeeInHtml('Toplam: 11.650 TL + 59 USD');
+});
+
+it('puts the counts on one line and omits the empty sections from it', function () {
+    Charge::factory()->create(['due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
+
+    digestMailFor()->assertSeeInHtml('1 gecikmiş')
+        ->assertDontSeeInHtml('yeni borç')
+        ->assertDontSeeInHtml('karar bekliyor');
+});
+
+it('has a Turkish footer and no English text of the framework', function () {
+    Charge::factory()->create(['due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
+
+    $mail = digestMailFor();
+
+    $mail->assertSeeInHtml('Tüm hakları saklıdır.')
+        ->assertSeeInHtml('© 2026 Müşteri Takip')
+        ->assertDontSeeInHtml('All rights reserved')
+        ->assertDontSeeInHtml('Laravel');
+    expect($mail->render())->not->toMatch('/\bHello\b|\bRegards\b|\bwhoops\b/i');
+});
+
+it('takes the panel colors, loads nothing from outside and keeps badges on one line', function () {
+    Charge::factory()->create(['due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
+
+    $html = digestMailFor()->render();
+
+    expect($html)->toContain('background-color: #1d3a6a')
+        ->and($html)->toContain('width="600"')
+        ->and($html)->toContain('white-space: nowrap')
+        ->and($html)->toContain('prefers-color-scheme: dark')
+        ->and($html)->toContain('max-width: 480px')
+        ->and($html)->not->toMatch('/<img|<link|@import|url\(/i')
+        ->and($html)->not->toMatch('/(src|href)="https?:\/\/(?!localhost)/i');
+});
+
+it('has a plain text version without HTML', function () {
+    $this->travelTo('2026-08-01 10:00:00');
+    Charge::factory()->for(Customer::factory()->create(['short_name' => 'Logi']))->create(['description' => 'SSL', 'amount' => 35000, 'currency' => Currency::Usd, 'due_date' => '2026-09-01']);
+    $this->travelTo('2026-10-15 08:00:00');
+
+    $mail = digestMailFor();
+
+    $mail->assertSeeInText('Logi | SSL | Kalan 350 USD')
+        ->assertSeeInText('Toplam: 350 USD')
+        ->assertSeeInText('Panele git');
+    expect($mail->render())->toBeString();
 });

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * The sections of the digest e-mail (docs/PRD.md "Gecikmiş borçlar ve günlük özet e-posta"),
+ * The sections of the digest e-mail (docs/PRD.md "Gecikmiş borçlar ve özet e-postası"),
  * without row limits. Archived customers and cancelled records do not appear.
  *
  * - new_charges: charges created in [$since, $now), not cancelled. Each one

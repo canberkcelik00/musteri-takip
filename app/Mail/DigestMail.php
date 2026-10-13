@@ -38,7 +38,8 @@ class DigestMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.digest',
+            markdown: 'mail.digest',
+            text: 'mail.digest-text',
             with: [
                 'customerUrl' => fn (int $customerId): string => CustomerResource::getUrl('view', ['record' => $customerId], panel: 'panel'),
                 'panelUrl' => Dashboard::getUrl(panel: 'panel'),
