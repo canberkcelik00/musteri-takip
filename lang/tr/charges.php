@@ -34,6 +34,7 @@ return [
     'only_overdue' => 'Yalnızca gecikmişler',
     'due_this_month' => 'Bu ay vadesi gelen',
     'due_soon_filter' => '7 gün içinde vadesi gelen',
+    'hide_archived' => 'Arşivli müşterileri gizle',
     'open_heading' => 'Açık borçlar',
     'view_all' => 'Tüm borçlar',
 

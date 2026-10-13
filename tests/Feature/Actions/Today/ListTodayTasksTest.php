@@ -38,6 +38,16 @@ it('leaves the overdue charges of archived customers out', function () {
         ->and($tasks['overdue']['total'])->toBe(1);
 });
 
+it('leaves the charges due soon of archived customers out', function () {
+    $dueSoon = Charge::factory()->create(['due_date' => '2026-06-18']);
+    Charge::factory()->for(Customer::factory()->archived())->create(['due_date' => '2026-06-18']);
+
+    $tasks = listTodayTasks();
+
+    expect($tasks['due_soon']['items']->pluck('id')->all())->toBe([$dueSoon->id])
+        ->and($tasks['due_soon']['total'])->toBe(1);
+});
+
 it('lists charges due within 7 days separately from overdue ones', function () {
     $dueSoon = Charge::factory()->create(['due_date' => '2026-06-18']);
     Charge::factory()->create(['due_date' => '2026-06-10']); // overdue, not due_soon

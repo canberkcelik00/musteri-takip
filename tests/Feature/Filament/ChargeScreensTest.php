@@ -130,17 +130,24 @@ it('filters the list to overdue charges only', function () {
         ->assertCanNotSeeTableRecords([$dueToday, $upcoming]);
 });
 
-it('leaves the overdue charges of archived customers out of the overdue filter only', function () {
-    $overdue = Charge::factory()->create(['due_date' => '2026-06-14']);
-    $archived = Charge::factory()->for(Customer::factory()->archived())->create(['due_date' => '2026-06-14']);
+it('hides the charges of archived customers only with the "hide archived" filter, alone or with another filter', function (string $filter, string $dueDate) {
+    $kept = Charge::factory()->create(['due_date' => $dueDate]);
+    $archived = Charge::factory()->for(Customer::factory()->archived())->create(['due_date' => $dueDate]);
 
     chargesPage()
-        ->filterTable('only_overdue', true)
-        ->assertCanSeeTableRecords([$overdue])
+        ->assertCanSeeTableRecords([$kept, $archived])
+        ->filterTable($filter, true)
+        ->assertCanSeeTableRecords([$kept, $archived])
+        ->filterTable('hide_archived', true)
+        ->assertCanSeeTableRecords([$kept])
         ->assertCanNotSeeTableRecords([$archived])
-        ->removeTableFilter('only_overdue')
-        ->assertCanSeeTableRecords([$overdue, $archived]);
-});
+        ->removeTableFilter($filter)
+        ->assertCanNotSeeTableRecords([$archived]);
+})->with([
+    'only overdue' => ['only_overdue', '2026-06-14'],
+    'due this month' => ['due_this_month', '2026-06-25'],
+    'due soon' => ['due_soon', '2026-06-18'],
+]);
 
 it('does not count a fully allocated charge as overdue in the filter', function () {
     $customer = Customer::factory()->create();

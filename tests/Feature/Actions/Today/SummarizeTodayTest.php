@@ -88,12 +88,15 @@ it('counts customers whose service is ending soon, including archived-excluded a
     expect($summary['renewal_customers_count'])->toBe(1);
 });
 
-it('includes an archived customer\'s open debt in the total, matching the open charges list', function () {
+it('leaves an archived customer\'s open debt out of the total and the due this month numbers', function () {
+    Charge::factory()->create(['due_date' => '2026-06-20', 'amount' => 30000]);
     $customer = Customer::factory()->create();
     Charge::factory()->for($customer)->create(['due_date' => '2026-06-20', 'amount' => 75000]);
     $customer->archive();
 
     $summary = summarizeToday();
 
-    expect($summary['total'])->toEqual(['TRY' => new Money(75000, Currency::Try)]);
+    expect($summary['total'])->toEqual(['TRY' => new Money(30000, Currency::Try)])
+        ->and($summary['due_this_month'])->toEqual(['TRY' => new Money(30000, Currency::Try)])
+        ->and($summary['due_this_month_count'])->toBe(1);
 });

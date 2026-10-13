@@ -198,19 +198,17 @@ class Charge extends Model
     }
 
     /**
-     * {@see self::overdue()} without the charges of archived customers: archived records
-     * disappear from the lists and the digest (docs/PRD.md). The one query behind the
-     * "Bugün" page's overdue stat and section, the charge list's "only overdue" filter they
-     * link to, and the digest's overdue section, so the numbers and the lists agree.
+     * Leave out the charges of archived customers: archived records disappear from the
+     * "Bugün" page, its filtered lists and the digest (docs/PRD.md, T-96). The one archive
+     * rule: every "Bugün" number and digest section adds it to its own scope, and the charge
+     * list's "Arşivli müşterileri gizle" filter, which the "Bugün" links turn on, applies it.
      *
      * @param  Builder<static>  $query
      */
     #[Scope]
-    protected function overdueOfUnarchivedCustomers(Builder $query): void
+    protected function unarchivedCustomer(Builder $query): void
     {
-        $query
-            ->scopes(['overdue'])
-            ->whereHas('customer', fn (Builder $customers): Builder => $customers->scopes(['notArchived']));
+        $query->whereHas('customer', fn (Builder $customers): Builder => $customers->scopes(['notArchived']));
     }
 
     /**

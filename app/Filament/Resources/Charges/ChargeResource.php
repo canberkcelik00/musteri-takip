@@ -52,6 +52,17 @@ class ChargeResource extends Resource
         return ChargesTable::configure($table);
     }
 
+    /**
+     * The list with the given filters and "Arşivli müşterileri gizle" turned on: what every
+     * "Bugün" number and section links to, since they leave archived customers out (T-96).
+     *
+     * @param  array<string, array<string, mixed>>  $filters
+     */
+    public static function getUrlWithoutArchived(array $filters): string
+    {
+        return static::getUrl('index', ['filters' => [...$filters, 'hide_archived' => ['isActive' => true]]]);
+    }
+
     public static function getPages(): array
     {
         return [

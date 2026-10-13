@@ -42,6 +42,7 @@ it('shows the empty state when there is nothing to do', function () {
 it('matches each stat to the list its link opens', function () {
     $archivedCustomer = Customer::factory()->create();
     Charge::factory()->for($archivedCustomer)->create(['due_date' => '2026-06-10', 'amount' => 50000]); // overdue
+    Charge::factory()->for($archivedCustomer)->create(['due_date' => '2026-06-28', 'amount' => 40000]); // due this month
     $archivedCustomer->archive();
 
     $openFuture = Charge::factory()->create(['due_date' => '2026-06-30', 'amount' => 30000]); // due this month
@@ -50,26 +51,33 @@ it('matches each stat to the list its link opens', function () {
     $renewingCustomer = Customer::factory()->create();
     CustomerService::factory()->for($renewingCustomer)->create(['start_date' => '2025-06-10', 'end_date' => '2026-06-20']);
 
-    $archivedCharge = $archivedCustomer->charges()->firstOrFail();
+    $archivedCharges = $archivedCustomer->charges()->get();
     $summary = app(SummarizeToday::class)->handle();
 
-    // Total open debt: 50000 (archived) + 30000 + 70000 = 150000.
-    expect($summary['total']['TRY']->amount)->toBe(150000);
-    Livewire::test(ListCharges::class)
-        ->assertCanSeeTableRecords([$archivedCharge, $overdue, $openFuture]);
+    // Every charge number leaves the archived customer out, and its link turns on hide_archived (T-96).
+    // Total open debt: 30000 + 70000 = 100000 — matches the open list without archived customers.
+    expect($summary['total']['TRY']->amount)->toBe(100000);
+    Livewire::test(ListCharges::class)->filterTable('hide_archived', true)
+        ->assertCanSeeTableRecords([$overdue, $openFuture])
+        ->assertCanNotSeeTableRecords($archivedCharges);
 
-    // Overdue: 70000, 1 charge; the archived customer's is left out — matches the only_overdue list.
+    // Overdue: 70000, 1 charge — matches the only_overdue list without archived customers.
     expect($summary['overdue']['TRY']->amount)->toBe(70000)
         ->and($summary['overdue_count'])->toBe(1);
-    Livewire::test(ListCharges::class)->filterTable('only_overdue', true)
+    Livewire::test(ListCharges::class)->filterTable('only_overdue', true)->filterTable('hide_archived', true)
         ->assertCanSeeTableRecords([$overdue])
-        ->assertCanNotSeeTableRecords([$archivedCharge, $openFuture]);
+        ->assertCanNotSeeTableRecords([...$archivedCharges, $openFuture]);
 
-    // Due this month: 30000 — matches the due_this_month list.
-    expect($summary['due_this_month']['TRY']->amount)->toBe(30000);
-    Livewire::test(ListCharges::class)->filterTable('due_this_month', true)
+    // Due this month: 30000, 1 charge — matches the due_this_month list without archived customers.
+    expect($summary['due_this_month']['TRY']->amount)->toBe(30000)
+        ->and($summary['due_this_month_count'])->toBe(1);
+    Livewire::test(ListCharges::class)->filterTable('due_this_month', true)->filterTable('hide_archived', true)
         ->assertCanSeeTableRecords([$openFuture])
-        ->assertCanNotSeeTableRecords([$overdue, $archivedCharge]);
+        ->assertCanNotSeeTableRecords([...$archivedCharges, $overdue]);
+
+    // The list opened from the menu still shows the archived customer's charges.
+    Livewire::test(ListCharges::class)
+        ->assertCanSeeTableRecords([...$archivedCharges, $overdue, $openFuture]);
 
     // Renewing customers: 1 — matches the renewal_soon list.
     expect($summary['renewal_customers_count'])->toBe(1);

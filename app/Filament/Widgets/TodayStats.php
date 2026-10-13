@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Actions\Today\SummarizeToday;
+use App\Enums\ChargeStatus;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -35,14 +36,14 @@ class TodayStats extends BaseWidget
         return [
             Stat::make(__('today.total_debt'), $firstTotal?->format() ?? Money::formatTotals([]))
                 ->description($totals === [] ? null : '+ '.Money::formatTotals($totals))
-                ->url(ChargeResource::getUrl('index')),
+                ->url(ChargeResource::getUrlWithoutArchived(['status' => ['value' => ChargeStatus::Open->value]])),
             Stat::make(__('today.overdue'), Money::formatTotals($summary['overdue']))
                 ->description(__('today.charge_count', ['count' => $summary['overdue_count']]))
                 ->color('danger')
-                ->url(ChargeResource::getUrl('index', ['filters' => ['only_overdue' => ['isActive' => true]]])),
+                ->url(ChargeResource::getUrlWithoutArchived(['only_overdue' => ['isActive' => true]])),
             Stat::make(__('today.due_this_month'), Money::formatTotals($summary['due_this_month']))
                 ->description($summary['due_this_month_count'] === 0 ? null : __('today.charge_count', ['count' => $summary['due_this_month_count']]))
-                ->url(ChargeResource::getUrl('index', ['filters' => ['due_this_month' => ['isActive' => true]]])),
+                ->url(ChargeResource::getUrlWithoutArchived(['due_this_month' => ['isActive' => true]])),
             Stat::make(
                 __('today.renewals', ['days' => $summary['renewal_lead_days']]),
                 __('today.service_count', ['count' => $summary['renewal_services_count']]),

@@ -73,8 +73,8 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
             'rows' => $this->rows($tasks),
             'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'],
             'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0,
-            'overdueUrl' => ChargeResource::getUrl('index', ['filters' => ['only_overdue' => ['isActive' => true]]]),
-            'dueSoonUrl' => ChargeResource::getUrl('index', ['filters' => ['due_soon' => ['isActive' => true]]]),
+            'overdueUrl' => ChargeResource::getUrlWithoutArchived(['only_overdue' => ['isActive' => true]]),
+            'dueSoonUrl' => ChargeResource::getUrlWithoutArchived(['due_soon' => ['isActive' => true]]),
             'freeDecisionsUrl' => CustomerResource::getUrl('index', ['filters' => ['awaiting_free_decision' => ['isActive' => true]]]),
         ];
     }

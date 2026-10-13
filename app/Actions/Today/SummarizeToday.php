@@ -14,7 +14,9 @@ use Illuminate\Support\Carbon;
 /**
  * The four numbers at the top of the "Bugün" page (docs/UI.md §5). Each one shares its query
  * with the filtered list its stat links to (ChargesTable's filters, CustomersTable's
- * renewal_soon filter), so the number and the list it opens always agree. The one exception is
+ * renewal_soon filter), so the number and the list it opens always agree. Archived customers
+ * are left out everywhere (T-96): the charge numbers add Charge::unarchivedCustomer() and their
+ * links turn on the list's matching "hide_archived" filter. The one exception is
  * the renewal card (G-4B.6, docs/UI.md §5): it counts services ending soon, while its link opens
  * the customers who own them (a customer with two such services is one row there).
  */
@@ -27,11 +29,12 @@ class SummarizeToday
     {
         $openCharges = Charge::query()
             ->where('status', ChargeStatus::Open)
+            ->unarchivedCustomer()
             ->withSum('allocations', 'amount')
             ->get();
 
-        $overdueCharges = Charge::query()->overdueOfUnarchivedCustomers()->withSum('allocations', 'amount')->get();
-        $dueThisMonthCharges = Charge::query()->dueThisMonth()->withSum('allocations', 'amount')->get();
+        $overdueCharges = Charge::query()->overdue()->unarchivedCustomer()->withSum('allocations', 'amount')->get();
+        $dueThisMonthCharges = Charge::query()->dueThisMonth()->unarchivedCustomer()->withSum('allocations', 'amount')->get();
 
         $renewingServices = CustomerService::query()
             ->endingSoon()
