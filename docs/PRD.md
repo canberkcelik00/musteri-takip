@@ -167,14 +167,14 @@ Her dönem için bir borç doğar; tutar müşteri hizmetindeki fiyattır. Ödem
 **İptal**
 
 - Müşteri hizmetinde "İptal et" butonu vardır; iptal tarihi ve isteğe bağlı not girilir.
-- İptal edilen kayıt pasif olur: tarihleri ilerlemez, yeni borç üretmez, günlük özette görünmez. Geçmişi silinmez; gerekirse tekrar aktif edilir.
+- İptal edilen kayıt pasif olur: tarihleri ilerlemez, yeni borç üretmez, özette görünmez. Geçmişi silinmez; gerekirse tekrar aktif edilir.
 - **Henüz başlamamış dönemin ödenmemiş borcu:** İptal penceresinde "yaklaşan dönemin borcunu da iptal et" kutusu işaretli gelir; onaylanırsa iptal edilir.
 - **Geçmiş dönemden kalan borç:** Hiçbir zaman otomatik iptal edilmez, takipte kalır. Pencerede bilgi olarak gösterilir (örn. "1.500 TL gecikmiş borç takipte kalacak").
 
 **Ücretsiz hizmetler**
 
 - Ücretsiz işaretli kayıtta borç doğmaz; hizmet ve bitiş uyarıları takip edilmeye devam eder.
-- 30 gün kala günlük özette "yeni döneme ücretsiz devam edecek mi?" sorusu yer alır.
+- 30 gün kala özette "yeni döneme ücretsiz devam edecek mi?" sorusu yer alır.
 - Kullanıcı bir şey yapmazsa hizmet ücretsiz devam eder. Sistem kendiliğinden ücretliye geçmez.
 - İşaret dönem başlamadan kaldırılırsa yaklaşan dönemin borcu hemen oluşur.
 
@@ -195,7 +195,7 @@ Her dönem için bir borç doğar; tutar müşteri hizmetindeki fiyattır. Ödem
 - Açık borçları aşan tutar müşterinin alacak bakiyesine yazılır ve müşteri kartında görünür.
 - Bakiye müşteri bazındadır; herhangi bir hizmetin borcuna düşebilir.
 - Yeni borç doğduğunda bakiye otomatik olarak o borca düşer.
-- Bakiyeden kapatılan borçlar günlük özette ayrıca belirtilir.
+- Bakiyeden kapatılan borçlar özette ayrıca belirtilir.
 - Kayıt ekranı sonucu gösterir: "1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi."
 
 ## Para birimleri
@@ -209,19 +209,19 @@ TL, USD ve EUR desteklenir; kur çevrimi veya kur hesabı yapılmaz.
 - Alacak bakiyesi para birimi başına ayrı tutulur.
 - Toplamlar birbirine katılmadan ayrı gösterilir: "Toplam alacak: 12.000 TL + 350 USD".
 
-## Gecikmiş borçlar ve günlük özet e-posta
+## Gecikmiş borçlar ve özet e-postası
 
-Vadesi geçip ödenmeyen borç "gecikmiş" olarak işaretlenir ve günlük özette kaç gün geciktiğiyle listelenir. Faiz, gecikme bedeli veya askıya alma yoktur; askıya alma WHM entegrasyonu fazında eklenecek.
+Vadesi geçip ödenmeyen borç "gecikmiş" olarak işaretlenir ve özette kaç gün geciktiğiyle listelenir. Faiz, gecikme bedeli veya askıya alma yoktur; askıya alma WHM entegrasyonu fazında eklenecek.
 
 **Gecikme kuralı:** Vade günü boyunca borç açık sayılır. Vadenin ertesi gününden itibaren ödenmemiş tutar kalıyorsa borç gecikmiş olur ve gecikme günü oradan sayılır (vade 01.03 → 02.03'te "1 gün gecikti"). Gün hesabı Europe/Istanbul saatine göre yapılır.
 
-**Günlük özet e-posta** kullanıcıya günde bir kez gider (varsayılan 09:00, ayarlardan). Bölümleri:
+**Özet e-postası** ayarlardan seçilen sıklıkta (Günlük / Aylık, varsayılan ayın 15'i, 09:00) gider; tüm bölümler boşsa gönderilmez. Bölümleri:
 
-1. Bugün oluşan borçlar (bakiyeden kapatılanlar ayrıca belirtilir)
+1. Son özetten bu yana oluşan borçlar (bakiyeden kapatılanlar ayrıca belirtilir)
 2. Ücretsiz devam kararı bekleyenler
 3. Vadesi geçmiş borçlar
 
-Her satırda ilgili kayda bağlantı vardır. Tüm bölümler boşsa o gün e-posta gönderilmez.
+Her satırda ilgili kayda bağlantı vardır.
 
 ## Veri modeli
 
@@ -268,7 +268,7 @@ Düz ok "sahip olur", kesikli ok "isteğe bağlı bağlantı" demektir.
 | Ödeme dağıtımı | payment\_allocations | Hangi ödemenin ne kadarı hangi borca düştü |
 | Ödeme yöntemi | payment\_methods | Havale/EFT, nakit, kart gibi |
 
-Ayrıca ayarlar (30 gün, özet saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
+Ayrıca ayarlar (30 gün, özet sıklığı, ayın günü ve saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
 
 **Bilinçli tasarım seçimleri**
 
@@ -279,7 +279,7 @@ Ayrıca ayarlar (30 gün, özet saati, teklif geçerliliği, BCC adresi) ve Lara
 **Silme ve arşiv**
 
 - Hiç borcu veya ödemesi olmayan kayıtlar gerçekten silinebilir.
-- Borcu veya ödemesi olan kayıtlar silinmez, arşivlenir: listelerden ve günlük özetten kaybolur, geçmişiyle sistemde durur, arşivden geri alınabilir. Müşteri hizmetlerinde bunun karşılığı iptaldir.
+- Borcu veya ödemesi olan kayıtlar silinmez, arşivlenir: listelerden ve özetten kaybolur, geçmişiyle sistemde durur, arşivden geri alınabilir. Müşteri hizmetlerinde bunun karşılığı iptaldir.
 - Yanlış girilmiş ödeme silinebilir; dağıtımları geri alınır ve kapattığı borçlar tekrar açık hale gelir.
 
 ## Teknik kararlar ve Claude Code ile çalışma
@@ -289,7 +289,7 @@ Proje Laravel 13 ve PHP 8.3+ ile, tamamen Claude Code tarafından geliştirilece
 | Konu | Karar | Durum |
 | --- | --- | --- |
 | Framework | Laravel 13 (Laravel 11 güvenlik desteği Mart 2026'da bitti) | Kararlaştı |
-| PHP | 8.3 veya üzeri; sunucuda kontrol edilecek | Kararlaştı |
+| PHP | 8.3 veya üzeri; hostingde 8.3 doğrulandı | Kararlaştı |
 | Arayüz | Filament 5 (hazır tablo, form ve panel bileşenleri; ileride müşteri paneli için ikinci panel) | Kararlaştı |
 | Model stili | PHP Attribute'ları; tüm projede tek stil | Kararlaştı |
 | Tutarlar | Kuruş cinsinden tam sayı; float kullanılmaz | Kararlaştı |
@@ -297,7 +297,7 @@ Proje Laravel 13 ve PHP 8.3+ ile, tamamen Claude Code tarafından geliştirilece
 | Test ve kalite | Pest, Pint, Larastan, GitHub Actions | Kararlaştı |
 | AI araçları | Laravel Boost (sürüme özel dokümantasyon) | Kararlaştı |
 | Hassas veri | Lisans anahtarı şifreli saklanır | Kararlaştı |
-| Veritabanı | MySQL 8.0 (hostingde 8.0.45); yerelde Docker'da da MySQL 8.0 sabitlenir; karakter seti utf8mb4, kod MySQL 8.4 ile de uyumlu kalır | Kararlaştı |
+| Veritabanı | MySQL 8.0 (hostingde 8.0.45); yerelde Docker'da da MySQL 8.0 sabitlenir; karakter seti utf8mb4, tablo motoru InnoDB'ye sabit (hosting varsayılanı MyISAM); kod MySQL 8.4 ile de uyumlu kalır | Kararlaştı |
 | PDF, kuyruk, zamanlayıcı | Reseller hosting (cPanel), cron en sık 15 dakikada bir: PDF için dompdf (saf PHP, Türkçe için DejaVu font); kuyruk yok, teklif e-postası anında gönderilir; zamanlayıcı */15 cron ile çalışır ve görevler tekrar çalışmaya dayanıklıdır; Redis yok, önbellek ve oturum database/dosya | Kararlaştı |
 | E-posta gönderimi | cPanel e-posta hesabı SMTP (örn. teklif@firmaniz.com), kuyruksuz anında gönderim; alan adında SPF ve DKIM açık olmalı | Kararlaştı |
 
@@ -307,8 +307,8 @@ Proje Laravel 13 ve PHP 8.3+ ile, tamamen Claude Code tarafından geliştirilece
 
 - Kod GitHub'da tutulur. Her yayın için GitHub Actions testleri çalıştırır, Composer bağımlılıklarını (`vendor`) ve arayüz dosyalarını hazırlar; paket değiştiyse `main` dalına ekler. Hosting `main`'i cPanel'in Git ekranından çeker. Sunucuda Composer gerekmez.
 - Çektikten sonra kullanıcı tarayıcıda gizli anahtarlı yayın adresini bir kez açar; veritabanı güncellemeleri (migration) ve önbellek yenileme hemen çalışır. SSH ve yayın için cron gerekmez.
-- Cron 15 dakikada bir çalıştığı için zamanlanmış işler "tam dakikada çalış" yerine "henüz yapılmadıysa yap" mantığıyla yazılır: borç oluşturma ve dönem ilerletme her çalışmada kontrol edilir, günlük özet ayarlanan saatten sonraki ilk çalışmada bir kez gönderilir. Atlanan bir cron çalışması hiçbir işi kaybettirmez.
-- İlk kurulumda elle yapılacaklar: cPanel'de PHP 8.3 seçmek, veritabanı açmak, alan adının kök dizinini projenin `public` klasörüne yönlendirmek, `.env` dosyasını Dosya Yöneticisi'nden oluşturmak, */15 cron görevini eklemek. Bunlar için adım adım kurulum rehberi yazılacak.
+- Cron 15 dakikada bir çalıştığı için zamanlanmış işler "tam dakikada çalış" yerine "henüz yapılmadıysa yap" mantığıyla yazılır: borç oluşturma ve dönem ilerletme her çalışmada kontrol edilir, özet e-postası planlanan andan (seçilen gün ve saat) sonraki ilk çalışmada bir kez gönderilir. Atlanan bir cron çalışması hiçbir işi kaybettirmez.
+- İlk kurulum adımları `docs/KURULUM.md`'dedir: PHP 8.3, veritabanı, `public_html/.htaccess` ile `public/` yönlendirmesi, `.env`, */15 cron, deponun cPanel Git ile klonlanması. Rehber 12.10.2026'da canlıda uygulandı (K-5.1).
 
 **Yerel geliştirme (Windows + Docker)**
 
@@ -341,7 +341,7 @@ MVP, Excel'i bırakıp sistemi günlük kullanmaya başlamayı sağlayan en kü�
 - Ödeme kaydı, otomatik dağıtım, alacak bakiyesi
 - Para birimleri
 - Müşteri listesi, müşteri kartı ve ana panel (yaklaşan yenilemeler, gecikmiş borçlar, toplam alacak)
-- Günlük özet e-postası
+- Özet e-postası
 - Ayarlar, kurulum rehberi ve otomatik yayına alma
 
 Toplu Excel içe aktarma yoktur; mevcut kayıtlar ekranlardan elle girilir ("Bu dönemin borcu: Oluşturma" seçeneğiyle).
@@ -355,7 +355,7 @@ Toplu Excel içe aktarma yoktur; mevcut kayıtlar ekranlardan elle girilir ("Bu 
 | 2 – Veri katmanı | Migration'lar, modeller, enum'lar, factory'ler, örnek veri, model testleri |
 | 3 – İş mantığı | Borç oluşturma, dönem ilerletme, iptal, ödeme dağıtımı, alacak bakiyesi, zamanlanmış görevler; hepsi testli |
 | 4 – Arayüz | Filament ekranları: müşteriler, katalog, müşteri hizmetleri, borçlar, ödemeler, ayarlar |
-| 5 – Yayına alma, panel ve MVP kapanışı | Otomatik yayına alma ve kurulum rehberi, ana panel, günlük özet e-postası, uçtan uca testler, canlıya geçiş |
+| 5 – Yayına alma, panel ve MVP kapanışı | Otomatik yayına alma ve kurulum rehberi, ana panel, özet e-postası, uçtan uca testler, canlıya geçiş |
 | 6 – Teklifler | Teklif, kalemler, PDF, e-posta gönderimi, kabulde otomatik müşteri ve hizmet |
 | 7 – İz ve esneklik | Fiyat/tarih değişiklik geçmişi, %50 ön ödeme kuralı |
 | 8 ve sonrası | Raporlar, müşteri paneli, WHM API/UAPI entegrasyonu |
