@@ -15,11 +15,15 @@ use Illuminate\Support\Carbon;
 
 beforeEach(function () {
     app(Settings::class)->set(SettingKey::RenewalLeadDays, '30');
-    $this->travelTo('2026-10-15 09:00:00');
+    $this->travelTo('2026-10-15 08:00:00');
 });
 
+/**
+ * The digest of the month up to 09:00 on 15.10.2026; the records are created at 08:00, before it.
+ */
 function digestMailFor(DigestFrequency $frequency = DigestFrequency::Monthly): DigestMail
 {
+    test()->travelTo('2026-10-15 09:00:00');
     $now = Carbon::now('Europe/Istanbul');
     $digest = app(BuildDigest::class)->handle($now->copy()->subMonth(), $now);
 
@@ -58,7 +62,7 @@ it('shows the three sections in Turkish with a link to the customer card on ever
         'currency' => Currency::Usd,
         'due_date' => '2026-09-01',
     ]);
-    $this->travelTo('2026-10-15 09:00:00');
+    $this->travelTo('2026-10-15 08:00:00');
 
     $mail = digestMailFor();
 

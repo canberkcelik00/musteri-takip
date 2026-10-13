@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
  * The sections of the digest e-mail (docs/PRD.md "Gecikmiş borçlar ve günlük özet e-posta"),
  * without row limits. Archived customers and cancelled records do not appear.
  *
- * - new_charges: charges created after $since up to and including $now, not cancelled. Each one
+ * - new_charges: charges created in [$since, $now), not cancelled. Each one
  *   carries `credit_balance_amount`: what was applied to it from the credit balance (allocations
  *   with source `credit_balance`, at any time), so the e-mail can say it was closed from the balance.
  * - free_decisions: free services awaiting a continuation decision; the scope only counts active

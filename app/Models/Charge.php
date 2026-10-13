@@ -228,7 +228,9 @@ class Charge extends Model
     }
 
     /**
-     * Limit the query to charges created after $since, up to and including $until. The
+     * Limit the query to charges created in [$since, $until): from $since on, before $until.
+     * Consecutive windows that share their boundary neither miss nor repeat a charge, even one
+     * stored in the same second as the boundary (`created_at` has second precision). The
      * moments are compared in the time zone `created_at` is stored in (the application time
      * zone). The digest lists these as the charges created since the previous digest.
      *
@@ -240,8 +242,8 @@ class Charge extends Model
         $timezone = config('app.timezone');
 
         $query
-            ->where($this->qualifyColumn('created_at'), '>', Carbon::instance($since)->setTimezone($timezone))
-            ->where($this->qualifyColumn('created_at'), '<=', Carbon::instance($until)->setTimezone($timezone));
+            ->where($this->qualifyColumn('created_at'), '>=', Carbon::instance($since)->setTimezone($timezone))
+            ->where($this->qualifyColumn('created_at'), '<', Carbon::instance($until)->setTimezone($timezone));
     }
 
     /**

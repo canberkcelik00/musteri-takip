@@ -44,12 +44,12 @@ function startDigestAt(string $moment): void
 }
 
 /**
- * An overdue charge created at the current (travelled) moment, so it is not a new charge of a
- * digest window that starts at this moment.
+ * An overdue charge created a second before the current (travelled) moment, so it is not a new
+ * charge of a digest window that starts at this moment.
  */
 function overdueCharge(): Charge
 {
-    return Charge::factory()->create(['due_date' => '2026-01-01']);
+    return Charge::factory()->create(['due_date' => '2026-01-01', 'created_at' => now()->subSecond()]);
 }
 
 function lastDigestRun(): ?string
@@ -185,17 +185,17 @@ describe('monthly on the 15th', function () {
             ->and(sentNewChargeIds(1))->toBe([$november->id]);
     });
 
-    it('puts a charge created at the run moment in this digest and one a second later in the next', function () {
+    it('puts a charge created a second before the run in this digest and one at the run moment in the next', function () {
+        $this->travelTo('2026-10-15 08:59:59');
+        $beforeRun = Charge::factory()->create(['due_date' => '2026-12-01']);
         $this->travelTo('2026-10-15 09:00:00');
         $atRun = Charge::factory()->create(['due_date' => '2026-12-01']);
         runDigestAt('2026-10-15 09:00:00');
 
-        $this->travelTo('2026-10-15 09:00:01');
-        $afterRun = Charge::factory()->create(['due_date' => '2026-12-01']);
         runDigestAt('2026-11-15 09:00:00');
 
-        expect(sentNewChargeIds(0))->toBe([$atRun->id])
-            ->and(sentNewChargeIds(1))->toBe([$afterRun->id])
+        expect(sentNewChargeIds(0))->toBe([$beforeRun->id])
+            ->and(sentNewChargeIds(1))->toBe([$atRun->id])
             ->and(lastDigestRun())->toBe('2026-11-15 09:00:00');
     });
 

@@ -35,15 +35,17 @@ function chargeCreatedAt(string $moment, array $attributes = []): Charge
     return Charge::factory()->create(['due_date' => '2026-12-01', ...$attributes]);
 }
 
-it('lists the charges created after the previous digest up to and including now', function () {
-    chargeCreatedAt('2026-09-15 09:00:00'); // at the previous digest: it was in that one
-    $first = chargeCreatedAt('2026-09-15 09:00:01');
-    $last = chargeCreatedAt('2026-10-15 09:00:00'); // exactly now
-    chargeCreatedAt('2026-10-15 09:00:01'); // after now: the next digest
+it('lists the charges created from the previous digest on, before now', function () {
+    chargeCreatedAt('2026-09-15 08:59:59'); // before the previous digest: it was in that one
+    $atSince = chargeCreatedAt('2026-09-15 09:00:00'); // at the previous digest: in this one
+    $beforeNow = chargeCreatedAt('2026-10-15 08:59:59');
+    $atNow = chargeCreatedAt('2026-10-15 09:00:00'); // exactly now: the next digest
 
     $digest = buildDigestBetween('2026-09-15 09:00:00', '2026-10-15 09:00:00');
+    $next = buildDigestBetween('2026-10-15 09:00:00', '2026-11-15 09:00:00');
 
-    expect($digest['new_charges']->pluck('id')->all())->toBe([$first->id, $last->id]);
+    expect($digest['new_charges']->pluck('id')->all())->toBe([$atSince->id, $beforeNow->id])
+        ->and($next['new_charges']->pluck('id')->all())->toBe([$atNow->id]);
 });
 
 it('lists every charge created during the month', function () {
