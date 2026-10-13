@@ -1,6 +1,8 @@
 <?php
 
 use App\Providers\Filament\AdminPanelProvider;
+use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\View;
 
 /**
  * The e-mail cannot read the panel's CSS variables, so its theme copies the panel's tokens
@@ -30,4 +32,23 @@ it('uses only colors that the panel defines', function () {
             expect($allowed->contains(strtolower($color)))->toBeTrue("{$color} in ".basename($file).' is not a panel color');
         }
     }
+});
+
+it('still parses the body of an ordinary Markdown mail', function () {
+    View::addLocation(base_path('tests/Fixtures/views'));
+
+    $mailable = new class extends Mailable
+    {
+        public function build(): static
+        {
+            return $this->markdown('markdown-sample');
+        }
+    };
+
+    $html = $mailable->render();
+
+    expect($html)->toContain('<strong>kalın</strong>')
+        ->and($html)->toContain('<li>birinci</li>')
+        ->and($html)->toContain('<li>ikinci</li>')
+        ->and($html)->toContain('Tüm hakları saklıdır.');
 });

@@ -13,7 +13,7 @@
         $overdue->map(fn ($charge): Money => new Money($charge->remainingAmount(), $charge->currency)),
     ));
 @endphp
-<x-mail::message>
+<x-mail::digest-message>
 <p class="dg-title">{{ __('digest.title.'.$frequency->value) }} – {{ $date->format('d.m.Y') }}</p>
 <p class="dg-summary">{{ $counts->implode(' · ') }}</p>
 
@@ -91,4 +91,4 @@
 @endif
 
 <x-mail::button :url="$panelUrl">{{ __('digest.open_panel') }}</x-mail::button>
-</x-mail::message>
+</x-mail::digest-message>
