@@ -507,8 +507,14 @@ it('hides "Düzenle" below md and keeps "Ödeme al" in the row at every width', 
 });
 
 it('still finds a charge by its description although the column is hidden on narrow screens', function () {
-    $match = Charge::factory()->create(['description' => 'Kurumsal e-posta yenileme']);
-    $other = Charge::factory()->create(['description' => 'Alan adı yenileme']);
+    // The search also covers the customer's short name: fixed names keep a random one (Faker's
+    // tr_TR company names may contain "Kurumsal Hizmetler") from matching the term.
+    $match = Charge::factory()
+        ->for(Customer::factory()->state(['short_name' => 'Logi']))
+        ->create(['description' => 'Kurumsal e-posta yenileme']);
+    $other = Charge::factory()
+        ->for(Customer::factory()->state(['short_name' => 'Mavi Ajans']))
+        ->create(['description' => 'Alan adı yenileme']);
 
     chargesPage()
         ->searchTable('Kurumsal')
