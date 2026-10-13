@@ -17,6 +17,7 @@ return [
     'days_overdue' => ':days gün gecikti',
     'remaining' => 'kalan :amount',
     'closed_from_credit' => 'alacak bakiyesinden kapatıldı',
+    'closed_from_credit_badge' => 'Bakiyeden kapatıldı',
     'partly_from_credit' => ':amount alacak bakiyesinden düşüldü',
     'free_question' => 'Yeni döneme ücretsiz devam edecek mi?',
     'open_panel' => 'Panele git',

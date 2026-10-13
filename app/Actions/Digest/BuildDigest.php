@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\Collection;
  *
  * - new_charges: charges created in [$since, $now), not cancelled. Each one
  *   carries `credit_balance_amount`: what was applied to it from the credit balance (allocations
- *   with source `credit_balance`, at any time), so the e-mail can say it was closed from the balance.
+ *   with source `credit_balance`, at any time), so the e-mail can say it was closed from the balance,
+ *   and `payment_badge`: its payment state today ({@see self::paymentBadge()}).
  * - free_decisions: free services awaiting a continuation decision; the scope only counts active
  *   services, so cancelled ones are left out.
  * - overdue: Charge::overdue() + unarchivedCustomer(), the same query as the "Bugün" page's
@@ -63,7 +64,31 @@ class BuildDigest
             )
             ->orderBy('created_at')
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->each(fn (Charge $charge): Charge => $charge->setAttribute('payment_badge', self::paymentBadge($charge)));
+    }
+
+    /**
+     * The payment state of a new charge as it stands now, with the colors and labels of
+     * ChargeStatusBadge, limited to three states: paid, partially paid, closed from the credit
+     * balance. Overdue and due soon are not shown here (overdue charges have their own section);
+     * an open charge with nothing allocated has no badge.
+     *
+     * @return array{state: string, label: string, color: string}|null
+     */
+    public static function paymentBadge(Charge $charge): ?array
+    {
+        if ($charge->status === ChargeStatus::Paid) {
+            return (int) $charge->getAttribute('credit_balance_amount') >= $charge->amount
+                ? ['state' => 'closed_from_credit', 'label' => __('digest.closed_from_credit_badge'), 'color' => 'success']
+                : ['state' => 'paid', 'label' => ChargeStatus::Paid->getLabel(), 'color' => 'success'];
+        }
+
+        if ($charge->isPartiallyPaid()) {
+            return ['state' => 'partially_paid', 'label' => __('charges.partially_paid'), 'color' => 'warning'];
+        }
+
+        return null;
     }
 
     /**

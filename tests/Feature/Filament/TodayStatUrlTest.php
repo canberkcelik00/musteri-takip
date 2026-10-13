@@ -155,3 +155,18 @@ it('generates the same stat urls the widget renders', function () {
         ->and($stats[2]->getUrl())->toContain('filters%5Bhide_archived%5D%5BisActive%5D=1')
         ->and($stats[3]->getUrl())->toContain('filters%5Brenewal_soon%5D%5BisActive%5D=1');
 });
+
+it('counts and lists an open overdue USD charge as USD, never as paid', function () {
+    Charge::factory()->create(['due_date' => '2026-06-01', 'amount' => 5900, 'currency' => 'USD', 'description' => 'Tema lisansı USD']);
+    Charge::factory()->paid()->create(['due_date' => '2026-06-01', 'amount' => 7700, 'currency' => 'USD', 'description' => 'Ödenmiş USD']);
+
+    $summary = app(SummarizeToday::class)->handle();
+
+    expect($summary['overdue_count'])->toBe(1)
+        ->and($summary['overdue']['USD']->amount)->toBe(5900);
+
+    $this->get(todayChargeLinks()['overdue'])
+        ->assertOk()
+        ->assertSee('Tema lisansı USD')
+        ->assertDontSee('Ödenmiş USD');
+});

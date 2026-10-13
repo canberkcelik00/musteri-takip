@@ -162,3 +162,73 @@ it('is empty when every section is empty', function () {
 
     expect(BuildDigest::isEmpty(buildDigestBetween('2026-10-15 09:00:00', '2026-10-15 09:00:00')))->toBeFalse();
 });
+
+it('gives a new charge only a payment badge: paid, partly paid or closed from the credit balance', function () {
+    $this->travelTo('2026-10-01 10:00:00');
+    $customer = Customer::factory()->create();
+    $recordPayment = fn (int $amount) => app(RecordPayment::class)->handle($customer, [
+        'amount' => $amount,
+        'currency' => Currency::Try,
+        'paid_on' => '2026-10-01',
+        'payment_method_id' => PaymentMethod::query()->value('id'),
+    ]);
+    $createCharge = fn (int $amount, string $description) => app(CreateManualCharge::class)->handle($customer, [
+        'description' => $description,
+        'amount' => $amount,
+        'currency' => Currency::Try,
+        'due_date' => '2026-12-01',
+    ]);
+
+    $other = Customer::factory()->create();
+    $partly = app(CreateManualCharge::class)->handle($other, [
+        'description' => 'Hosting',
+        'amount' => 300000,
+        'currency' => Currency::Try,
+        'due_date' => '2026-12-01',
+    ]);
+    app(RecordPayment::class)->handle($other, [
+        'amount' => 100000,
+        'currency' => Currency::Try,
+        'paid_on' => '2026-10-01',
+        'payment_method_id' => PaymentMethod::query()->value('id'),
+    ]); // 1.000 TL of 3.000 TL: partly paid
+    $plain = Charge::factory()->for(Customer::factory())->create(['due_date' => '2026-12-01']);
+    $paid = Charge::factory()->paid()->create(['due_date' => '2026-12-01']);
+    $this->travelTo('2026-10-02 10:00:00');
+    $recordPayment(100000); // credit balance of 1.000 TL
+    $closed = $createCharge(100000, 'Alan adı');
+
+    $badges = buildDigestBetween('2026-09-15 09:00:00', '2026-10-15 09:00:00')['new_charges']
+        ->mapWithKeys(fn (Charge $charge): array => [$charge->id => $charge->payment_badge]);
+
+    expect($badges[$partly->id])->toBe(['state' => 'partially_paid', 'label' => 'Kısmi ödendi', 'color' => 'warning'])
+        ->and($badges[$paid->id])->toBe(['state' => 'paid', 'label' => 'Ödendi', 'color' => 'success'])
+        ->and($badges[$closed->id])->toBe(['state' => 'closed_from_credit', 'label' => 'Bakiyeden kapatıldı', 'color' => 'success'])
+        ->and($badges[$plain->id])->toBeNull();
+});
+
+it('shows no badge on a new charge that is open and overdue or due soon', function () {
+    $this->travelTo('2026-10-01 10:00:00');
+    $overdue = Charge::factory()->create(['due_date' => '2026-09-20']);
+    $dueSoon = Charge::factory()->create(['due_date' => '2026-10-17']);
+
+    $this->travelTo('2026-10-15 09:00:00');
+    $badges = buildDigestBetween('2026-09-15 09:00:00', '2026-10-15 09:00:00')['new_charges']
+        ->mapWithKeys(fn (Charge $charge): array => [$charge->id => $charge->payment_badge]);
+
+    expect($overdue->refresh()->isOverdue())->toBeTrue()
+        ->and($dueSoon->isDueSoon())->toBeTrue()
+        ->and($badges[$overdue->id])->toBeNull()
+        ->and($badges[$dueSoon->id])->toBeNull();
+});
+
+it('lists an open overdue USD charge in the overdue section with its own currency', function () {
+    $this->travelTo('2026-10-15 09:00:00');
+    $charge = Charge::factory()->create(['due_date' => '2026-09-06', 'amount' => 5900, 'currency' => Currency::Usd]);
+
+    $overdue = buildDigestBetween('2026-09-15 09:00:00', '2026-10-15 09:00:00')['overdue'];
+
+    expect($overdue->pluck('id')->all())->toBe([$charge->id])
+        ->and($overdue->first()->currency)->toBe(Currency::Usd)
+        ->and($overdue->first()->remainingAmount())->toBe(5900);
+});
