@@ -6,6 +6,7 @@ use App\Actions\CustomerServices\ConfirmFreeContinuation;
 use App\Filament\Concerns\ResolvesCustomerServiceArgument;
 use App\Models\CustomerService;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 
 /**
@@ -36,8 +37,16 @@ class ConfirmFreeContinuationAction extends Action
             ->label(__('customer_services.confirm_free_continuation'))
             ->icon(Heroicon::Check)
             ->requiresConfirmation()
+            ->visible(fn (?CustomerService $record): bool => $record !== null)
             ->action(function (CustomerService $record, Action $action, ConfirmFreeContinuation $confirmFreeContinuation): void {
-                $confirmFreeContinuation->handle($record);
+                if (! $confirmFreeContinuation->handle($record)) {
+                    Notification::make()
+                        ->warning()
+                        ->title(__('customer_services.free_action_not_applied'))
+                        ->send();
+
+                    return;
+                }
 
                 $action->successNotificationTitle(__('customer_services.free_continuation_confirmed'))->success();
             });

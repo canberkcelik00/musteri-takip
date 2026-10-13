@@ -14,22 +14,24 @@ class ConfirmFreeContinuation
      * as a pending decision. Stores the service's current end_date; once the period advances
      * past it, the question returns for the new period automatically (no field to reset).
      * Does nothing for a service that is not active or not free, so calling it again on an
-     * already-confirmed or since-changed service is harmless.
+     * already-confirmed or since-changed service is harmless. Returns whether it recorded anything.
      */
-    public function handle(CustomerService $customerService): void
+    public function handle(CustomerService $customerService): bool
     {
-        DB::transaction(function () use ($customerService): void {
+        return DB::transaction(function () use ($customerService): bool {
             $customerService = CustomerService::query()
                 ->lockForUpdate()
                 ->findOrFail($customerService->id);
 
             if ($customerService->status !== CustomerServiceStatus::Active || ! $customerService->is_free) {
-                return;
+                return false;
             }
 
             $customerService->update([
                 'free_continuation_confirmed_for' => $customerService->end_date,
             ]);
+
+            return true;
         });
     }
 }

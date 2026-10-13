@@ -41,3 +41,14 @@ it('does nothing for a cancelled free service', function () {
 
     expect($service->fresh()->free_continuation_confirmed_for)->toBeNull();
 });
+
+it('tells whether it recorded anything', function () {
+    $free = CustomerService::factory()->free()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+    $paid = CustomerService::factory()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+    $cancelled = CustomerService::factory()->free()->cancelled()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+    $action = app(ConfirmFreeContinuation::class);
+
+    expect($action->handle($free))->toBeTrue()
+        ->and($action->handle($paid))->toBeFalse()
+        ->and($action->handle($cancelled))->toBeFalse();
+});

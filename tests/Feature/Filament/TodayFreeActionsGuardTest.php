@@ -37,7 +37,9 @@ it('confirms nothing when the service was cancelled in another tab after the row
 
     $service->update(['status' => CustomerServiceStatus::Cancelled, 'cancelled_on' => '2026-06-15']);
 
-    $widget->callMountedAction()->assertHasNoErrors();
+    $widget->callMountedAction()
+        ->assertHasNoErrors()
+        ->assertNotified('Hizmet artık ücretsiz ya da aktif değil, işlem yapılmadı.');
 
     expect($service->fresh()->free_continuation_confirmed_for)->toBeNull();
 });
@@ -53,7 +55,9 @@ it('creates no second charge when the service was made paid in another tab after
     Livewire::test(TodayTasks::class)
         ->callAction('removeFree', ['price' => '4.000'], ['customerService' => $service->id]);
 
-    $widget->callMountedAction()->assertHasNoErrors();
+    $widget->callMountedAction()
+        ->assertHasNoErrors()
+        ->assertNotified('Hizmet artık ücretsiz ya da aktif değil, işlem yapılmadı.');
 
     $service->refresh();
 
@@ -71,15 +75,10 @@ it('leaves a service alone when the id sent is not a service of the list', funct
     $id = $service?->id ?? 999999;
 
     foreach (['confirmFreeContinuation', 'removeFree'] as $action) {
-        try {
-            Livewire::test(TodayTasks::class)
-                ->mountAction($action, ['customerService' => $id])
-                ->callMountedAction();
-        } catch (TypeError $error) {
-            // An id without a service ends in a server error rather than a refusal (reported in G-5.7);
-            // no other case may throw.
-            expect($service)->toBeNull();
-        }
+        Livewire::test(TodayTasks::class)
+            ->mountAction($action, ['customerService' => $id])
+            ->callMountedAction()
+            ->assertHasNoErrors();
     }
 
     if ($service !== null) {
@@ -92,3 +91,27 @@ it('leaves a service alone when the id sent is not a service of the list', funct
 
     expect(CustomerService::query()->whereKey(999999)->exists())->toBeFalse();
 })->with(['unknown id', 'paid service', 'cancelled free service']);
+
+it('warns instead of making a cancelled free service paid from the row action', function () {
+    $service = awaitingFreeService(['status' => CustomerServiceStatus::Cancelled, 'cancelled_on' => '2026-01-01']);
+
+    Livewire::test(TodayTasks::class)
+        ->mountAction('removeFree', ['customerService' => $service->id])
+        ->fillForm(['price' => '4.000'])
+        ->callMountedAction()
+        ->assertNotified('Hizmet artık ücretsiz ya da aktif değil, işlem yapılmadı.');
+
+    expect($service->fresh()->is_free)->toBeTrue()
+        ->and($service->charges()->count())->toBe(0);
+});
+
+it('shows the success notification only when the free continuation was recorded', function () {
+    $service = awaitingFreeService();
+
+    Livewire::test(TodayTasks::class)
+        ->mountAction('confirmFreeContinuation', ['customerService' => $service->id])
+        ->callMountedAction()
+        ->assertNotified('Ücretsiz devam onaylandı.');
+
+    expect($service->fresh()->isAwaitingFreeDecision())->toBeFalse();
+});

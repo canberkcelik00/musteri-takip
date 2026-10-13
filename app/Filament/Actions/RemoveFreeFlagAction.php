@@ -11,6 +11,7 @@ use App\Filament\Support\FieldError;
 use App\Models\CustomerService;
 use App\Support\Money;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
 
@@ -32,11 +33,21 @@ class RemoveFreeFlagAction extends Action
 
     public function getRecord(bool $withDefault = true): CustomerService|array|null
     {
-        if (($this->getArguments()['customerService'] ?? null) !== null) {
+        if ($this->hasCustomerServiceArgument()) {
             return $this->customerServiceFromArguments();
         }
 
         return parent::getRecord($withDefault);
+    }
+
+    /**
+     * Whether the service is still active and free. On the "Bugün" rows the button stays
+     * visible for any service found (the list may be stale), so this is checked again when the
+     * action runs and a warning replaces the work.
+     */
+    private function canRemoveFreeFlag(CustomerService $record): bool
+    {
+        return $record->status === CustomerServiceStatus::Active && $record->is_free;
     }
 
     protected function setUp(): void
@@ -47,9 +58,9 @@ class RemoveFreeFlagAction extends Action
             ->label(__('customer_services.remove_free'))
             ->icon(Heroicon::CurrencyDollar)
             ->modalHeading(__('customer_services.remove_free_heading'))
-            ->visible(fn (CustomerService $record): bool => $record->status === CustomerServiceStatus::Active && $record->is_free)
-            ->fillForm(fn (CustomerService $record): array => ['price' => $record->price])
-            ->schema(fn (CustomerService $record): array => [
+            ->visible(fn (?CustomerService $record): bool => $record !== null && ($this->hasCustomerServiceArgument() || $this->canRemoveFreeFlag($record)))
+            ->fillForm(fn (?CustomerService $record): array => $record === null ? [] : ['price' => $record->price])
+            ->schema(fn (?CustomerService $record): array => $record === null ? [] : [
                 MoneyInput::make('price')
                     ->label(__('customer_services.new_price'))
                     ->required()
@@ -57,6 +68,15 @@ class RemoveFreeFlagAction extends Action
             ])
             ->action(function (array $data, CustomerService $record, Action $action, RemoveCustomerServiceFreeFlag $removeCustomerServiceFreeFlag, Component $livewire): void {
                 $charge = null;
+
+                if (! $this->canRemoveFreeFlag($record)) {
+                    Notification::make()
+                        ->warning()
+                        ->title(__('customer_services.free_action_not_applied'))
+                        ->send();
+
+                    return;
+                }
 
                 try {
                     $charge = $removeCustomerServiceFreeFlag->handle($record, $data['price']);

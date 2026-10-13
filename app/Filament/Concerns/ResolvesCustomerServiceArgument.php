@@ -26,6 +26,11 @@ trait ResolvesCustomerServiceArgument
         return $this;
     }
 
+    protected function hasCustomerServiceArgument(): bool
+    {
+        return ($this->getArguments()['customerService'] ?? null) !== null;
+    }
+
     protected function customerServiceFromArguments(): ?CustomerService
     {
         $customerServiceId = $this->getArguments()['customerService'] ?? null;
