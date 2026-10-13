@@ -240,9 +240,10 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Türkçe, sade e-posta; bölümler: bugün oluşan borçlar (bakiyeden kapatılanlar belirtilir), ücretsiz devam kararı bekleyenler, vadesi geçmiş borçlar; her satırda bağlantı. Ayarlanan saatten sonraki ilk zamanlayıcı çalışmasında günde bir kez gönderilir; tüm bölümler boşsa gönderilmez. Bakiyeden kapatılanlar, dağıtımın kaynağı alanıyla ("alacak bakiyesi") bulunur (G-3.2).
   - Kabul: Günde tek gönderim, boş günde gönderilmeme, saatten önce gönderilmeme, atlanan cron sonrası gönderim (testli); Mailpit'te görünüm kontrol edilir.
   - Kapanış notu (T-95): Kapsam kullanıcı kararıyla genişledi: özet seçilebilir sıklıkta gider (Günlük / Aylık, varsayılan aylık, ayın 15'i 09:00; gün 1–28). "Bugün oluşan borçlar" yerine "Son özetten bu yana oluşan borçlar"; boş dönem gönderilmez ama kapanır; gönderim hatasında sonraki çalışma yeniden dener; ilk çalışma yalnız başlangıç anını kaydeder. Kabul ölçütleri hem günlük hem aylık için testli.
-- [ ] **G-5.6 Zamanlayıcı sağlık kontrolü** — Bağımlılık: G-4.15
+- [x] **G-5.6 Zamanlayıcı sağlık kontrolü** — Bağımlılık: G-4.15
   - Yapılacak: Zamanlayıcının son çalışma zamanı kaydedilir; 1 saatten uzun süredir çalışmadıysa Bugün sayfasında uyarı görünür. Son çalışmada hata veren hizmet varsa (G-3.9'daki hata yalıtımı) Bugün sayfasında bu da uyarı olarak gösterilir.
   - Kabul: Süre aşılınca uyarı görünür, çalışınca kaybolur (testli).
+  - Kapanış notu (T-98): Kayıt `app:process-customer-services` sonunda ayarlara yazılır. Kullanıcı kararları: hiç çalışmamışsa da uyarı görünür; bekleyen yayın yüzünden atlanıyorsa ayrı metin ("Yayın adresini açın"); hata veren hizmetler en çok 5 adla, müşteri kartına bağlantılı. Yayından sonra ilk cron çalışmasına kadar (en çok 15 dk) 'hiç çalışmadı' uyarısı görünebilir.
 - [ ] **G-5.7 MVP son kontrol** — Bağımlılık: G-5.1…G-5.6
   - Yapılacak: Ana akışların ekran üzerinden uçtan uca testi (müşteri ekle → hizmet ata → ödeme al → yenileme → iptal); birkaç yüz müşterilik örnek veriyle listelerin hız kontrolü; tüm dokümanların güncelliği.
   - Kabul: Tüm testler yeşil; ROADMAP ve DECISIONS güncel.

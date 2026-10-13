@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Deploy\ArtisanRunner;
+use App\Actions\Deploy\DeployRelease;
 use App\Filament\Support\RecordActionsSection;
 use App\Livewire\TopbarActions;
 use BladeUI\Icons\IconsManifest;
@@ -305,4 +306,15 @@ function cleanUpDeploy(): void
     }
 
     File::deleteDirectory($real);
+}
+
+/**
+ * Decide whether a pulled release is waiting to be deployed, for the scheduler health check
+ * (G-5.6); the real check reads the test environment's own git checkout.
+ */
+function fakePendingRelease(bool $pending): void
+{
+    test()->mock(DeployRelease::class)
+        ->shouldReceive('hasPendingRelease')
+        ->andReturn($pending);
 }

@@ -3,6 +3,7 @@
 use App\Enums\Currency;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use App\Support\Settings;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
@@ -127,4 +128,31 @@ it('keeps processing the other services when one fails and reports the failure',
     Log::shouldHaveReceived('error')
         ->twice()
         ->withArgs(fn (string $message, array $context) => $context['customer_service_id'] === $broken->id);
+});
+
+it('records the finished run for the scheduler health check', function () {
+    $this->travelTo('2027-01-30 10:15:00');
+    $this->artisan('app:process-customer-services')->assertSuccessful();
+
+    expect(app(Settings::class)->schedulerLastRunAt()?->toDateTimeString())->toBe('2027-01-30 10:15:00')
+        ->and(app(Settings::class)->schedulerFailedServiceIds())->toBe([]);
+});
+
+it('records the failing services of the run once and forgets them after a clean run', function () {
+    $broken = scheduledService(['price' => 0]);
+    scheduledService();
+    Log::spy();
+
+    $this->travelTo('2027-03-10 09:00:00');
+    $this->artisan('app:process-customer-services')->assertFailed();
+
+    expect(app(Settings::class)->schedulerLastRunAt()?->toDateTimeString())->toBe('2027-03-10 09:00:00')
+        ->and(app(Settings::class)->schedulerFailedServiceIds())->toBe([$broken->id]);
+
+    $broken->update(['price' => 400000]);
+    $this->travelTo('2027-03-10 09:15:00');
+    $this->artisan('app:process-customer-services')->assertSuccessful();
+
+    expect(app(Settings::class)->schedulerLastRunAt()?->toDateTimeString())->toBe('2027-03-10 09:15:00')
+        ->and(app(Settings::class)->schedulerFailedServiceIds())->toBe([]);
 });

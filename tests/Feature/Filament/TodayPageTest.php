@@ -1,13 +1,16 @@
 <?php
 
 use App\Actions\Payments\RecordPayment;
+use App\Actions\Scheduler\RecordSchedulerRun;
 use App\Actions\Today\SummarizeToday;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\SettingKey;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\Charges\Pages\ListCharges;
+use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
+use App\Filament\Widgets\SchedulerHealth;
 use App\Filament\Widgets\TodayStats;
 use App\Filament\Widgets\TodayTasks;
 use App\Models\Charge;
@@ -314,4 +317,75 @@ it('moves the state under the customer name below md, where the "Durum" column i
     expect($html)->toMatch('/<th class="fi-ta-header-cell fi-cell-from-md">\s*'.preg_quote(__('today.col_status'), '/').'/')
         ->and($html)->toContain('fi-mobile-badge')
         ->and(substr_count($html, 'fi-color-danger'))->toBe(2);
+});
+
+describe('scheduler warning', function () {
+    beforeEach(function () {
+        fakePendingRelease(false);
+        $this->travelTo('2026-10-13 14:00:00');
+    });
+
+    it('shows the warning once the scheduler has not run for over an hour and hides it after a run', function () {
+        $this->artisan('app:process-customer-services')->assertSuccessful();
+
+        $this->travelTo('2026-10-13 15:00:00');
+        $this->get(Dashboard::getUrl())->assertOk()->assertDontSeeLivewire(SchedulerHealth::class);
+
+        $this->travelTo('2026-10-13 15:01:00');
+        $this->get(Dashboard::getUrl())
+            ->assertSeeLivewire(SchedulerHealth::class)
+            ->assertSee('Zamanlayıcı 1 saatten uzun süredir çalışmıyor (son çalışma: 13.10.2026 14:00). Hostingdeki cron\'u kontrol edin.');
+
+        $this->artisan('app:process-customer-services')->assertSuccessful();
+        $this->get(Dashboard::getUrl())->assertOk()->assertDontSeeLivewire(SchedulerHealth::class);
+    });
+
+    it('warns when the scheduler never ran', function () {
+        Livewire::test(SchedulerHealth::class)
+            ->assertSee(__('scheduler.never_ran'));
+    });
+
+    it('names a pending release instead of the cron', function () {
+        app(RecordSchedulerRun::class)->handle();
+        fakePendingRelease(true);
+        $this->travelTo('2026-10-13 15:30:00');
+
+        Livewire::test(SchedulerHealth::class)
+            ->assertSee(__('scheduler.pending_release'))
+            ->assertDontSee(__('scheduler.stale', ['time' => '13.10.2026 14:00']));
+    });
+
+    it('lists the services that failed in the last run with links to their cards', function () {
+        $customer = Customer::factory()->create(['short_name' => 'Logi']);
+        $service = CustomerService::factory()->for($customer)->create(['name' => 'Hosting']);
+        app(RecordSchedulerRun::class)->handle([$service->id]);
+
+        Livewire::test(SchedulerHealth::class)
+            ->assertSee('Son zamanlayıcı çalışmasında 1 hizmet işlenemedi.')
+            ->assertSee('Logi · Hosting')
+            ->assertSee(CustomerResource::getUrl('view', ['record' => $customer]))
+            ->assertSee(__('scheduler.failed_services_log'))
+            ->assertDontSee(__('scheduler.never_ran'));
+    });
+
+    it('names at most five failed services and counts the rest', function () {
+        $services = CustomerService::factory()->count(7)->create();
+        app(RecordSchedulerRun::class)->handle($services->modelKeys());
+
+        $component = Livewire::test(SchedulerHealth::class)
+            ->assertSee('Son zamanlayıcı çalışmasında 7 hizmet işlenemedi.')
+            ->assertSee('ve 2 hizmet daha');
+
+        $services->take(5)->each(fn (CustomerService $service) => $component->assertSee($service->name));
+        $services->skip(5)->each(fn (CustomerService $service) => $component->assertDontSee($service->name));
+    });
+
+    it('shows nothing while the scheduler is healthy', function () {
+        app(RecordSchedulerRun::class)->handle();
+
+        $this->get(Dashboard::getUrl())
+            ->assertOk()
+            ->assertDontSeeLivewire(SchedulerHealth::class)
+            ->assertSeeLivewire(TodayStats::class);
+    });
 });
