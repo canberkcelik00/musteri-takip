@@ -117,6 +117,31 @@ it('opens the renewal-filtered customer list from the stat url', function () {
         ->assertDontSee('YenilenmeyecekMusteri');
 });
 
+it('leaves archived customers out of the renewal stat and the list its link opens', function () {
+    $first = Customer::factory()->create(['short_name' => 'Yenilenecek Bir']);
+    CustomerService::factory()->for($first)->create(['start_date' => '2025-06-25', 'end_date' => '2026-06-25']);
+    $second = Customer::factory()->create(['short_name' => 'Yenilenecek Iki']);
+    CustomerService::factory()->for($second)->create(['start_date' => '2025-07-01', 'end_date' => '2026-07-01']);
+
+    // Its active service ends first: it would be the nearest renewal if it were counted.
+    $archived = Customer::factory()->create(['short_name' => 'Arsivli Yenilenecek']);
+    CustomerService::factory()->for($archived)->create(['start_date' => '2025-06-16', 'end_date' => '2026-06-16']);
+    $archived->archive();
+
+    $summary = app(SummarizeToday::class)->handle();
+    $renewalUrl = (fn () => $this->getStats())->call(new TodayStats)[3]->getUrl();
+
+    expect($summary['renewal_services_count'])->toBe(2)
+        ->and($summary['renewal_customers_count'])->toBe(2)
+        ->and($summary['nearest_renewal']->toDateString())->toBe('2026-06-25');
+
+    $this->get($renewalUrl)
+        ->assertOk()
+        ->assertSee('Yenilenecek Bir')
+        ->assertSee('Yenilenecek Iki')
+        ->assertDontSee('Arsivli Yenilenecek');
+});
+
 it('generates the same stat urls the widget renders', function () {
     $widget = new TodayStats;
     $reflection = new ReflectionMethod($widget, 'getStats');
