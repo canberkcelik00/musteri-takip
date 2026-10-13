@@ -432,6 +432,12 @@ describe('row actions by state', function () {
             ->and(panelOffers('removeFree', $customerService))->toBeFalse();
     });
 
+    it('hides make paid on the card for a cancelled free service', function () {
+        $customerService = cardService(['is_free' => true, 'status' => CustomerServiceStatus::Cancelled, 'cancelled_on' => '2026-06-01']);
+
+        expect(panelOffers('removeFree', $customerService))->toBeFalse();
+    });
+
     it('shows make paid instead of mark free for a free service', function () {
         $customerService = cardService(['is_free' => true]);
 
