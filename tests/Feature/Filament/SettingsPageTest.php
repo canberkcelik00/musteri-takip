@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\CustomerServices\CreateDueRenewalCharges;
+use App\Enums\DigestFrequency;
 use App\Enums\SettingKey;
 use App\Filament\Pages\ManageSettings;
 use App\Models\Charge;
@@ -20,10 +21,52 @@ it('opens with the default values', function () {
         ->assertOk()
         ->assertSchemaStateSet([
             'renewal_lead_days' => 30,
+            'digest_frequency' => DigestFrequency::Monthly,
+            'digest_day_of_month' => 15,
             'digest_time' => '09:00',
             'notification_email' => null,
         ]);
 });
+
+it('shows the day of the month only for the monthly digest', function () {
+    Livewire::test(ManageSettings::class)
+        ->assertFormFieldVisible('digest_day_of_month')
+        ->assertSee('29–31 her ayda olmadığı için seçilemez.')
+        ->fillForm(['digest_frequency' => DigestFrequency::Daily->value])
+        ->assertFormFieldHidden('digest_day_of_month')
+        ->fillForm(['digest_frequency' => DigestFrequency::Monthly->value])
+        ->assertFormFieldVisible('digest_day_of_month');
+});
+
+it('saves the digest frequency and the day of the month', function () {
+    Livewire::test(ManageSettings::class)
+        ->fillForm(['digest_frequency' => DigestFrequency::Monthly->value, 'digest_day_of_month' => 20])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(Settings::class)->digestFrequency())->toBe(DigestFrequency::Monthly)
+        ->and(app(Settings::class)->digestDayOfMonth())->toBe(20);
+
+    Livewire::test(ManageSettings::class)
+        ->fillForm(['digest_frequency' => DigestFrequency::Daily->value])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(Settings::class)->digestFrequency())->toBe(DigestFrequency::Daily);
+});
+
+it('requires a day of the month from 1 to 28 for the monthly digest', function (mixed $day) {
+    Livewire::test(ManageSettings::class)
+        ->fillForm(['digest_frequency' => DigestFrequency::Monthly->value, 'digest_day_of_month' => $day])
+        ->call('save')
+        ->assertHasFormErrors(['digest_day_of_month']);
+
+    expect(app(Settings::class)->digestDayOfMonth())->toBe(15);
+})->with([
+    'no day' => [null],
+    'zero' => [0],
+    'day 29' => [29],
+]);
 
 it('opens with the stored values', function () {
     $settings = app(Settings::class);
@@ -43,7 +86,8 @@ it('shows the page in Turkish under the settings group', function () {
     Livewire::test(ManageSettings::class)
         ->assertSee('Genel ayarlar')
         ->assertSee('Yenileme gün sayısı')
-        ->assertSee('Günlük özet saati')
+        ->assertSee('Özet sıklığı')
+        ->assertSee('Özet saati')
         ->assertSee('Bildirim adresi');
 
     expect(ManageSettings::getNavigationGroup())->toBe('Ayarlar');

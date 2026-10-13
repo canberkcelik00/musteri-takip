@@ -18,6 +18,11 @@ return [
         'cancelled' => 'İptal edildi',
     ],
 
+    'digest_frequency' => [
+        'daily' => 'Günlük',
+        'monthly' => 'Aylık',
+    ],
+
     'allocation_source' => [
         'payment' => 'Ödeme',
         'credit_balance' => 'Alacak bakiyesi',

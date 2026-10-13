@@ -236,9 +236,10 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
 - [x] **G-5.4 Ana panel** — G-4.15'e (Bugün sayfası) taşındı; numara boşluk kalmasın diye durur.
   - Yapılacak: Yok; iş G-4.15'te yapılır.
   - Kabul: G-4.15'in kabul ölçütleri.
-- [ ] **G-5.5 Günlük özet e-postası** — Bağımlılık: G-4.15
+- [x] **G-5.5 Günlük özet e-postası** — Bağımlılık: G-4.15
   - Yapılacak: Türkçe, sade e-posta; bölümler: bugün oluşan borçlar (bakiyeden kapatılanlar belirtilir), ücretsiz devam kararı bekleyenler, vadesi geçmiş borçlar; her satırda bağlantı. Ayarlanan saatten sonraki ilk zamanlayıcı çalışmasında günde bir kez gönderilir; tüm bölümler boşsa gönderilmez. Bakiyeden kapatılanlar, dağıtımın kaynağı alanıyla ("alacak bakiyesi") bulunur (G-3.2).
   - Kabul: Günde tek gönderim, boş günde gönderilmeme, saatten önce gönderilmeme, atlanan cron sonrası gönderim (testli); Mailpit'te görünüm kontrol edilir.
+  - Kapanış notu (T-95): Kapsam kullanıcı kararıyla genişledi: özet seçilebilir sıklıkta gider (Günlük / Aylık, varsayılan aylık, ayın 15'i 09:00; gün 1–28). "Bugün oluşan borçlar" yerine "Son özetten bu yana oluşan borçlar"; boş dönem gönderilmez ama kapanır; gönderim hatasında sonraki çalışma yeniden dener; ilk çalışma yalnız başlangıç anını kaydeder. Kabul ölçütleri hem günlük hem aylık için testli.
 - [ ] **G-5.6 Zamanlayıcı sağlık kontrolü** — Bağımlılık: G-4.15
   - Yapılacak: Zamanlayıcının son çalışma zamanı kaydedilir; 1 saatten uzun süredir çalışmadıysa Bugün sayfasında uyarı görünür. Son çalışmada hata veren hizmet varsa (G-3.9'daki hata yalıtımı) Bugün sayfasında bu da uyarı olarak gösterilir.
   - Kabul: Süre aşılınca uyarı görünür, çalışınca kaybolur (testli).

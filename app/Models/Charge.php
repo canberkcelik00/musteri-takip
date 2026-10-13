@@ -228,6 +228,23 @@ class Charge extends Model
     }
 
     /**
+     * Limit the query to charges created after $since, up to and including $until. The
+     * moments are compared in the time zone `created_at` is stored in (the application time
+     * zone). The digest lists these as the charges created since the previous digest.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function createdBetween(Builder $query, CarbonInterface $since, CarbonInterface $until): void
+    {
+        $timezone = config('app.timezone');
+
+        $query
+            ->where($this->qualifyColumn('created_at'), '>', Carbon::instance($since)->setTimezone($timezone))
+            ->where($this->qualifyColumn('created_at'), '<=', Carbon::instance($until)->setTimezone($timezone));
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

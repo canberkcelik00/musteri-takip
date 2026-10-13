@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Mail;
+
+use App\Enums\DigestFrequency;
+use App\Filament\Pages\Dashboard;
+use App\Filament\Resources\Customers\CustomerResource;
+use App\Models\Charge;
+use App\Models\CustomerService;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Support\Carbon;
+
+/**
+ * The digest e-mail (daily or monthly). Sent synchronously by SendDigest; there is no queue
+ * worker on the hosting. Every row links to the customer's card.
+ */
+class DigestMail extends Mailable
+{
+    /**
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>}  $digest
+     */
+    public function __construct(
+        public readonly array $digest,
+        public readonly DigestFrequency $frequency,
+        public readonly Carbon $date,
+    ) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: __('digest.subject.'.$this->frequency->value, ['date' => $this->date->format('d.m.Y')]),
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            view: 'mail.digest',
+            with: [
+                'customerUrl' => fn (int $customerId): string => CustomerResource::getUrl('view', ['record' => $customerId], panel: 'panel'),
+                'panelUrl' => Dashboard::getUrl(panel: 'panel'),
+            ],
+        );
+    }
+}

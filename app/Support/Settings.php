@@ -2,8 +2,12 @@
 
 namespace App\Support;
 
+use App\Enums\DigestFrequency;
 use App\Enums\SettingKey;
 use App\Models\Setting;
+use Carbon\CarbonInterface;
+use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -84,6 +88,64 @@ class Settings
         }
 
         return $email;
+    }
+
+    /**
+     * How often the digest e-mail is sent.
+     */
+    public function digestFrequency(): DigestFrequency
+    {
+        $key = SettingKey::DigestFrequency;
+        $frequency = DigestFrequency::tryFrom((string) $this->get($key));
+
+        return $frequency ?? DigestFrequency::from((string) $this->fallback($key));
+    }
+
+    /**
+     * Day of the month (1–28) the monthly digest is sent on; 29–31 do not exist in every month.
+     */
+    public function digestDayOfMonth(): int
+    {
+        $key = SettingKey::DigestDayOfMonth;
+        $day = filter_var($this->get($key), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1, 'max_range' => 28],
+        ]);
+
+        if ($day === false) {
+            return (int) $this->fallback($key);
+        }
+
+        return $day;
+    }
+
+    /**
+     * When the digest was last handled (sent, found empty, or first started), in the
+     * application time zone; null before the first run.
+     */
+    public function digestLastRunAt(): ?Carbon
+    {
+        $key = SettingKey::DigestLastRunAt;
+        $value = $this->get($key);
+
+        if ($value === null) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->setTimezone(config('app.timezone'));
+        } catch (InvalidFormatException) {
+            $this->fallback($key);
+
+            return null;
+        }
+    }
+
+    /**
+     * Record the moment the digest was handled.
+     */
+    public function markDigestRun(CarbonInterface $moment): void
+    {
+        $this->set(SettingKey::DigestLastRunAt, Carbon::instance($moment)->setTimezone(config('app.timezone'))->toIso8601String());
     }
 
     /**

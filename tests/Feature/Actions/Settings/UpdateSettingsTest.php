@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Settings\UpdateSettings;
+use App\Enums\DigestFrequency;
 use App\Enums\SettingKey;
 use App\Models\Setting;
 use App\Support\Settings;
@@ -13,6 +14,8 @@ function updateSettings(array $data): void
 {
     app(UpdateSettings::class)->handle([
         'renewal_lead_days' => 30,
+        'digest_frequency' => 'monthly',
+        'digest_day_of_month' => 15,
         'digest_time' => '09:00',
         'notification_email' => null,
         ...$data,
@@ -78,3 +81,39 @@ it('offers every quarter hour of the day', function () {
         ->and(array_key_last($options))->toBe('23:45')
         ->and($options)->toHaveKeys(['09:00', '09:15', '12:30']);
 });
+
+it('stores the digest frequency and the day of the month', function () {
+    updateSettings(['digest_frequency' => 'monthly', 'digest_day_of_month' => '28']);
+
+    expect(app(Settings::class)->digestFrequency())->toBe(DigestFrequency::Monthly)
+        ->and(app(Settings::class)->digestDayOfMonth())->toBe(28);
+
+    updateSettings(['digest_frequency' => DigestFrequency::Daily, 'digest_day_of_month' => null]);
+
+    expect(app(Settings::class)->digestFrequency())->toBe(DigestFrequency::Daily)
+        ->and(app(Settings::class)->digestDayOfMonth())->toBe(28);
+});
+
+it('requires a day of the month from 1 to 28 for the monthly digest', function (mixed $day) {
+    expect(fn () => updateSettings(['digest_frequency' => 'monthly', 'digest_day_of_month' => $day]))
+        ->toThrow(fn (ValidationException $exception) => expect($exception->errors())->toHaveKey('digest_day_of_month'));
+
+    expect(Setting::query()->count())->toBe(0);
+})->with([
+    'no day' => [null],
+    'zero' => [0],
+    'day 29' => [29],
+    'day 31' => [31],
+    'text' => ['abc'],
+]);
+
+it('accepts the day of the month limits', function (int $day) {
+    updateSettings(['digest_frequency' => 'monthly', 'digest_day_of_month' => $day]);
+
+    expect(app(Settings::class)->digestDayOfMonth())->toBe($day);
+})->with([1, 28]);
+
+it('rejects an unknown digest frequency', function (mixed $frequency) {
+    expect(fn () => updateSettings(['digest_frequency' => $frequency]))
+        ->toThrow(fn (ValidationException $exception) => expect($exception->errors())->toHaveKey('digest_frequency'));
+})->with(['weekly', null]);

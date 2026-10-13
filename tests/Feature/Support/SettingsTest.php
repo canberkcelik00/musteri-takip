@@ -1,9 +1,11 @@
 <?php
 
+use App\Enums\DigestFrequency;
 use App\Enums\SettingKey;
 use App\Models\Setting;
 use App\Support\Settings;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 beforeEach(function () {
@@ -104,4 +106,51 @@ it('falls back to no notification email for an invalid address and logs it', fun
     Log::shouldHaveReceived('warning')->once()->withArgs(
         fn (string $message, array $context) => $context === ['key' => 'notification_email', 'value' => 'gecersiz'],
     );
+});
+
+it('returns the digest defaults while nothing is stored', function () {
+    expect($this->settings->digestFrequency())->toBe(DigestFrequency::Monthly)
+        ->and($this->settings->digestDayOfMonth())->toBe(15)
+        ->and($this->settings->digestLastRunAt())->toBeNull();
+});
+
+it('falls back to the default digest frequency and day for invalid values and logs it', function (SettingKey $key, string $value) {
+    Log::spy();
+
+    $this->settings->set($key, $value);
+
+    expect($this->settings->digestFrequency())->toBe(DigestFrequency::Monthly)
+        ->and($this->settings->digestDayOfMonth())->toBe(15);
+    Log::shouldHaveReceived('warning')->once();
+})->with([
+    'unknown frequency' => [SettingKey::DigestFrequency, 'weekly'],
+    'day zero' => [SettingKey::DigestDayOfMonth, '0'],
+    'day 29' => [SettingKey::DigestDayOfMonth, '29'],
+]);
+
+it('returns the recorded digest run at once in the same process', function () {
+    $this->settings->markDigestRun(Carbon::parse('2026-10-15 09:00:00', 'Europe/Istanbul'));
+
+    expect($this->settings->digestLastRunAt()?->toDateTimeString())->toBe('2026-10-15 09:00:00');
+
+    $this->settings->markDigestRun(Carbon::parse('2026-11-15 09:15:00', 'Europe/Istanbul'));
+
+    expect($this->settings->digestLastRunAt()?->toDateTimeString())->toBe('2026-11-15 09:15:00')
+        ->and($this->settings->digestLastRunAt()?->timezoneName)->toBe('Europe/Istanbul');
+});
+
+it('records the digest run in the application time zone', function () {
+    $this->settings->markDigestRun(Carbon::parse('2026-10-15 06:00:00', 'UTC'));
+
+    expect($this->settings->get(SettingKey::DigestLastRunAt))->toBe('2026-10-15T09:00:00+03:00')
+        ->and($this->settings->digestLastRunAt()?->toDateTimeString())->toBe('2026-10-15 09:00:00');
+});
+
+it('treats an unreadable digest run as no run and logs it', function () {
+    Log::spy();
+
+    $this->settings->set(SettingKey::DigestLastRunAt, 'not a date');
+
+    expect($this->settings->digestLastRunAt())->toBeNull();
+    Log::shouldHaveReceived('warning')->once();
 });

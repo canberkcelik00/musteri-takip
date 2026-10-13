@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Actions\Settings\UpdateSettings;
+use App\Enums\DigestFrequency;
 use App\Support\Settings;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -13,6 +14,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
@@ -56,9 +58,19 @@ class ManageSettings extends Page
     {
         $this->form->fill([
             'renewal_lead_days' => $settings->renewalLeadDays(),
+            'digest_frequency' => $settings->digestFrequency(),
+            'digest_day_of_month' => $settings->digestDayOfMonth(),
             'digest_time' => $settings->digestTime(),
             'notification_email' => $settings->notificationEmail(),
         ]);
+    }
+
+    /**
+     * The form state holds the enum, or its value while the select is being changed.
+     */
+    private static function isMonthly(mixed $frequency): bool
+    {
+        return $frequency === DigestFrequency::Monthly || $frequency === DigestFrequency::Monthly->value;
     }
 
     public function form(Schema $schema): Schema
@@ -73,6 +85,20 @@ class ManageSettings extends Page
                     ->minValue(1)
                     ->maxValue(365)
                     ->required(),
+                Select::make('digest_frequency')
+                    ->label(__('settings.digest_frequency'))
+                    ->options(DigestFrequency::class)
+                    ->native(false)
+                    ->live()
+                    ->required(),
+                TextInput::make('digest_day_of_month')
+                    ->label(__('settings.digest_day_of_month'))
+                    ->helperText(__('settings.digest_day_of_month_help'))
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(28)
+                    ->visible(fn (Get $get): bool => self::isMonthly($get('digest_frequency')))
+                    ->required(fn (Get $get): bool => self::isMonthly($get('digest_frequency'))),
                 Select::make('digest_time')
                     ->label(__('settings.digest_time'))
                     ->helperText(__('settings.digest_time_help'))

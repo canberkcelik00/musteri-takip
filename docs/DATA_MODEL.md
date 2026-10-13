@@ -205,8 +205,11 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | Anahtar | Varsayılan | Açıklama |
 | --- | --- | --- |
 | renewal_lead_days | 30 | Yenileme borcunun bitişten kaç gün önce oluşacağı |
-| digest_time | 09:00 | Günlük özet e-postasının saati |
-| notification_email | — | Günlük özetin gideceği adres |
+| digest_frequency | monthly | Özet e-postasının sıklığı: `daily` (Günlük) / `monthly` (Aylık) |
+| digest_day_of_month | 15 | Aylık özetin gönderildiği gün (1–28) |
+| digest_time | 09:00 | Özet e-postasının saati |
+| notification_email | — | Özetin gideceği adres |
+| digest_last_run_at | — | İç durum, ekranda yok: özetin son ele alındığı an (ISO tarih-saat); bir sonraki özetin "yeni borçlar" aralığı buradan başlar |
 | quote_validity_days | 15 | Teklif geçerlilik süresi (Faz 6) |
 | quote_bcc_email | — | Gönderilen tekliflerin kopyasının gideceği adres (Faz 6) |
 | company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6) |
