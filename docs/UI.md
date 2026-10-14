@@ -71,6 +71,8 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 
 **Birincil düğme kuralı:** Her ekranda tek bir birincil (dolu renkli) düğme olur: üst çubuktaki "Ödeme al" (form penceresi açıkken pencerenin "Kaydet"i); tablo satırlarındaki, Bugün'deki ve filtre panelindeki düğmeler ikincildir. Sayfa başlığındaki ana iş ve karttaki düğmeler ("Yeni müşteri", karttaki "Ödeme al", "Hizmet ekle" vb.) yerinde kalır ama ikincil (gri/çizgili) görünür.
 
+**Genel ayarlar:** Form alt çubuğunda sağda birincil "Kaydet", solunda ikincil gri "Test e-postası gönder" durur. Düğme formdaki değil **kayıtlı** bildirim adresine, senkron gönderir; sonucu bildirimle söyler (G-5.8, T-101).
+
 ## 5. Ekran kuralları
 
 ### Bugün (açılış sayfası)

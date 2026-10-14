@@ -248,9 +248,10 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
   - Yapılacak: Ana akışların ekran üzerinden uçtan uca testi (müşteri ekle → hizmet ata → ödeme al → yenileme → iptal); birkaç yüz müşterilik örnek veriyle listelerin hız kontrolü; tüm dokümanların güncelliği.
   - Kabul: Tüm testler yeşil; ROADMAP ve DECISIONS güncel.
   - Kapanış notu (T-99): Ana akış `MvpFlowTest` ile ekran bileşenleri üzerinden, hız `ListPerformanceTest` ile (5 ve 300 müşteride eşit sorgu sayısı) doğrulandı; Bugün'ün Yapılacaklar listesindeki satır başına sorgu düzeltildi, ölçümler ve doküman düzeltmeleri T-99'da.
-- [ ] **G-5.8 Canlıya geçiş kontrol listesi** — Bağımlılık: G-5.7
+- [x] **G-5.8 Canlıya geçiş kontrol listesi** — Bağımlılık: G-5.7
   - Yapılacak: `docs/CANLIYA_GECIS.md`: canlı ortam ayarları (hata ayrıntıları kapalı, HTTPS), test e-postası, ayarların doldurulması, ilk girişten sonra panelden şifrenin değiştirilmesi ve hostingdeki .env'den ADMIN\_PASSWORD satırının silinmesi, örnek verinin canlıda olmadığının kontrolü, canlı ortamın APP\_KEY değerinin güvenli bir yerde yedeklenmesi (değişir veya kaybolursa şifreli lisans anahtarları okunamaz).
   - Kabul: Liste ekran adımlarıyla takip edilebilir.
+  - Kapanış notu (T-101): Kullanıcı kararıyla Genel ayarlara ikincil "Test e-postası gönder" düğmesi eklendi (kayıtlı adrese, senkron; hata mesajı maskelenmiş ve kısaltılmış). Yayın adresi aynı sürümde config önbelleğini yenilemediği için listede her `.env` düzenlemesinden sonra `bootstrap/cache/config.php` silinir; kod değişmedi. Listeye `SESSION_SECURE_COOKIE=true` ve zamanlayıcı uyarısı kontrolü eklendi.
 - [ ] **K-5.2 Yedek kontrolü:** Hosting panelinde veritabanı yedeklerinin günlük alındığını ve bir yedeğin geri yüklenebildiğini kontrol et.
 - [ ] **K-5.3 Canlıya geçiş ve veri girişi:** Kontrol listesini uygula, mevcut müşterileri ve hizmetleri "Bu dönemin borcu: Oluşturma" ile gir.
 - [ ] **K-5.4 Paralel kullanım:** 2–4 hafta boyunca Excel'i bırakmadan sistemle birlikte kullan; günlük özetin ve borçların Excel'le tutarlı olduğunu görünce Excel'i bırak.

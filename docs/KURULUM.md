@@ -150,7 +150,7 @@ Notlar:
 - `#`, `$`, boşluk ya da tırnak içeren şifreleri çift tırnak içine alın.
 - Port 465 doğrudan TLS demektir ve `MAIL_SCHEME=smtps` ile eşleşir. Hostingin yalnız 587 veriyorsa `MAIL_PORT=587` ve `MAIL_SCHEME=smtp` kullanın (bağlantı otomatik TLS'e yükselir).
 - `.env` depoda yoktur ve yayınlar ona dokunmaz; dosya yalnız burada, elle yönetilir.
-- `ADMIN_*` değerleri ilk yayında yöneticiyi oluşturur (11. adım). İlk girişten sonra şifrenin panelden değiştirilmesi ve `ADMIN_PASSWORD` satırının silinmesi canlıya geçiş kontrol listesindedir (G-5.8).
+- `ADMIN_*` değerleri ilk yayında yöneticiyi oluşturur (11. adım). İlk girişten sonra şifrenin panelden değiştirilmesi ve `ADMIN_PASSWORD` satırının silinmesi [canlıya geçiş kontrol listesindedir](CANLIYA_GECIS.md).
 - `DEPLOY_KEY` boş ya da 32 karakterden kısaysa yayın adresi her isteği reddeder.
 
 ## 10. Cron (zamanlayıcı)
@@ -180,6 +180,8 @@ Yeni bir sürüm çekilip yayın adresi henüz açılmadıysa cron, veritabanı 
 5. 3. adımdaki kontrolü yapın: `/.env` ve `/vendor/autoload.php` adresleri 404 ya da 403 vermeli.
 6. Eski düzenlerden kalanlar artık gerekmez, silebilirsiniz: GitHub'daki secret'lar (`FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_SERVER_DIR`, `DEPLOY_URL`, `DEPLOY_KEY`), GitHub'daki `production` dalı ve cPanel'deki yayın FTP hesabı.
 
+Sonra: [canlıya geçiş kontrol listesi](CANLIYA_GECIS.md) (ortam ayarları, şifre değiştirme, test e-postası) uygulanır; müşteri verisi bundan sonra girilir.
+
 ## 12. Sonraki yayınlar
 
 1. `main`'e gönderin ve GitHub → **Actions**'ta CI'ın yeşil olmasını bekleyin. Testler, Pint ya da Larastan düşerse paket hazırlanmaz; o sürümü çekmeyin.
@@ -203,4 +205,5 @@ Yayın işi yalnızca canlı paket değiştiğinde commit ekler: `composer.lock`
 | Boş sayfa ya da "PHP sürümü" hatası | Alan adının PHP sürümü 8.3 değil ya da eklenti eksik (1. adım). |
 | Giriş yapılamıyor | `.env`'de `ADMIN_*` üçü de dolu mu? Kullanıcı yayın adresi açılınca oluşur (11. adım). |
 | Yeni sürüm çekildi ama değişiklik görünmüyor | Yayın adresini açın (12. adım). |
+| `.env`'de değişiklik yaptım ama etkisi yok | Hosting ayarları `public_html/bootstrap/cache/config.php` dosyasında önbelleğe alır; yayın adresi bunu yalnız yeni sürümde yeniler. Dosya Yöneticisi'nden bu dosyayı silin ([CANLIYA_GECIS.md](CANLIYA_GECIS.md) "Ortak kural"). |
 | E-posta gitmiyor ya da spam'e düşüyor | `MAIL_*` değerlerini ve 7. adımdaki SPF/DKIM sonucunu kontrol edin. |

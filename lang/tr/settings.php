@@ -13,4 +13,9 @@ return [
     'notification_email_help' => 'Özet e-postasının gideceği adres.',
     'save' => 'Kaydet',
     'saved' => 'Ayarlar kaydedildi.',
+    'send_test_email' => 'Test e-postası gönder',
+    'test_email_sent' => 'Test e-postası kayıtlı bildirim adresine (:email) gönderildi.',
+    'test_email_unsaved' => 'Kayıtlı adres kullanıldı; formdaki değişiklik henüz kaydedilmedi.',
+    'test_email_no_address' => 'Önce bildirim adresini girip kaydedin.',
+    'test_email_failed' => 'Test e-postası gönderilemedi: :message',
 ];

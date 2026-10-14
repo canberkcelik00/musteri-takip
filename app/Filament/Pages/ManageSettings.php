@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Actions\Settings\SendTestEmail;
 use App\Actions\Settings\UpdateSettings;
 use App\Enums\DigestFrequency;
 use App\Support\Settings;
@@ -19,6 +20,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
+use Throwable;
 
 /**
  * The general settings form; the values are written by UpdateSettings and read by the
@@ -121,6 +123,10 @@ class ManageSettings extends Page
                 ->livewireSubmitHandler('save')
                 ->footer([
                     Actions::make([
+                        Action::make('sendTestEmail')
+                            ->label(__('settings.send_test_email'))
+                            ->color('gray')
+                            ->action(fn () => $this->sendTestEmail()),
                         Action::make('save')
                             ->label(__('settings.save'))
                             ->submit('save')
@@ -130,6 +136,41 @@ class ManageSettings extends Page
                         ->key('form-actions'),
                 ]),
         ]);
+    }
+
+    public function sendTestEmail(): void
+    {
+        $sendTestEmail = app(SendTestEmail::class);
+
+        try {
+            $recipient = $sendTestEmail->handle();
+        } catch (Throwable $exception) {
+            report($exception);
+
+            Notification::make()
+                ->danger()
+                ->title(__('settings.test_email_failed', ['message' => $sendTestEmail->describeFailure($exception)]))
+                ->send();
+
+            return;
+        }
+
+        if ($recipient === null) {
+            Notification::make()
+                ->warning()
+                ->title(__('settings.test_email_no_address'))
+                ->send();
+
+            return;
+        }
+
+        $formAddress = trim((string) ($this->data['notification_email'] ?? ''));
+
+        Notification::make()
+            ->success()
+            ->title(__('settings.test_email_sent', ['email' => $recipient]))
+            ->body($formAddress !== $recipient ? __('settings.test_email_unsaved') : null)
+            ->send();
     }
 
     public function save(UpdateSettings $updateSettings): void

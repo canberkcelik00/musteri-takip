@@ -62,7 +62,7 @@ docker compose exec app php artisan test      # testler
 
 ## Yayına alma
 
-Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md).
+Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md). Ardından canlıya geçiş kontrol listesi: [`docs/CANLIYA_GECIS.md`](docs/CANLIYA_GECIS.md).
 
 Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. Sunucuda Composer olmadığı için canlı paket (`vendor` dev paketleri olmadan, derlenmiş tema, Filament dosyaları) depoda durur.
 

@@ -4,11 +4,16 @@ use App\Actions\CustomerServices\CreateDueRenewalCharges;
 use App\Enums\DigestFrequency;
 use App\Enums\SettingKey;
 use App\Filament\Pages\ManageSettings;
+use App\Mail\TestMail;
 use App\Models\Charge;
 use App\Models\CustomerService;
 use App\Models\User;
 use App\Support\Settings;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -181,4 +186,70 @@ it('applies a shortened renewal lead day count to the renewal rules at once', fu
 
     expect(app(CreateDueRenewalCharges::class)->handle())->toBeEmpty()
         ->and($service->charges()->count())->toBe(0);
+});
+
+it('shows the test e-mail button', function () {
+    Livewire::test(ManageSettings::class)
+        ->assertSee('Test e-postası gönder');
+});
+
+it('sends the test e-mail to the saved address and says so', function () {
+    Mail::fake();
+    app(Settings::class)->set(SettingKey::NotificationEmail, 'sahip@example.com');
+
+    Livewire::test(ManageSettings::class)
+        ->call('sendTestEmail')
+        ->assertNotified('Test e-postası kayıtlı bildirim adresine (sahip@example.com) gönderildi.');
+
+    Mail::assertSent(TestMail::class, 1);
+});
+
+it('uses the saved address and says so when the form holds an unsaved one', function () {
+    Mail::fake();
+    app(Settings::class)->set(SettingKey::NotificationEmail, 'sahip@example.com');
+
+    Livewire::test(ManageSettings::class)
+        ->fillForm(['notification_email' => 'baska@example.com'])
+        ->call('sendTestEmail')
+        ->assertNotified(
+            Notification::make()
+                ->success()
+                ->title('Test e-postası kayıtlı bildirim adresine (sahip@example.com) gönderildi.')
+                ->body('Kayıtlı adres kullanıldı; formdaki değişiklik henüz kaydedilmedi.'),
+        );
+
+    Mail::assertSent(TestMail::class, fn (TestMail $mail): bool => $mail->hasTo('sahip@example.com') && ! $mail->hasTo('baska@example.com'));
+});
+
+it('warns and sends nothing when no address is saved', function () {
+    Mail::fake();
+
+    Livewire::test(ManageSettings::class)
+        ->call('sendTestEmail')
+        ->assertNotified('Önce bildirim adresini girip kaydedin.');
+
+    Mail::assertNothingSent();
+});
+
+it('reports a send failure with a masked, shortened message and logs the full error', function () {
+    app(Settings::class)->set(SettingKey::NotificationEmail, 'sahip@example.com');
+    config([
+        'mail.default' => 'smtp',
+        'mail.mailers.smtp.username' => 'bildirim@alan.adi',
+        'mail.mailers.smtp.password' => 'S3cret!pw',
+    ]);
+    $failure = new RuntimeException('Auth failed for bildirim@alan.adi / S3cret!pw '.str_repeat('x', 300));
+    Mail::shouldReceive('to')->once()->andThrow($failure);
+    Exceptions::fake();
+
+    $shown = Str::limit('Auth failed for *** / *** '.str_repeat('x', 300), 147);
+
+    Livewire::test(ManageSettings::class)
+        ->call('sendTestEmail')
+        ->assertNotified('Test e-postası gönderilemedi: '.$shown);
+
+    Exceptions::assertReported(fn (RuntimeException $exception): bool => $exception === $failure);
+
+    expect($shown)->not->toContain('S3cret!pw')->not->toContain('bildirim@alan.adi')
+        ->and(mb_strlen($shown))->toBe(150);
 });
