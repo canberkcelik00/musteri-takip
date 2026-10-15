@@ -512,9 +512,11 @@ body {
 }
 
 .fi-charge-domains {
+    display: block;
     overflow-wrap: anywhere;
 }
 
+/* Own faded line under the domains (or under the description when there are none). */
 .fi-charge-reminder {
     @apply mt-1 block text-xs text-gray-500 dark:text-gray-400;
 }

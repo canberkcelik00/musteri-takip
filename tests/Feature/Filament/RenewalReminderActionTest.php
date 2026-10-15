@@ -1,10 +1,12 @@
 <?php
 
+use App\Enums\ServiceType;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Support\RecordActionsSection;
 use App\Mail\RenewalReminderMail;
 use App\Models\Charge;
+use App\Models\CustomerServiceItem;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
@@ -43,6 +45,32 @@ it('shows the date of the last reminder under the charge on the customer card', 
     $charge = renewalChargeToRemind(['reminder_sent_at' => '2027-02-01 09:00:00']);
 
     reminderCard($charge)->assertSee('Hatırlatma gönderildi: 01.02.2027');
+});
+
+it('renders the reminder date and the domains as separate elements, domains first', function () {
+    $charge = renewalChargeToRemind(['reminder_sent_at' => '2027-02-15 09:00:00']);
+    $charge->customerService->items()->delete();
+    CustomerServiceItem::factory()->for($charge->customerService, 'customerService')->create([
+        'type' => ServiceType::Domain,
+        'details' => ['domain' => 'yildizmobilya.com.tr'],
+    ]);
+
+    $html = reminderCard($charge)->instance()->getTable()->getColumn('description')
+        ->record($charge->fresh())->getDescriptionBelow()->toHtml();
+
+    expect($html)->toContain('<span class="fi-charge-domains">yildizmobilya.com.tr</span><span class="fi-charge-reminder">Hatırlatma gönderildi: 15.02.2027</span>')
+        ->and(substr_count($html, 'class="fi-charge-reminder"'))->toBe(1);
+});
+
+it('renders the reminder line on its own when the service has no domains', function () {
+    $charge = renewalChargeToRemind(['reminder_sent_at' => '2027-02-15 09:00:00']);
+    $charge->customerService->items()->delete();
+
+    $html = reminderCard($charge)->instance()->getTable()->getColumn('description')
+        ->record($charge->fresh())->getDescriptionBelow()->toHtml();
+
+    expect($html)->toContain('<span class="fi-charge-reminder">Hatırlatma gönderildi: 15.02.2027</span>')
+        ->and($html)->not->toContain('fi-charge-domains');
 });
 
 it('shows no reminder line for a charge that was not reminded', function () {
