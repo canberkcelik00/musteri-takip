@@ -119,6 +119,24 @@ class Settings
     }
 
     /**
+     * Whether renewal reminders are sent to the customers' primary contacts (G-5B.1); off until
+     * the owner turns it on.
+     */
+    public function customerRemindersEnabled(): bool
+    {
+        $key = SettingKey::CustomerRemindersEnabled;
+        $value = $this->get($key);
+
+        if ($value === '1' || $value === '0') {
+            return $value === '1';
+        }
+
+        $this->fallback($key);
+
+        return false;
+    }
+
+    /**
      * When the digest was last handled (sent, found empty, or first started), in the
      * application time zone; null before the first run.
      */

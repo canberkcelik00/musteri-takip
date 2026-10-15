@@ -47,6 +47,7 @@ class CreateRenewalCharge
                 'due_date' => $periodStart->toDateString(),
                 'period_start' => $periodStart->toDateString(),
                 'period_end' => $periodEnd->toDateString(),
+                'is_renewal' => true,
             ]);
         });
     }

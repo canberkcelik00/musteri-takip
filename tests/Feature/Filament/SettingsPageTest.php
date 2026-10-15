@@ -30,7 +30,26 @@ it('opens with the default values', function () {
             'digest_day_of_month' => 15,
             'digest_time' => '09:00',
             'notification_email' => null,
+            'customer_reminders_enabled' => false,
         ]);
+});
+
+it('saves the customer reminders switch and shows it as saved', function () {
+    Livewire::test(ManageSettings::class)
+        ->assertSee('Müşteriye yenileme hatırlatması gönder')
+        ->fillForm(['customer_reminders_enabled' => true])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(Settings::class)->customerRemindersEnabled())->toBeTrue();
+
+    Livewire::test(ManageSettings::class)
+        ->assertSchemaStateSet(['customer_reminders_enabled' => true])
+        ->fillForm(['customer_reminders_enabled' => false])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(Settings::class)->customerRemindersEnabled())->toBeFalse();
 });
 
 it('shows the day of the month only for the monthly digest', function () {

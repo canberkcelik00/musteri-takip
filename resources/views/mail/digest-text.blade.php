@@ -30,5 +30,13 @@
 @endforeach
 {{ __('digest.total') }}: {{ Money::formatTotals(Money::sumByCurrency($digest['overdue']->map(fn ($charge): Money => new Money($charge->remainingAmount(), $charge->currency)))) }}
 @endif
+@if ($digest['missing_reminder_email']->isNotEmpty())
+
+{{ __('digest.missing_reminder_email') }} ({{ $digest['missing_reminder_email']->count() }})
+@foreach ($digest['missing_reminder_email'] as $charge)
+- {{ $charge->customer->short_name }} | {{ $charge->customerService->name }} | {{ __('digest.column.due') }} {{ $charge->due_date->format('d.m.Y') }}
+  {{ $customerUrl($charge->customer_id) }}
+@endforeach
+@endif
 
 {{ __('digest.open_panel') }}: {{ $panelUrl }}

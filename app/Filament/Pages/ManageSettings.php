@@ -10,6 +10,7 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -64,6 +65,7 @@ class ManageSettings extends Page
             'digest_day_of_month' => $settings->digestDayOfMonth(),
             'digest_time' => $settings->digestTime(),
             'notification_email' => $settings->notificationEmail(),
+            'customer_reminders_enabled' => $settings->customerRemindersEnabled(),
         ]);
     }
 
@@ -112,6 +114,9 @@ class ManageSettings extends Page
                     ->helperText(__('settings.notification_email_help'))
                     ->email()
                     ->maxLength(255),
+                Toggle::make('customer_reminders_enabled')
+                    ->label(__('settings.customer_reminders_enabled'))
+                    ->helperText(__('settings.customer_reminders_enabled_help')),
             ]);
     }
 

@@ -20,6 +20,12 @@ Schedule::command('app:process-customer-services')
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
 
+// After the customer services, so a renewal charge created in the same run is reminded in that run.
+Schedule::command('app:send-renewal-reminders')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
 // After the customer services, so the renewal charges created in the same run are in the digest.
 Schedule::command('app:send-digest')
     ->everyMinute()

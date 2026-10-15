@@ -258,6 +258,22 @@ Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini 
 
 **Faz 5 bittiğinde:** MVP tamam; sistem günlük işini Excel'in yerine yürütüyor.
 
+## Faz 5B – Müşteri yenileme hatırlatması
+
+Hedef: Yenileme borcu oluştuğunda müşterinin birincil ilgili kişisine sistemin kendiliğinden Türkçe hatırlatma e-postası göndermesi. MVP kapandıktan sonra, Faz 6'dan önce yapılır; MVP'deki tek e-posta kullanıcıya giden özetti, bu faz müşteriye giden ilk e-postadır.
+
+- [x] **G-5B.1 Hatırlatma e-postası** — Bağımlılık: G-5.7
+  - Yapılacak: Yenileme borcu oluşunca (bitişten 30 gün önce, G-3.4) müşterinin birincil ilgili kişisine hizmet adı, tutar, vade ve bitiş tarihini içeren sade Türkçe e-posta. Aynı "henüz yapılmadıysa yap" mantığıyla zamanlayıcıda çalışır. Aynı borç için en fazla bir kez gönderilir; ödenmiş, ücretsiz, iptal edilmiş hizmetler ve arşivli müşteriler atlanır. Ayarlar sayfasına "Müşteriye yenileme hatırlatması gönder" anahtarı eklenir (varsayılan kapalı).
+  - Kabul: Tek gönderim, tekrar çalışmada yinelenmeme, atlanan cron sonrası gönderim, ücretsiz/iptal/arşivli/ödenmiş atlanması, anahtar kapalıyken gönderilmemesi, birincil kişinin e-postası yoksa gönderilmeyip günlük özette uyarı çıkması (hepsi testli); Mailpit'te görünüm kontrol edilir.
+  - Kapanış notu (T-102, T-103): Yenileme borcu `charges.is_renewal` ile işaretlenir (ilk dönem borcuna, elle borca ve bölünen parçaya gitmez); gönderim `charges.reminder_sent_at` ile bir kez. Kullanıcı kararları: yalnız vadesi gelmemiş borçlar, tek tarih + yeni dönem içerikli e-posta, `Reply-To` bildirim adresi, boş ya da geçersiz adres özette "Hatırlatma gönderilemedi" bölümü olur. Bilinen sınır: önceki dönem borcu olmayan ve dönemi kaymış eski kayıtlar işaretlenmez (belirsizde hatırlatma gitmez).
+- [ ] **G-5B.2 Gönderim kaydı ve elle gönderim** — Bağımlılık: G-5B.1
+  - Yapılacak: Müşteri kartındaki borç satırında "Hatırlatma gönderildi (tarih)" bilgisi; gönderilmemiş veya yeniden gönderilmesi istenen borç için tek tıkla elle gönderim.
+  - Kabul: Gönderim tarihi görünür; elle gönderim kaydı günceller (Livewire testi).
+- [ ] **K-5B.1 Kullanıcı kararları** — Bağımlılık: yok
+  - Yapılacak: E-posta metnini onayla; gönderen adresini ve hostingdeki SMTP bilgilerini hazırla; ilk haftalarda anahtarı açmadan önce Mailpit/test adresiyle birkaç örnek gönder.
+
+**Faz 5B bittiğinde:** Yaklaşan yenilemeden müşteri sistemden haberdar oluyor; kullanıcının her yenileme için elle e-posta yazması gerekmiyor.
+
 ## Faz 6 ve sonrası
 
 Teklifler ve sonraki fazların görevleri, MVP bitip sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

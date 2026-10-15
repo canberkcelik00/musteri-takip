@@ -19,7 +19,7 @@ class CreateCharge
      * to it. Every new charge is created through this action. A charge of a customer
      * service must belong to the customer of that service.
      *
-     * @param  array{description: string, amount: int, currency: Currency, due_date: CarbonInterface|string, customer_service_id?: ?int, period_start?: CarbonInterface|string|null, period_end?: CarbonInterface|string|null}  $attributes
+     * @param  array{description: string, amount: int, currency: Currency, due_date: CarbonInterface|string, customer_service_id?: ?int, period_start?: CarbonInterface|string|null, period_end?: CarbonInterface|string|null, is_renewal?: bool}  $attributes
      */
     public function handle(Customer $customer, array $attributes): Charge
     {

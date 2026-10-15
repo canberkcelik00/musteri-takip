@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
 class DigestMail extends Mailable
 {
     /**
-     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>}  $digest
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>}  $digest
      */
     public function __construct(
         public readonly array $digest,

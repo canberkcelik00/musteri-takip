@@ -4,10 +4,12 @@
     $newCharges = $digest['new_charges'];
     $freeDecisions = $digest['free_decisions'];
     $overdue = $digest['overdue'];
+    $missingEmail = $digest['missing_reminder_email'];
     $counts = collect([
         'new_charges' => $newCharges->count(),
         'free_decisions' => $freeDecisions->count(),
         'overdue' => $overdue->count(),
+        'missing_reminder_email' => $missingEmail->count(),
     ])->filter()->map(fn (int $count, string $key): string => __('digest.count.'.$key, ['count' => $count]));
     $overdueTotals = Money::formatTotals(Money::sumByCurrency(
         $overdue->map(fn ($charge): Money => new Money($charge->remainingAmount(), $charge->currency)),
@@ -88,6 +90,24 @@
 @endforeach
 </table>
 <p class="dg-total">{{ __('digest.total') }}: {{ $overdueTotals }}</p>
+@endif
+
+@if ($missingEmail->isNotEmpty())
+<p class="dg-heading">{{ __('digest.missing_reminder_email') }} ({{ $missingEmail->count() }})</p>
+<table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.customer') }}</th>
+<th class="dg-th" width="50%" style="width: 50%;">{{ __('digest.column.service') }}</th>
+<th class="dg-th" width="20%" style="width: 20%;">{{ __('digest.column.due') }}</th>
+</tr>
+@foreach ($missingEmail as $charge)
+<tr>
+<td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
+<td class="dg-td">{{ $charge->customerService->name }}</td>
+<td class="dg-td dg-nowrap">{{ $charge->due_date->format('d.m.Y') }}</td>
+</tr>
+@endforeach
+</table>
 @endif
 
 <x-mail::button :url="$panelUrl">{{ __('digest.open_panel') }}</x-mail::button>

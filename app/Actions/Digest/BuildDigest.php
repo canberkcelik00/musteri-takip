@@ -2,10 +2,12 @@
 
 namespace App\Actions\Digest;
 
+use App\Actions\Reminders\SendRenewalReminders;
 use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use App\Support\Settings;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,11 +24,15 @@ use Illuminate\Database\Eloquent\Collection;
  *   services, so cancelled ones are left out.
  * - overdue: Charge::overdue() + unarchivedCustomer(), the same query as the "Bugün" page's
  *   overdue section (ListTodayTasks).
+ * - missing_reminder_email: renewal charges whose customer reminder cannot be sent for lack of a
+ *   valid primary contact address; only while the reminders are on.
  */
 class BuildDigest
 {
+    public function __construct(private readonly Settings $settings) {}
+
     /**
-     * @return array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>}
+     * @return array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>}
      */
     public function handle(CarbonInterface $since, CarbonInterface $now): array
     {
@@ -34,17 +40,19 @@ class BuildDigest
             'new_charges' => $this->newCharges($since, $now),
             'free_decisions' => $this->freeDecisions(),
             'overdue' => $this->overdue(),
+            'missing_reminder_email' => $this->missingReminderEmail(),
         ];
     }
 
     /**
-     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>}  $digest
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>}  $digest
      */
     public static function isEmpty(array $digest): bool
     {
         return $digest['new_charges']->isEmpty()
             && $digest['free_decisions']->isEmpty()
-            && $digest['overdue']->isEmpty();
+            && $digest['overdue']->isEmpty()
+            && $digest['missing_reminder_email']->isEmpty();
     }
 
     /**
@@ -103,6 +111,29 @@ class BuildDigest
             ->orderBy('end_date')
             ->orderBy('id')
             ->get();
+    }
+
+    /**
+     * Renewal charges waiting for a customer reminder that cannot be sent because the primary
+     * contact has no valid e-mail address (G-5B.1). Empty while the reminders are off. Uses the
+     * same address check as the sender, so the warning and the skipping always agree.
+     *
+     * @return Collection<int, Charge>
+     */
+    private function missingReminderEmail(): Collection
+    {
+        if (! $this->settings->customerRemindersEnabled()) {
+            return new Collection;
+        }
+
+        return Charge::query()
+            ->awaitingReminder()
+            ->with(['customer.primaryContact', 'customerService'])
+            ->orderBy('due_date')
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (Charge $charge): bool => SendRenewalReminders::recipientFor($charge) === null)
+            ->values();
     }
 
     /**

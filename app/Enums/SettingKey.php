@@ -9,6 +9,7 @@ enum SettingKey: string
     case NotificationEmail = 'notification_email';
     case DigestFrequency = 'digest_frequency';
     case DigestDayOfMonth = 'digest_day_of_month';
+    case CustomerRemindersEnabled = 'customer_reminders_enabled';
 
     /**
      * Internal state, not shown on the settings page: when the digest was last handled.
@@ -37,6 +38,7 @@ enum SettingKey: string
             self::NotificationEmail => null,
             self::DigestFrequency => 'monthly',
             self::DigestDayOfMonth => '15',
+            self::CustomerRemindersEnabled => '0',
             self::DigestLastRunAt => null,
             self::SchedulerLastRunAt => null,
             self::SchedulerFailedServiceIds => null,

@@ -154,3 +154,26 @@ it('treats an unreadable digest run as no run and logs it', function () {
     expect($this->settings->digestLastRunAt())->toBeNull();
     Log::shouldHaveReceived('warning')->once();
 });
+
+it('has the customer reminders off by default', function () {
+    expect($this->settings->customerRemindersEnabled())->toBeFalse();
+});
+
+it('reads the customer reminders switch', function () {
+    $this->settings->set(SettingKey::CustomerRemindersEnabled, '1');
+
+    expect($this->settings->customerRemindersEnabled())->toBeTrue();
+
+    $this->settings->set(SettingKey::CustomerRemindersEnabled, '0');
+
+    expect($this->settings->customerRemindersEnabled())->toBeFalse();
+});
+
+it('treats an unreadable customer reminders switch as off and logs it', function () {
+    Log::spy();
+
+    $this->settings->set(SettingKey::CustomerRemindersEnabled, 'evet');
+
+    expect($this->settings->customerRemindersEnabled())->toBeFalse();
+    Log::shouldHaveReceived('warning')->once();
+});

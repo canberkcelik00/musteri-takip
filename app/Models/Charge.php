@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
+use App\Enums\CustomerServiceStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\ChargeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -27,6 +28,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $period_start
  * @property Carbon|null $period_end
  * @property Carbon|null $cancelled_at
+ * @property bool $is_renewal
+ * @property Carbon|null $reminder_sent_at
  * @property Carbon $created_at
  */
 #[Fillable([
@@ -40,6 +43,7 @@ use Illuminate\Support\Carbon;
     'status',
     'cancelled_at',
     'cancel_reason',
+    'is_renewal',
 ])]
 class Charge extends Model
 {
@@ -261,6 +265,28 @@ class Charge extends Model
     }
 
     /**
+     * Renewal charges (G-3.4) the customer has not been reminded of yet and that are still
+     * worth a reminder (G-5B.1): open, due today or later, of an active, non-free service of
+     * an unarchived customer. Whether the primary contact has a usable address is not decided
+     * here; the reminder sender and the digest warning share that check.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function awaitingReminder(Builder $query): void
+    {
+        $query
+            ->where($this->qualifyColumn('is_renewal'), true)
+            ->where($this->qualifyColumn('status'), ChargeStatus::Open)
+            ->whereDate($this->qualifyColumn('due_date'), '>=', Carbon::today(config('app.timezone')))
+            ->whereNull($this->qualifyColumn('reminder_sent_at'))
+            ->whereHas('customerService', fn (Builder $services): Builder => $services
+                ->where('status', CustomerServiceStatus::Active)
+                ->where('is_free', false))
+            ->unarchivedCustomer();
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -275,6 +301,8 @@ class Charge extends Model
             'period_end' => 'date',
             'status' => ChargeStatus::class,
             'cancelled_at' => 'datetime',
+            'is_renewal' => 'boolean',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 }

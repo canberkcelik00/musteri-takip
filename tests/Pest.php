@@ -4,6 +4,9 @@ use App\Actions\Deploy\ArtisanRunner;
 use App\Actions\Deploy\DeployRelease;
 use App\Filament\Support\RecordActionsSection;
 use App\Livewire\TopbarActions;
+use App\Models\Charge;
+use App\Models\Contact;
+use App\Models\CustomerService;
 use BladeUI\Icons\IconsManifest;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Actions\Testing\TestAction;
@@ -317,4 +320,37 @@ function fakePendingRelease(bool $pending): void
     test()->mock(DeployRelease::class)
         ->shouldReceive('hasPendingRelease')
         ->andReturn($pending);
+}
+
+/**
+ * A renewal charge for the period 01.03.2027 – 01.03.2028 of a service that ends on 01.03.2027,
+ * whose customer has a primary contact (today is 10.02.2027, inside the renewal window).
+ *
+ * @param  array<string, mixed>  $charge
+ * @param  array<string, mixed>  $contact
+ * @param  array<string, mixed>  $service
+ */
+function renewalChargeToRemind(array $charge = [], array $contact = [], array $service = []): Charge
+{
+    $customerService = CustomerService::factory()->create([
+        'name' => 'Kurumsal Paket',
+        'price' => 400000,
+        'start_date' => '2026-03-01',
+        'end_date' => '2027-03-01',
+        ...$service,
+    ]);
+
+    Contact::factory()->primary()->create([
+        'customer_id' => $customerService->customer_id,
+        'name' => 'Ayşe Yılmaz',
+        'email' => 'ayse@example.com',
+        ...$contact,
+    ]);
+
+    return Charge::factory()->forCustomerService($customerService)->renewal()->create([
+        'due_date' => '2027-03-01',
+        'period_start' => '2027-03-01',
+        'period_end' => '2028-03-01',
+        ...$charge,
+    ]);
 }

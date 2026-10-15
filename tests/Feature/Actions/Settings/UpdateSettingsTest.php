@@ -117,3 +117,27 @@ it('rejects an unknown digest frequency', function (mixed $frequency) {
     expect(fn () => updateSettings(['digest_frequency' => $frequency]))
         ->toThrow(fn (ValidationException $exception) => expect($exception->errors())->toHaveKey('digest_frequency'));
 })->with(['weekly', null]);
+
+it('stores the customer reminders switch', function () {
+    updateSettings(['customer_reminders_enabled' => true]);
+
+    expect(app(Settings::class)->customerRemindersEnabled())->toBeTrue();
+
+    updateSettings(['customer_reminders_enabled' => false]);
+
+    expect(app(Settings::class)->customerRemindersEnabled())->toBeFalse();
+});
+
+it('keeps the customer reminders switch when the data does not carry it', function () {
+    updateSettings(['customer_reminders_enabled' => true]);
+    updateSettings(['renewal_lead_days' => 20]);
+
+    expect(app(Settings::class)->customerRemindersEnabled())->toBeTrue();
+});
+
+it('rejects a customer reminders switch that is not a boolean', function () {
+    expect(fn () => updateSettings(['customer_reminders_enabled' => 'belki']))
+        ->toThrow(fn (ValidationException $exception) => expect($exception->errors())->toHaveKey('customer_reminders_enabled'));
+
+    expect(app(Settings::class)->customerRemindersEnabled())->toBeFalse();
+});

@@ -12,7 +12,9 @@ return [
     'new_charges' => 'Son özetten bu yana oluşan borçlar',
     'free_decisions' => 'Ücretsiz devam kararı bekleyenler',
     'overdue' => 'Vadesi geçmiş borçlar',
+    'missing_reminder_email' => 'Hatırlatma gönderilemedi: birincil kişinin geçerli e-postası yok',
     'count' => [
+        'missing_reminder_email' => ':count hatırlatma gönderilemedi',
         'new_charges' => ':count yeni borç',
         'free_decisions' => ':count karar bekliyor',
         'overdue' => ':count gecikmiş',

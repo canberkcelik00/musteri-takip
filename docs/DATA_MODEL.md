@@ -165,6 +165,8 @@ Kısıt: `catalog_service_id` ve `package_id` alanlarından tam olarak biri dolu
 | status | enum | Evet | `open`, `paid`, `cancelled` |
 | cancelled_at | timestamp | Hayır | |
 | cancel_reason | text | Hayır | İptalde zorunlu |
+| is_renewal | boolean | Evet | Varsayılan false; yalnız yenileme borcunda (G-3.4) true. Müşteri hatırlatması yalnız bunlara gider (G-5B.1) |
+| reminder_sent_at | datetime | Hayır | Müşteriye yenileme hatırlatmasının gönderildiği an; dolu borca bir daha hatırlatma gitmez (G-5B.1) |
 
 Kısıtlar: `customer_service_id` + `period_start` benzersizdir; aynı dönem için ikinci borç üretilemez. "Kısmi ödendi" ve "gecikmiş" saklanmaz; dağıtımlardan ve `due_date`'ten hesaplanır. Dağıtımı olan borçta tutar ve para birimi değiştirilemez.
 
@@ -209,6 +211,7 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | digest_day_of_month | 15 | Aylık özetin gönderildiği gün (1–28) |
 | digest_time | 09:00 | Özet e-postasının saati |
 | notification_email | — | Özetin gideceği adres |
+| customer_reminders_enabled | 0 | Müşterinin birincil kişisine yenileme hatırlatması e-postası gönderilsin mi: `1` açık / `0` kapalı (G-5B.1) |
 | digest_last_run_at | — | İç durum, ekranda yok: özetin son ele alındığı an (ISO tarih-saat); bir sonraki özetin "yeni borçlar" aralığı buradan başlar |
 | scheduler_last_run_at | — | İç durum, ekranda yok: `app:process-customer-services` komutunun son bitiş anı (ISO tarih-saat); Bugün sayfasındaki zamanlayıcı uyarısı buradan hesaplanır (G-5.6) |
 | scheduler_failed_service_ids | — | İç durum, ekranda yok: son çalışmada hata veren müşteri hizmetlerinin id'leri (JSON liste); hatasız çalışmada silinir (G-5.6) |

@@ -11,6 +11,8 @@ return [
     'digest_time_help' => 'Özet, bu saatten sonraki ilk zamanlayıcı çalışmasında gönderilir.',
     'notification_email' => 'Bildirim adresi',
     'notification_email_help' => 'Özet e-postasının gideceği adres.',
+    'customer_reminders_enabled' => 'Müşteriye yenileme hatırlatması gönder',
+    'customer_reminders_enabled_help' => 'Açıkken, yenileme borcu oluşunca müşterinin birincil ilgili kişisine e-posta gider. Yanıtlar bildirim adresine düşer.',
     'save' => 'Kaydet',
     'saved' => 'Ayarlar kaydedildi.',
     'send_test_email' => 'Test e-postası gönder',

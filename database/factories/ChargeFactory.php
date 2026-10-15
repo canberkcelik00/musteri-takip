@@ -57,6 +57,26 @@ class ChargeFactory extends Factory
     }
 
     /**
+     * Indicate that the charge is a renewal charge (G-3.4).
+     */
+    public function renewal(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_renewal' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the renewal reminder was already sent.
+     */
+    public function reminderSent(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'reminder_sent_at' => now(),
+        ]);
+    }
+
+    /**
      * Indicate that the charge is paid.
      */
     public function paid(): static
