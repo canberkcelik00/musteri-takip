@@ -138,6 +138,12 @@ class ChargesRelationManager extends RelationManager
         $html = filled($domains)
             ? '<span class="fi-charge-domains">'.e(implode(', ', $domains)).'</span>'
             : '';
+        if ($record->reminder_sent_at !== null) {
+            $html .= '<span class="fi-charge-reminder">'
+                .e(__('reminders.sent_on', ['date' => $record->reminder_sent_at->format(AppServiceProvider::DATE_FORMAT)]))
+                .'</span>';
+        }
+
         $html .= '<span class="fi-due-below-xl">'
             .e(__('charges.due_date').': '.$record->due_date->format(AppServiceProvider::DATE_FORMAT))
             .'</span>';

@@ -50,7 +50,7 @@ class EditChargeAction extends Action
                     ->required(),
                 RecordActionsSection::make(
                     __('charges.actions_section'),
-                    [SplitChargeAction::make()],
+                    [SplitChargeAction::make(), SendRenewalReminderAction::make()],
                     [CancelChargeAction::make()],
                 ),
             ])

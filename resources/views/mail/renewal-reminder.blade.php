@@ -4,7 +4,7 @@
 <x-mail::digest-message>
 <p class="dg-title">{{ __('reminders.title') }}</p>
 <p class="dg-summary">{{ __('reminders.greeting', ['name' => $contactName]) }}</p>
-<p class="dg-summary">{{ __('reminders.intro', ['service' => $serviceName, 'date' => $endDate->format('d.m.Y')]) }}</p>
+<p class="dg-summary">{{ __($hasEnded ? 'reminders.intro_past' : 'reminders.intro', ['service' => $serviceName, 'date' => $endDate->format('d.m.Y')]) }}</p>
 
 <table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
 <tr>

@@ -65,3 +65,24 @@ it('shows the remaining amount when part of the charge is already paid', functio
 it('does not link to the panel', function () {
     renewalReminderMailFor(renewalChargeToRemind())->assertDontSeeInHtml('/panel');
 });
+
+it('says the service has ended once its end date is past', function () {
+    $charge = renewalChargeToRemind();
+    $this->travelTo('2027-03-02 00:00:00');
+
+    $mail = renewalReminderMailFor($charge);
+
+    $mail->assertSeeInHtml('Kurumsal Paket hizmetiniz 01.03.2027 tarihinde sona erdi.');
+    $mail->assertSeeInText('Kurumsal Paket hizmetiniz 01.03.2027 tarihinde sona erdi.');
+    $mail->assertDontSeeInHtml('sona eriyor');
+});
+
+it('still says the service ends on the day it ends, whatever the time', function () {
+    $charge = renewalChargeToRemind();
+    $this->travelTo('2027-03-01 23:30:00');
+
+    $mail = renewalReminderMailFor($charge);
+
+    $mail->assertSeeInHtml('Kurumsal Paket hizmetiniz 01.03.2027 tarihinde sona eriyor.');
+    $mail->assertSeeInText('Kurumsal Paket hizmetiniz 01.03.2027 tarihinde sona eriyor.');
+});

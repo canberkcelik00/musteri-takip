@@ -2,13 +2,10 @@
 
 namespace App\Actions\Reminders;
 
-use App\Mail\RenewalReminderMail;
 use App\Models\Charge;
 use App\Support\Settings;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 /**
@@ -23,7 +20,10 @@ use Throwable;
  */
 class SendRenewalReminders
 {
-    public function __construct(private readonly Settings $settings) {}
+    public function __construct(
+        private readonly Settings $settings,
+        private readonly SendRenewalReminder $sendRenewalReminder,
+    ) {}
 
     /**
      * The address a charge's reminder goes to: the customer's primary contact's e-mail when it is
@@ -47,24 +47,20 @@ class SendRenewalReminders
             return $result;
         }
 
-        $replyTo = $this->settings->notificationEmail();
-
         Charge::query()
             ->awaitingReminder()
             ->with(['customer.primaryContact', 'customerService'])
             ->withSum('allocations', 'amount')
-            ->chunkById(100, function (Collection $charges) use (&$result, $replyTo): void {
+            ->chunkById(100, function (Collection $charges) use (&$result): void {
                 foreach ($charges as $charge) {
-                    $recipient = self::recipientFor($charge);
-
-                    if ($recipient === null) {
+                    if (self::recipientFor($charge) === null) {
                         $result['skipped']++;
 
                         continue;
                     }
 
                     try {
-                        Mail::to($recipient)->send(new RenewalReminderMail($charge, $replyTo));
+                        $this->sendRenewalReminder->handle($charge);
                     } catch (Throwable $exception) {
                         Log::error('Renewal reminder could not be sent.', [
                             'charge_id' => $charge->id,
@@ -77,7 +73,6 @@ class SendRenewalReminders
                         continue;
                     }
 
-                    $charge->forceFill(['reminder_sent_at' => Carbon::now(config('app.timezone'))->startOfSecond()])->save();
                     $result['sent']++;
                 }
             });

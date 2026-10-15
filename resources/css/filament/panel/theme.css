@@ -515,6 +515,10 @@ body {
     overflow-wrap: anywhere;
 }
 
+.fi-charge-reminder {
+    @apply mt-1 block text-xs text-gray-500 dark:text-gray-400;
+}
+
 .fi-mobile-badge {
     @apply md:hidden mt-1 inline-block;
 }

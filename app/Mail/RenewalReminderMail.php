@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Support\Carbon;
 
 /**
  * The renewal reminder sent to a customer's primary contact (G-5B.1). Sent synchronously; there is
@@ -37,6 +38,7 @@ class RenewalReminderMail extends Mailable
                 'contactName' => $this->charge->customer->primaryContact?->name,
                 'serviceName' => $this->charge->customerService->name,
                 'endDate' => $this->charge->period_start,
+                'hasEnded' => $this->charge->period_start->lt(Carbon::today(config('app.timezone'))),
                 'periodEnd' => $this->charge->period_end,
                 'dueDate' => $this->charge->due_date,
                 'remaining' => $this->charge->remainingAmount(),
