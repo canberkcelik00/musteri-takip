@@ -1,6 +1,5 @@
 <?php
 
-use App\Actions\Charges\CreateManualCharge;
 use App\Actions\Charges\SplitCharge;
 use App\Actions\CustomerServices\AdvanceDueCustomerServicePeriods;
 use App\Actions\CustomerServices\AssignCustomerService;
@@ -111,17 +110,6 @@ it('does not mark the first period charge created when a service is reactivated 
     expect($charges)->toHaveCount(1)
         ->and($charges->sole()->period_start->toDateString())->toBe('2027-04-01')
         ->and($charges->sole()->fresh()->is_renewal)->toBeFalse();
-});
-
-it('does not mark a manual charge', function () {
-    $charge = app(CreateManualCharge::class)->handle(Customer::factory()->create(), [
-        'description' => 'Ek hizmet',
-        'amount' => 100000,
-        'currency' => Currency::Try,
-        'due_date' => '2027-03-01',
-    ]);
-
-    expect($charge->fresh()->is_renewal)->toBeFalse();
 });
 
 it('does not mark the part split off a renewal charge', function () {

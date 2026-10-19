@@ -47,7 +47,7 @@ it('adds a new method at the end of the list', function () {
     $new = paymentMethodNamed('Çek');
 
     expect($new->sort_order)->toBe(4)
-        ->and(paymentFormMethodNames())->toBe(['Havale/EFT', 'Nakit', 'Kredi Kartı', 'Çek']);
+        ->and(paymentFormMethodNames())->toBe(['Havale/EFT', 'Kredi Kartı', 'Çek']);
 });
 
 it('requires a name', function () {
@@ -55,48 +55,47 @@ it('requires a name', function () {
         ->callAction('create', ['name' => ''])
         ->assertHasFormErrors(['name' => 'required']);
 
-    expect(PaymentMethod::query()->count())->toBe(3);
+    expect(PaymentMethod::query()->count())->toBe(2);
 });
 
 it('renames a method', function () {
-    $cash = paymentMethodNamed('Nakit');
+    $card = paymentMethodNamed('Kredi Kartı');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(TestAction::make('edit')->table($cash), ['name' => 'Elden nakit'])
+        ->callAction(TestAction::make('edit')->table($card), ['name' => 'Sanal POS'])
         ->assertHasNoFormErrors();
 
-    expect($cash->refresh()->name)->toBe('Elden nakit')
-        ->and($cash->sort_order)->toBe(2);
+    expect($card->refresh()->name)->toBe('Sanal POS')
+        ->and($card->sort_order)->toBe(3);
 });
 
 it('reorders the methods by dragging and the payment form follows', function () {
     $transfer = paymentMethodNamed('Havale/EFT');
-    $cash = paymentMethodNamed('Nakit');
     $card = paymentMethodNamed('Kredi Kartı');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->call('reorderTable', [$card->id, $transfer->id, $cash->id]);
+        ->call('reorderTable', [$card->id, $transfer->id]);
 
-    expect(paymentFormMethodNames())->toBe(['Kredi Kartı', 'Havale/EFT', 'Nakit'])
+    expect(paymentFormMethodNames())->toBe(['Kredi Kartı', 'Havale/EFT'])
         ->and(app(SuggestPaymentDefaults::class)->handle(null)['payment_method_id'])->toBe($card->id);
 });
 
 it('archives a method, hides it from the payment form and brings it back', function () {
-    $cash = paymentMethodNamed('Nakit');
+    $card = paymentMethodNamed('Kredi Kartı');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(sectionAction(editMethodPanel($cash), 'archive'))
+        ->callAction(sectionAction(editMethodPanel($card), 'archive'))
         ->assertNotified(__('archive.archived'));
 
-    expect($cash->refresh()->isArchived())->toBeTrue()
-        ->and(paymentFormMethodNames())->toBe(['Havale/EFT', 'Kredi Kartı']);
+    expect($card->refresh()->isArchived())->toBeTrue()
+        ->and(paymentFormMethodNames())->toBe(['Havale/EFT']);
 
     Livewire::test(ManagePaymentMethods::class)
         ->filterTable('archived', true)
-        ->callAction(sectionAction(editMethodPanel($cash), 'unarchive'));
+        ->callAction(sectionAction(editMethodPanel($card), 'unarchive'));
 
-    expect($cash->refresh()->isArchived())->toBeFalse()
-        ->and(paymentFormMethodNames())->toBe(['Havale/EFT', 'Nakit', 'Kredi Kartı']);
+    expect($card->refresh()->isArchived())->toBeFalse()
+        ->and(paymentFormMethodNames())->toBe(['Havale/EFT', 'Kredi Kartı']);
 });
 
 it('hides archived methods from the list by default and shows them with the archive filter', function () {
@@ -112,14 +111,14 @@ it('hides archived methods from the list by default and shows them with the arch
 });
 
 it('does not archive the last active method and says why', function () {
-    PaymentMethod::query()->where('name', '!=', 'Nakit')->get()->each->archive();
-    $cash = paymentMethodNamed('Nakit');
+    PaymentMethod::query()->where('name', '!=', 'Kredi Kartı')->get()->each->archive();
+    $card = paymentMethodNamed('Kredi Kartı');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(sectionAction(editMethodPanel($cash), 'archive'))
+        ->callAction(sectionAction(editMethodPanel($card), 'archive'))
         ->assertNotified('En az bir ödeme yöntemi aktif kalmalı. Önce başka bir yöntem ekleyin veya arşivden çıkarın.');
 
-    expect($cash->refresh()->isArchived())->toBeFalse();
+    expect($card->refresh()->isArchived())->toBeFalse();
 });
 
 it('offers delete next to archive for an unused method and deletes it', function () {
@@ -145,14 +144,14 @@ it('offers only archive for a method a payment uses', function () {
 });
 
 it('does not delete the last active method and says why', function () {
-    PaymentMethod::query()->where('name', '!=', 'Nakit')->get()->each->archive();
-    $cash = paymentMethodNamed('Nakit');
+    PaymentMethod::query()->where('name', '!=', 'Kredi Kartı')->get()->each->archive();
+    $card = paymentMethodNamed('Kredi Kartı');
 
     Livewire::test(ManagePaymentMethods::class)
-        ->callAction(sectionAction(editMethodPanel($cash), 'delete', danger: true))
+        ->callAction(sectionAction(editMethodPanel($card), 'delete', danger: true))
         ->assertNotified('En az bir ödeme yöntemi aktif kalmalı. Önce başka bir yöntem ekleyin veya arşivden çıkarın.');
 
-    expect(PaymentMethod::query()->find($cash->id))->not->toBeNull();
+    expect(PaymentMethod::query()->find($card->id))->not->toBeNull();
 });
 
 it('offers delete for an archived method that no payment uses', function () {

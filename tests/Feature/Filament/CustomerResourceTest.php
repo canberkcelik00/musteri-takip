@@ -47,7 +47,7 @@ it('shows the summary values of the sample customers in the list', function () {
         ->assertTableColumnStateSet('open_debt', null, $anadolu)
         ->assertTableColumnFormattedStateSet('next_renewal_on', $anadolu->customerServices()->where('status', 'active')->sole()->end_date->format('d.m.Y'), $anadolu)
         ->assertTableColumnStateSet('active_services_count', 2, $deniz)
-        ->assertTableColumnStateSet('open_debt', listedMoney(Money::parseAmount('6.000') + Money::parseAmount('450') + Money::parseAmount('1.500')), $deniz)
+        ->assertTableColumnStateSet('open_debt', listedMoney(Money::parseAmount('6.000') + Money::parseAmount('450')), $deniz)
         ->assertTableColumnStateSet('active_services_count', 1, $karadeniz)
         ->assertTableColumnStateSet('open_debt', null, $karadeniz)
         ->assertTableColumnFormattedStateSet('next_renewal_on', $karadeniz->customerServices()->sole()->end_date->format('d.m.Y'), $karadeniz);

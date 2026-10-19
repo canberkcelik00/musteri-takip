@@ -15,7 +15,7 @@ Tek kullanıcı var: işletme sahibi. Panel bir veri ambarı değil, iş listesi
 | Ödeme kaydetmek | Haftada birkaç | Her sayfadan 1 tıkla başlar; toplam 3 tık + tutar |
 | Müşteri kartına bakmak | Her gün | Arama sonucundan 1 tık |
 | Hizmet eklemek | Haftalık | Kartın üstünden 1 tık |
-| Yeni müşteri eklemek | Aylık | Global "Yeni" menüsünden 1 tık |
+| Yeni müşteri eklemek | Aylık | Üst çubuktaki "Yeni müşteri" düğmesinden 1 tık |
 | Borcu düzenlemek, bölmek, iptal etmek | Nadir | Borç satırından 2 tık |
 | Katalog, paket, ayarlar | Nadir | Menünün altında |
 
@@ -53,8 +53,8 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 **Üst çubuk (her sayfada aynı yerde):**
 
 - Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve **alan adıyla** arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i").
-- Sağda: **"Ödeme al"** birincil düğmesi (en sık iş her sayfadan tek tık) ve **"Yeni"** menüsü (Müşteri, Elle borç).
-- **Dar ekranda (`sm`, 640 px altı):** arama kutusunun yerinde ikincil, metinli bir **"Ara"** düğmesi durur (Kural 5: etiketsiz simge yok); tıklanınca arama üst çubuğun tamamını kaplayarak açılır, yanında metinli **"Kapat"** durur; "Kapat" veya Esc kapatır. `Ctrl+K` bu genişlikte de aynı alanı açıp odağı ona verir. Sonuçlar ve sonuçlardaki "Ödeme al" aynıdır. "Yeni" menüsü bu genişlikte gizlidir. (G-4B.7)
+- Sağda: **"Ödeme al"** birincil düğmesi (en sık iş her sayfadan tek tık) ve **"Yeni müşteri"** düğmesi (G-5B.3: elle borç kaldırıldı, "Yeni" menüsü tek seçenekli kaldığı için düğme oldu).
+- **Dar ekranda (`sm`, 640 px altı):** arama kutusunun yerinde ikincil, metinli bir **"Ara"** düğmesi durur (Kural 5: etiketsiz simge yok); tıklanınca arama üst çubuğun tamamını kaplayarak açılır, yanında metinli **"Kapat"** durur; "Kapat" veya Esc kapatır. `Ctrl+K` bu genişlikte de aynı alanı açıp odağı ona verir. Sonuçlar ve sonuçlardaki "Ödeme al" aynıdır. "Yeni müşteri" düğmesi bu genişlikte gizlidir. (G-4B.7)
 
 ## 4. Yer kuralları: ne nerede durur
 

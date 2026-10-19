@@ -155,7 +155,7 @@ Kısıt: `catalog_service_id` ve `package_id` alanlarından tam olarak biri dolu
 | Alan | Tür | Zorunlu | Not |
 | --- | --- | --- | --- |
 | customer_id | FK customers | Evet | |
-| customer_service_id | FK customer_services | Hayır | Elle borçta isteğe bağlı |
+| customer_service_id | FK customer_services | Hayır | Eski elle borçlarda boş; yeni borçta hep dolu |
 | description | string | Evet | Örn. "Kurumsal Paket 2027–2028" |
 | amount | integer | Evet | Kuruş |
 | currency | enum Currency | Evet | |

@@ -251,7 +251,8 @@ it('keeps the empty list\'s action button: no rule hides it, and every list rend
     // The theme leaves the actions area of the empty state alone.
     expect($css)->not->toMatch('/fi-ta-empty-state[^{]*fi-ta-actions[^{]*\{/');
 
-    foreach ([ListCustomers::class, ListCharges::class, ListPayments::class, ListCatalogServices::class, ListPackages::class] as $page) {
+    // The charge lists have no button: charges only come from the rules (G-5B.3).
+    foreach ([ListCustomers::class, ListPayments::class, ListCatalogServices::class, ListPackages::class] as $page) {
         $html = Livewire::test($page)->html();
 
         expect($html)->toContain('fi-ta-empty-state');

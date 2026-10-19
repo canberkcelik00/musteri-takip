@@ -6,8 +6,8 @@ use App\Actions\Customers\DeleteCustomer;
 use App\Enums\CustomerServiceStatus;
 use App\Filament\Actions\ArchiveCustomerAction;
 use App\Filament\Actions\AssignCustomerServiceAction;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\DeleteRecordAction;
+use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\EditCustomerAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\UnarchiveAction;
@@ -117,12 +117,12 @@ class ViewCustomer extends ViewRecord
     }
 
     /**
-     * Recording or deleting a payment, adding a manual charge, or assigning a service changes
+     * Recording or deleting a payment, changing a charge, or assigning a service changes
      * the open debt / credit balance shown in the strip and the cancelled-services count; they
      * are computed from the record, so a fresh record is enough.
      */
     #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
-    #[On(CreateManualChargeAction::CHARGES_CHANGED_EVENT)]
+    #[On(EditChargeAction::CHARGES_CHANGED_EVENT)]
     #[On(AssignCustomerServiceAction::SERVICES_CHANGED_EVENT)]
     public function refreshAfterPaymentChange(): void
     {

@@ -289,7 +289,7 @@ it('has the charge, service and payment actions on the card', function () {
 
     cardManager(ChargesRelationManager::class, $customer)
         ->assertCanSeeTableRecords([$charge])
-        ->assertActionExists(TestAction::make('createManualCharge')->table())
+        ->assertActionDoesNotExist(TestAction::make('createManualCharge')->table())
         ->assertActionExists(TestAction::make('recordPayment')->table($charge))
         ->assertActionExists(TestAction::make('editCharge')->table($charge))
         ->mountAction([TestAction::make('editCharge')->table($charge), TestAction::make('splitCharge')->schemaComponent(RecordActionsSection::ACTIONS_KEY)])

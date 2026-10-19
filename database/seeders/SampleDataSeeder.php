@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Actions\Charges\CancelCharge;
-use App\Actions\Charges\CreateManualCharge;
 use App\Actions\Contacts\CreateContact;
 use App\Actions\Customers\ArchiveCustomer;
 use App\Actions\CustomerServices\AdvanceCustomerServicePeriod;
@@ -53,7 +52,6 @@ class SampleDataSeeder extends Seeder
         private RecordPayment $recordPayment,
         private CreateRenewalCharge $createRenewalCharge,
         private AdvanceCustomerServicePeriod $advanceCustomerServicePeriod,
-        private CreateManualCharge $createManualCharge,
         private CancelCustomerService $cancelCustomerService,
         private CancelCharge $cancelCharge,
         private ArchiveCustomer $archiveCustomer,
@@ -198,7 +196,7 @@ class SampleDataSeeder extends Seeder
             ServiceType::Domain->value => ['domain' => 'aydinhukuk.com.tr'],
         ]);
 
-        $this->payment($customer, '1.500', Currency::Try, $start->addDays(7), 'Nakit');
+        $this->payment($customer, '1.500', Currency::Try, $start->addDays(7), 'Havale/EFT');
     }
 
     private function seedDenizLojistik(): void
@@ -214,13 +212,6 @@ class SampleDataSeeder extends Seeder
         ]);
         $this->assign($customer, $this->catalog['domain_com_tr'], $start, [
             ServiceType::Domain->value => ['domain' => 'denizlojistik.com.tr'],
-        ]);
-
-        $this->createManualCharge->handle($customer, [
-            'description' => 'E-posta taşıma hizmeti',
-            'amount' => Money::parseAmount('1.500'),
-            'currency' => Currency::Try,
-            'due_date' => $this->today->subDays(10)->toDateString(),
         ]);
     }
 
@@ -313,7 +304,7 @@ class SampleDataSeeder extends Seeder
         $service = $this->assign($customer, $this->catalog['hosting_legacy'], $start, [
             ServiceType::Hosting->value => ['domain' => 'gunestekstil.com.tr', 'server' => 'srv02.natro.com', 'cpanel_username' => 'gunestks'],
         ]);
-        $this->payment($customer, '900', Currency::Try, $start->addDays(4), 'Nakit');
+        $this->payment($customer, '900', Currency::Try, $start->addDays(4), 'Kredi Kartı');
 
         $this->at(
             $service->end_date->toImmutable()->subDays(45),

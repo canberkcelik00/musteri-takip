@@ -1,7 +1,6 @@
 <?php
 
 use App\Filament\Actions\CreateCustomerAction;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\ManageSettings;
@@ -207,10 +206,9 @@ it('hides the "… > Liste" trail on list pages only; the customer card keeps it
         ->assertSee('fi-breadcrumbs', false);
 });
 
-it('draws "Ödeme al", "Yeni müşteri" and "Elle borç ekle" as text buttons without a "+" icon (G-4B.6)', function () {
+it('draws "Ödeme al" and "Yeni müşteri" as text buttons without a "+" icon (G-4B.6)', function () {
     expect(RecordPaymentAction::make()->getIcon())->toBeNull()
-        ->and(CreateCustomerAction::make()->getIcon())->toBeNull()
-        ->and(CreateManualChargeAction::make()->getIcon())->toBeNull();
+        ->and(CreateCustomerAction::make()->getIcon())->toBeNull();
 
     $customer = Customer::factory()->create();
     $searchActions = CustomerResource::getGlobalSearchResultActions($customer);
@@ -219,9 +217,8 @@ it('draws "Ödeme al", "Yeni müşteri" and "Elle borç ekle" as text buttons wi
         ->and(collect($searchActions)->map(fn (Action $action): mixed => $action->getIcon())->filter()->all())->toBeEmpty();
 });
 
-it('hides only the "⋮" icon of the topbar\'s "Yeni" menu, never its label (G-4B.6)', function () {
-    expect(implode("\n", designRuleBodies('.fi-topbar-new-action .fi-btn > .fi-icon')))->toMatch('/display:\s*none;/')
-        ->and(designThemeCss())->not->toMatch('/\.fi-topbar-new-action[^{]*\.fi-btn-label[^{]*\{[^}]*display:\s*none/');
+it('shows the topbar\'s "Yeni müşteri" button with its label (G-5B.3)', function () {
+    expect(designThemeCss())->not->toMatch('/\.fi-topbar-new-action[^{]*\.fi-btn-label[^{]*\{[^}]*display:\s*none/');
 
-    $this->get(Dashboard::getUrl())->assertOk()->assertSeeInOrder(['fi-topbar-new-action', __('navigation.new')], false);
+    $this->get(Dashboard::getUrl())->assertOk()->assertSeeInOrder(['fi-topbar-new-action', __('navigation.new_customer')], false);
 });

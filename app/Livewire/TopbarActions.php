@@ -3,10 +3,8 @@
 namespace App\Livewire;
 
 use App\Filament\Actions\CreateCustomerAction;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -16,10 +14,10 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
- * The topbar's "Ödeme al" and "Yeni" (Müşteri, Elle borç) actions (docs/UI.md §3), rendered
- * through the GLOBAL_SEARCH_AFTER render hook so they sit next to the search box on every
- * panel page. Only calls the shared RecordPaymentAction / CreateManualChargeAction forms, which
- * in turn only call the Actions in app/Actions; no business logic lives here.
+ * The topbar's "Ödeme al" and "Yeni müşteri" actions (docs/UI.md §3), rendered through the
+ * GLOBAL_SEARCH_AFTER render hook so they sit next to the search box on every panel page. Only
+ * calls the shared RecordPaymentAction / CreateCustomerAction forms, which in turn only call the
+ * Actions in app/Actions; no business logic lives here.
  */
 class TopbarActions extends Component implements HasActions, HasSchemas
 {
@@ -46,34 +44,13 @@ class TopbarActions extends Component implements HasActions, HasSchemas
     }
 
     /**
-     * Its own top-level method for the same reason as createManualChargeAction(): mountAction()
-     * / callAction() resolve an action by name through a method on the component.
+     * Its own top-level method: mountAction() / callAction() resolve an action by name through
+     * a method on the component.
      */
     public function createCustomerAction(): Action
     {
         return CreateCustomerAction::make()
-            ->label(__('navigation.new_customer'));
-    }
-
-    /**
-     * Its own top-level method, not built inline in newAction(), so mountAction() /
-     * callAction() can resolve it directly by name in tests, the same way they resolve any
-     * other action on this component.
-     */
-    public function createManualChargeAction(): Action
-    {
-        return CreateManualChargeAction::make()
-            ->label(__('navigation.new_manual_charge'));
-    }
-
-    public function newAction(): ActionGroup
-    {
-        return ActionGroup::make([
-            $this->createCustomerAction(),
-            $this->createManualChargeAction(),
-        ])
-            ->label(__('navigation.new'))
-            ->button()
+            ->label(__('navigation.new_customer'))
             ->color('gray');
     }
 

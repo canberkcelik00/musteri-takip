@@ -91,7 +91,7 @@ class RemoveFreeFlagAction extends Action
                     : __('customer_services.removed_free_charge', ['amount' => (new Money($charge->amount, $charge->currency))->format()]))->success();
 
                 if ($charge !== null) {
-                    $livewire->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
+                    $livewire->dispatch(EditChargeAction::CHARGES_CHANGED_EVENT);
                 }
             });
     }

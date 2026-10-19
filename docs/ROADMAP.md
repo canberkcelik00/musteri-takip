@@ -47,7 +47,7 @@ Hedef: "Veri modeli – alanlar" sekmesindeki tabloların, modellerin ve hesapla
   - Yapılacak: `catalog_services`, `packages`, `package_items`; modeller, ilişkiler, factory'ler, arşiv.
   - Kabul: Aynı hizmet bir pakete iki kez eklenemez; arşivlenen kalem listelerde görünmez ama mevcut ilişkiler bozulmaz (testli).
 - [x] **G-2.5 Ödeme yöntemleri ve ayarlar** — Bağımlılık: G-2.1
-  - Yapılacak: `payment_methods` (varsayılan: Havale/EFT, Nakit, Kredi Kartı); `settings` tablosu ve varsayılan değerleri döndüren ayar servisi.
+  - Yapılacak: `payment_methods` (varsayılan: Havale/EFT, Nakit, Kredi Kartı; Nakit G-5B.3 ile kaldırıldı); `settings` tablosu ve varsayılan değerleri döndüren ayar servisi.
   - Kabul: Kayıt yokken varsayılanlar döner, kayıt varsa o döner (testli).
 - [x] **G-2.6 Müşteri hizmetleri ve kalemleri** — Bağımlılık: G-2.3, G-2.4
   - Yapılacak: `customer_services`, `customer_service_items`; modeller, ilişkiler, factory durumları (tek hizmet, paket, ücretsiz, iptal). Lisans anahtarı şifreli. Kalem kaydedilirken details içinde yalnızca türün müşteri düzeyi anahtarları tutulur (G-2.4'teki katalog kuralıyla aynı).
@@ -87,7 +87,7 @@ Hedef: Borç ve ödeme kurallarının tamamı arayüzden bağımsız Action sın
   - Yapılacak: İptal; isteğe bağlı olarak henüz başlamamış dönemin ödenmemiş borcunu iptal; yeniden aktif etme.
   - Kabul: Geçmiş dönem borcu hiçbir durumda iptal edilmez; dağıtımı olan borç iptal edilmez (testli). Not: Aynı dönem için tek borç kuralı iptal edilmiş borçları da kapsar; yeniden aktif etmede iptal edilmiş dönem borcunun nasıl ele alınacağı bu görevin planında kullanıcıya sorulur. Ek: Ücretsiz işareti eklenirken yaklaşan dönemin ödenmemiş borcunu iptal etme seçeneği sunulur (varsayılan işaretli); dağıtımı olan borca dokunulmaz; iptal akışıyla aynı yardımcıyı kullanır (testli).
 - [x] **G-3.8 Borçları elle düzenleme** — Bağımlılık: G-3.1
-  - Yapılacak: Tutar ve vade değiştirme, borcu ikiye bölme, gerekçeyle iptal, kurala bağlı olmayan elle borç ekleme (bakiye uygulanır).
+  - Yapılacak: Tutar ve vade değiştirme, borcu ikiye bölme, gerekçeyle iptal, kurala bağlı olmayan elle borç ekleme (bakiye uygulanır; elle borç ekleme G-5B.3 ile kaldırıldı).
   - Kabul: Dağıtımı olan borçta tutar değişmez; bölmede toplam korunur; gerekçesiz iptal edilemez; hizmete bağlı elle borcun müşterisi hizmetin müşterisiyle aynı olmalı (testli).
 - [x] **G-3.9 Zamanlayıcı** — Bağımlılık: G-3.5
   - Yapılacak: Yenileme borcu ve dönem ilerletme `routes/console.php` içinde her 15 dakikada "henüz yapılmadıysa yap" mantığıyla çalışır; o gün oluşan borçlar günlük özet için izlenebilir.
@@ -124,7 +124,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Yapılacak: İki alanlı form (müşteri, tutar); tarih bugün, yöntem son kullanılan, para birimi açık borçtan gelir; dağıtım önizlemesi isteğe bağlı açılır ve değiştirilebilir; sonuç mesajı ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"); onaylı silme.
   - Kabul: Varsayılanlar ve sonuç mesajı doğru (testli).
 - [x] **G-4.8 Borç ekranları** — Bağımlılık: G-4.4
-  - Yapılacak: Borç listesi (açık, gecikmiş, para birimi filtreleri), elle borç ekleme, düzenleme, bölme, gerekçeli iptal.
+  - Yapılacak: Borç listesi (açık, gecikmiş, para birimi filtreleri), elle borç ekleme (G-5B.3 ile kaldırıldı), düzenleme, bölme, gerekçeli iptal.
   - Kabul: Dağıtımı olan borçta tutar alanı kilitli görünür (testli).
 - [x] **G-4.9 Ayarlar ve ödeme yöntemleri** — Bağımlılık: G-4.1
   - Yapılacak: Ayarlar sayfası (yenileme gün sayısı, özet saati, bildirim adresi) ve ödeme yöntemleri yönetimi.
@@ -140,7 +140,7 @@ Hedef: Faz 3'teki kuralların Filament ekranlarıyla kullanılabilir olması. Ek
   - Yapılacak: Filament özel teması `docs/UI.md` §6'ya göre hazırlanır. Açık tema varsayılan, koyu tema kullanıcı menüsünden seçilir. Marka rengi (#ff3800) yalnızca logo simgesinde ve seçili menü çizgisinde; birincil düğme (Filament primary) koyu lacivert. Durum renkleri sabit ve başka işte kullanılmaz (kırmızı gecikmiş/tehlikeli, turuncu (Amber) yaklaşan/kısmi, yeşil ödendi, gri iptal/arşiv); normal durum rozetsiz düz metin. "Yaklaşan" tanımı modelde tek yerde: borçta 7 gün içinde vadesi gelen (`Charge::isDueSoon`), hizmette ayarlardaki yenileme gün sayısı içinde bitecek (`CustomerService::isEndingSoon`). Tek yazı tipi (Inter, yerelden), sayılarda eş genişlikte rakamlar, tablo metni 14 px. Tablolarda kompakt, formlarda rahat boşluk. Sol üstte logo simgesi ve "Müşteri Takip". Tema derlemesi CI'a eklenir.
   - Kabul: Durum rozetleri her yerde renk ve metinle görünür; tüm testler yeşil.
 - [x] **G-4.13 Menü ve üst çubuk** — Bağımlılık: G-4.12
-  - Yapılacak: Menü `docs/UI.md` §3'e göre kurulur: Bugün, Müşteriler, Tahsilat (Açık borçlar, Ödemeler), Katalog (Hizmetler, Paketler; kapalı başlar), Ayarlar (Genel, Ödeme yöntemleri; en altta). Üst çubuk her sayfada aynı yerde: solda arama kutusu, sağda "Ödeme al" birincil düğmesi ve "Yeni" menüsü (Müşteri, Elle borç). Ödeme formu (G-4.7) her sayfada yandan açılan panelde çalışır.
+  - Yapılacak: Menü `docs/UI.md` §3'e göre kurulur: Bugün, Müşteriler, Tahsilat (Açık borçlar, Ödemeler), Katalog (Hizmetler, Paketler; kapalı başlar), Ayarlar (Genel, Ödeme yöntemleri; en altta). Üst çubuk her sayfada aynı yerde: solda arama kutusu, sağda "Ödeme al" birincil düğmesi ve "Yeni" menüsü (Müşteri, Elle borç; G-5B.3 ile "Yeni müşteri" düğmesi oldu). Ödeme formu (G-4.7) her sayfada yandan açılan panelde çalışır.
   - Kabul: Üst çubuk her sayfada aynı yerde (Livewire testi); ödeme kaydı 1 tık + müşteri + tutar + 1 tık.
 - [x] **G-4.14 Ctrl+K arama ve komut kutusu** — Bağımlılık: G-4.13
   - Yapılacak: Kısa ad, ticari ünvan, ilgili kişi ve alan adıyla arama; fare kullanmadan müşteriye gitme ve ödeme kaydetme. Alan adı `details` JSON'unda durduğu için arama yöntemi planda gösterilir.
@@ -270,6 +270,10 @@ Hedef: Yenileme borcu oluştuğunda müşterinin birincil ilgili kişisine siste
   - Yapılacak: Müşteri kartındaki borç satırında "Hatırlatma gönderildi (tarih)" bilgisi; gönderilmemiş veya yeniden gönderilmesi istenen borç için tek tıkla elle gönderim.
   - Kabul: Gönderim tarihi görünür; elle gönderim kaydı günceller (Livewire testi).
   - Kapanış notu (T-104): Tarih açıklamanın altında soluk satır; elle gönderim borç düzenleme panelinin "Borç işlemleri" bölümünde (kullanıcı kararı, UI.md §4 düzeni değişmedi) ve alıcıyı gösteren onay penceresi ister. Açık yenileme borçlarında, vadesi geçmiş ve daha önce hatırlatılmış olsa da çalışır; ayar anahtarından bağımsızdır. Gönder-ve-kaydet kuralı otomatik gönderimle ortak `SendRenewalReminder` Action'ındadır.
+- [x] **G-5B.3 Elle borç ve nakit ödemenin kaldırılması** — Bağımlılık: G-5B.2
+  - Yapılacak: İşletme elle borç ve nakit ödeme kullanmıyor. Elle borç ekleme (Action, form, üst çubuk, Borçlar listesi ve müşteri kartı düğmeleri) kaldırılır; "Yeni" menüsü "Yeni müşteri" düğmesi olur. "Nakit" ödeme yöntemi bir migration ile kaldırılır (kullanılmışsa arşivlenir).
+  - Kabul: Hiçbir ekranda elle borç eylemi yok; mevcut kurallı borçlar, düzenleme, bölme ve iptal çalışır; migration kullanılmayan Nakit'i siler, kullanılanı arşivler, tek aktif yöntemse dokunmaz ve ikinci çalışmada bir şey değiştirmez (hepsi testli).
+  - Kapanış notu (T-105): Eski elle borçlar ve nakit ödemeler yerinde kalır.
 - [ ] **K-5B.1 Kullanıcı kararları** — Bağımlılık: yok
   - Yapılacak: E-posta metnini onayla; gönderen adresini ve hostingdeki SMTP bilgilerini hazırla; ilk haftalarda anahtarı açmadan önce Mailpit/test adresiyle birkaç örnek gönder.
 

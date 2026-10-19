@@ -38,7 +38,7 @@ it('covers every sample scenario', function () {
         ->and($charges->contains(fn (Charge $charge) => $charge->isOverdue()))->toBeTrue()
         ->and($charges->contains(fn (Charge $charge) => $charge->status === ChargeStatus::Open && $charge->due_date->isFuture()))->toBeTrue()
         ->and($charges->contains(fn (Charge $charge) => $charge->currency === Currency::Usd))->toBeTrue()
-        ->and($charges->contains(fn (Charge $charge) => $charge->customer_service_id === null))->toBeTrue()
+        ->and($charges->contains(fn (Charge $charge) => $charge->customer_service_id === null))->toBeFalse()
         ->and(seededCustomer('Anadolu Gıda')->creditBalances())->toEqual([
             'TRY' => new Money(Money::parseAmount('500'), Currency::Try),
         ])

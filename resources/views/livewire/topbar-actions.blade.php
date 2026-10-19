@@ -2,7 +2,7 @@
     {{ $this->recordPaymentAction() }}
 
     <span class="fi-topbar-new-action">
-        {{ $this->newAction() }}
+        {{ $this->createCustomerAction() }}
     </span>
 
     <x-filament-actions::modals />

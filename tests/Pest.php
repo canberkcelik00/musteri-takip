@@ -22,8 +22,8 @@ pest()->extend(TestCase::class)
     ->in('Feature');
 
 /**
- * The topbar's "Ödeme al" and "Yeni" (G-4.13), used by any test that used to reach "Ödeme al" or
- * "Elle borç" as a header action of a resource list.
+ * The topbar's "Ödeme al" and "Yeni müşteri" (G-4.13), used by any test that used to reach "Ödeme al"
+ * as a header action of a resource list.
  */
 function topbarActions()
 {

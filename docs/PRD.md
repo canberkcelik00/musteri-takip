@@ -34,7 +34,7 @@ Bu terimler proje boyunca, kodda ve dokümanlarda aynı anlamda kullanılır.
 | Teklif | Müşteriye veya potansiyel müşteriye gönderilen fiyat belgesi |
 | Borç | Bir dönem için müşteriden tahsil edilecek tutar |
 | Ödeme | Müşteriden gelen para |
-| Ödeme yöntemi | Havale/EFT, nakit, kart gibi; panelden yönetilir |
+| Ödeme yöntemi | Havale/EFT, kart gibi; panelden yönetilir |
 | Alacak bakiyesi | Fazla ödemeden kalan, sonraki borçlara düşen tutar |
 
 ## Müşteriler ve ilgili kişiler
@@ -178,7 +178,7 @@ Her dönem için bir borç doğar; tutar müşteri hizmetindeki fiyattır. Ödem
 - Kullanıcı bir şey yapmazsa hizmet ücretsiz devam eder. Sistem kendiliğinden ücretliye geçmez.
 - İşaret dönem başlamadan kaldırılırsa yaklaşan dönemin borcu hemen oluşur.
 
-**Elle düzenleme:** Her borcun tutarı ve vadesi değiştirilebilir, borç bölünebilir, gerekçeyle iptal edilebilir; kurala bağlı olmayan elle borç eklenebilir. Ödemesi alınmış borç sessizce değiştirilemez; önce ödeme eşleşmesi kaldırılır veya iptal ve düzeltme kaydı yapılır.
+**Elle düzenleme:** Her borcun tutarı ve vadesi değiştirilebilir, borç bölünebilir, gerekçeyle iptal edilebilir. Borçlar yalnızca kurallardan doğar; elle borç eklenmez (G-5B.3). Ödemesi alınmış borç sessizce değiştirilemez; önce ödeme eşleşmesi kaldırılır veya iptal ve düzeltme kaydı yapılır.
 
 ## Ödemeler ve alacak bakiyesi
 
@@ -263,10 +263,10 @@ Düz ok "sahip olur", kesikli ok "isteğe bağlı bağlantı" demektir.
 | Müşteri hizmeti kalemi | customer\_service\_items | Müşteriye özel bilgiler: alan adı, sunucu, cPanel kullanıcı adı, lisans anahtarı vb. Pakette her iç hizmet için bir kalem |
 | Teklif | quotes | Numara, alıcı (müşteri veya elle yazılan kişi), durum, tarihler, gönderim bilgisi |
 | Teklif kalemi | quote\_items | Teklifteki her hizmet veya paket: ad, fiyat, para birimi, ücretsiz işareti |
-| Borç | charges | Müşteri hizmeti (elle borçta boş), tutar, para birimi, vade, dönem, durum |
+| Borç | charges | Müşteri hizmeti (eski elle borçlarda boş; yeni borçta hep dolu), tutar, para birimi, vade, dönem, durum |
 | Ödeme | payments | Müşteri, tutar, para birimi, tarih, yöntem, açıklama |
 | Ödeme dağıtımı | payment\_allocations | Hangi ödemenin ne kadarı hangi borca düştü |
-| Ödeme yöntemi | payment\_methods | Havale/EFT, nakit, kart gibi |
+| Ödeme yöntemi | payment\_methods | Havale/EFT, kart gibi |
 
 Ayrıca ayarlar (30 gün, özet sıklığı, ayın günü ve saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
 

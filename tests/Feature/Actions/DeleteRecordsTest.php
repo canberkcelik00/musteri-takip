@@ -178,12 +178,12 @@ describe('payment method', function () {
     });
 
     it('does not delete the last active method', function () {
-        PaymentMethod::query()->where('name', '!=', 'Nakit')->get()->each->archive();
-        $cash = PaymentMethod::query()->where('name', 'Nakit')->firstOrFail();
+        PaymentMethod::query()->where('name', '!=', 'Kredi Kartı')->get()->each->archive();
+        $method = PaymentMethod::query()->where('name', 'Kredi Kartı')->firstOrFail();
 
-        expect(fn () => app(DeletePaymentMethod::class)->handle($cash))->toThrow(LastActivePaymentMethod::class);
+        expect(fn () => app(DeletePaymentMethod::class)->handle($method))->toThrow(LastActivePaymentMethod::class);
 
-        expect(PaymentMethod::query()->find($cash->id))->not->toBeNull();
+        expect(PaymentMethod::query()->find($method->id))->not->toBeNull();
     });
 
     it('deletes an archived method even when it is the only archived one and one stays active', function () {
@@ -193,7 +193,7 @@ describe('payment method', function () {
         app(DeletePaymentMethod::class)->handle($archived);
 
         expect(PaymentMethod::query()->find($archived->id))->toBeNull()
-            ->and(PaymentMethod::query()->notArchived()->count())->toBe(3);
+            ->and(PaymentMethod::query()->notArchived()->count())->toBe(2);
     });
 });
 

@@ -7,9 +7,7 @@ return [
     'catalog' => 'Katalog',
     'settings' => 'Ayarlar',
     'general' => 'Genel',
-    'new' => 'Yeni',
-    'new_customer' => 'Müşteri',
-    'new_manual_charge' => 'Elle borç',
+    'new_customer' => 'Yeni müşteri',
     'search_open' => 'Ara',
     'search_close' => 'Kapat',
 ];

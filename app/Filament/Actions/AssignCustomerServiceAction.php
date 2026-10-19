@@ -137,7 +137,7 @@ class AssignCustomerServiceAction extends Action
                 }
 
                 $livewire->dispatch(self::SERVICES_CHANGED_EVENT);
-                $livewire->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
+                $livewire->dispatch(EditChargeAction::CHARGES_CHANGED_EVENT);
 
                 $action->successNotificationTitle(__('customer_services.assigned'))->success();
             });

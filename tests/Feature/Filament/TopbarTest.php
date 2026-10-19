@@ -1,7 +1,6 @@
 <?php
 
 use App\Filament\Actions\CreateCustomerAction;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\ManageSettings;
@@ -84,23 +83,13 @@ it('opens the payment form in the form window from the topbar', function () {
         ->and(RecordPaymentAction::make()->getModalWidth())->toBe(AppServiceProvider::FORM_WINDOW_CLASS);
 });
 
-it('lets the "Yeni" menu create an unattached manual charge for a chosen customer', function () {
-    $customer = Customer::factory()->create();
-
+it('has no manual charge action (G-5B.3)', function () {
     Livewire::test(TopbarActions::class)
-        ->callAction('createManualCharge', [
-            'customer_id' => $customer->id,
-            'description' => 'Kurulum',
-            'amount' => '500',
-            'currency' => 'TRY',
-            'due_date' => '2026-06-30',
-        ])
-        ->assertDispatched(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
-
-    expect($customer->charges()->sole()->description)->toBe('Kurulum');
+        ->assertActionDoesNotExist('createManualCharge')
+        ->assertDontSee('Elle borç');
 });
 
-it('lets the "Yeni" menu create a customer in the form window and opens its card', function () {
+it('lets the "Yeni müşteri" button create a customer in the form window and opens its card', function () {
     Livewire::test(TopbarActions::class)
         ->mountAction('createCustomer')
         ->assertActionMounted('createCustomer')

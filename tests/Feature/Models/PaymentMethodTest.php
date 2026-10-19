@@ -4,7 +4,7 @@ use App\Models\PaymentMethod;
 
 it('has the default payment methods in order', function () {
     expect(PaymentMethod::orderBy('sort_order')->pluck('name')->all())
-        ->toBe(['Havale/EFT', 'Nakit', 'Kredi Kartı']);
+        ->toBe(['Havale/EFT', 'Kredi Kartı']);
 });
 
 it('puts a new method without a sort order at the end of the list', function () {

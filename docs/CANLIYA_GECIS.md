@@ -38,7 +38,7 @@ Anahtar değişirse ya da kaybolursa şifreli lisans anahtarları okunamaz. Canl
 ## 4. Ayarların doldurulması
 
 - [ ] **Ayarlar → Genel**: yenileme gün sayısı, özet sıklığı (Günlük / Aylık), ayın günü (aylıkta), özet saati ve **Bildirim adresi** (özetin gideceği adres) doldurulur → **Kaydet** → "Ayarlar kaydedildi."
-- [ ] **Ayarlar → Ödeme yöntemleri**: kullanacağınız yöntemler tanımlı (varsayılanlar: Havale/EFT, Nakit, Kredi Kartı; eksik olanı ekleyin).
+- [ ] **Ayarlar → Ödeme yöntemleri**: kullanacağınız yöntemler tanımlı (varsayılanlar: Havale/EFT, Kredi Kartı; eksik olanı ekleyin).
 - [ ] **Katalog → Hizmetler** ve **Paketler**: verdiğiniz hizmet türleri ve paketler tanımlı. Müşteri verisini girerken (K-5.3) bunlardan seçilir.
 
 ## 5. Test e-postası

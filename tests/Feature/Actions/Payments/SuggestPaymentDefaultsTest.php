@@ -48,9 +48,9 @@ it('ignores paid, cancelled and other customers\' charges for the currency', fun
 
 it('takes the method of the customer\'s latest payment', function () {
     $customer = Customer::factory()->create();
-    $cash = PaymentMethod::query()->where('name', 'Nakit')->firstOrFail();
+    $transfer = PaymentMethod::query()->where('name', 'Havale/EFT')->firstOrFail();
     $card = PaymentMethod::query()->where('name', 'Kredi Kartı')->firstOrFail();
-    Payment::factory()->for($customer)->create(['paid_on' => '2026-05-01', 'payment_method_id' => $cash->id]);
+    Payment::factory()->for($customer)->create(['paid_on' => '2026-05-01', 'payment_method_id' => $transfer->id]);
     Payment::factory()->for($customer)->create(['paid_on' => '2026-06-01', 'payment_method_id' => $card->id]);
 
     expect(paymentDefaultsFor($customer)['payment_method_id'])->toBe($card->id);

@@ -20,6 +20,8 @@ use Livewire\Component;
  */
 class EditChargeAction extends Action
 {
+    public const string CHARGES_CHANGED_EVENT = 'charges-changed';
+
     public static function getDefaultName(): ?string
     {
         return 'editCharge';
@@ -71,7 +73,7 @@ class EditChargeAction extends Action
 
                 $action->successNotificationTitle(__('charges.updated'))->success();
 
-                $livewire->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
+                $livewire->dispatch(EditChargeAction::CHARGES_CHANGED_EVENT);
             });
     }
 }

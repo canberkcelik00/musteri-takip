@@ -50,7 +50,7 @@ class CancelChargeAction extends Action
 
                 $action->successNotificationTitle(__('charges.cancelled'))->success();
 
-                $livewire->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
+                $livewire->dispatch(EditChargeAction::CHARGES_CHANGED_EVENT);
             });
     }
 }

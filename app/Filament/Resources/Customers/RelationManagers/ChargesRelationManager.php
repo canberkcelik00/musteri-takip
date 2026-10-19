@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Customers\RelationManagers;
 
 use App\Enums\ChargeStatus;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
@@ -30,8 +29,8 @@ use Illuminate\Support\HtmlString;
  * first. The remaining amount and the overdue / partially paid state are derived from the
  * allocations, not stored; a partially paid charge shows the original amount as a faded "/
  * total" line under the remaining amount. The description shows the linked service's domains
- * (if any, {@see CustomerService::domains()}) as a faded line; a manual charge
- * without a service has none. "Borç ekle" and the row's "Ödeme al" only call the Actions in
+ * (if any, {@see CustomerService::domains()}) as a faded line; an old manual charge
+ * without a service has none. The row's "Ödeme al" only calls the Actions in
  * app/Actions; the rules live there. "Düzenle" is no longer a row button (G-4B.5, as in the
  * reference screen): clicking the description opens the same edit panel at every width, with
  * split and cancel in its "Borç işlemleri" section (G-4.17). "Tüm borçlar" links to the customer's
@@ -101,7 +100,6 @@ class ChargesRelationManager extends RelationManager
                     ->description(fn (Charge $record): ?Htmlable => $this->remainingDescription($record)),
             ])
             ->headerActions([
-                CreateManualChargeAction::make()->customer($customer)->color('gray'),
                 Action::make('viewAll')
                     ->label(__('charges.view_all'))
                     ->link()
@@ -120,10 +118,7 @@ class ChargesRelationManager extends RelationManager
                     ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open),
             ])
             ->emptyStateHeading(__('charges.open_empty_heading'))
-            ->emptyStateDescription(__('charges.open_empty_description'))
-            ->emptyStateActions([
-                CreateManualChargeAction::make('createManualChargeEmpty')->customer($customer)->color('gray'),
-            ]);
+            ->emptyStateDescription(__('charges.open_empty_description'));
     }
 
     /**

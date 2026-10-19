@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Charges\Tables;
 
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -116,10 +115,7 @@ class ChargesTable
             ])
             ->contentFooter(fn (HasTable $livewire): ?View => self::totalFooter($livewire))
             ->emptyStateHeading(__('charges.empty_heading'))
-            ->emptyStateDescription(__('charges.empty_description'))
-            ->emptyStateActions([
-                CreateManualChargeAction::make()->color('gray'),
-            ]);
+            ->emptyStateDescription(__('charges.empty_description'));
     }
 
     /**

@@ -38,11 +38,6 @@ return [
     'open_heading' => 'Açık borçlar',
     'view_all' => 'Tüm borçlar',
 
-    'create' => 'Borç ekle',
-    'create_heading' => 'Elle borç ekle',
-    'created' => 'Borç eklendi.',
-    'create_helper' => 'Kurala bağlı olmayan borçlar için. Müşterinin alacak bakiyesi varsa borca otomatik düşer.',
-
     'edit' => 'Düzenle',
     'edit_heading' => 'Borcu düzenle',
     'updated' => 'Borç güncellendi.',
@@ -63,5 +58,5 @@ return [
     'empty_heading' => 'Henüz borç yok',
     'open_empty_heading' => 'Açık borç yok',
     'open_empty_description' => 'Bu müşterinin ödenmemiş borcu bulunmuyor.',
-    'empty_description' => 'Hizmet eklendiğinde borçlar kendiliğinden oluşur; farklı bir borç için elle ekleyin.',
+    'empty_description' => 'Müşteriye hizmet eklendiğinde borçlar kendiliğinden oluşur.',
 ];

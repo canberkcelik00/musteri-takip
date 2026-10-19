@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\Charges\CreateManualCharge;
+use App\Actions\Charges\CreateCharge;
 use App\Actions\Digest\BuildDigest;
 use App\Actions\Payments\RecordPayment;
 use App\Enums\ChargeStatus;
@@ -89,7 +89,7 @@ it('marks the new charges closed fully or partly from the credit balance', funct
         'paid_on' => '2026-10-01',
         'payment_method_id' => PaymentMethod::query()->value('id'),
     ]);
-    $createCharge = fn (int $amount, string $description) => app(CreateManualCharge::class)->handle($customer, [
+    $createCharge = fn (int $amount, string $description) => app(CreateCharge::class)->handle($customer, [
         'description' => $description,
         'amount' => $amount,
         'currency' => Currency::Try,
@@ -172,7 +172,7 @@ it('gives a new charge only a payment badge: paid, partly paid or closed from th
         'paid_on' => '2026-10-01',
         'payment_method_id' => PaymentMethod::query()->value('id'),
     ]);
-    $createCharge = fn (int $amount, string $description) => app(CreateManualCharge::class)->handle($customer, [
+    $createCharge = fn (int $amount, string $description) => app(CreateCharge::class)->handle($customer, [
         'description' => $description,
         'amount' => $amount,
         'currency' => Currency::Try,
@@ -180,7 +180,7 @@ it('gives a new charge only a payment badge: paid, partly paid or closed from th
     ]);
 
     $other = Customer::factory()->create();
-    $partly = app(CreateManualCharge::class)->handle($other, [
+    $partly = app(CreateCharge::class)->handle($other, [
         'description' => 'Hosting',
         'amount' => 300000,
         'currency' => Currency::Try,

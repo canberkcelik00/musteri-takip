@@ -13,7 +13,6 @@ use App\Exceptions\InvalidCharge;
 use App\Exceptions\InvalidCustomerService;
 use App\Filament\Actions\AssignCustomerServiceAction;
 use App\Filament\Actions\CreateCustomerAction;
-use App\Filament\Actions\CreateManualChargeAction;
 use App\Filament\Actions\EditCustomerAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Pages\Dashboard;
@@ -324,7 +323,6 @@ describe('panels', function () {
 
         $mounted = [
             Livewire::test(ChargesRelationManager::class, $card)->mountAction(TestAction::make('editCharge')->table($charge)),
-            Livewire::test(ChargesRelationManager::class, $card)->mountAction(TestAction::make('createManualCharge')->table()),
             Livewire::test(CustomerServicesRelationManager::class, $card)->mountAction(TestAction::make('editService')->table($service)),
             Livewire::test(ContactsRelationManager::class, $card)->mountAction(TestAction::make('edit')->table($contact)),
             Livewire::test(ListCatalogServices::class)->mountAction('create'),
@@ -355,7 +353,6 @@ describe('panels', function () {
             CreateCustomerAction::make(),
             EditCustomerAction::make(),
             RecordPaymentAction::make(),
-            CreateManualChargeAction::make(),
             AssignCustomerServiceAction::make()->customer($customer),
         ];
 
@@ -434,27 +431,34 @@ describe('empty tables', function () {
     it('tells what to do and shows the button that does it, in every list', function () {
         $expected = [
             'Müşteriler' => 'createCustomerEmpty',
-            'Açık borçlar' => 'createManualCharge',
+            'Açık borçlar' => null,
             'Ödemeler' => 'recordPaymentEmpty',
             'Katalog hizmetleri' => 'createEmpty',
             'Paketler' => 'createEmpty',
             'Ödeme yöntemleri' => 'createEmpty',
             'Kart: hizmetler' => 'assignServiceEmpty',
-            'Kart: açık borçlar' => 'createManualChargeEmpty',
+            'Kart: açık borçlar' => null,
             'Kart: son ödemeler' => 'recordPaymentEmpty',
             'Kart: kişiler' => 'createEmpty',
         ];
 
         foreach (everyTable() as $label => [$class, $parameters]) {
-            if (! isset($expected[$label])) {
+            if (! array_key_exists($label, $expected)) {
                 continue;
             }
 
             $table = rulesTable($class, $parameters);
+            $actionNames = collect($table->getEmptyStateActions())->map->getName()->all();
 
             expect($table->getEmptyStateHeading())->not->toBeEmpty("{$label} has no empty heading")
-                ->and($table->getEmptyStateDescription())->not->toBeEmpty("{$label} has no empty description")
-                ->and(collect($table->getEmptyStateActions())->map->getName()->all())->toContain($expected[$label]);
+                ->and($table->getEmptyStateDescription())->not->toBeEmpty("{$label} has no empty description");
+
+            // Charge lists have no button: charges only come from the rules (G-5B.3).
+            if ($expected[$label] === null) {
+                expect($actionNames)->toBeEmpty("{$label} should have no empty state action");
+            } else {
+                expect($actionNames)->toContain($expected[$label]);
+            }
         }
     });
 

@@ -71,7 +71,7 @@ class SendRenewalReminderAction extends Action
 
                 $action->successNotificationTitle(__('reminders.sent_notification'))->success();
 
-                $livewire->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
+                $livewire->dispatch(EditChargeAction::CHARGES_CHANGED_EVENT);
             });
     }
 }

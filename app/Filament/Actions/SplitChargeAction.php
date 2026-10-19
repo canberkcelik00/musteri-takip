@@ -62,7 +62,7 @@ class SplitChargeAction extends Action
 
                 $action->successNotificationTitle(__('charges.split_done'))->success();
 
-                $livewire->dispatch(CreateManualChargeAction::CHARGES_CHANGED_EVENT);
+                $livewire->dispatch(EditChargeAction::CHARGES_CHANGED_EVENT);
             });
     }
 }
