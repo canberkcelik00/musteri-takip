@@ -295,7 +295,7 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
 - [x] **G-8.3 Paket içe aktarma** — Bağımlılık: G-8.2
   - Yapılacak: `ImportServerPackages` Action'ı: yeni paket → hosting katalog hizmeti (verilen fiyat ve para birimiyle), mevcut paket → yalnız details güncellenir.
   - Kabul: İki çekmede tek katalog kaydı; ad ve fiyat değişmez; birim dönüşümleri ve "Limitsiz" (testli).
-- [ ] **G-8.4 Hesap içe aktarma** — Bağımlılık: G-8.3
+- [x] **G-8.4 Hesap içe aktarma** — Bağımlılık: G-8.3
   - Yapılacak: `ImportServerAccounts` Action'ı: eşleştir → yoksa müşteri + birincil kişi → `AssignCustomerService` (`create_first_charge: false`, yıldönümü başlangıcı). Sonuç nesnesi: oluşan, bağlanan, zaten bağlı, askıda atlanan, sunucuda bulunamayan, hata.
   - Kabul: İdempotent ikinci çekme; elle girilmiş eşleşen hizmetin çiftlenmemesi; askıdakilerin atlanması; yıldönümü (29 Şubat dahil, `travelTo`); hiç borç oluşmaması; cPanel'de her alan adının ayrı müşteri olması; katalog kaydı olmayan paketin hesabının hata olarak raporlanması (testli).
 - [ ] **G-8.5 "Sunucudan çek" ekranı** — Bağımlılık: G-8.4
