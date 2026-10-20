@@ -301,7 +301,7 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
 - [x] **G-8.5 "Sunucudan çek" ekranı** — Bağımlılık: G-8.4
   - Yapılacak: Sunucular satırında "Sunucudan çek": pencerede yeni paketlerin fiyat girişleri (WHM) veya başlangıç tarihi (cPanel) ve sayı önizlemesi; onayla G-8.3 + G-8.4 çalışır; sonuç mesajı ("12 müşteri oluştu, 3 hizmet bağlandı, 2 askıda atlandı") ve sorunlu hesap listesi.
   - Kabul: Livewire testi; tık sayısı `docs/UI.md` §7'ye eklenir (1 tık + fiyatlar + 1 tık).
-- [ ] **G-8.6 Uçtan uca ve canlı deneme** — Bağımlılık: G-8.5, K-8.1
+- [x] **G-8.6 Uçtan uca ve canlı deneme** — Bağımlılık: G-8.5, K-8.1
   - Kabul: Sahte WHM yanıtıyla müşteri kartında hizmet doğru görünür (testli); canlıda bir sunucuyla deneme (kullanıcı); ardından yenileme borçları normal kuralla doğar.
 
 **Faz 8 bittiğinde:** Hosting hesapları elle girilmeden sunucudan gelir; askıya alma, kota kontrolü ve zamanlanmış senkron ayrı öneri olarak park listesinde kalır.
