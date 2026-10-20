@@ -58,17 +58,23 @@ it('reports a connection failure', function () {
         ->and($result->message)->toContain('bağlanılamadı');
 });
 
-it('reports an unexpected response when the body does not confirm success', function (array $body) {
-    Http::fake(['*' => Http::response($body)]);
+it('reports an unexpected response when the body does not confirm success', function () {
+    Http::fake(['*' => Http::response(['foo' => 'bar'])]);
 
     $result = app(TestServerConnection::class)->handle(Server::factory()->whm()->create());
 
     expect($result->successful)->toBeFalse()
         ->and($result->message)->toContain('beklenmeyen');
-})->with([
-    'result 0' => [['metadata' => ['result' => 0, 'reason' => 'x']]],
-    'not json' => [['foo' => 'bar']],
-]);
+});
+
+it('reports a rejected request when the API answers result 0', function () {
+    Http::fake(['*' => Http::response(['metadata' => ['result' => 0, 'reason' => 'x']])]);
+
+    $result = app(TestServerConnection::class)->handle(Server::factory()->whm()->create());
+
+    expect($result->successful)->toBeFalse()
+        ->and($result->message)->toContain('reddetti');
+});
 
 it('never puts the token in the message', function () {
     Http::fake(['*' => Http::response('bad TOPSECRET', 500)]);

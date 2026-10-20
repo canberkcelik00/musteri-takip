@@ -289,7 +289,7 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
   - Yapılacak: Migration, `Server` modeli (Attribute stili, arşiv), `ServerType` enum + `lang/tr`, factory; Ayarlar altında "Sunucular" ekranı (ortada pencere, satırda en fazla iki işlem); `TestServerConnection` Action'ı ve "Bağlantıyı dene". Token formda bir daha gösterilmez, boş bırakılırsa değişmez.
   - Kabul: Token veritabanında şifreli; cPanel türünde katalog hizmeti zorunlu; bağlantı denemesi başarı, yetki hatası ve zaman aşımı mesajları (testli).
   - Kapanış notu (T-107): Faz 8'in `catalog_services` ve `customer_service_items` alanları da bu görevde eklendi.
-- [ ] **G-8.2 API istemcileri** — Bağımlılık: G-8.1
+- [x] **G-8.2 API istemcileri** — Bağımlılık: G-8.1
   - Yapılacak: `WhmApi::packages()/accounts()`, `CpanelApi::accounts()` (ana + addon domain → `RemoteAccount`); yanıt hatalarını tek istisna türüne çevirme.
   - Kabul: Örnek WHM/UAPI JSON'larıyla doğru değer nesneleri; `metadata.result=0` ile HTTP 401 ayırt edilir (testli).
 - [ ] **G-8.3 Paket içe aktarma** — Bağımlılık: G-8.2

@@ -1,0 +1,1 @@
+{"data":{"pkg":[{"name":"gold","QUOTA":"5000","BWLIMIT":"unlimited","MAXPOP":"unlimited","MAXSQL":"50","MAXADDON":"4"},{"name":"mini","QUOTA":"0","BWLIMIT":"10000","MAXPOP":"10","MAXSQL":"5","MAXADDON":"0"}]},"metadata":{"result":1,"reason":"OK","command":"listpkgs","version":1}}

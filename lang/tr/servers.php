@@ -24,5 +24,6 @@ return [
     'connection_unauthorized' => 'Sunucu kullanıcı adını veya API token\'ı kabul etmedi. Token\'ın doğru olduğunu ve gerekli izne sahip olduğunu kontrol edin.',
     'connection_timeout' => 'Sunucu zamanında yanıt vermedi. Adresi ve bağlantı noktasını kontrol edin; hosting dışarıya bu bağlantı noktasına izin vermiyor olabilir.',
     'connection_failed' => 'Sunucuya bağlanılamadı. Adresi, bağlantı noktasını ve SSL sertifikasını kontrol edin.',
+    'connection_api_error' => 'Sunucu isteği reddetti. API token\'ın bu işlem için gerekli izne sahip olduğunu kontrol edin.',
     'connection_invalid_response' => 'Sunucu beklenmeyen bir yanıt verdi. Bağlantı noktasının ve sunucu türünün doğru olduğunu kontrol edin.',
 ];
