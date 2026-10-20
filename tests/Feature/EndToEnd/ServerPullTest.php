@@ -23,6 +23,7 @@ it('pulls a WHM server, shows the hosting on the customer card and lets the rene
     Http::fake([
         '*/json-api/listpkgs*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listpkgs.json')), 200, ['Content-Type' => 'application/json']),
         '*/json-api/listaccts*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listaccts.json')), 200, ['Content-Type' => 'application/json']),
+        '*/json-api/uapi_cpanel*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/uapi_list_domains.json')), 200, ['Content-Type' => 'application/json']),
     ]);
     $server = Server::factory()->whm()->create();
 

@@ -50,6 +50,35 @@ class WhmApi extends ServerApiClient
         ), array_filter($rows, fn (mixed $row): bool => is_array($row) && isset($row['user']))));
     }
 
+    public function domainsOf(RemoteAccount $account): array
+    {
+        $query = http_build_query([
+            'api.version' => 1,
+            'cpanel.user' => $account->username,
+            'cpanel.module' => 'DomainInfo',
+            'cpanel.function' => 'list_domains',
+        ]);
+
+        $uapi = $this->request("json-api/uapi_cpanel?{$query}")['data']['uapi'] ?? null;
+        $data = is_array($uapi) && ($uapi['status'] ?? null) === 1 ? ($uapi['data'] ?? null) : null;
+
+        if (! is_array($data)) {
+            return [$account->domain];
+        }
+
+        $domains = array_filter(
+            array_map('strval', [
+                ...(array) ($data['main_domain'] ?? $account->domain),
+                ...(array) ($data['addon_domains'] ?? []),
+                ...(array) ($data['parked_domains'] ?? []),
+                ...(array) ($data['sub_domains'] ?? []),
+            ]),
+            fn (string $domain): bool => $domain !== '',
+        );
+
+        return array_values(array_unique($domains)) ?: [$account->domain];
+    }
+
     protected function authorizationScheme(): string
     {
         return 'whm';

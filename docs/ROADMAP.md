@@ -303,6 +303,9 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
   - Kabul: Livewire testi; tık sayısı `docs/UI.md` §7'ye eklenir (1 tık + fiyatlar + 1 tık).
 - [x] **G-8.6 Uçtan uca ve canlı deneme** — Bağımlılık: G-8.5, K-8.1
   - Kabul: Sahte WHM yanıtıyla müşteri kartında hizmet doğru görünür (testli); canlıda bir sunucuyla deneme (kullanıcı); ardından yenileme borçları normal kuralla doğar.
+- [x] **G-8.7 Çekmede müşteri adı seçimi** — Bağımlılık: G-8.5 (canlı denemede ana alan adı çoğu zaman alt alan adı çıktı)
+  - Yapılacak: "Sunucudan çek" penceresi her yeni hesap için hesabın tüm alan adlarını listeler (ana alan adı seçili gelir) ve "Diğer…" ile elle yazmaya izin verir; seçilen ad müşteri kısa adı, birincil kişi adı ve kalemdeki alan adı olur.
+  - Kabul: Listeden ve elle girilen ad testli; alan adları okunamazsa ana alan adına düşülür; mevcut kısa ad seçilirse hizmet o müşteriye eklenir.
 
 **Faz 8 bittiğinde:** Hosting hesapları elle girilmeden sunucudan gelir; askıya alma, kota kontrolü ve zamanlanmış senkron ayrı öneri olarak park listesinde kalır.
 

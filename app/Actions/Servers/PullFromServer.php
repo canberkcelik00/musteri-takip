@@ -23,8 +23,9 @@ class PullFromServer
      *
      * @param  array<string, array{price: int, currency: Currency}>  $newPackagePrices  WHM: price per new package name.
      * @param  CarbonInterface|null  $cpanelStartDate  cPanel: start date for the domains.
+     * @param  array<string, string>  $customerNames  Chosen customer name per account key.
      */
-    public function handle(Server $server, array $newPackagePrices = [], ?CarbonInterface $cpanelStartDate = null): ServerPullResult
+    public function handle(Server $server, array $newPackagePrices = [], ?CarbonInterface $cpanelStartDate = null, array $customerNames = []): ServerPullResult
     {
         $api = ServerApiClient::for($server);
 
@@ -39,7 +40,7 @@ class PullFromServer
             ? $this->importServerPackages->handle($server, $packages, $newPackagePrices)
             : null;
 
-        $accountResult = $this->importServerAccounts->handle($server, $accounts, $cpanelStartDate);
+        $accountResult = $this->importServerAccounts->handle($server, $accounts, $cpanelStartDate, $customerNames);
 
         return new ServerPullResult(null, $packageResult, $accountResult);
     }

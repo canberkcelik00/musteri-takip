@@ -37,8 +37,9 @@ class ImportServerAccounts
      *
      * @param  iterable<RemoteAccount>  $accounts
      * @param  CarbonInterface|null  $cpanelStartDate  Start date for accounts without one (cPanel domains).
+     * @param  array<string, string>  $customerNames  Chosen name per account key, used as the customer's short name, contact name and the item's domain; the account's main domain when missing.
      */
-    public function handle(Server $server, iterable $accounts, ?CarbonInterface $cpanelStartDate = null): AccountImportResult
+    public function handle(Server $server, iterable $accounts, ?CarbonInterface $cpanelStartDate = null, array $customerNames = []): AccountImportResult
     {
         $today = CarbonImmutable::today(config('app.timezone'));
 
@@ -59,7 +60,7 @@ class ImportServerAccounts
 
             try {
                 [$outcome, $customerCreated] = DB::transaction(
-                    fn (): array => $this->importAccount($server, $account, $startDate),
+                    fn (): array => $this->importAccount($server, $account, $startDate, $this->chosenName($customerNames, $account)),
                 );
             } catch (DomainException $e) {
                 $errors[$account->key] = $e->getMessage();
@@ -94,7 +95,7 @@ class ImportServerAccounts
     /**
      * @return array{0: 'created'|'linked'|'alreadyLinked', 1: bool} The outcome and whether a customer was created.
      */
-    private function importAccount(Server $server, RemoteAccount $account, CarbonInterface $startDate): array
+    private function importAccount(Server $server, RemoteAccount $account, CarbonInterface $startDate, string $name): array
     {
         $match = $this->matchServerAccount->handle($server, $account);
 
@@ -103,7 +104,7 @@ class ImportServerAccounts
         }
 
         $details = [
-            'domain' => $account->domain,
+            'domain' => $name,
             'server' => $server->name,
             'cpanel_username' => $account->username,
         ];
@@ -116,12 +117,12 @@ class ImportServerAccounts
 
         $catalogService = $this->catalogServiceFor($server, $account);
 
-        $customer = Customer::query()->where('short_name', $account->domain)->first();
+        $customer = Customer::query()->where('short_name', $name)->first();
         $customerCreated = $customer === null;
 
         $customer ??= $this->createCustomer->handle(
-            ['short_name' => $account->domain],
-            ['name' => $account->domain, 'email' => $account->email ?: null],
+            ['short_name' => $name],
+            ['name' => $name, 'email' => $account->email ?: null],
         );
 
         $customerService = $this->assignCustomerService->handle($customer, $catalogService, [
@@ -133,6 +134,16 @@ class ImportServerAccounts
         $this->link($customerService->items()->sole(), $server, $account, $details);
 
         return ['created', $customerCreated];
+    }
+
+    /**
+     * @param  array<string, string>  $customerNames
+     */
+    private function chosenName(array $customerNames, RemoteAccount $account): string
+    {
+        $name = trim($customerNames[$account->key] ?? '');
+
+        return $name === '' ? $account->domain : $name;
     }
 
     /**

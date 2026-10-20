@@ -174,7 +174,7 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Bugün listesinden gecikmiş borcun ödemesini almak | 1 (Ödeme al) + tutar + 1 |
 | Karttan hizmet eklemek | 1 + seçim + 1 |
 | Gecikmiş tüm borçları görmek | 1 (Bugün'deki sayı kartı) |
-| Sunucudan hesap çekmek | 1 (Sunucudan çek) + yeni paketlerin fiyatları (WHM) ya da başlangıç tarihi (cPanel) + 1 (Çek) |
+| Sunucudan hesap çekmek | 1 (Sunucudan çek) + yeni paketlerin fiyatları (WHM) ya da başlangıç tarihi (cPanel) + gerekirse müşteri adı seçimi (varsayılan ana alan adı gelir) + 1 (Çek) |
 
 ## 8. Şu anki panelden farklar
 

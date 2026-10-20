@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
 use App\Models\Server;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(fn () => $this->travelTo('2026-10-20 10:00:00'));
@@ -19,6 +20,7 @@ function fakeWhm(): void
     Http::fake([
         '*/json-api/listpkgs*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listpkgs.json')), 200, ['Content-Type' => 'application/json']),
         '*/json-api/listaccts*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listaccts.json')), 200, ['Content-Type' => 'application/json']),
+        '*/json-api/uapi_cpanel*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/uapi_list_domains.json')), 200, ['Content-Type' => 'application/json']),
     ]);
 }
 
@@ -67,4 +69,59 @@ it('turns a server failure into the preview error', function () {
 
     expect($preview->error)->toBe(__('servers.connection_unauthorized'))
         ->and($preview->newPackages)->toBe([]);
+});
+
+it('lists every domain of each new account, main domain first, and skips linked and suspended ones', function () {
+    fakeWhm();
+    $server = Server::factory()->whm()->create();
+
+    $preview = app(PreviewServerPull::class)->handle($server);
+
+    expect($preview->newAccountRows)->toBe([[
+        'key' => 'logi',
+        'username' => 'logi',
+        'domain' => 'logi.com.tr',
+        'domains' => ['logi.com.tr', 'logimagaza.com', 'logi.net', 'blog.logi.com.tr', 'logimagaza.logi.com.tr'],
+    ]]);
+
+    Http::assertSentCount(3);
+});
+
+it('asks no domains for accounts that are not new', function () {
+    fakeWhm();
+    $server = Server::factory()->whm()->create();
+    app(PullFromServer::class)->handle($server, [
+        'gold' => ['price' => 100000, 'currency' => Currency::Try],
+        'mini' => ['price' => 50000, 'currency' => Currency::Try],
+    ]);
+    fakeWhm();
+
+    $preview = app(PreviewServerPull::class)->handle($server);
+
+    expect($preview->newAccountRows)->toBe([]);
+
+    Http::assertSentCount(2);
+});
+
+it('falls back to the main domain when the domains cannot be read and stops asking after a timeout', function () {
+    $accounts = ['acct' => [
+        ['user' => 'bir', 'domain' => 'bir.com', 'email' => 'a@bir.com', 'plan' => 'gold', 'unix_startdate' => 1700000000, 'suspended' => 0],
+        ['user' => 'iki', 'domain' => 'iki.com', 'email' => 'a@iki.com', 'plan' => 'gold', 'unix_startdate' => 1700000000, 'suspended' => 0],
+    ]];
+    $domainRequests = 0;
+    Http::fake([
+        '*/json-api/listpkgs*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listpkgs.json')), 200, ['Content-Type' => 'application/json']),
+        '*/json-api/listaccts*' => Http::response(['data' => $accounts, 'metadata' => ['result' => 1]]),
+        '*/json-api/uapi_cpanel*' => function () use (&$domainRequests): never {
+            $domainRequests++;
+
+            throw new ConnectionException('cURL error 28: Operation timed out');
+        },
+    ]);
+
+    $preview = app(PreviewServerPull::class)->handle(Server::factory()->whm()->create());
+
+    expect($preview->error)->toBeNull()
+        ->and(array_column($preview->newAccountRows, 'domains'))->toBe([['bir.com'], ['iki.com']])
+        ->and($domainRequests)->toBe(1);
 });

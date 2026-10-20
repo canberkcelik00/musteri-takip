@@ -1,0 +1,1 @@
+{"data":{"uapi":{"status":1,"errors":null,"messages":null,"warnings":null,"data":{"main_domain":"logi.com.tr","addon_domains":["logimagaza.com"],"parked_domains":["logi.net"],"sub_domains":["blog.logi.com.tr","logimagaza.logi.com.tr"]},"metadata":{}}},"metadata":{"result":1,"reason":"OK","command":"uapi_cpanel","version":1}}

@@ -3,6 +3,7 @@
 use App\Enums\RemoteServerErrorReason;
 use App\Exceptions\RemoteServerError;
 use App\Models\Server;
+use App\Support\Servers\RemoteAccount;
 use App\Support\Servers\ServerApiClient;
 use App\Support\Servers\WhmApi;
 use Illuminate\Http\Client\ConnectionException;
@@ -88,4 +89,24 @@ it('never puts the token in an error message', function () {
     expect(fn () => ServerApiClient::for(whmServer())->ping())->toThrow(
         fn (RemoteServerError $error) => expect($error->getMessage())->not->toContain('TOK123'),
     );
+});
+
+it('lists every domain of an account with the main domain first', function () {
+    Http::fake(['*' => Http::response(serverFixture('whm/uapi_list_domains.json'))]);
+    $server = whmServer();
+
+    $domains = ServerApiClient::for($server)->domainsOf(new RemoteAccount('logi', 'logi.com.tr', 'logi', null, 'gold', null, false));
+
+    expect($domains)->toBe(['logi.com.tr', 'logimagaza.com', 'logi.net', 'blog.logi.com.tr', 'logimagaza.logi.com.tr']);
+
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://sunucu.example.com:2087/json-api/uapi_cpanel?api.version=1&cpanel.user=logi&cpanel.module=DomainInfo&cpanel.function=list_domains'
+        && $request->header('Authorization') === ['whm reseller:TOK123']);
+});
+
+it('falls back to the main domain when the account domains cannot be listed', function () {
+    Http::fake(['*' => Http::response(['data' => ['uapi' => ['status' => 0, 'errors' => ['x']]], 'metadata' => ['result' => 1]])]);
+
+    $domains = ServerApiClient::for(whmServer())->domainsOf(new RemoteAccount('logi', 'logi.com.tr', 'logi', null, null, null, false));
+
+    expect($domains)->toBe(['logi.com.tr']);
 });

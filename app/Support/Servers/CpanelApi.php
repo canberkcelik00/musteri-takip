@@ -41,6 +41,11 @@ class CpanelApi extends ServerApiClient
         ), array_values($domains));
     }
 
+    public function domainsOf(RemoteAccount $account): array
+    {
+        return [$account->domain];
+    }
+
     protected function authorizationScheme(): string
     {
         return 'cpanel';

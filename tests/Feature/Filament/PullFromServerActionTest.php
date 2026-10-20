@@ -25,6 +25,7 @@ function pullWhm(): void
     Http::fake([
         '*/json-api/listpkgs*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listpkgs.json')), 200, ['Content-Type' => 'application/json']),
         '*/json-api/listaccts*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/listaccts.json')), 200, ['Content-Type' => 'application/json']),
+        '*/json-api/uapi_cpanel*' => Http::response(file_get_contents(base_path('tests/Fixtures/whm/uapi_list_domains.json')), 200, ['Content-Type' => 'application/json']),
     ]);
 }
 
@@ -133,6 +134,70 @@ it('shows why the server could not be read and imports nothing', function () {
         ->assertSchemaStateSet(['error' => __('servers.connection_unauthorized'), 'summary' => null])
         ->callMountedAction()
         ->assertNotified(__('servers.connection_unauthorized'));
+
+    expect(Customer::query()->count())->toBe(0);
+});
+
+function pullAccountRow(string $choice, ?string $custom = null): array
+{
+    return [
+        'key' => 'logi',
+        'domains' => ['logi.com.tr', 'logimagaza.com', 'logi.net', 'blog.logi.com.tr', 'logimagaza.logi.com.tr'],
+        'account' => 'logi — logi.com.tr',
+        'choice' => $choice,
+        'custom' => $custom,
+    ];
+}
+
+/**
+ * @return list<array{name: string, price: string, currency: string}>
+ */
+function pullPackages(): array
+{
+    return [
+        ['name' => 'gold', 'price' => '1.200,00', 'currency' => 'TRY'],
+        ['name' => 'mini', 'price' => '25,50', 'currency' => 'TRY'],
+    ];
+}
+
+it('offers every domain of a new account with the main domain selected', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->mountAction(pullAction($server))
+        ->assertSet('mountedActions.0.data.accounts', fn (array $rows): bool => array_values($rows) === [pullAccountRow('logi.com.tr')]);
+});
+
+it('creates the customer under the domain picked from the list', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->callAction(pullAction($server), ['packages' => pullPackages(), 'accounts' => [pullAccountRow('logimagaza.com')]])
+        ->assertHasNoFormErrors();
+
+    expect(Customer::query()->pluck('short_name')->all())->toBe(['logimagaza.com']);
+});
+
+it('creates the customer under a name typed by hand', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->callAction(pullAction($server), ['packages' => pullPackages(), 'accounts' => [pullAccountRow('__other', 'Logi Lojistik')]])
+        ->assertHasNoFormErrors();
+
+    expect(Customer::query()->pluck('short_name')->all())->toBe(['Logi Lojistik']);
+});
+
+it('requires the typed name once the other option is picked', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->callAction(pullAction($server), ['packages' => pullPackages(), 'accounts' => [pullAccountRow('__other', '')]])
+        ->assertHasFormErrors(['accounts.0.custom' => 'required']);
 
     expect(Customer::query()->count())->toBe(0);
 });

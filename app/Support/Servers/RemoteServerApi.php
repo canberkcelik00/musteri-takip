@@ -26,4 +26,13 @@ interface RemoteServerApi
      * @throws RemoteServerError
      */
     public function accounts(): array;
+
+    /**
+     * Every domain of the account, main domain first: main, addon, parked and sub domains.
+     *
+     * @return list<string>
+     *
+     * @throws RemoteServerError
+     */
+    public function domainsOf(RemoteAccount $account): array;
 }

@@ -238,6 +238,42 @@ it('reports linked items the server no longer lists without touching them', func
         ->and(CustomerServiceItem::query()->count())->toBe(2);
 });
 
+it('uses the chosen name for the customer, the contact and the item domain', function () {
+    $server = Server::factory()->whm()->create();
+    hostingCatalogFor($server);
+
+    app(ImportServerAccounts::class)->handle($server, [serverAccount('sub.ajans.com', 'ornek')], null, ['ornek' => 'ornek.com.tr']);
+
+    $customer = Customer::query()->sole();
+    $item = CustomerServiceItem::query()->sole();
+
+    expect($customer->short_name)->toBe('ornek.com.tr')
+        ->and($customer->primaryContact->name)->toBe('ornek.com.tr')
+        ->and($item->details['domain'])->toBe('ornek.com.tr')
+        ->and($item->remote_key)->toBe('ornek');
+});
+
+it('adds the service to the existing customer whose short name is the chosen name', function () {
+    $server = Server::factory()->whm()->create();
+    hostingCatalogFor($server);
+    $existing = Customer::factory()->create(['short_name' => 'Ornek Ltd.']);
+
+    $result = app(ImportServerAccounts::class)->handle($server, [serverAccount('sub.ajans.com', 'ornek')], null, ['ornek' => ' Ornek Ltd. ']);
+
+    expect($result->customersCreated)->toBe(0)
+        ->and(Customer::query()->count())->toBe(1)
+        ->and($existing->customerServices()->count())->toBe(1);
+});
+
+it('falls back to the main domain when the chosen name is blank', function () {
+    $server = Server::factory()->whm()->create();
+    hostingCatalogFor($server);
+
+    app(ImportServerAccounts::class)->handle($server, [serverAccount('sub.ajans.com', 'ornek')], null, ['ornek' => '  ']);
+
+    expect(Customer::query()->sole()->short_name)->toBe('sub.ajans.com');
+});
+
 it('lets the next renewal charge come from the normal rule', function () {
     $server = Server::factory()->whm()->create();
     hostingCatalogFor($server);

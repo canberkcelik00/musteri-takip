@@ -4,6 +4,7 @@ use App\Enums\RemoteServerErrorReason;
 use App\Exceptions\RemoteServerError;
 use App\Models\Server;
 use App\Support\Servers\CpanelApi;
+use App\Support\Servers\RemoteAccount;
 use App\Support\Servers\ServerApiClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -41,4 +42,14 @@ it('reports a UAPI status 0 as an API error', function () {
     expect(fn () => ServerApiClient::for(cpanelServer())->accounts())->toThrow(
         fn (RemoteServerError $error) => expect($error->reason)->toBe(RemoteServerErrorReason::ApiError),
     );
+});
+
+it('has only the domain itself for a cPanel account and asks nothing', function () {
+    Http::fake();
+
+    $domains = ServerApiClient::for(cpanelServer())->domainsOf(new RemoteAccount('ikinci.com', 'ikinci.com', 'logi', null, null, null, false));
+
+    expect($domains)->toBe(['ikinci.com']);
+
+    Http::assertNothingSent();
 });

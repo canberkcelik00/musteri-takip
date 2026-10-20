@@ -14,7 +14,9 @@ use App\Models\Server;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Text;
@@ -29,6 +31,9 @@ use Illuminate\Support\HtmlString;
  */
 class PullFromServerAction extends Action
 {
+    /** The "Diğer…" option of the customer name list: the name is typed by hand. */
+    private const string OTHER = '__other';
+
     public static function getDefaultName(): ?string
     {
         return 'pullFromServer';
@@ -53,6 +58,16 @@ class PullFromServerAction extends Action
                     'packages' => array_map(
                         fn (string $name): array => ['name' => $name, 'price' => null, 'currency' => Currency::Try->value],
                         $preview->newPackages,
+                    ),
+                    'accounts' => array_map(
+                        fn (array $row): array => [
+                            'key' => $row['key'],
+                            'domains' => $row['domains'],
+                            'account' => "{$row['username']} — {$row['domain']}",
+                            'choice' => $row['domain'],
+                            'custom' => null,
+                        ],
+                        $preview->newAccountRows,
                     ),
                 ]);
             })
@@ -80,6 +95,34 @@ class PullFromServerAction extends Action
                     ->deletable(false)
                     ->reorderable(false)
                     ->visible(fn (Get $get): bool => filled($get('packages'))),
+                Repeater::make('accounts')
+                    ->label(__('servers.pull_accounts'))
+                    ->helperText(__('servers.pull_accounts_helper'))
+                    ->schema([
+                        Hidden::make('key'),
+                        Hidden::make('domains'),
+                        TextInput::make('account')
+                            ->label(__('servers.pull_account'))
+                            ->readOnly(),
+                        Select::make('choice')
+                            ->label(__('servers.pull_customer_name'))
+                            ->options(fn (Get $get): array => [
+                                ...array_combine((array) $get('domains'), (array) $get('domains')),
+                                self::OTHER => __('servers.pull_customer_name_other'),
+                            ])
+                            ->required()
+                            ->live(),
+                        TextInput::make('custom')
+                            ->label(__('servers.pull_customer_name_custom'))
+                            ->maxLength(255)
+                            ->required()
+                            ->visible(fn (Get $get): bool => $get('choice') === self::OTHER),
+                    ])
+                    ->columns(3)
+                    ->addable(false)
+                    ->deletable(false)
+                    ->reorderable(false)
+                    ->visible(fn (Get $get): bool => filled($get('accounts'))),
                 DatePicker::make('start_date')
                     ->label(__('servers.pull_start_date'))
                     ->helperText(__('servers.pull_start_date_helper'))
@@ -91,6 +134,7 @@ class PullFromServerAction extends Action
                     $record,
                     $this->prices($data['packages'] ?? []),
                     filled($data['start_date'] ?? null) ? CarbonImmutable::parse($data['start_date']) : null,
+                    $this->customerNames($data['accounts'] ?? []),
                 );
 
                 $this->notify($result);
@@ -120,6 +164,21 @@ class PullFromServerAction extends Action
         }
 
         return $prices;
+    }
+
+    /**
+     * @param  array<array-key, array{key: string, choice: string, custom?: string|null}>  $rows
+     * @return array<string, string>
+     */
+    private function customerNames(array $rows): array
+    {
+        $names = [];
+
+        foreach ($rows as $row) {
+            $names[$row['key']] = trim($row['choice'] === self::OTHER ? (string) ($row['custom'] ?? '') : $row['choice']);
+        }
+
+        return $names;
     }
 
     private function notify(ServerPullResult $result): void
