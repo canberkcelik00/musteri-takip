@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Servers\Tables;
 
 use App\Actions\Servers\TestServerConnection;
+use App\Filament\Actions\PullFromServerAction;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Server;
 use Filament\Actions\Action;
@@ -46,17 +47,20 @@ class ServersTable
                 ArchivedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                Action::make('testConnection')
-                    ->label(__('servers.test_connection'))
-                    ->color('gray')
-                    ->action(function (Server $record): void {
-                        $result = app(TestServerConnection::class)->handle($record);
+                EditAction::make()
+                    ->extraModalFooterActions([
+                        Action::make('testConnection')
+                            ->label(__('servers.test_connection'))
+                            ->color('gray')
+                            ->action(function (Server $record): void {
+                                $result = app(TestServerConnection::class)->handle($record);
 
-                        $notification = Notification::make()->title($result->message);
+                                $notification = Notification::make()->title($result->message);
 
-                        $result->successful ? $notification->success()->send() : $notification->danger()->send();
-                    }),
+                                $result->successful ? $notification->success()->send() : $notification->danger()->send();
+                            }),
+                    ]),
+                PullFromServerAction::make(),
             ])
             ->emptyStateHeading(__('servers.empty_heading'))
             ->emptyStateDescription(__('servers.empty_description'))

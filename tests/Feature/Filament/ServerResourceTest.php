@@ -166,7 +166,7 @@ it('tests the connection from the row and tells the result', function () {
     $server = Server::factory()->whm()->create();
 
     Livewire::test(ManageServers::class)
-        ->callAction(TestAction::make('testConnection')->table($server))
+        ->callAction([editServerPanel($server), TestAction::make('testConnection')])
         ->assertNotified('Bağlantı başarılı.');
 });
 
@@ -175,7 +175,7 @@ it('tells why the connection failed', function () {
     $server = Server::factory()->whm()->create();
 
     Livewire::test(ManageServers::class)
-        ->callAction(TestAction::make('testConnection')->table($server))
+        ->callAction([editServerPanel($server), TestAction::make('testConnection')])
         ->assertNotified(__('servers.connection_unauthorized'));
 });
 

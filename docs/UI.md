@@ -62,7 +62,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | --- | --- | --- |
 | Her yerden gereken iş | Üst çubuk | Ara, Ödeme al, Yeni |
 | Sayfanın ana işi | Sayfa başlığının sağı, ikincil düğme | Müşteriler: "Yeni müşteri" |
-| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
+| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle"; Sunucu: "Düzenle", "Sunucudan çek" ("Bağlantıyı dene" düzenleme penceresinin altında) (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
 | Kayda ait nadir iş | Kaydın kartında/sayfasında, adlandırılmış bölümde | Hizmet: "Ücretsiz yap", "Böl" |
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
@@ -174,6 +174,7 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Bugün listesinden gecikmiş borcun ödemesini almak | 1 (Ödeme al) + tutar + 1 |
 | Karttan hizmet eklemek | 1 + seçim + 1 |
 | Gecikmiş tüm borçları görmek | 1 (Bugün'deki sayı kartı) |
+| Sunucudan hesap çekmek | 1 (Sunucudan çek) + yeni paketlerin fiyatları (WHM) ya da başlangıç tarihi (cPanel) + 1 (Çek) |
 
 ## 8. Şu anki panelden farklar
 

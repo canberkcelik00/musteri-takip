@@ -4,9 +4,8 @@ namespace App\Actions\Servers;
 
 use App\Actions\Customers\CreateCustomer;
 use App\Actions\CustomerServices\AssignCustomerService;
-use App\Enums\CustomerServiceStatus;
+use App\Enums\AccountMatchKind;
 use App\Enums\ServerType;
-use App\Enums\ServiceType;
 use App\Models\CatalogService;
 use App\Models\Customer;
 use App\Models\CustomerServiceItem;
@@ -16,7 +15,6 @@ use App\Support\Servers\RemoteAccount;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use DomainException;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -25,6 +23,7 @@ class ImportServerAccounts
     public function __construct(
         private CreateCustomer $createCustomer,
         private AssignCustomerService $assignCustomerService,
+        private MatchServerAccount $matchServerAccount,
     ) {}
 
     /**
@@ -97,9 +96,9 @@ class ImportServerAccounts
      */
     private function importAccount(Server $server, RemoteAccount $account, CarbonInterface $startDate): array
     {
-        $isLinked = $server->customerServiceItems()->where('remote_key', $account->key)->exists();
+        $match = $this->matchServerAccount->handle($server, $account);
 
-        if ($isLinked) {
+        if ($match->kind === AccountMatchKind::AlreadyLinked) {
             return ['alreadyLinked', false];
         }
 
@@ -109,10 +108,8 @@ class ImportServerAccounts
             'cpanel_username' => $account->username,
         ];
 
-        $existing = $this->unlinkedHostingItem($server, $account);
-
-        if ($existing !== null) {
-            $this->link($existing, $server, $account, $details);
+        if ($match->item !== null) {
+            $this->link($match->item, $server, $account, $details);
 
             return ['linked', false];
         }
@@ -136,28 +133,6 @@ class ImportServerAccounts
         $this->link($customerService->items()->sole(), $server, $account, $details);
 
         return ['created', $customerCreated];
-    }
-
-    private function unlinkedHostingItem(Server $server, RemoteAccount $account): ?CustomerServiceItem
-    {
-        return CustomerServiceItem::query()
-            ->where('type', ServiceType::Hosting)
-            ->whereNull('server_id')
-            ->whereHas('customerService', fn (Builder $query): Builder => $query->where('status', CustomerServiceStatus::Active))
-            ->where(function (Builder $query) use ($server, $account): void {
-                $query->whereRaw($this->detailEquals('domain'), [$account->domain]);
-
-                if ($server->type === ServerType::Whm) {
-                    $query->orWhereRaw($this->detailEquals('cpanel_username'), [$account->username]);
-                }
-            })
-            ->orderBy('id')
-            ->first();
-    }
-
-    private function detailEquals(string $key): string
-    {
-        return "JSON_UNQUOTE(JSON_EXTRACT(details, '$.{$key}')) COLLATE utf8mb4_unicode_ci = ?";
     }
 
     /**
