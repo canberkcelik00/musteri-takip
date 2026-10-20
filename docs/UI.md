@@ -48,7 +48,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | 2 | **Müşteriler** | Liste ve kartlar |
 | 3 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
 | 4 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
-| 5 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri (en altta) |
+| 5 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (en altta; Faz 8) |
 
 **Üst çubuk (her sayfada aynı yerde):**
 

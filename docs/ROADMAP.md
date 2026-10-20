@@ -285,9 +285,10 @@ Hedef: Yenileme borcu oluştuğunda müşterinin birincil ilgili kişisine siste
 Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile paketleri hosting katalog hizmeti, hesapları ve alan adlarını müşteri + müşteri hizmeti olarak yerleştirmek. Kararlar: U-18, T-106. Kullanıcı kararıyla Faz 6'dan önce yapılır. Her görev tek oturumdur; WHM/cPanel çağrıları testlerde `Http::fake()` ile yapılır, gerçek sunucuya istek atılmaz.
 
 - [ ] **K-8.1 API token'ları ve erişim:** WHM'de (Geliştirme → Manage API Tokens) ve cPanel'de (Güvenlik → Manage API Tokens) yalnız gerekli izinli token oluştur; hostingin 2087/2083 portlarına dışarı bağlanabildiğini G-8.1'deki "Bağlantıyı dene" ile canlıda doğrula.
-- [ ] **G-8.1 Sunucular** — Bağımlılık: Faz 5B
+- [x] **G-8.1 Sunucular** — Bağımlılık: Faz 5B
   - Yapılacak: Migration, `Server` modeli (Attribute stili, arşiv), `ServerType` enum + `lang/tr`, factory; Ayarlar altında "Sunucular" ekranı (ortada pencere, satırda en fazla iki işlem); `TestServerConnection` Action'ı ve "Bağlantıyı dene". Token formda bir daha gösterilmez, boş bırakılırsa değişmez.
   - Kabul: Token veritabanında şifreli; cPanel türünde katalog hizmeti zorunlu; bağlantı denemesi başarı, yetki hatası ve zaman aşımı mesajları (testli).
+  - Kapanış notu (T-107): Faz 8'in `catalog_services` ve `customer_service_items` alanları da bu görevde eklendi.
 - [ ] **G-8.2 API istemcileri** — Bağımlılık: G-8.1
   - Yapılacak: `WhmApi::packages()/accounts()`, `CpanelApi::accounts()` (ana + addon domain → `RemoteAccount`); yanıt hatalarını tek istisna türüne çevirme.
   - Kabul: Örnek WHM/UAPI JSON'larıyla doğru değer nesneleri; `metadata.result=0` ile HTTP 401 ayırt edilir (testli).

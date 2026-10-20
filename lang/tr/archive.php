@@ -20,6 +20,7 @@ return [
         'customer_service' => 'Hizmetin borcu var; silinemez, iptal edilebilir.',
         'catalog_service' => 'Bu hizmet bir pakette veya müşteri hizmetinde kullanılıyor; silinemez, arşivlenebilir.',
         'package' => 'Bu paket bir müşteri hizmetinde kullanılıyor; silinemez, arşivlenebilir.',
+        'server' => 'Bu sunucudan paket veya hesap çekilmiş; silinemez, arşivlenebilir.',
         'payment_method' => 'Bu ödeme yöntemi ödemelerde kullanılıyor; silinemez, arşivlenebilir.',
     ],
 ];

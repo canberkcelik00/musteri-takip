@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array<string, mixed>|null $details
  * @property string|null $license_key
  */
-#[Fillable(['catalog_service_id', 'type', 'name', 'details', 'license_key'])]
+#[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
 class CustomerServiceItem extends Model
 {
     /** @use HasFactory<CustomerServiceItemFactory> */
@@ -47,6 +47,16 @@ class CustomerServiceItem extends Model
     public function catalogService(): BelongsTo
     {
         return $this->belongsTo(CatalogService::class);
+    }
+
+    /**
+     * The server this item was pulled from, if any; `remote_key` identifies it there.
+     *
+     * @return BelongsTo<Server, $this>
+     */
+    public function server(): BelongsTo
+    {
+        return $this->belongsTo(Server::class);
     }
 
     /**

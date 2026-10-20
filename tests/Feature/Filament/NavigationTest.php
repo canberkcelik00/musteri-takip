@@ -27,7 +27,7 @@ it('orders the menu by frequency: Bugün, Müşteriler, then the grouped items (
     expect($catalog['items'])->toBe(['Hizmetler', 'Paketler']);
 
     $settings = $groups->firstWhere('label', 'Ayarlar');
-    expect($settings['items'])->toBe(['Genel', 'Ödeme Yöntemleri']);
+    expect($settings['items'])->toBe(['Genel', 'Ödeme Yöntemleri', 'Sunucular']);
 });
 
 it('starts the Katalog group collapsed, unlike Tahsilat and Ayarlar', function () {

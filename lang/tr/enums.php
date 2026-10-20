@@ -28,6 +28,11 @@ return [
         'credit_balance' => 'Alacak bakiyesi',
     ],
 
+    'server_type' => [
+        'whm' => 'WHM (reseller)',
+        'cpanel' => 'cPanel',
+    ],
+
     'service_type' => [
         'hosting' => 'Hosting',
         'domain' => 'Domain',

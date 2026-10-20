@@ -10,6 +10,7 @@ use Database\Factories\CatalogServiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Currency $currency
  * @property array<string, mixed>|null $details
  */
-#[Fillable(['type', 'name', 'price', 'currency', 'details', 'notes'])]
+#[Fillable(['server_id', 'remote_package', 'type', 'name', 'price', 'currency', 'details', 'notes'])]
 class CatalogService extends Model
 {
     /** @use HasFactory<CatalogServiceFactory> */
@@ -51,6 +52,16 @@ class CatalogService extends Model
     protected function usageRelations(): array
     {
         return ['packages', 'customerServices', 'customerServiceItems'];
+    }
+
+    /**
+     * The server whose package this service was pulled from, if any.
+     *
+     * @return BelongsTo<Server, $this>
+     */
+    public function server(): BelongsTo
+    {
+        return $this->belongsTo(Server::class);
     }
 
     /**
