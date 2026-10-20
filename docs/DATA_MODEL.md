@@ -111,6 +111,29 @@ Kısıt: `catalog_service_id` ve `package_id` alanlarından tam olarak biri dolu
 
 Tek hizmet satışında bir kalem, pakette her iç hizmet için bir kalem oluşur.
 
+## Sunucular (Faz 8)
+
+**servers**
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| name | string | Evet | Benzersiz; kalemin `server` bilgisine de yazılır |
+| type | enum ServerType | Evet | `whm`, `cpanel` |
+| hostname | string | Evet | |
+| port | integer | Evet | Varsayılan 2087 (WHM) / 2083 (cPanel) |
+| username | string | Evet | WHM veya cPanel kullanıcı adı |
+| api_token | text | Evet | `encrypted` cast ile şifreli; şifre değil API token |
+| catalog_service_id | FK catalog_services | cPanel'de evet | cPanel alan adlarına atanacak hosting hizmeti |
+| last_pulled_at | timestamp | Hayır | Son "Sunucudan çek" |
+| archived_at | timestamp | Hayır | |
+
+Faz 8 ile mevcut tablolara eklenen alanlar:
+
+- **catalog_services:** `server_id` (FK servers, boş olabilir) ve `remote_package` (string, boş olabilir); `server_id` + `remote_package` benzersiz. WHM paketinden gelen hosting hizmetini işaretler.
+- **customer_service_items:** `server_id` (FK servers, boş olabilir) ve `remote_key` (string, boş olabilir; WHM'de cPanel kullanıcı adı, cPanel'de alan adı); `server_id` + `remote_key` benzersiz. `details` içindeki `domain`, `server`, `cpanel_username` yine doldurulur.
+
+WHM paket alanları katalog `details`'ine şöyle eşlenir: `QUOTA` → `disk_space` ("1000 MB", sınırsız → "Limitsiz"), `BWLIMIT` → `monthly_traffic`, `MAXPOP` → `email_accounts`, `MAXSQL` → `databases`, `MAXADDON` + 1 → `sites`, `provider` = sunucu adı.
+
 ## Teklifler ve teklif kalemleri (Faz 6)
 
 **quotes**

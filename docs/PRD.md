@@ -83,7 +83,7 @@ Hizmet türleri sabittir; katalog kalemleri panelden istenildiği zaman eklenir.
 | Lisans | Ürün adı, sağlayıcı | Lisans anahtarı (şifreli), adet |
 | Diğer | Açıklama | Açıklama |
 
-Disk alanı gibi değerler serbest girilir: "1000 MB", "Limitsiz", "50 GB SSD". Sunucu ve cPanel kullanıcı adı şimdilik bilgi amaçlıdır; WHM entegrasyonunda eşleştirme için kullanılacak.
+Disk alanı gibi değerler serbest girilir: "1000 MB", "Limitsiz", "50 GB SSD". Sunucu ve cPanel kullanıcı adı bilgi amaçlıdır; sunucudan çekilen hesaplarda eşleştirme için de kullanılır (bkz. Sunucu entegrasyonu).
 
 Veritabanında periyot ay sayısı olarak tutulur (varsayılan 12) ama arayüzde gösterilmez.
 
@@ -209,9 +209,21 @@ TL, USD ve EUR desteklenir; kur çevrimi veya kur hesabı yapılmaz.
 - Alacak bakiyesi para birimi başına ayrı tutulur.
 - Toplamlar birbirine katılmadan ayrı gösterilir: "Toplam alacak: 12.000 TL + 350 USD".
 
+## Sunucu entegrasyonu (Faz 8)
+
+Panelden birden fazla sunucu bağlantısı tanımlanır: **WHM reseller** (paketler ve hesaplar) veya **cPanel** (tek hesap, çok alan adlı; ana ve addon alan adlarının her biri ayrı host). Kimlik şifre değil API token'dır, şifreli saklanır. Sistem sunucudan yalnız okur; hesap açma, askıya alma ve kota kontrolü yoktur.
+
+**"Sunucudan çek"** yalnız elle çalışır (zamanlayıcıda iş yok):
+
+- **Paketler (WHM):** Her WHM paketi hosting türünde bir katalog hizmeti olur; disk, trafik, e-posta, veritabanı ve site sayısı katalog bilgilerine dolar. WHM'de fiyat olmadığı için yeni paketin fiyatı çekme penceresinde girilir. Sonraki çekmelerde yalnız bu bilgiler güncellenir; ad ve fiyat değişmez.
+- **Hesaplar:** Her WHM hesabı (cPanel'de her alan adı) için müşteri ve müşteri hizmeti oluşur: kısa ad alan adıdır, birincil ilgili kişi adı alan adı, e-postası WHM iletişim e-postasıdır (cPanel alan adlarında boş). Dönem, WHM açılış tarihinin bugünü kapsayan yıldönümüdür (cPanel'de tarih yoktur, çekme penceresinde tek başlangıç tarihi girilir); "Bu dönemin borcu: Oluşturma" uygulanır, yani hiçbir borç doğmaz, yenileme normal kuralla işler. cPanel alan adları, bağlantıya seçilen hosting hizmetiyle atanır.
+- **Çiftleme olmaz:** Çekme tekrarlanabilir; bağlı kayıt varsa hiçbir şey oluşmaz. Aynı alan adı veya cPanel kullanıcı adıyla elle girilmiş bir hosting kalemi varsa yeni kayıt açılmaz, o kaleme bağlanır. Kısa ad zaten bir müşteride varsa hizmet o müşteriye eklenir.
+- **Askıdaki hesaplar** aktarılmaz, sonuçta sayılır. Sunucudan kaybolan bağlı hesap yalnız raporlanır; hizmet otomatik iptal edilmez.
+- Bir hesapta hata olursa diğerleri devam eder; sorunlu hesaplar sonuçta adıyla görünür.
+
 ## Gecikmiş borçlar ve özet e-postası
 
-Vadesi geçip ödenmeyen borç "gecikmiş" olarak işaretlenir ve özette kaç gün geciktiğiyle listelenir. Faiz, gecikme bedeli veya askıya alma yoktur; askıya alma WHM entegrasyonu fazında eklenecek.
+Vadesi geçip ödenmeyen borç "gecikmiş" olarak işaretlenir ve özette kaç gün geciktiğiyle listelenir. Faiz, gecikme bedeli veya askıya alma yoktur; askıya alma ayrı bir öneri olarak park edildi.
 
 **Gecikme kuralı:** Vade günü boyunca borç açık sayılır. Vadenin ertesi gününden itibaren ödenmemiş tutar kalıyorsa borç gecikmiş olur ve gecikme günü oradan sayılır (vade 01.03 → 02.03'te "1 gün gecikti"). Gün hesabı Europe/Istanbul saatine göre yapılır.
 
@@ -268,7 +280,7 @@ Düz ok "sahip olur", kesikli ok "isteğe bağlı bağlantı" demektir.
 | Ödeme dağıtımı | payment\_allocations | Hangi ödemenin ne kadarı hangi borca düştü |
 | Ödeme yöntemi | payment\_methods | Havale/EFT, kart gibi |
 
-Ayrıca ayarlar (30 gün, özet sıklığı, ayın günü ve saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
+Sunucu bağlantıları için `servers` tablosu (Faz 8) ve ayrıca ayarlar (30 gün, özet sıklığı, ayın günü ve saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
 
 **Bilinçli tasarım seçimleri**
 
@@ -358,7 +370,8 @@ Toplu Excel içe aktarma yoktur; mevcut kayıtlar ekranlardan elle girilir ("Bu 
 | 5 – Yayına alma, panel ve MVP kapanışı | Otomatik yayına alma ve kurulum rehberi, ana panel, özet e-postası, uçtan uca testler, canlıya geçiş |
 | 6 – Teklifler | Teklif, kalemler, PDF, e-posta gönderimi, kabulde otomatik müşteri ve hizmet |
 | 7 – İz ve esneklik | Fiyat/tarih değişiklik geçmişi, %50 ön ödeme kuralı |
-| 8 ve sonrası | Raporlar, müşteri paneli, WHM API/UAPI entegrasyonu |
+| 8 – Sunucu entegrasyonu | WHM reseller ve çok alan adlı cPanel bağlantıları; paket ve hesapların elle "Sunucudan çek" ile içe aktarılması (Faz 6'dan önce yapılır) |
+| 9 ve sonrası | Raporlar, müşteri paneli, askıya alma ve kota kontrolü |
 
 Yayına alma Faz 5'in başında kurulur; Faz 4'ten önce canlıda kullanılacak bir şey olmadığı için ilk fazlar ürüne odaklanır. Hosting kaynaklı sürprizleri önlemek için Faz 1'de hosting uyumluluk kontrolü yapılır ve yerel ortam hostingle aynı PHP ve MySQL sürümüne sabitlenir.
 
@@ -368,5 +381,5 @@ Fazların görevlere bölünmüş hali: `docs/ROADMAP.md`
 
 - Web sitesi işi için %50 kabulde, %50 iş bitiminde kuralı
 - Fiyat ve tarih değişikliklerinin geçmişi
-- WHM API ve UAPI entegrasyonu: kota, bant genişliği kontrolü, askıya alma
+- Sunucu tarafında kota, bant genişliği kontrolü, askıya alma ve zamanlanmış senkron (okuma amaçlı entegrasyon Faz 8'de)
 - Müşteri paneli, raporlar ve grafikler

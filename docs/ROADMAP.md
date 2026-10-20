@@ -279,6 +279,31 @@ Hedef: Yenileme borcu oluştuğunda müşterinin birincil ilgili kişisine siste
 
 **Faz 5B bittiğinde:** Yaklaşan yenilemeden müşteri sistemden haberdar oluyor; kullanıcının her yenileme için elle e-posta yazması gerekmiyor.
 
+## Faz 8 – Sunucu entegrasyonu (WHM reseller + çok alan adlı cPanel)
+
+Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile paketleri hosting katalog hizmeti, hesapları ve alan adlarını müşteri + müşteri hizmeti olarak yerleştirmek. Kararlar: U-18, T-106. Kullanıcı kararıyla Faz 6'dan önce yapılır. Her görev tek oturumdur; WHM/cPanel çağrıları testlerde `Http::fake()` ile yapılır, gerçek sunucuya istek atılmaz.
+
+- [ ] **K-8.1 API token'ları ve erişim:** WHM'de (Geliştirme → Manage API Tokens) ve cPanel'de (Güvenlik → Manage API Tokens) yalnız gerekli izinli token oluştur; hostingin 2087/2083 portlarına dışarı bağlanabildiğini G-8.1'deki "Bağlantıyı dene" ile canlıda doğrula.
+- [ ] **G-8.1 Sunucular** — Bağımlılık: Faz 5B
+  - Yapılacak: Migration, `Server` modeli (Attribute stili, arşiv), `ServerType` enum + `lang/tr`, factory; Ayarlar altında "Sunucular" ekranı (ortada pencere, satırda en fazla iki işlem); `TestServerConnection` Action'ı ve "Bağlantıyı dene". Token formda bir daha gösterilmez, boş bırakılırsa değişmez.
+  - Kabul: Token veritabanında şifreli; cPanel türünde katalog hizmeti zorunlu; bağlantı denemesi başarı, yetki hatası ve zaman aşımı mesajları (testli).
+- [ ] **G-8.2 API istemcileri** — Bağımlılık: G-8.1
+  - Yapılacak: `WhmApi::packages()/accounts()`, `CpanelApi::accounts()` (ana + addon domain → `RemoteAccount`); yanıt hatalarını tek istisna türüne çevirme.
+  - Kabul: Örnek WHM/UAPI JSON'larıyla doğru değer nesneleri; `metadata.result=0` ile HTTP 401 ayırt edilir (testli).
+- [ ] **G-8.3 Paket içe aktarma** — Bağımlılık: G-8.2
+  - Yapılacak: `ImportServerPackages` Action'ı: yeni paket → hosting katalog hizmeti (verilen fiyat ve para birimiyle), mevcut paket → yalnız details güncellenir.
+  - Kabul: İki çekmede tek katalog kaydı; ad ve fiyat değişmez; birim dönüşümleri ve "Limitsiz" (testli).
+- [ ] **G-8.4 Hesap içe aktarma** — Bağımlılık: G-8.3
+  - Yapılacak: `ImportServerAccounts` Action'ı: eşleştir → yoksa müşteri + birincil kişi → `AssignCustomerService` (`create_first_charge: false`, yıldönümü başlangıcı). Sonuç nesnesi: oluşan, bağlanan, zaten bağlı, askıda atlanan, sunucuda bulunamayan, hata.
+  - Kabul: İdempotent ikinci çekme; elle girilmiş eşleşen hizmetin çiftlenmemesi; askıdakilerin atlanması; yıldönümü (29 Şubat dahil, `travelTo`); hiç borç oluşmaması; cPanel'de her alan adının ayrı müşteri olması; katalog kaydı olmayan paketin hesabının hata olarak raporlanması (testli).
+- [ ] **G-8.5 "Sunucudan çek" ekranı** — Bağımlılık: G-8.4
+  - Yapılacak: Sunucular satırında "Sunucudan çek": pencerede yeni paketlerin fiyat girişleri (WHM) veya başlangıç tarihi (cPanel) ve sayı önizlemesi; onayla G-8.3 + G-8.4 çalışır; sonuç mesajı ("12 müşteri oluştu, 3 hizmet bağlandı, 2 askıda atlandı") ve sorunlu hesap listesi.
+  - Kabul: Livewire testi; tık sayısı `docs/UI.md` §7'ye eklenir (1 tık + fiyatlar + 1 tık).
+- [ ] **G-8.6 Uçtan uca ve canlı deneme** — Bağımlılık: G-8.5, K-8.1
+  - Kabul: Sahte WHM yanıtıyla müşteri kartında hizmet doğru görünür (testli); canlıda bir sunucuyla deneme (kullanıcı); ardından yenileme borçları normal kuralla doğar.
+
+**Faz 8 bittiğinde:** Hosting hesapları elle girilmeden sunucudan gelir; askıya alma, kota kontrolü ve zamanlanmış senkron ayrı öneri olarak park listesinde kalır.
+
 ## Faz 6 ve sonrası
 
 Teklifler ve sonraki fazların görevleri, MVP bitip sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.
