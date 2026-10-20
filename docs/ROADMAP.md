@@ -292,7 +292,7 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
 - [x] **G-8.2 API istemcileri** — Bağımlılık: G-8.1
   - Yapılacak: `WhmApi::packages()/accounts()`, `CpanelApi::accounts()` (ana + addon domain → `RemoteAccount`); yanıt hatalarını tek istisna türüne çevirme.
   - Kabul: Örnek WHM/UAPI JSON'larıyla doğru değer nesneleri; `metadata.result=0` ile HTTP 401 ayırt edilir (testli).
-- [ ] **G-8.3 Paket içe aktarma** — Bağımlılık: G-8.2
+- [x] **G-8.3 Paket içe aktarma** — Bağımlılık: G-8.2
   - Yapılacak: `ImportServerPackages` Action'ı: yeni paket → hosting katalog hizmeti (verilen fiyat ve para birimiyle), mevcut paket → yalnız details güncellenir.
   - Kabul: İki çekmede tek katalog kaydı; ad ve fiyat değişmez; birim dönüşümleri ve "Limitsiz" (testli).
 - [ ] **G-8.4 Hesap içe aktarma** — Bağımlılık: G-8.3

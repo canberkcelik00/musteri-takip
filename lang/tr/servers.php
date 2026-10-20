@@ -20,6 +20,7 @@ return [
     'empty_description' => 'WHM reseller veya cPanel bağlantısı ekleyin; paketleri ve hesapları sunucudan çekebilirsiniz.',
 
     'test_connection' => 'Bağlantıyı dene',
+    'unlimited' => 'Limitsiz',
     'connection_ok' => 'Bağlantı başarılı.',
     'connection_unauthorized' => 'Sunucu kullanıcı adını veya API token\'ı kabul etmedi. Token\'ın doğru olduğunu ve gerekli izne sahip olduğunu kontrol edin.',
     'connection_timeout' => 'Sunucu zamanında yanıt vermedi. Adresi ve bağlantı noktasını kontrol edin; hosting dışarıya bu bağlantı noktasına izin vermiyor olabilir.',
