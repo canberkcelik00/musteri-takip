@@ -274,8 +274,9 @@ Hedef: Yenileme borcu oluştuğunda müşterinin birincil ilgili kişisine siste
   - Yapılacak: İşletme elle borç ve nakit ödeme kullanmıyor. Elle borç ekleme (Action, form, üst çubuk, Borçlar listesi ve müşteri kartı düğmeleri) kaldırılır; "Yeni" menüsü "Yeni müşteri" düğmesi olur. "Nakit" ödeme yöntemi bir migration ile kaldırılır (kullanılmışsa arşivlenir).
   - Kabul: Hiçbir ekranda elle borç eylemi yok; mevcut kurallı borçlar, düzenleme, bölme ve iptal çalışır; migration kullanılmayan Nakit'i siler, kullanılanı arşivler, tek aktif yöntemse dokunmaz ve ikinci çalışmada bir şey değiştirmez (hepsi testli).
   - Kapanış notu (T-105): Eski elle borçlar ve nakit ödemeler yerinde kalır.
-- [ ] **K-5B.1 Kullanıcı kararları** — Bağımlılık: yok
+- [x] **K-5B.1 Kullanıcı kararları** — Bağımlılık: yok
   - Yapılacak: E-posta metnini onayla; gönderen adresini ve hostingdeki SMTP bilgilerini hazırla; ilk haftalarda anahtarı açmadan önce Mailpit/test adresiyle birkaç örnek gönder.
+  - Kapanış: Kullanıcı tarafından tamamlandı (20.10.2026).
 
 **Faz 5B bittiğinde:** Yaklaşan yenilemeden müşteri sistemden haberdar oluyor; kullanıcının her yenileme için elle e-posta yazması gerekmiyor.
 
