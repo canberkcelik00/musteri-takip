@@ -13,6 +13,8 @@ return [
     'notification_email_help' => 'Özet e-postasının gideceği adres.',
     'customer_reminders_enabled' => 'Müşteriye yenileme hatırlatması gönder',
     'customer_reminders_enabled_help' => 'Açıkken, yenileme borcu oluşunca müşterinin birincil ilgili kişisine e-posta gider. Yanıtlar bildirim adresine düşer.',
+    'usage_warning_percent' => 'Kullanım uyarı eşiği',
+    'usage_warning_percent_help' => 'Hosting hesabının disk, trafik, e-posta kutusu veya sayaç kullanımı sınırın bu yüzdesine ulaşınca e-posta uyarısı gider; özet ve Bugün sayfasında da görünür.',
     'save' => 'Kaydet',
     'saved' => 'Ayarlar kaydedildi.',
     'send_test_email' => 'Test e-postası gönder',

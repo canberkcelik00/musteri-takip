@@ -141,3 +141,23 @@ it('rejects a customer reminders switch that is not a boolean', function () {
 
     expect(app(Settings::class)->customerRemindersEnabled())->toBeFalse();
 });
+
+it('stores the usage warning percent', function () {
+    updateSettings(['usage_warning_percent' => '80']);
+
+    expect(app(Settings::class)->usageWarningPercent())->toBe(80);
+});
+
+it('keeps the usage warning percent when the data does not carry it', function () {
+    updateSettings(['usage_warning_percent' => 70]);
+    updateSettings(['renewal_lead_days' => 20]);
+
+    expect(app(Settings::class)->usageWarningPercent())->toBe(70);
+});
+
+it('rejects a usage warning percent outside 1 to 100', function (mixed $percent) {
+    expect(fn () => updateSettings(['usage_warning_percent' => $percent]))
+        ->toThrow(fn (ValidationException $exception) => expect($exception->errors())->toHaveKey('usage_warning_percent'));
+
+    expect(app(Settings::class)->usageWarningPercent())->toBe(90);
+})->with([0, 101, 'cok', null]);

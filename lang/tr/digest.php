@@ -13,7 +13,9 @@ return [
     'free_decisions' => 'Ücretsiz devam kararı bekleyenler',
     'overdue' => 'Vadesi geçmiş borçlar',
     'missing_reminder_email' => 'Hatırlatma gönderilemedi: birincil kişinin geçerli e-postası yok',
+    'quota_alerts' => 'Kotası dolmak üzere olanlar',
     'count' => [
+        'quota_alerts' => ':count kota uyarısı',
         'missing_reminder_email' => ':count hatırlatma gönderilemedi',
         'new_charges' => ':count yeni borç',
         'free_decisions' => ':count karar bekliyor',

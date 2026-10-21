@@ -38,5 +38,10 @@
   {{ $customerUrl($charge->customer_id) }}
 @endforeach
 @endif
+@if ($digest['quota_alerts']->isNotEmpty())
+
+{{ __('digest.quota_alerts') }} ({{ $digest['quota_alerts']->count() }})
+@include('mail.usage-alerts-text', ['alerts' => $digest['quota_alerts'], 'customerUrl' => $customerUrl])
+@endif
 
 {{ __('digest.open_panel') }}: {{ $panelUrl }}

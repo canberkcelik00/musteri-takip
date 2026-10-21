@@ -272,3 +272,21 @@ it('reports a send failure with a masked, shortened message and logs the full er
     expect($shown)->not->toContain('S3cret!pw')->not->toContain('bildirim@alan.adi')
         ->and(mb_strlen($shown))->toBe(150);
 });
+
+it('shows and saves the usage warning threshold', function () {
+    Livewire::test(ManageSettings::class)
+        ->assertSee('Kullanım uyarı eşiği')
+        ->assertSchemaStateSet(['usage_warning_percent' => 90])
+        ->fillForm(['usage_warning_percent' => 80])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(Settings::class)->usageWarningPercent())->toBe(80);
+
+    Livewire::test(ManageSettings::class)
+        ->fillForm(['usage_warning_percent' => 101])
+        ->call('save')
+        ->assertHasFormErrors(['usage_warning_percent']);
+
+    expect(app(Settings::class)->usageWarningPercent())->toBe(80);
+});

@@ -149,7 +149,8 @@ Sunucunun anlık görüntüsüdür (önbellek); geçmiş değildir. Yüzde ve "d
 | refreshed_at | timestamp | Hayır | Son başarılı yenileme; boşsa hiç yenilenmedi |
 | failed_at | timestamp | Hayır | Son başarısız denemenin anı; başarıda boşalır |
 | failure_reason | enum | Hayır | `RemoteServerErrorReason`; başarıda boşalır |
-| warning_sent_at | timestamp | Hayır | Hesap düzeyi uyarının (disk, trafik, sayaç) gönderildiği an; kullanım eşiğin altına inince boşalır |
+| warned_levels | json | Hayır | Uyarılmış kaynaklar: kaynak kimliği → `nearly_full` / `full`; kullanım eşiğin altına inince o kaynak silinir, düşük seviyeye inince seviye düşer |
+| warning_sent_at | timestamp | Hayır | Son uyarı e-postasının gönderildiği an |
 
 **mailboxes** (e-posta adresi başına bir satır)
 
@@ -163,7 +164,8 @@ Sunucunun anlık görüntüsüdür (önbellek); geçmiş değildir. Yüzde ve "d
 | quota_bytes | bigint | Hayır | Boşsa limitsiz |
 | login_suspended | boolean | Evet | Oturum askıda |
 | incoming_suspended | boolean | Evet | Gelen posta askıda |
-| warning_sent_at | timestamp | Hayır | Kutu kotası uyarısının gönderildiği an; kullanım eşiğin altına inince boşalır |
+| warned_level | enum UsageLevel | Hayır | Uyarıldığı seviye (`nearly_full`, `full`); kullanım eşiğin altına inince boşalır |
+| warning_sent_at | timestamp | Hayır | Son uyarı e-postasının gönderildiği an |
 
 Yenilemede sunucuda artık olmayan e-posta satırı silinir; bağlı hizmeti kalmayan hesap satırı da silinir. Satırlar yalnız bağlı, aktif hizmeti olan ve arşivsiz müşterinin hesapları için doğar. Önbellek olduğu için `server_id` yabancı anahtarı `cascadeOnDelete`'tir; sunucu silme/arşiv kuralı (T-107) değişmez. `account_usages.refreshed_at` son başarılı okumadır; `failed_at` yalnız son başarısız denemedir ve başarılı okumada boşalır. Bir cPanel bağlantısında alan adlarının hepsi aynı kullanıcıya bağlı olduğu için bağlantı başına **tek** `account_usages` satırı vardır; alan adına göre süzme `mailboxes.domain` ile gösterimde yapılır.
 

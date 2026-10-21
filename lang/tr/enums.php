@@ -18,6 +18,11 @@ return [
         'cancelled' => 'İptal edildi',
     ],
 
+    'usage_level' => [
+        'nearly_full' => 'Dolmak üzere',
+        'full' => 'Dolu',
+    ],
+
     'digest_frequency' => [
         'daily' => 'Günlük',
         'monthly' => 'Aylık',

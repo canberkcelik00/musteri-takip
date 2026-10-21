@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UsageLevel;
 use Database\Factories\MailboxFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,15 +12,18 @@ use Illuminate\Support\Carbon;
 
 /**
  * One e-mail address of a hosting account as the server last reported it (a cache, not a
- * history). A `quota_bytes` of null means no quota. Percentages are derived, not stored.
+ * history). A `quota_bytes` of null means no quota. Percentages are derived, not stored; only
+ * what was already warned about is: `warned_level` is the {@see UsageLevel} the owner was
+ * e-mailed for, `warning_sent_at` the last e-mail.
  *
  * @property int $used_bytes
  * @property int|null $quota_bytes
  * @property bool $login_suspended
  * @property bool $incoming_suspended
+ * @property UsageLevel|null $warned_level
  * @property Carbon|null $warning_sent_at
  */
-#[Fillable(['server_id', 'remote_username', 'address', 'domain', 'used_bytes', 'quota_bytes', 'login_suspended', 'incoming_suspended', 'warning_sent_at'])]
+#[Fillable(['server_id', 'remote_username', 'address', 'domain', 'used_bytes', 'quota_bytes', 'login_suspended', 'incoming_suspended', 'warned_level', 'warning_sent_at'])]
 class Mailbox extends Model
 {
     /** @use HasFactory<MailboxFactory> */
@@ -45,6 +49,7 @@ class Mailbox extends Model
             'quota_bytes' => 'integer',
             'login_suspended' => 'boolean',
             'incoming_suspended' => 'boolean',
+            'warned_level' => UsageLevel::class,
             'warning_sent_at' => 'datetime',
         ];
     }

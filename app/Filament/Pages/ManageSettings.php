@@ -66,6 +66,7 @@ class ManageSettings extends Page
             'digest_time' => $settings->digestTime(),
             'notification_email' => $settings->notificationEmail(),
             'customer_reminders_enabled' => $settings->customerRemindersEnabled(),
+            'usage_warning_percent' => $settings->usageWarningPercent(),
         ]);
     }
 
@@ -114,6 +115,14 @@ class ManageSettings extends Page
                     ->helperText(__('settings.notification_email_help'))
                     ->email()
                     ->maxLength(255),
+                TextInput::make('usage_warning_percent')
+                    ->label(__('settings.usage_warning_percent'))
+                    ->helperText(__('settings.usage_warning_percent_help'))
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(100)
+                    ->suffix('%')
+                    ->required(),
                 Toggle::make('customer_reminders_enabled')
                     ->label(__('settings.customer_reminders_enabled'))
                     ->helperText(__('settings.customer_reminders_enabled_help')),

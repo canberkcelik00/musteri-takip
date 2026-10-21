@@ -5,11 +5,13 @@
     $freeDecisions = $digest['free_decisions'];
     $overdue = $digest['overdue'];
     $missingEmail = $digest['missing_reminder_email'];
+    $quotaAlerts = $digest['quota_alerts'];
     $counts = collect([
         'new_charges' => $newCharges->count(),
         'free_decisions' => $freeDecisions->count(),
         'overdue' => $overdue->count(),
         'missing_reminder_email' => $missingEmail->count(),
+        'quota_alerts' => $quotaAlerts->count(),
     ])->filter()->map(fn (int $count, string $key): string => __('digest.count.'.$key, ['count' => $count]));
     $overdueTotals = Money::formatTotals(Money::sumByCurrency(
         $overdue->map(fn ($charge): Money => new Money($charge->remainingAmount(), $charge->currency)),
@@ -108,6 +110,11 @@
 </tr>
 @endforeach
 </table>
+@endif
+
+@if ($quotaAlerts->isNotEmpty())
+<p class="dg-heading">{{ __('digest.quota_alerts') }} ({{ $quotaAlerts->count() }})</p>
+@include('mail.usage-alerts', ['alerts' => $quotaAlerts, 'customerUrl' => $customerUrl])
 @endif
 
 <x-mail::button :url="$panelUrl">{{ __('digest.open_panel') }}</x-mail::button>

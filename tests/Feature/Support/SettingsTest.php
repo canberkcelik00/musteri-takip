@@ -177,3 +177,34 @@ it('treats an unreadable customer reminders switch as off and logs it', function
     expect($this->settings->customerRemindersEnabled())->toBeFalse();
     Log::shouldHaveReceived('warning')->once();
 });
+
+it('reads 90 percent as the usage warning threshold until one is stored', function () {
+    expect($this->settings->usageWarningPercent())->toBe(90);
+
+    $this->settings->set(SettingKey::UsageWarningPercent, '75');
+
+    expect($this->settings->usageWarningPercent())->toBe(75);
+});
+
+it('accepts the usage warning percent limits', function (string $percent, int $expected) {
+    Log::spy();
+
+    $this->settings->set(SettingKey::UsageWarningPercent, $percent);
+
+    expect($this->settings->usageWarningPercent())->toBe($expected);
+    Log::shouldNotHaveReceived('warning');
+})->with([
+    'lowest' => ['1', 1],
+    'highest' => ['100', 100],
+]);
+
+it('falls back to 90 percent for an invalid usage warning percent and logs it', function (string $percent) {
+    Log::spy();
+
+    $this->settings->set(SettingKey::UsageWarningPercent, $percent);
+
+    expect($this->settings->usageWarningPercent())->toBe(90);
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message, array $context) => $context === ['key' => 'usage_warning_percent', 'value' => $percent],
+    );
+})->with(['0', '101', 'abc', '12.5']);

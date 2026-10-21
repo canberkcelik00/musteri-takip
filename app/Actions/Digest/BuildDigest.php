@@ -3,6 +3,8 @@
 namespace App\Actions\Digest;
 
 use App\Actions\Reminders\SendRenewalReminders;
+use App\Actions\Servers\ListUsageAlerts;
+use App\Actions\Servers\UsageAlert;
 use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
 use App\Models\Charge;
@@ -11,6 +13,7 @@ use App\Support\Settings;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * The sections of the digest e-mail (docs/PRD.md "Gecikmiş borçlar ve özet e-postası"),
@@ -24,15 +27,20 @@ use Illuminate\Database\Eloquent\Collection;
  *   services, so cancelled ones are left out.
  * - overdue: Charge::overdue() + unarchivedCustomer(), the same query as the "Bugün" page's
  *   overdue section (ListTodayTasks).
+ * - quota_alerts: hosting resources at or above the usage warning threshold right now
+ *   ({@see ListUsageAlerts}), fullest first, whether or not they were e-mailed before.
  * - missing_reminder_email: renewal charges whose customer reminder cannot be sent for lack of a
  *   valid primary contact address; only while the reminders are on.
  */
 class BuildDigest
 {
-    public function __construct(private readonly Settings $settings) {}
+    public function __construct(
+        private readonly Settings $settings,
+        private readonly ListUsageAlerts $listUsageAlerts,
+    ) {}
 
     /**
-     * @return array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>}
+     * @return array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>}
      */
     public function handle(CarbonInterface $since, CarbonInterface $now): array
     {
@@ -41,18 +49,20 @@ class BuildDigest
             'free_decisions' => $this->freeDecisions(),
             'overdue' => $this->overdue(),
             'missing_reminder_email' => $this->missingReminderEmail(),
+            'quota_alerts' => $this->listUsageAlerts->handle(),
         ];
     }
 
     /**
-     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>}  $digest
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>}  $digest
      */
     public static function isEmpty(array $digest): bool
     {
         return $digest['new_charges']->isEmpty()
             && $digest['free_decisions']->isEmpty()
             && $digest['overdue']->isEmpty()
-            && $digest['missing_reminder_email']->isEmpty();
+            && $digest['missing_reminder_email']->isEmpty()
+            && $digest['quota_alerts']->isEmpty();
     }
 
     /**

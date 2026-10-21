@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Actions\Servers\UsageAlert;
 use App\Actions\Today\ListTodayTasks;
 use App\Filament\Actions\ConfirmFreeContinuationAction;
 use App\Filament\Actions\RecordPaymentAction;
@@ -23,7 +24,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * The "Yapılacaklar" list on "Bugün" (docs/UI.md §5): three sections in priority order, each
+ * The "Yapılacaklar" list on "Bugün" (docs/UI.md §5): four sections in priority order (the last
+ * one, hosting quota warnings, has no filtered list to link to), each
  * capped at 10 rows with a "Tümünü gör" link to its filtered list when there are more. Only
  * calls ListTodayTasks for its data and the shared row Actions (RecordPaymentAction,
  * RemoveFreeFlagAction, ConfirmFreeContinuationAction) for its buttons; no business logic here.
@@ -84,8 +86,8 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
         return [
             ...$tasks,
             'rows' => $this->rows($tasks),
-            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'],
-            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0,
+            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['quota']['total'],
+            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['quota']['total'] === 0,
             'overdueUrl' => ChargeResource::getUrlWithoutArchived(['only_overdue' => ['isActive' => true]]),
             'dueSoonUrl' => ChargeResource::getUrlWithoutArchived(['due_soon' => ['isActive' => true]]),
             'freeDecisionsUrl' => CustomerResource::getUrl('index', ['filters' => ['awaiting_free_decision' => ['isActive' => true]]]),
@@ -129,7 +131,43 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
             ];
         }
 
+        $customers = Customer::query()
+            ->whereIn('id', $tasks['quota']['items']->map(fn (UsageAlert $alert): int => $alert->owners[0]['customer_id']))
+            ->get()
+            ->keyBy('id');
+
+        foreach ($tasks['quota']['items'] as $alert) {
+            $owner = $alert->owners[0];
+
+            $rows[] = [
+                'type' => 'quota',
+                'customer' => $customers[$owner['customer_id']],
+                'subject' => $this->quotaSubject($alert, $owner['domain']),
+                'date' => __('money.empty'),
+                'status' => $alert->level->getLabel(),
+                'color' => $alert->level->getColor(),
+                'amount' => __('money.empty'),
+            ];
+        }
+
         return $rows;
+    }
+
+    /**
+     * "Disk %94 · logi.com.tr" for an account resource, "info@logi.com.tr kotası %97" for a
+     * mailbox; with a note when the account is shared by several customers (cPanel).
+     *
+     * @param  string|null  $domain  the first owner's domain
+     */
+    private function quotaSubject(UsageAlert $alert, ?string $domain): string
+    {
+        $subject = $alert->mailboxId !== null
+            ? __('today.quota_mailbox', ['address' => $alert->subject, 'percent' => $alert->percent()])
+            : __('today.quota_resource', ['resource' => $alert->subject, 'percent' => $alert->percent()]).($domain !== null ? ' · '.$domain : '');
+
+        return count($alert->owners) > 1
+            ? $subject.' · '.__('today.quota_shared', ['count' => count($alert->owners)])
+            : $subject;
     }
 
     /**

@@ -44,17 +44,18 @@ class UpdateSettings
             'digest_time' => ['required', Rule::in(array_keys(self::digestTimeOptions()))],
             'notification_email' => ['nullable', 'string', 'email', 'max:255'],
             'customer_reminders_enabled' => ['sometimes', 'boolean'],
+            'usage_warning_percent' => ['sometimes', 'required', 'integer', 'min:1', 'max:100'],
         ];
     }
 
     /**
      * Validate and store the settings; nothing is written when a value is invalid. A blank
      * notification address removes the setting, so no digest recipient is set. A missing
-     * reminder switch keeps the stored one. The day of the
+     * reminder switch or usage warning percent keeps the stored one. The day of the
      * month is stored only for the monthly digest; with the daily one the stored day is kept,
      * so it comes back when monthly is chosen again.
      *
-     * @param  array{renewal_lead_days: int|string|null, digest_frequency: DigestFrequency|string|null, digest_day_of_month?: int|string|null, digest_time: string|null, notification_email?: string|null, customer_reminders_enabled?: bool|int|string|null}  $data
+     * @param  array{renewal_lead_days: int|string|null, digest_frequency: DigestFrequency|string|null, digest_day_of_month?: int|string|null, digest_time: string|null, notification_email?: string|null, customer_reminders_enabled?: bool|int|string|null, usage_warning_percent?: int|string|null}  $data
      *
      * @throws ValidationException
      */
@@ -83,6 +84,10 @@ class UpdateSettings
 
             if (array_key_exists('customer_reminders_enabled', $validated)) {
                 $this->settings->set(SettingKey::CustomerRemindersEnabled, $validated['customer_reminders_enabled'] ? '1' : '0');
+            }
+
+            if (array_key_exists('usage_warning_percent', $validated)) {
+                $this->settings->set(SettingKey::UsageWarningPercent, (string) $validated['usage_warning_percent']);
             }
         });
     }

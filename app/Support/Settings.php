@@ -119,6 +119,24 @@ class Settings
     }
 
     /**
+     * Percent of a limit (1–100) from which a hosting account's disk, traffic, counter or mailbox
+     * counts as nearly full (Faz 9); the one threshold behind every usage warning.
+     */
+    public function usageWarningPercent(): int
+    {
+        $key = SettingKey::UsageWarningPercent;
+        $percent = filter_var($this->get($key), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1, 'max_range' => 100],
+        ]);
+
+        if ($percent === false) {
+            return (int) $this->fallback($key);
+        }
+
+        return $percent;
+    }
+
+    /**
      * Whether renewal reminders are sent to the customers' primary contacts (G-5B.1); off until
      * the owner turns it on.
      */

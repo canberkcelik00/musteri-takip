@@ -324,7 +324,7 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.2 Saklama ve zamanlanmış yenileme** — Bağımlılık: G-9.1
   - Yapılacak: `account_usages` ve `mailboxes` migration, model, factory; `RefreshAccountUsage` (tek hesap) ve `RefreshStaleUsages` Action'ları; `app:refresh-server-usage` komutu `routes/console.php`'de (`everyMinute`, `withoutOverlapping`, bekleyen yayında atlanır). Bağlı ve aktif hizmeti olan, 6 saatten eski hesaplar eskiden yeniye işlenir; çalışma en çok 60 sn.
   - Kabul: 6 saat kuralı (`travelTo`); süre sınırında kalan hesabın sonraki çalışmada tamamlanması; ikinci çalışmanın satır çoğaltmaması; sunucudan kalkan e-posta satırının silinmesi; hata alan hesabın eski verisini koruması ve hatanın kaydı; cPanel'de tek hesap satırı (testli).
-- [ ] **G-9.3 Uyarılar: e-posta, özet, Bugün** — Bağımlılık: G-9.2
+- [x] **G-9.3 Uyarılar: e-posta, özet, Bugün** — Bağımlılık: G-9.2
   - Yapılacak: "Kullanım uyarı eşiği" ayarı (%90; Genel ayarlar formu); eşik/durum hesabı tek yerde; `QuotaWarningMail` (eşiği yeni aşan her şey tek e-postada, müşteri kartı bağlantılı); `warning_sent_at` ile tek seferlik uyarı; `BuildDigest`'e "Kotası dolmak üzere olanlar" bölümü (`isEmpty` dahil); Bugün'e kota satırları ("Kullanımı gör", G-9.4 gelene kadar müşteri kartına).
   - Kabul: Eşik ve tek seferlik uyarı; eşiğin altına inip yeniden aşınca yeni uyarı; gönderim hatasında sonraki çalışmada yeniden deneme; limitsizin uyarmaması; özet bölümü; Bugün satırları; arşivli müşteri ve iptal edilmiş hizmetin görünmemesi (testli).
 - [ ] **G-9.4 Kullanımın arayüzde gösterilmesi** — Bağımlılık: G-9.2

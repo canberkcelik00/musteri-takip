@@ -2,13 +2,11 @@
 
 namespace App\Actions\Servers;
 
-use App\Enums\CustomerServiceStatus;
-use App\Enums\ServerType;
 use App\Models\AccountUsage;
 use App\Models\CustomerServiceItem;
 use App\Models\Mailbox;
 use App\Models\Server;
-use Illuminate\Database\Eloquent\Builder;
+use App\Support\Servers\LinkedAccounts;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -60,31 +58,23 @@ class RefreshStaleUsages
     /**
      * Every account that needs its usage, keyed by "serverId|username".
      *
-     * @return Collection<non-falsy-string, array{0: Server, 1: string}>
+     * @return Collection<string, array{0: Server, 1: string}>
      */
     private function targets(): Collection
     {
-        return CustomerServiceItem::query()
-            ->whereNotNull('server_id')
-            ->whereNotNull('remote_key')
-            ->whereHas('server', fn (Builder $query): Builder => $query->notArchived())
-            ->whereHas('customerService', fn (Builder $query): Builder => $query
-                ->where('status', CustomerServiceStatus::Active)
-                ->whereHas('customer', fn (Builder $query): Builder => $query->notArchived()))
-            ->with('server')
-            ->get()
+        return LinkedAccounts::items()
             ->mapWithKeys(function (CustomerServiceItem $item): array {
                 $server = $item->server;
                 assert($server instanceof Server);
 
-                $username = $server->type === ServerType::Whm ? (string) $item->remote_key : $server->username;
+                $username = LinkedAccounts::usernameOf($item);
 
-                return ["{$server->getKey()}|{$username}" => [$server, $username]];
+                return [LinkedAccounts::keyOf($server->getKey(), $username) => [$server, $username]];
             });
     }
 
     /**
-     * @param  Collection<non-falsy-string, array{0: Server, 1: string}>  $targets
+     * @param  Collection<string, array{0: Server, 1: string}>  $targets
      * @return Collection<int, array{0: Server, 1: string}>
      */
     private function due(Collection $targets, Carbon $now): Collection
@@ -94,7 +84,7 @@ class RefreshStaleUsages
         $attempts = AccountUsage::query()
             ->whereIn('server_id', $targets->map(fn (array $target): int => $target[0]->getKey())->unique()->all())
             ->get()
-            ->mapWithKeys(fn (AccountUsage $usage): array => ["{$usage->server_id}|{$usage->remote_username}" => $usage->lastAttemptAt()]);
+            ->mapWithKeys(fn (AccountUsage $usage): array => [LinkedAccounts::keyOf($usage->server_id, $usage->remote_username) => $usage->lastAttemptAt()]);
 
         return $targets
             ->filter(fn ($target, string $key): bool => ! $attempts->get($key) || $attempts->get($key)->lessThanOrEqualTo($threshold))
@@ -103,7 +93,7 @@ class RefreshStaleUsages
     }
 
     /**
-     * @param  Collection<non-falsy-string, array{0: Server, 1: string}>  $targets
+     * @param  Collection<string, array{0: Server, 1: string}>  $targets
      */
     private function removeUnneeded(Collection $targets): int
     {
@@ -111,7 +101,7 @@ class RefreshStaleUsages
 
         foreach ([AccountUsage::class, Mailbox::class] as $model) {
             $model::query()->get(['id', 'server_id', 'remote_username'])
-                ->reject(fn ($row): bool => $targets->has("{$row->server_id}|{$row->remote_username}"))
+                ->reject(fn ($row): bool => $targets->has(LinkedAccounts::keyOf($row->server_id, $row->remote_username)))
                 ->each(function ($row) use (&$removed): void {
                     $row->delete();
                     $removed++;

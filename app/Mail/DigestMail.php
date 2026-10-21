@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Actions\Servers\UsageAlert;
 use App\Enums\DigestFrequency;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -12,6 +13,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * The digest e-mail (daily or monthly). Sent synchronously by SendDigest; there is no queue
@@ -20,7 +22,7 @@ use Illuminate\Support\Carbon;
 class DigestMail extends Mailable
 {
     /**
-     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>}  $digest
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>}  $digest
      */
     public function __construct(
         public readonly array $digest,

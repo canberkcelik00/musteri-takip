@@ -58,6 +58,9 @@
                                                 @unless ($row['customer']->isArchived())
                                                     {{ ($this->recordPaymentAction())(['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value]) }}
                                                 @endunless
+                                            @elseif ($row['type'] === 'quota')
+                                                {{-- Until the "Kullanım" window (G-9.4) the button opens the customer's card. --}}
+                                                <x-filament::button tag="a" :href="$this->customerUrl($row['customer'])" color="gray" size="sm">{{ __('today.view_usage') }}</x-filament::button>
                                             @else
                                                 {{ ($this->confirmFreeContinuationAction())(['customerService' => $row['service']->id]) }}
                                                 {{ ($this->removeFreeAction())(['customerService' => $row['service']->id]) }}
@@ -70,7 +73,7 @@
                     </div>
                 </div>
 
-                @if ($overdue['total'] > count($overdue['items']) || $due_soon['total'] > count($due_soon['items']) || $free_decisions['row_total'] > count($free_decisions['items']))
+                @if ($overdue['total'] > count($overdue['items']) || $due_soon['total'] > count($due_soon['items']) || $free_decisions['row_total'] > count($free_decisions['items']) || $quota['total'] > count($quota['items']))
                     <div class="fi-today-more">
                         @if ($overdue['total'] > count($overdue['items']))
                             <a href="{{ $overdueUrl }}" class="fi-link">{{ __('today.section_overdue') }}: {{ __('today.view_all', ['count' => $overdue['total']]) }}</a>
@@ -82,6 +85,10 @@
 
                         @if ($free_decisions['row_total'] > count($free_decisions['items']))
                             <a href="{{ $freeDecisionsUrl }}" class="fi-link">{{ __('today.section_free_decisions') }}: {{ __('today.view_all', ['count' => $free_decisions['total']]) }}</a>
+                        @endif
+
+                        @if ($quota['total'] > count($quota['items']))
+                            <span>{{ __('today.section_quota') }}: {{ __('today.quota_more', ['count' => $quota['total'] - count($quota['items'])]) }}</span>
                         @endif
                     </div>
                 @endif
