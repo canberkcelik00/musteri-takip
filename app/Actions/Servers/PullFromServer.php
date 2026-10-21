@@ -24,8 +24,9 @@ class PullFromServer
      * @param  array<string, array{price: int, currency: Currency}>  $newPackagePrices  WHM: price per new package name.
      * @param  CarbonInterface|null  $cpanelStartDate  cPanel: start date for the domains.
      * @param  array<string, string>  $customerNames  Chosen customer name per account key.
+     * @param  list<string>  $excludedAccountKeys  Accounts the user took off the list: left out of the import, not remembered.
      */
-    public function handle(Server $server, array $newPackagePrices = [], ?CarbonInterface $cpanelStartDate = null, array $customerNames = []): ServerPullResult
+    public function handle(Server $server, array $newPackagePrices = [], ?CarbonInterface $cpanelStartDate = null, array $customerNames = [], array $excludedAccountKeys = []): ServerPullResult
     {
         $api = ServerApiClient::for($server);
 
@@ -40,8 +41,19 @@ class PullFromServer
             ? $this->importServerPackages->handle($server, $packages, $newPackagePrices)
             : null;
 
-        $accountResult = $this->importServerAccounts->handle($server, $accounts, $cpanelStartDate, $customerNames);
+        $excluded = [];
+        $kept = [];
 
-        return new ServerPullResult(null, $packageResult, $accountResult);
+        foreach ($accounts as $account) {
+            if (in_array($account->key, $excludedAccountKeys, true)) {
+                $excluded[] = $account->key;
+            } else {
+                $kept[] = $account;
+            }
+        }
+
+        $accountResult = $this->importServerAccounts->handle($server, $kept, $cpanelStartDate, $customerNames);
+
+        return new ServerPullResult(null, $packageResult, $accountResult, $excluded);
     }
 }

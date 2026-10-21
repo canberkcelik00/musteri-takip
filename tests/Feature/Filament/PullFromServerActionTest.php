@@ -11,6 +11,7 @@ use App\Models\Server;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Repeater;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
@@ -200,6 +201,37 @@ it('requires the typed name once the other option is picked', function () {
         ->assertHasFormErrors(['accounts.0.custom' => 'required']);
 
     expect(Customer::query()->count())->toBe(0);
+});
+
+it('remembers which accounts were offered so the ones deleted from the list can be left out', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->mountAction(pullAction($server))
+        ->assertSet('mountedActions.0.data.offered_accounts', ['logi']);
+});
+
+it('does not import an account deleted from the list and says how many were left out', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->callAction(pullAction($server), ['packages' => pullPackages(), 'accounts' => [], 'offered_accounts' => ['logi']])
+        ->assertHasNoFormErrors()
+        ->assertNotified('2 paket eklendi, 0 müşteri oluştu, 0 hizmet bağlandı, 1 askıda atlandı, 1 hesap çıkarıldı');
+
+    expect(Customer::query()->count())->toBe(0);
+});
+
+it('lets accounts be deleted from the list but not the new packages', function () {
+    pullWhm();
+    $server = Server::factory()->whm()->create();
+
+    Livewire::test(ManageServers::class)
+        ->mountAction(pullAction($server))
+        ->assertSchemaComponentExists('packages', checkComponentUsing: fn (Repeater $repeater): bool => ! $repeater->isDeletable())
+        ->assertSchemaComponentExists('accounts', checkComponentUsing: fn (Repeater $repeater): bool => $repeater->isDeletable());
 });
 
 it('does not offer the pull for an archived server', function () {

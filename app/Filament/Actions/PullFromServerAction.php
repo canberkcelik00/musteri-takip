@@ -69,6 +69,7 @@ class PullFromServerAction extends Action
                         ],
                         $preview->newAccountRows,
                     ),
+                    'offered_accounts' => array_column($preview->newAccountRows, 'key'),
                 ]);
             })
             ->schema(fn (Server $record): array => [
@@ -95,6 +96,7 @@ class PullFromServerAction extends Action
                     ->deletable(false)
                     ->reorderable(false)
                     ->visible(fn (Get $get): bool => filled($get('packages'))),
+                Hidden::make('offered_accounts'),
                 Repeater::make('accounts')
                     ->label(__('servers.pull_accounts'))
                     ->helperText(__('servers.pull_accounts_helper'))
@@ -120,7 +122,7 @@ class PullFromServerAction extends Action
                     ])
                     ->columns(3)
                     ->addable(false)
-                    ->deletable(false)
+                    ->deletable()
                     ->reorderable(false)
                     ->visible(fn (Get $get): bool => filled($get('accounts'))),
                 DatePicker::make('start_date')
@@ -135,6 +137,7 @@ class PullFromServerAction extends Action
                     $this->prices($data['packages'] ?? []),
                     filled($data['start_date'] ?? null) ? CarbonImmutable::parse($data['start_date']) : null,
                     $this->customerNames($data['accounts'] ?? []),
+                    $this->excludedKeys($data),
                 );
 
                 $this->notify($result);
@@ -164,6 +167,19 @@ class PullFromServerAction extends Action
         }
 
         return $prices;
+    }
+
+    /**
+     * The offered accounts whose row the user deleted from the list.
+     *
+     * @param  array<string, mixed>  $data
+     * @return list<string>
+     */
+    private function excludedKeys(array $data): array
+    {
+        $kept = array_column($data['accounts'] ?? [], 'key');
+
+        return array_values(array_diff($data['offered_accounts'] ?? [], $kept));
     }
 
     /**
@@ -201,6 +217,10 @@ class PullFromServerAction extends Action
         $parts[] = __('servers.pull_done_customers', ['count' => $accounts->customersCreated]);
         $parts[] = __('servers.pull_done_linked', ['count' => count($accounts->linked)]);
         $parts[] = __('servers.pull_done_suspended', ['count' => count($accounts->suspendedSkipped)]);
+
+        if ($result->excludedAccounts !== []) {
+            $parts[] = __('servers.pull_done_excluded', ['count' => count($result->excludedAccounts)]);
+        }
 
         $problems = array_map(
             fn (string $key, string $message): string => "{$key}: {$message}",

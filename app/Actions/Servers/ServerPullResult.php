@@ -8,9 +8,13 @@ namespace App\Actions\Servers;
  */
 final readonly class ServerPullResult
 {
+    /**
+     * @param  list<string>  $excludedAccounts  Keys of accounts on the server that the user took off the list; not imported.
+     */
     public function __construct(
         public ?string $error = null,
         public ?PackageImportResult $packages = null,
         public ?AccountImportResult $accounts = null,
+        public array $excludedAccounts = [],
     ) {}
 }

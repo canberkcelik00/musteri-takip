@@ -306,6 +306,9 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
 - [x] **G-8.7 Çekmede müşteri adı seçimi** — Bağımlılık: G-8.5 (canlı denemede ana alan adı çoğu zaman alt alan adı çıktı)
   - Yapılacak: "Sunucudan çek" penceresi her yeni hesap için hesabın tüm alan adlarını listeler (ana alan adı seçili gelir) ve "Diğer…" ile elle yazmaya izin verir; seçilen ad müşteri kısa adı, birincil kişi adı ve kalemdeki alan adı olur.
   - Kabul: Listeden ve elle girilen ad testli; alan adları okunamazsa ana alan adına düşülür; mevcut kısa ad seçilirse hizmet o müşteriye eklenir.
+- [x] **G-8.8 Çekmede hesapları listeden çıkarma** — Bağımlılık: G-8.7
+  - Yapılacak: "Sunucudan çek" penceresinde her yeni hesap satırı silme düğmesiyle listeden çıkarılabilir; çıkarılan hesap aktarılmaz, kaydedilmez ve sonraki çekmede yine listelenir. Paketler çıkarılamaz.
+  - Kabul: Çıkarılan hesabın müşterisi oluşmaz, bildirimde "N hesap çıkarıldı" yazar (testli).
 
 **Faz 8 bittiğinde:** Hosting hesapları elle girilmeden sunucudan gelir; askıya alma, kota kontrolü ve zamanlanmış senkron ayrı öneri olarak park listesinde kalır.
 
