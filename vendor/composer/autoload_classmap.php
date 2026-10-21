@@ -102,6 +102,7 @@ return array(
     'App\\Enums\\DeployResult' => $baseDir . '/app/Enums/DeployResult.php',
     'App\\Enums\\DigestFrequency' => $baseDir . '/app/Enums/DigestFrequency.php',
     'App\\Enums\\DigestResult' => $baseDir . '/app/Enums/DigestResult.php',
+    'App\\Enums\\RefreshIntervalUnit' => $baseDir . '/app/Enums/RefreshIntervalUnit.php',
     'App\\Enums\\RemoteServerErrorReason' => $baseDir . '/app/Enums/RemoteServerErrorReason.php',
     'App\\Enums\\SchedulerStatus' => $baseDir . '/app/Enums/SchedulerStatus.php',
     'App\\Enums\\ServerType' => $baseDir . '/app/Enums/ServerType.php',
