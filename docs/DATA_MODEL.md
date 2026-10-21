@@ -165,7 +165,7 @@ Sunucunun anlık görüntüsüdür (önbellek); geçmiş değildir. Yüzde ve "d
 | incoming_suspended | boolean | Evet | Gelen posta askıda |
 | warning_sent_at | timestamp | Hayır | Kutu kotası uyarısının gönderildiği an; kullanım eşiğin altına inince boşalır |
 
-Yenilemede sunucuda artık olmayan e-posta satırı silinir; bağlı hizmeti kalmayan hesap satırı da silinir. Satırlar yalnız bağlı hizmeti olan hesaplar için doğar; sunucu silme/arşiv kuralı (T-107) değişmez.
+Yenilemede sunucuda artık olmayan e-posta satırı silinir; bağlı hizmeti kalmayan hesap satırı da silinir. Satırlar yalnız bağlı, aktif hizmeti olan ve arşivsiz müşterinin hesapları için doğar. Önbellek olduğu için `server_id` yabancı anahtarı `cascadeOnDelete`'tir; sunucu silme/arşiv kuralı (T-107) değişmez. `account_usages.refreshed_at` son başarılı okumadır; `failed_at` yalnız son başarısız denemedir ve başarılı okumada boşalır. Bir cPanel bağlantısında alan adlarının hepsi aynı kullanıcıya bağlı olduğu için bağlantı başına **tek** `account_usages` satırı vardır; alan adına göre süzme `mailboxes.domain` ile gösterimde yapılır.
 
 ## Teklifler ve teklif kalemleri (Faz 6)
 

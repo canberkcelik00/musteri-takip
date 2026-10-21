@@ -108,14 +108,14 @@ it('reads databases with a disk size that may arrive as a string', function () {
         ->and($databases[1]->bytes)->toBe(1048576);
 });
 
-it('asks a cPanel server for the mailboxes of the domain only', function () {
+it('asks a cPanel server for all mailboxes of the account, whatever domain it is read for', function () {
     Http::fake(['*' => Http::response(usageFixture('get_usages'))]);
 
     ServerApiClient::for(usageServerCpanel())->usageOf(usageAccount('ikinci.com'));
 
     Http::assertSent(fn (Request $request): bool => $request->url() === 'https://cp.example.com:2083/execute/ResourceUsage/get_usages'
         && $request->header('Authorization') === ['cpanel logi:CPTOK']);
-    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://cp.example.com:2083/execute/Email/list_pops_with_disk?get_restrictions=1&domain=ikinci.com');
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://cp.example.com:2083/execute/Email/list_pops_with_disk?get_restrictions=1');
     Http::assertSent(fn (Request $request): bool => $request->url() === 'https://cp.example.com:2083/execute/Mysql/list_databases');
 });
 

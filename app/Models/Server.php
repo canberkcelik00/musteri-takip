@@ -51,6 +51,24 @@ class Server extends Model
     }
 
     /**
+     * The stored usage of this server's accounts (a cache of what the server reported).
+     *
+     * @return HasMany<AccountUsage, $this>
+     */
+    public function accountUsages(): HasMany
+    {
+        return $this->hasMany(AccountUsage::class);
+    }
+
+    /**
+     * @return HasMany<Mailbox, $this>
+     */
+    public function mailboxes(): HasMany
+    {
+        return $this->hasMany(Mailbox::class);
+    }
+
+    /**
      * Catalog services pulled from this server's packages.
      *
      * @return HasMany<CatalogService, $this>

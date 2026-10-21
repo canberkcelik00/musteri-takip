@@ -46,6 +46,7 @@ return [
     'pull_done_suspended' => ':count askıda atlandı',
     'pull_done_excluded' => ':count hesap çıkarıldı',
     'pull_missing_on_server' => 'Sunucuda artık görünmeyen hesaplar: :keys',
+    'usage_refresh_result' => 'Kullanım: :refreshed hesap yenilendi, :failed hesapta hata var, :remaining hesap sonraki çalışmaya kaldı, :removed eski kayıt silindi.',
     'connection_ok' => 'Bağlantı başarılı.',
     'connection_unauthorized' => 'Sunucu kullanıcı adını veya API token\'ı kabul etmedi. Token\'ın doğru olduğunu ve gerekli izne sahip olduğunu kontrol edin.',
     'connection_timeout' => 'Sunucu zamanında yanıt vermedi. Adresi ve bağlantı noktasını kontrol edin; hosting dışarıya bu bağlantı noktasına izin vermiyor olabilir.',

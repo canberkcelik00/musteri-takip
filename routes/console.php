@@ -31,3 +31,9 @@ Schedule::command('app:send-digest')
     ->everyMinute()
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
+// Reads the usage of the linked hosting accounts, within a time budget; what does not fit waits for the next run.
+Schedule::command('app:refresh-server-usage')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());

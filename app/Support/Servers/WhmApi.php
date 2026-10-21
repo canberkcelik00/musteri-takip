@@ -102,11 +102,6 @@ class WhmApi extends ServerApiClient
         return $uapi['data'] ?? null;
     }
 
-    protected function mailboxFilter(RemoteAccount $account): array
-    {
-        return [];
-    }
-
     protected function authorizationScheme(): string
     {
         return 'whm';

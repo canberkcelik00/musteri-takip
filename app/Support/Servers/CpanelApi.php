@@ -53,15 +53,6 @@ class CpanelApi extends ServerApiClient
         return $this->request("execute/{$module}/{$function}{$query}")['data'] ?? null;
     }
 
-    /**
-     * One cPanel account serves many domains that are separate hosts here, so only the mailboxes
-     * of this domain belong to it.
-     */
-    protected function mailboxFilter(RemoteAccount $account): array
-    {
-        return ['domain' => $account->domain];
-    }
-
     protected function authorizationScheme(): string
     {
         return 'cpanel';
