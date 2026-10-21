@@ -108,6 +108,21 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - **Sağ sütun:** Birincil kişi (telefon ve e-posta tıklanınca aranır/yazılır), diğer kişiler, fatura bilgileri, notlar. Düzenleme buradan.
 - **En altta, ayrı:** Arşivle, Sil.
 
+### Kullanım penceresi (Faz 9)
+
+Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna gömülmez** (Vazgeç · Kaydet düğmeli formda salt okunur veri "neyi kaydediyorum?" sorusunu doğurur). Ödeme ayrıntı penceresi gibi ayrı, salt okunur bir pencere açılır; altında yalnız "Kapat" (ve solda "Şimdi yenile") vardır. Her giriş noktası aynı pencereyi açar.
+
+- **İlke: istisna odaklı.** Kullanıma her gün bakılmaz; önemli olan sınırı zorlayan hesaptır. Normal durumda hiçbir ekran değişmez ve rozet çıkmaz; sorun olan hesap kendini Bugün'de, kartta ve e-postada gösterir, ayrıntı ihtiyaç olunca açılır (Kural 10).
+- **Eşik ve renk her yerde aynıdır** (çubuk, rozet, Bugün satırı, e-posta, özet): ayardaki eşiğin (varsayılan %90) altı renksiz; eşik ile %99 arası amber "Dolmak üzere"; %100 ve üstü kırmızı "Dolu". Renk her zaman metinle birlikte verilir. Limitsiz kaynakta çubuk ve uyarı yok, "1,2 GB · Limitsiz" yazılır. Her yerde "kullanılan / sınır" gösterilir, hiçbir yerde "kalan" gösterilmez.
+- **Pencere:** Başlıkta alan adı · sunucu adı ve soluk "Son güncelleme: gg.aa.yyyy ss:dd". Üstte ana göstergeler (disk, aylık trafik, inode): "1,2 GB / 5 GB · %24" ve yatay çubuk. Altında sayaçlar iki sütunlu kompakt listede ("E-posta hesabı 4 / 10", veritabanı, ek / alt / park alan adı, yönlendirici, otomatik yanıtlayıcı, e-posta listesi, FTP); eşiği aşan sayaç amber/kırmızı yazılır. "E-posta hesapları (n)" tablosu: adres, kullanılan / kota, %, durum; en dolu üstte; askıdaki kutuda gri "Oturum askıda" / "Gelen posta askıda" rozeti; dar ekranda % ve durum adresin altına iner, yatay kayma olmaz. "Veritabanları (n)" katlanır, kapalı başlar.
+- **cPanel türü:** ana göstergelerin üstünde "Hesap geneli · N alan adıyla paylaşılıyor" notu; e-posta tablosu yalnız o alan adının kutularını gösterir.
+- **Hata:** amber kutuda neden ve çözüm ("Son yenileme başarısız: yetki hatası. Sunucu token'ını kontrol edin. Gösterilen veriler gg.aa.yyyy ss:dd'den."); hiç veri yoksa ne yapılacağı söylenir ve "Şimdi yenile" gösterilir.
+- **"Şimdi yenile"** yalnız bu hesabı senkron yeniler, yükleme göstergesi gösterir ve sonucu tek cümleyle söyler; pencere yeni veriyle açık kalır.
+- **Müşteri kartı, Hizmetler satırı:** satır normalde değişmez. Eşik aşılınca alan adının altına amber/kırmızı rozet gelir ("Disk %94", "2 e-posta dolu"; birden çok sorunda en kötüsü + "ve 1 sorun daha"); rozete tıklamak Kullanım penceresini açar (1 tık), hizmet adına tıklamak yine düzenlemeyi açar. Satıra düğme eklenmez.
+- **Hizmet düzenleme penceresi:** sunucuya bağlı hosting kaleminin bölümünde tek satırlık soluk özet ("Disk 1,2 / 5 GB · 4 e-posta · 14:30") ve ikincil "Kullanımı gör" düğmesi; sorunsuz hesaba da böylece 2 tıkla bakılır.
+- **Bugün:** kota satırları yapılacakların sonunda; konu "Disk %94 · logi.com.tr" veya "info@logi.com.tr kotası %97", durum "Dolmak üzere" / "Dolu" rozeti, tutar "—", düğme "Kullanımı gör" Kullanım penceresini Bugün'de açar (karta gitmeden iş bitirilebilir); penceredeki müşteri adı karta bağlantıdır.
+- **Sunucular ekranı:** satır işlemleri ikide kalır; `md`'den "Kullanım" sütunu: "gg.aa.yyyy ss:dd · 3 uyarı", başarısızsa kırmızı "Yenilenemedi: yetki hatası".
+
 ### Tablolar (tüm listeler)
 
 - Tablolar dört işi desteklemeli: kayıt bulmak (arama, filtre), karşılaştırmak (hizalı sütunlar), tek kaydı görmek/düzenlemek ve kayıt üzerinde işlem yapmak.
@@ -175,6 +190,9 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Karttan hizmet eklemek | 1 + seçim + 1 |
 | Gecikmiş tüm borçları görmek | 1 (Bugün'deki sayı kartı) |
 | Sunucudan hesap çekmek | 1 (Sunucudan çek) + yeni paketlerin fiyatları (WHM) ya da başlangıç tarihi (cPanel) + gerekirse müşteri adı seçimi (varsayılan ana alan adı gelir) + 1 (Çek) |
+| Kotası dolmak üzere hesabın kullanımını görmek (Bugün'den) | 1 (Kullanımı gör) |
+| Karttaki hizmetin kullanımını görmek | 1 (uyarı rozeti) ya da 2 (hizmet adı → Kullanımı gör) |
+| Hesabın kullanımını sunucudan hemen yenilemek | Kullanım penceresinde 1 (Şimdi yenile) |
 
 ## 8. Şu anki panelden farklar
 

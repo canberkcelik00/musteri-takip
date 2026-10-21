@@ -134,6 +134,39 @@ Faz 8 ile mevcut tablolara eklenen alanlar:
 
 WHM paket alanları katalog `details`'ine şöyle eşlenir: `QUOTA` → `disk_space` ("1000 MB", sınırsız → "Limitsiz"), `BWLIMIT` → `monthly_traffic`, `MAXPOP` → `email_accounts`, `MAXSQL` → `databases`, `MAXADDON` + 1 → `sites`, `provider` = sunucu adı.
 
+## Sunucu kullanımı (Faz 9)
+
+Sunucunun anlık görüntüsüdür (önbellek); geçmiş değildir. Yüzde ve "dolmak üzere / dolu" durumu saklanmaz, hesaplanır. Boyutlar bayt; sınırsız `null`.
+
+**account_usages** (hesap başına bir satır)
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| server_id | FK servers | Evet | `server_id` + `remote_username` benzersiz |
+| remote_username | string | Evet | WHM'de cPanel kullanıcı adı; cPanel'de bağlantı kullanıcı adı |
+| resources | json | Hayır | Kaynak anahtarı → `used`, `limit` (null = limitsiz): disk, trafik, inode, e-posta hesabı, yönlendirici, otomatik yanıtlayıcı, e-posta listesi, FTP, veritabanı, ek / alt / park alan adı |
+| databases | json | Hayır | Veritabanı adı ve bayt listesi |
+| refreshed_at | timestamp | Hayır | Son başarılı yenileme; boşsa hiç yenilenmedi |
+| failed_at | timestamp | Hayır | Son başarısız denemenin anı; başarıda boşalır |
+| failure_reason | enum | Hayır | `RemoteServerErrorReason`; başarıda boşalır |
+| warning_sent_at | timestamp | Hayır | Hesap düzeyi uyarının (disk, trafik, sayaç) gönderildiği an; kullanım eşiğin altına inince boşalır |
+
+**mailboxes** (e-posta adresi başına bir satır)
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| server_id | FK servers | Evet | `server_id` + `remote_username` + `address` benzersiz |
+| remote_username | string | Evet | |
+| address | string | Evet | |
+| domain | string | Evet | Adresin alan adı; cPanel'de hizmete göre süzmek için |
+| used_bytes | bigint | Evet | |
+| quota_bytes | bigint | Hayır | Boşsa limitsiz |
+| login_suspended | boolean | Evet | Oturum askıda |
+| incoming_suspended | boolean | Evet | Gelen posta askıda |
+| warning_sent_at | timestamp | Hayır | Kutu kotası uyarısının gönderildiği an; kullanım eşiğin altına inince boşalır |
+
+Yenilemede sunucuda artık olmayan e-posta satırı silinir; bağlı hizmeti kalmayan hesap satırı da silinir. Satırlar yalnız bağlı hizmeti olan hesaplar için doğar; sunucu silme/arşiv kuralı (T-107) değişmez.
+
 ## Teklifler ve teklif kalemleri (Faz 6)
 
 **quotes**
@@ -241,3 +274,4 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | quote_validity_days | 15 | Teklif geçerlilik süresi (Faz 6) |
 | quote_bcc_email | — | Gönderilen tekliflerin kopyasının gideceği adres (Faz 6) |
 | company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6) |
+| usage_warning_percent | 90 | Kullanım uyarı eşiği (%, 1–100); disk, trafik, e-posta kutusu ve sayaçlar için (Faz 9) |

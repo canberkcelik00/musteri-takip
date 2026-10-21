@@ -211,7 +211,7 @@ TL, USD ve EUR desteklenir; kur çevrimi veya kur hesabı yapılmaz.
 
 ## Sunucu entegrasyonu (Faz 8)
 
-Panelden birden fazla sunucu bağlantısı tanımlanır: **WHM reseller** (paketler ve hesaplar) veya **cPanel** (tek hesap, çok alan adlı; ana ve addon alan adlarının her biri ayrı host). Kimlik şifre değil API token'dır, şifreli saklanır. Sistem sunucudan yalnız okur; hesap açma, askıya alma ve kota kontrolü yoktur.
+Panelden birden fazla sunucu bağlantısı tanımlanır: **WHM reseller** (paketler ve hesaplar) veya **cPanel** (tek hesap, çok alan adlı; ana ve addon alan adlarının her biri ayrı host). Kimlik şifre değil API token'dır, şifreli saklanır. Sistem sunucudan yalnız okur; hesap açma, askıya alma ve kota uygulama (sınırı zorlama) yoktur. Kullanım bilgisinin okunup gösterilmesi ve uyarılması Faz 9'dadır (aşağıdaki bölüm).
 
 **"Sunucudan çek"** yalnız elle çalışır (zamanlayıcıda iş yok):
 
@@ -221,6 +221,18 @@ Panelden birden fazla sunucu bağlantısı tanımlanır: **WHM reseller** (paket
 - **Çiftleme olmaz:** Çekme tekrarlanabilir; bağlı kayıt varsa hiçbir şey oluşmaz. Aynı alan adı veya cPanel kullanıcı adıyla elle girilmiş bir hosting kalemi varsa yeni kayıt açılmaz, o kaleme bağlanır. Kısa ad zaten bir müşteride varsa hizmet o müşteriye eklenir.
 - **Askıdaki hesaplar** aktarılmaz, sonuçta sayılır. Sunucudan kaybolan bağlı hesap yalnız raporlanır; hizmet otomatik iptal edilmez.
 - Bir hesapta hata olursa diğerleri devam eder; sorunlu hesaplar sonuçta adıyla görünür.
+
+## Sunucu kullanımı ve kota uyarıları (Faz 9)
+
+Sunucuya bağlı her hosting hesabının kullanımı sunucudan **yalnız okunur**, saklanır ve gösterilir. Kota uygulama, sınır koyma ve askıya alma yoktur (parkta). Faz 8'deki "zamanlayıcıda iş yok" kuralı yalnız bu kullanım verisi için kalkar; "Sunucudan çek" yine yalnız elle çalışır.
+
+- **Okunan veri:** Disk ve aylık trafik (kullanılan / sınır), inode, e-posta hesabı, yönlendirici, otomatik yanıtlayıcı, e-posta listesi, FTP hesabı, veritabanı, ek / alt / park alan adı sayıları ve sınırları; her e-posta adresinin kullanılan alanı, kotası ve askı durumu; her veritabanının adı ve boyutu. Sınır yoksa "Limitsiz".
+- **cPanel türü:** Bir cPanel hesabının alan adları ayrı müşteridir. Disk, trafik ve sayaçlar hesap geneli olduğu için her alan adı hizmetinde "Hesap geneli" notuyla görünür; e-posta kutuları yalnız o alan adınınkiler olarak süzülür.
+- **Yenileme:** Bağlı ve aktif hizmeti olan hesaplar zamanlayıcıyla en çok 6 saatte bir yenilenir (henüz yenilenmediyse yenilenir; atlanan çalışma sonraki çalışmada tamamlanır). Kullanım penceresinde "Şimdi yenile" tek hesabı hemen yeniler. Sunucuya ulaşılamazsa son başarılı veri korunur ve hata gösterilir.
+- **Eşik:** Ayarlardaki "Kullanım uyarı eşiği" (varsayılan %90). Eşiğin altı renksiz; eşik ile %99 arası "Dolmak üzere" (amber); %100 ve üstü "Dolu" (kırmızı). Limitsiz kaynak uyarı vermez. Yüzde ve durum saklanmaz, hesaplanır.
+- **Uyarılar:** Disk, trafik, her e-posta kutusu ve sayaçlar (ör. 10/10 e-posta hesabı) eşiğe göre değerlendirilir. Eşiği yeni aşan her şey yenilemeden sonra **tek e-postada** bildirim adresine gider; aynı aşım için ikinci e-posta gitmez, kullanım eşiğin altına inip yeniden aşarsa yeniden uyarılır. E-posta gönderilemezse sonraki çalışmada yeniden denenir. Özet e-postasına "Kotası dolmak üzere olanlar" bölümü eklenir (şu an eşiğin üstünde olan her şey); "Bugün" yapılacaklarına kota satırları eklenir.
+- **Gösterim:** Normal durumda ekran değişmez (istisna odaklı). Sorun olan hesapta müşteri kartındaki hizmet satırında rozet, "Bugün"de satır ve Sunucular ekranında özet görünür; ayrıntı ayrı, salt okunur bir "Kullanım" penceresindedir (`docs/UI.md` §Kullanım penceresi).
+- Arşivli müşteri ve iptal edilmiş hizmet uyarı, özet ve Bugün'de görünmez.
 
 ## Gecikmiş borçlar ve özet e-postası
 
@@ -281,7 +293,7 @@ Düz ok "sahip olur", kesikli ok "isteğe bağlı bağlantı" demektir.
 | Ödeme dağıtımı | payment\_allocations | Hangi ödemenin ne kadarı hangi borca düştü |
 | Ödeme yöntemi | payment\_methods | Havale/EFT, kart gibi |
 
-Sunucu bağlantıları için `servers` tablosu (Faz 8) ve ayrıca ayarlar (30 gün, özet sıklığı, ayın günü ve saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
+Sunucu bağlantıları için `servers` tablosu (Faz 8), kullanım önbelleği için `account_usages` ve `mailboxes` tabloları (Faz 9) ve ayrıca ayarlar (30 gün, özet sıklığı, ayın günü ve saati, teklif geçerliliği, BCC adresi) ve Laravel'in kendi kullanıcı tablosu bulunur.
 
 **Bilinçli tasarım seçimleri**
 
@@ -372,7 +384,8 @@ Toplu Excel içe aktarma yoktur; mevcut kayıtlar ekranlardan elle girilir ("Bu 
 | 6 – Teklifler | Teklif, kalemler, PDF, e-posta gönderimi, kabulde otomatik müşteri ve hizmet |
 | 7 – İz ve esneklik | Fiyat/tarih değişiklik geçmişi, %50 ön ödeme kuralı |
 | 8 – Sunucu entegrasyonu | WHM reseller ve çok alan adlı cPanel bağlantıları; paket ve hesapların elle "Sunucudan çek" ile içe aktarılması (Faz 6'dan önce yapılır) |
-| 9 ve sonrası | Raporlar, müşteri paneli, askıya alma ve kota kontrolü |
+| 9 – Sunucu kullanımı ve kota uyarıları | Hosting hesaplarının disk, trafik, e-posta kutusu ve sayaç kullanımının okunması, saklanması, gösterilmesi; eşik aşımında uyarı e-postası, özet ve Bugün satırı |
+| 10 ve sonrası | Raporlar, müşteri paneli, askıya alma ve kota uygulama |
 
 Yayına alma Faz 5'in başında kurulur; Faz 4'ten önce canlıda kullanılacak bir şey olmadığı için ilk fazlar ürüne odaklanır. Hosting kaynaklı sürprizleri önlemek için Faz 1'de hosting uyumluluk kontrolü yapılır ve yerel ortam hostingle aynı PHP ve MySQL sürümüne sabitlenir.
 
@@ -382,5 +395,5 @@ Fazların görevlere bölünmüş hali: `docs/ROADMAP.md`
 
 - Web sitesi işi için %50 kabulde, %50 iş bitiminde kuralı
 - Fiyat ve tarih değişikliklerinin geçmişi
-- Sunucu tarafında kota, bant genişliği kontrolü, askıya alma ve zamanlanmış senkron (okuma amaçlı entegrasyon Faz 8'de)
+- Sunucu tarafında kota uygulama (sınır zorlama), askıya alma ve hesap açma; hesap/paket için zamanlanmış senkron (okuma amaçlı entegrasyon Faz 8'de, kullanım okuma ve uyarı Faz 9'da)
 - Müşteri paneli, raporlar ve grafikler

@@ -310,7 +310,28 @@ Hedef: Birden fazla WHM / cPanel bağlantısı tanımlayıp "Sunucudan çek" ile
   - Yapılacak: "Sunucudan çek" penceresinde her yeni hesap satırı silme düğmesiyle listeden çıkarılabilir; çıkarılan hesap aktarılmaz, kaydedilmez ve sonraki çekmede yine listelenir. Paketler çıkarılamaz.
   - Kabul: Çıkarılan hesabın müşterisi oluşmaz, bildirimde "N hesap çıkarıldı" yazar (testli).
 
-**Faz 8 bittiğinde:** Hosting hesapları elle girilmeden sunucudan gelir; askıya alma, kota kontrolü ve zamanlanmış senkron ayrı öneri olarak park listesinde kalır.
+**Faz 8 bittiğinde:** Hosting hesapları elle girilmeden sunucudan gelir; askıya alma, kota uygulama ve hesap/paket için zamanlanmış senkron ayrı öneri olarak park listesinde kalır; kullanım okuma ve kota uyarıları Faz 9'dadır.
+
+## Faz 9 – Sunucu kullanımı ve kota uyarıları
+
+Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kotaları, veritabanı ve sayaç kullanımını okuyup saklamak, arayüzde göstermek ve eşik aşılınca e-posta, özet ve Bugün ile uyarmak. Kararlar: U-19, T-112. Yalnız okur; kota uygulama ve askıya alma parkta kalır. Her görev tek oturumdur; WHM/cPanel çağrıları testlerde `Http::fake()` ile yapılır, gerçek sunucuya istek atılmaz.
+
+- [x] **G-9.0 Doküman güncellemesi:** PRD "Sunucu kullanımı ve kota uyarıları (Faz 9)" bölümü, DECISIONS U-19 ve T-112, DATA_MODEL `account_usages` / `mailboxes` ve `usage_warning_percent`, UI.md kullanım ekranı kuralları, bu faz.
+- [ ] **K-9.1 Token izni (kullanıcı):** WHM token'ının hesap adına UAPI çağırma izni `domainsOf` ile zaten çalışıyor; gerekirse izin eklenir. Canlıda G-9.4'teki "Şimdi yenile" ile doğrula.
+- [ ] **G-9.1 Kullanım verisinin okunması** — Bağımlılık: Faz 8
+  - Yapılacak: `RemoteServerApi::usageOf(RemoteAccount)`; `WhmApi` (`uapi_cpanel`) ve `CpanelApi` (`execute`) uygulamaları; ortak UAPI isteği `ServerApiClient`'ta. Çağrılar: `ResourceUsage::get_usages`, `Email::list_pops_with_disk`, `Mysql::list_databases`. Değer nesneleri (`RemoteAccountUsage`, `RemoteResource`, `RemoteMailbox`, `RemoteDatabase`); boyutlar bayt, sınırsız `null`; tek boyut biçimlendirme yardımcısı ("1,2 GB").
+  - Kabul: Örnek JSON'larla doğru değer nesneleri; limitsiz kota; cPanel'de e-postaların alan adına göre süzülmesi; modülü olmayan eski cPanel için anlaşılır hata; UAPI `status=0` ile HTTP 401 ayırt edilir (testli).
+- [ ] **G-9.2 Saklama ve zamanlanmış yenileme** — Bağımlılık: G-9.1
+  - Yapılacak: `account_usages` ve `mailboxes` migration, model, factory; `RefreshAccountUsage` (tek hesap) ve `RefreshStaleUsages` Action'ları; `app:refresh-server-usage` komutu `routes/console.php`'de (`everyMinute`, `withoutOverlapping`, bekleyen yayında atlanır). Bağlı ve aktif hizmeti olan, 6 saatten eski hesaplar eskiden yeniye işlenir; çalışma en çok 60 sn.
+  - Kabul: 6 saat kuralı (`travelTo`); süre sınırında kalan hesabın sonraki çalışmada tamamlanması; ikinci çalışmanın satır çoğaltmaması; sunucudan kalkan e-posta satırının silinmesi; hata alan hesabın eski verisini koruması ve hatanın kaydı; cPanel'de tek hesap satırı (testli).
+- [ ] **G-9.3 Uyarılar: e-posta, özet, Bugün** — Bağımlılık: G-9.2
+  - Yapılacak: "Kullanım uyarı eşiği" ayarı (%90; Genel ayarlar formu); eşik/durum hesabı tek yerde; `QuotaWarningMail` (eşiği yeni aşan her şey tek e-postada, müşteri kartı bağlantılı); `warning_sent_at` ile tek seferlik uyarı; `BuildDigest`'e "Kotası dolmak üzere olanlar" bölümü (`isEmpty` dahil); Bugün'e kota satırları ("Kullanımı gör", G-9.4 gelene kadar müşteri kartına).
+  - Kabul: Eşik ve tek seferlik uyarı; eşiğin altına inip yeniden aşınca yeni uyarı; gönderim hatasında sonraki çalışmada yeniden deneme; limitsizin uyarmaması; özet bölümü; Bugün satırları; arşivli müşteri ve iptal edilmiş hizmetin görünmemesi (testli).
+- [ ] **G-9.4 Kullanımın arayüzde gösterilmesi** — Bağımlılık: G-9.2
+  - Yapılacak: `docs/UI.md` §5 "Kullanım penceresi" ve ilgili satırlar: salt okunur "Kullanım" penceresi ("Şimdi yenile", "Kapat"); müşteri kartı hizmet satırında yalnız eşik aşılınca rozet; hizmet düzenleme penceresinde özet satırı ve "Kullanımı gör"; Bugün'deki kota satırlarının düğmesi pencereyi Bugün'de açar; Sunucular ekranında "Kullanım" sütunu.
+  - Kabul: Bölümün yalnız sunucuya bağlı hosting hizmetinde görünmesi; değerler, limitsiz durum ve e-posta tablosu; cPanel'de alan adına göre süzme; rozetin yalnız eşik aşılınca çıkması; "Şimdi yenile" ile güncelleme ve hata mesajı; Sunucular sütunu; tık sayıları `docs/UI.md` §7'ye eklenir (Livewire testi).
+
+**Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 
 ## Faz 6 ve sonrası
 
