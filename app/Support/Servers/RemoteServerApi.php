@@ -35,4 +35,12 @@ interface RemoteServerApi
      * @throws RemoteServerError
      */
     public function domainsOf(RemoteAccount $account): array;
+
+    /**
+     * The use of the account: metered resources (disk, bandwidth, counts), e-mail addresses with
+     * their quotas, and databases. Read-only.
+     *
+     * @throws RemoteServerError
+     */
+    public function usageOf(RemoteAccount $account): RemoteAccountUsage;
 }

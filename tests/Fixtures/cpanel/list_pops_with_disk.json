@@ -1,0 +1,5 @@
+{"status":1,"errors":null,"data":[
+{"email":"info@logi.com.tr","login":"info@logi.com.tr","user":"info","domain":"logi.com.tr","diskused":459.5,"_diskused":"481820672","diskquota":1024,"_diskquota":1073741824,"suspended_login":0,"suspended_incoming":0},
+{"email":"satis@logi.com.tr","login":"satis@logi.com.tr","user":"satis","domain":"logi.com.tr","diskused":1020,"_diskused":1069547520,"diskquota":"unlimited","_diskquota":0,"suspended_login":1,"suspended_incoming":1},
+{"email":"destek@ikinci.com","login":"destek@ikinci.com","user":"destek","domain":"ikinci.com","diskused":0,"_diskused":0,"diskquota":500,"_diskquota":524288000,"suspended_login":0,"suspended_incoming":0}
+]}

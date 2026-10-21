@@ -79,6 +79,34 @@ class WhmApi extends ServerApiClient
         return array_values(array_unique($domains)) ?: [$account->domain];
     }
 
+    protected function uapiData(string $module, string $function, RemoteAccount $account, array $arguments = []): mixed
+    {
+        $query = http_build_query([
+            'api.version' => 1,
+            'cpanel.user' => $account->username,
+            'cpanel.module' => $module,
+            'cpanel.function' => $function,
+            ...$arguments,
+        ]);
+
+        $uapi = $this->request("json-api/uapi_cpanel?{$query}")['data']['uapi'] ?? null;
+
+        if (! is_array($uapi) || ! array_key_exists('status', $uapi)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        }
+
+        if ((int) $uapi['status'] !== 1) {
+            throw RemoteServerError::because(RemoteServerErrorReason::ApiError);
+        }
+
+        return $uapi['data'] ?? null;
+    }
+
+    protected function mailboxFilter(RemoteAccount $account): array
+    {
+        return [];
+    }
+
     protected function authorizationScheme(): string
     {
         return 'whm';

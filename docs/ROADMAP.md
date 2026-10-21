@@ -318,7 +318,7 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 
 - [x] **G-9.0 Doküman güncellemesi:** PRD "Sunucu kullanımı ve kota uyarıları (Faz 9)" bölümü, DECISIONS U-19 ve T-112, DATA_MODEL `account_usages` / `mailboxes` ve `usage_warning_percent`, UI.md kullanım ekranı kuralları, bu faz.
 - [ ] **K-9.1 Token izni (kullanıcı):** WHM token'ının hesap adına UAPI çağırma izni `domainsOf` ile zaten çalışıyor; gerekirse izin eklenir. Canlıda G-9.4'teki "Şimdi yenile" ile doğrula.
-- [ ] **G-9.1 Kullanım verisinin okunması** — Bağımlılık: Faz 8
+- [x] **G-9.1 Kullanım verisinin okunması** — Bağımlılık: Faz 8
   - Yapılacak: `RemoteServerApi::usageOf(RemoteAccount)`; `WhmApi` (`uapi_cpanel`) ve `CpanelApi` (`execute`) uygulamaları; ortak UAPI isteği `ServerApiClient`'ta. Çağrılar: `ResourceUsage::get_usages`, `Email::list_pops_with_disk`, `Mysql::list_databases`. Değer nesneleri (`RemoteAccountUsage`, `RemoteResource`, `RemoteMailbox`, `RemoteDatabase`); boyutlar bayt, sınırsız `null`; tek boyut biçimlendirme yardımcısı ("1,2 GB").
   - Kabul: Örnek JSON'larla doğru değer nesneleri; limitsiz kota; cPanel'de e-postaların alan adına göre süzülmesi; modülü olmayan eski cPanel için anlaşılır hata; UAPI `status=0` ile HTTP 401 ayırt edilir (testli).
 - [ ] **G-9.2 Saklama ve zamanlanmış yenileme** — Bağımlılık: G-9.1

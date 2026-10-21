@@ -1,0 +1,8 @@
+{"status":1,"errors":null,"messages":null,"warnings":null,"data":[
+{"id":"disk_usage","description":"Disk Usage","usage":1288490188,"maximum":5368709120,"formatted_usage":"1.2 GB","formatted_maximum":"5 GB"},
+{"id":"bandwidth","description":"Monthly Bandwidth Transfer","usage":3221225472,"maximum":null,"formatted_usage":"3 GB","formatted_maximum":"unlimited"},
+{"id":"email_accounts","description":"Email Accounts","usage":4,"maximum":10,"formatted_usage":"4","formatted_maximum":"10"},
+{"id":"mysql_databases","description":"MySQL Databases","usage":2,"maximum":"5","formatted_usage":"2","formatted_maximum":"5"},
+{"id":"addon_domains","description":"Addon Domains","usage":2,"maximum":null,"formatted_usage":"2","formatted_maximum":"unlimited"},
+{"description":"Broken row without an id","usage":1,"maximum":1}
+]}

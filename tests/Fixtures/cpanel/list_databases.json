@@ -1,0 +1,4 @@
+{"status":1,"errors":null,"data":[
+{"database":"logi_wp","disk_usage":"52428800","users":["logi_wp"]},
+{"database":"logi_shop","disk_usage":1048576,"users":[]}
+]}

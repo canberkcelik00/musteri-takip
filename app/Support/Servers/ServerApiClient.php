@@ -74,6 +74,49 @@ abstract class ServerApiClient implements RemoteServerApi
         return $body;
     }
 
+    public function usageOf(RemoteAccount $account): RemoteAccountUsage
+    {
+        $resources = $this->uapiRows($this->uapiData('ResourceUsage', 'get_usages', $account));
+        $mailboxes = $this->uapiRows($this->uapiData('Email', 'list_pops_with_disk', $account, ['get_restrictions' => 1, ...$this->mailboxFilter($account)]));
+        $databases = $this->uapiRows($this->uapiData('Mysql', 'list_databases', $account));
+
+        return new RemoteAccountUsage(
+            resources: array_values(array_map(RemoteResource::fromUapi(...), array_filter($resources, fn (array $row): bool => isset($row['id'])))),
+            mailboxes: array_values(array_map(RemoteMailbox::fromUapi(...), array_filter($mailboxes, fn (array $row): bool => isset($row['email']) || isset($row['login'])))),
+            databases: array_values(array_map(RemoteDatabase::fromUapi(...), array_filter($databases, fn (array $row): bool => isset($row['database'])))),
+        );
+    }
+
+    /**
+     * The `data` of one UAPI call made for the account.
+     *
+     * @param  array<string, scalar>  $arguments
+     *
+     * @throws RemoteServerError
+     */
+    abstract protected function uapiData(string $module, string $function, RemoteAccount $account, array $arguments = []): mixed;
+
+    /**
+     * Extra `list_pops_with_disk` arguments that limit the mailboxes to the account's own scope.
+     *
+     * @return array<string, string>
+     */
+    abstract protected function mailboxFilter(RemoteAccount $account): array;
+
+    /**
+     * @return list<array<string, mixed>>
+     *
+     * @throws RemoteServerError
+     */
+    private function uapiRows(mixed $data): array
+    {
+        if (! is_array($data)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        }
+
+        return array_values(array_filter($data, is_array(...)));
+    }
+
     /**
      * @param  array<string, mixed>  $body
      */
