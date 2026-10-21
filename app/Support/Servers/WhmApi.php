@@ -79,6 +79,125 @@ class WhmApi extends ServerApiClient
         return array_values(array_unique($domains)) ?: [$account->domain];
     }
 
+    /**
+     * Disk, bandwidth and account counts of the reseller with their limits. `resellerstats` and
+     * `acctcounts` give the limits but may be closed to a reseller token ("Access denied" with
+     * `metadata.result` 0); then the totals are summed from `listaccts` and `showbw`, which a
+     * reseller may always read, and the limits stay unknown. A connection or authorization
+     * failure is never retried that way.
+     */
+    public function resellerTotals(): RemoteResellerTotals
+    {
+        $user = urlencode($this->server->username);
+        $stats = $this->optionalRequest("json-api/resellerstats?api.version=1&user={$user}")['data']['reseller'] ?? null;
+        $counts = $this->optionalRequest("json-api/acctcounts?api.version=1&user={$user}")['data']['reseller'] ?? null;
+
+        $statsRead = is_array($stats) && isset($stats['diskused'], $stats['totalbwused']);
+        $countsRead = is_array($counts) && isset($counts['active']);
+
+        $accounts = $statsRead && $countsRead ? [] : $this->listAccountRows();
+
+        if ($statsRead) {
+            $diskBytes = self::megabytes($stats['diskused']);
+            $bandwidthBytes = self::megabytes($stats['totalbwused']);
+        } else {
+            $diskBytes = array_sum(array_map(fn (array $row): int => self::sizeToBytes((string) ($row['diskused'] ?? '0')), $accounts));
+            $bandwidthBytes = $this->bandwidthOfAccounts();
+        }
+
+        return new RemoteResellerTotals(
+            diskBytes: $diskBytes,
+            diskLimitBytes: $statsRead ? self::megabyteLimit($stats['diskquota'] ?? null) : null,
+            bandwidthBytes: $bandwidthBytes,
+            bandwidthLimitBytes: $statsRead ? self::megabyteLimit($stats['bandwidthlimit'] ?? null) : null,
+            transferLimitsRead: $statsRead,
+            accounts: $countsRead ? (int) $counts['active'] + (int) ($counts['suspended'] ?? 0) : count($accounts),
+            accountsLimit: $countsRead && (int) ($counts['limit'] ?? 0) > 0 ? (int) $counts['limit'] : null,
+            accountsLimitRead: $countsRead,
+        );
+    }
+
+    /**
+     * The body of a call that is allowed to be refused: null when the server answered with an
+     * API error or an unexpected body, an exception for everything else (unreachable, 401/403).
+     *
+     * @return array<string, mixed>|null
+     *
+     * @throws RemoteServerError
+     */
+    private function optionalRequest(string $path): ?array
+    {
+        try {
+            return $this->request($path);
+        } catch (RemoteServerError $error) {
+            if (in_array($error->reason, [RemoteServerErrorReason::ApiError, RemoteServerErrorReason::InvalidResponse], true)) {
+                return null;
+            }
+
+            throw $error;
+        }
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     *
+     * @throws RemoteServerError
+     */
+    private function listAccountRows(): array
+    {
+        $rows = $this->request('json-api/listaccts?api.version=1')['data']['acct'] ?? null;
+
+        if (! is_array($rows)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        }
+
+        return array_values(array_filter($rows, is_array(...)));
+    }
+
+    /**
+     * @throws RemoteServerError
+     */
+    private function bandwidthOfAccounts(): int
+    {
+        $rows = $this->request('json-api/showbw?api.version=1')['data']['acct'] ?? null;
+
+        if (! is_array($rows)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        }
+
+        return array_sum(array_map(fn (mixed $row): int => is_array($row) ? (int) ($row['totalbytes'] ?? 0) : 0, $rows));
+    }
+
+    /**
+     * Megabytes (cPanel's MB are 1024 * 1024 bytes) to bytes; a number or a numeric string.
+     */
+    private static function megabytes(mixed $value): int
+    {
+        return is_numeric($value) ? (int) round((float) $value * 1048576) : 0;
+    }
+
+    /**
+     * A disk or bandwidth limit in megabytes; 0, empty and "unlimited" mean no limit.
+     */
+    private static function megabyteLimit(mixed $value): ?int
+    {
+        return is_numeric($value) && (float) $value > 0 ? self::megabytes($value) : null;
+    }
+
+    /**
+     * "245M", "1.5G" or "0" as `listaccts` reports a disk use, to bytes.
+     */
+    private static function sizeToBytes(string $size): int
+    {
+        if (preg_match('/^\s*([\d.]+)\s*([KMGT]?)/i', $size, $match) !== 1) {
+            return 0;
+        }
+
+        $power = ['' => 2, 'K' => 1, 'M' => 2, 'G' => 3, 'T' => 4][strtoupper($match[2])];
+
+        return (int) round((float) $match[1] * 1024 ** $power);
+    }
+
     protected function uapiData(string $module, string $function, RemoteAccount $account, array $arguments = []): mixed
     {
         $query = http_build_query([

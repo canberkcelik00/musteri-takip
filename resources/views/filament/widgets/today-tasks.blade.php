@@ -30,9 +30,13 @@
                                 @foreach ($rows as $row)
                                     <tr class="fi-ta-row">
                                         <td class="fi-ta-cell">
-                                            <a href="{{ $this->customerUrl($row['customer']) }}" class="fi-today-customer">{{ $row['customer']->short_name }}</a>
-                                            @if (filled($row['customer']->legal_title))
-                                                <p class="fi-today-customer-title">{{ $row['customer']->legal_title }}</p>
+                                            @if ($row['type'] === 'server_quota')
+                                                <a href="{{ $serversUrl }}" class="fi-today-customer">{{ __('usage.server_owner', ['name' => $row['server_name']]) }}</a>
+                                            @else
+                                                <a href="{{ $this->customerUrl($row['customer']) }}" class="fi-today-customer">{{ $row['customer']->short_name }}</a>
+                                                @if (filled($row['customer']->legal_title))
+                                                    <p class="fi-today-customer-title">{{ $row['customer']->legal_title }}</p>
+                                                @endif
                                             @endif
                                             {{-- Below `md` the "Durum" column is hidden; the state moves under the name. --}}
                                             <div class="fi-mobile-badge">
@@ -54,7 +58,9 @@
                                         </td>
                                         <td class="fi-ta-cell fi-money">{{ $row['amount'] }}</td>
                                         <td class="fi-ta-cell fi-today-actions">
-                                            @if ($row['type'] === 'charge')
+                                            @if ($row['type'] === 'server_quota')
+                                                <x-filament::link :href="$serversUrl" color="gray">{{ __('today.go_to_server') }}</x-filament::link>
+                                            @elseif ($row['type'] === 'charge')
                                                 @unless ($row['customer']->isArchived())
                                                     {{ ($this->recordPaymentAction())(['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value]) }}
                                                 @endunless

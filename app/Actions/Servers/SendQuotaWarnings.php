@@ -5,6 +5,7 @@ namespace App\Actions\Servers;
 use App\Mail\QuotaWarningMail;
 use App\Models\AccountUsage;
 use App\Models\Mailbox;
+use App\Models\ServerUsage;
 use App\Support\Settings;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -78,6 +79,28 @@ class SendQuotaWarnings
             }
         }
 
+        foreach (ServerUsage::query()->get() as $serverUsage) {
+            $before = $serverUsage->warned_levels ?? [];
+            $after = [];
+            $anySent = false;
+
+            foreach ($alerts->where('serverUsageId', $serverUsage->id) as $alert) {
+                $wasSent = $sentKeys->has(self::keyOf($alert));
+                $anySent = $anySent || $wasSent;
+
+                if ($wasSent || isset($before[$alert->resourceId])) {
+                    $after[$alert->resourceId] = $alert->level->value;
+                }
+            }
+
+            if ($after !== $before || $anySent) {
+                $serverUsage->update([
+                    'warned_levels' => $after === [] ? null : $after,
+                    'warning_sent_at' => $anySent ? $now : $serverUsage->warning_sent_at,
+                ]);
+            }
+        }
+
         foreach (Mailbox::query()->get() as $mailbox) {
             $alert = $alerts->firstWhere('mailboxId', $mailbox->id);
             $wasSent = $alert !== null && $sentKeys->has(self::keyOf($alert));
@@ -94,6 +117,10 @@ class SendQuotaWarnings
 
     private static function keyOf(UsageAlert $alert): string
     {
-        return $alert->mailboxId !== null ? "mailbox:{$alert->mailboxId}" : "resource:{$alert->accountUsageId}:{$alert->resourceId}";
+        return match (true) {
+            $alert->mailboxId !== null => "mailbox:{$alert->mailboxId}",
+            $alert->isServer() => "server:{$alert->serverUsageId}:{$alert->resourceId}",
+            default => "resource:{$alert->accountUsageId}:{$alert->resourceId}",
+        };
     }
 }

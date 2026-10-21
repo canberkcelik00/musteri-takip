@@ -11,6 +11,7 @@ use App\Filament\Actions\ViewUsageAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Resources\Customers\CustomerResource;
+use App\Filament\Resources\Servers\ServerResource;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\CustomerService;
@@ -100,6 +101,7 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
             'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['quota']['total'] === 0,
             'overdueUrl' => ChargeResource::getUrlWithoutArchived(['only_overdue' => ['isActive' => true]]),
             'dueSoonUrl' => ChargeResource::getUrlWithoutArchived(['due_soon' => ['isActive' => true]]),
+            'serversUrl' => ServerResource::getUrl('index'),
             'freeDecisionsUrl' => CustomerResource::getUrl('index', ['filters' => ['awaiting_free_decision' => ['isActive' => true]]]),
         ];
     }
@@ -142,11 +144,26 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
         }
 
         $customers = Customer::query()
-            ->whereIn('id', $tasks['quota']['items']->map(fn (UsageAlert $alert): int => $alert->owners[0]['customer_id']))
+            ->whereIn('id', $tasks['quota']['items']->reject(fn (UsageAlert $alert): bool => $alert->isServer())->map(fn (UsageAlert $alert): int => $alert->owners[0]['customer_id']))
             ->get()
             ->keyBy('id');
 
         foreach ($tasks['quota']['items'] as $alert) {
+            if ($alert->isServer()) {
+                $rows[] = [
+                    'type' => 'server_quota',
+                    'server_name' => $alert->serverName,
+                    'customer' => null,
+                    'subject' => $this->quotaSubject($alert, null),
+                    'date' => __('money.empty'),
+                    'status' => $alert->level->getLabel(),
+                    'color' => $alert->level->getColor(),
+                    'amount' => __('money.empty'),
+                ];
+
+                continue;
+            }
+
             $owner = $alert->owners[0];
 
             $rows[] = [

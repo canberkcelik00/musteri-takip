@@ -1,10 +1,12 @@
 <?php
 
 use App\Filament\Resources\Customers\CustomerResource;
+use App\Filament\Resources\Servers\ServerResource;
 use App\Filament\Widgets\TodayTasks;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\Server;
+use App\Models\ServerUsage;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
@@ -70,4 +72,18 @@ it('notes how many quota warnings did not fit in the list', function () {
 
 it('is still empty without any warning', function () {
     Livewire::test(TodayTasks::class)->assertSee('Bugün yapılacak bir şey yok');
+});
+
+it('shows a reseller total as a server row with a link to the servers list', function () {
+    $server = Server::factory()->whm()->create(['name' => 'Ana sunucu']);
+    ServerUsage::factory()->create(['server_id' => $server->id, 'resources' => [
+        ['id' => 'reseller_disk', 'label' => 'Reseller Disk', 'used' => 47 * 1073741824, 'limit' => 50 * 1073741824, 'is_bytes' => true, 'limit_read' => true],
+    ]]);
+
+    $widget = Livewire::test(TodayTasks::class);
+
+    $widget->assertSeeInOrder(['Sunucu: Ana sunucu', 'Bayi diski %94', 'Dolmak üzere', 'Sunucuya git'])
+        ->assertSee('1 iş');
+
+    expect($widget->html())->toContain(ServerResource::getUrl('index'));
 });

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Servers\RefreshStaleServerTotals;
 use App\Actions\Servers\RefreshStaleUsages;
 use App\Actions\Servers\SendQuotaWarnings;
 use Illuminate\Console\Attributes\Description;
@@ -9,7 +10,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('app:refresh-server-usage')]
-#[Description('Refresh the stored usage of hosting accounts that were not refreshed for the configured interval, then e-mail new quota warnings')]
+#[Description('Refresh the stored usage of reseller servers and hosting accounts that were not refreshed for the configured interval, then e-mail new quota warnings')]
 class RefreshServerUsage extends Command
 {
     /**
@@ -17,8 +18,16 @@ class RefreshServerUsage extends Command
      * accounts that are due, within a time budget, and leaves the rest for the next call; the
      * warnings only announce what was not announced yet.
      */
-    public function handle(RefreshStaleUsages $refreshStaleUsages, SendQuotaWarnings $sendQuotaWarnings): int
+    public function handle(RefreshStaleServerTotals $refreshStaleServerTotals, RefreshStaleUsages $refreshStaleUsages, SendQuotaWarnings $sendQuotaWarnings): int
     {
+        $totals = $refreshStaleServerTotals->handle();
+
+        $this->components->info(__('servers.totals_refresh_result', [
+            'refreshed' => $totals->refreshed,
+            'failed' => $totals->failed,
+            'removed' => $totals->removed,
+        ]));
+
         $result = $refreshStaleUsages->handle();
 
         $this->components->info(__('servers.usage_refresh_result', [

@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Servers\Tables;
 
+use App\Actions\Servers\BuildResellerSummary;
 use App\Actions\Servers\ListUsageAlerts;
 use App\Actions\Servers\TestServerConnection;
+use App\Enums\UsageLevel;
 use App\Filament\Actions\PullFromServerAction;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\AccountUsage;
@@ -14,7 +16,9 @@ use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class ServersTable
 {
@@ -23,7 +27,7 @@ class ServersTable
         $warningsByServer = null;
 
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->scopes(['withInUse'])->with('accountUsages'))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->scopes(['withInUse'])->with(['accountUsages', 'serverUsage']))
             ->defaultSort('name')
             ->paginated(false)
             ->columns([
@@ -45,13 +49,13 @@ class ServersTable
                     ->label(__('usage.servers_column'))
                     ->visibleFrom('md')
                     ->state(function (Server $record) use (&$warningsByServer): string {
-                        $failed = $record->accountUsages->first(fn (AccountUsage $usage): bool => $usage->failure_reason !== null);
+                        $failed = $record->accountUsages->first(fn (AccountUsage $usage): bool => $usage->failure_reason !== null) ?? ($record->serverUsage?->failure_reason !== null ? $record->serverUsage : null);
 
                         if ($failed !== null) {
                             return __('usage.servers_column_failed', ['reason' => __('usage.failure.'.$failed->failure_reason->value)]);
                         }
 
-                        $refreshedAt = $record->accountUsages->max('refreshed_at');
+                        $refreshedAt = collect([$record->accountUsages->max('refreshed_at'), $record->serverUsage?->refreshed_at])->filter()->max();
 
                         if ($refreshedAt === null) {
                             return __('usage.never_read');
@@ -62,7 +66,16 @@ class ServersTable
 
                         return $refreshedAt->format('d.m.Y H:i').($warnings > 0 ? ' · '.__('usage.servers_column_warnings', ['count' => $warnings]) : '');
                     })
-                    ->color(fn (Server $record): ?string => $record->accountUsages->contains(fn (AccountUsage $usage): bool => $usage->failure_reason !== null) ? 'danger' : null),
+                    ->description(function (Server $record): string|Htmlable|null {
+                        $summary = self::resellerSummary($record);
+
+                        if ($summary === null || $summary['level'] === null) {
+                            return $summary['text'] ?? null;
+                        }
+
+                        return new HtmlString('<span class="fi-usage-value fi-usage-level-'.$summary['level']->value.'">'.e($summary['text']).'</span>');
+                    })
+                    ->color(fn (Server $record): ?string => $record->accountUsages->contains(fn (AccountUsage $usage): bool => $usage->failure_reason !== null) || $record->serverUsage?->failure_reason !== null ? 'danger' : null),
                 TextColumn::make('archived_at')
                     ->label(__('archive.status'))
                     ->badge()
@@ -96,6 +109,16 @@ class ServersTable
     }
 
     /**
+     * The reseller line under the "Kullanım" column of a WHM server, once its totals were read.
+     *
+     * @return array{text: string, level: UsageLevel|null}|null
+     */
+    private static function resellerSummary(Server $record): ?array
+    {
+        return $record->serverUsage === null ? null : app(BuildResellerSummary::class)->handle($record->serverUsage);
+    }
+
+    /**
      * How many usage warnings each server has right now, by server id.
      *
      * @return array<int, int>
@@ -106,7 +129,7 @@ class ServersTable
         $counts = [];
 
         foreach (app(ListUsageAlerts::class)->handle() as $alert) {
-            $serverId = $serverOf[$alert->accountUsageId] ?? null;
+            $serverId = $alert->serverId ?? $serverOf[$alert->accountUsageId] ?? null;
 
             if ($serverId !== null) {
                 $counts[$serverId] = ($counts[$serverId] ?? 0) + 1;

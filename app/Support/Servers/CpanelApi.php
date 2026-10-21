@@ -4,6 +4,7 @@ namespace App\Support\Servers;
 
 use App\Enums\RemoteServerErrorReason;
 use App\Exceptions\RemoteServerError;
+use LogicException;
 
 /**
  * cPanel exposes no packages; each main or addon domain of the account becomes one RemoteAccount.
@@ -44,6 +45,11 @@ class CpanelApi extends ServerApiClient
     public function domainsOf(RemoteAccount $account): array
     {
         return [$account->domain];
+    }
+
+    public function resellerTotals(): RemoteResellerTotals
+    {
+        throw new LogicException('A cPanel connection has no reseller totals.');
     }
 
     protected function uapiData(string $module, string $function, RemoteAccount $account, array $arguments = []): mixed

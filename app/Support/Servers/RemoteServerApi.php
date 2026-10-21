@@ -43,4 +43,11 @@ interface RemoteServerApi
      * @throws RemoteServerError
      */
     public function usageOf(RemoteAccount $account): RemoteAccountUsage;
+
+    /**
+     * The totals of the whole reseller (WHM only; a cPanel connection is a single account).
+     *
+     * @throws RemoteServerError
+     */
+    public function resellerTotals(): RemoteResellerTotals;
 }

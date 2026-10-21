@@ -169,6 +169,20 @@ Sunucunun anlık görüntüsüdür (önbellek); geçmiş değildir. Yüzde ve "d
 
 Yenilemede sunucuda artık olmayan e-posta satırı silinir; bağlı hizmeti kalmayan hesap satırı da silinir. Satırlar yalnız bağlı, aktif hizmeti olan ve arşivsiz müşterinin hesapları için doğar. Önbellek olduğu için `server_id` yabancı anahtarı `cascadeOnDelete`'tir; sunucu silme/arşiv kuralı (T-107) değişmez. `account_usages.refreshed_at` son başarılı okumadır; `failed_at` yalnız son başarısız denemedir ve başarılı okumada boşalır. Bir cPanel bağlantısında alan adlarının hepsi aynı kullanıcıya bağlı olduğu için bağlantı başına **tek** `account_usages` satırı vardır; alan adına göre süzme `mailboxes.domain` ile gösterimde yapılır.
 
+**server_usages** (WHM sunucusu başına en çok bir satır; bayi toplamı)
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| server_id | FK servers | Evet | Benzersiz; `cascadeOnDelete` |
+| resources | json | Hayır | `{id, label, used, limit, is_bytes, limit_read}` listesi; kimlikler `reseller_disk`, `reseller_bandwidth`, `reseller_accounts`; bayt bayttır, `limit` boşsa limitsiz, `limit_read` yanlışsa limit okunamadı (bilinmiyor, uyarı yok) |
+| refreshed_at | timestamp | Hayır | Son başarılı okuma |
+| failed_at | timestamp | Hayır | Yalnız son başarısız deneme; başarılı okumada boşalır |
+| failure_reason | enum RemoteServerErrorReason | Hayır | |
+| warned_levels | json | Hayır | Kaynak kimliği → uyarıldığı seviye; eşiğin altına inince boşalır |
+| warning_sent_at | timestamp | Hayır | Son uyarı e-postasının gönderildiği an |
+
+Yalnız arşivsiz WHM sunucuları için doğar; sunucu arşivlenince veya cPanel olunca satır silinir. Yüzde ve durum saklanmaz, hesaplanır (T-118).
+
 ## Teklifler ve teklif kalemleri (Faz 6)
 
 **quotes**

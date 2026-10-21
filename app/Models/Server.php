@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -58,6 +59,16 @@ class Server extends Model
     public function accountUsages(): HasMany
     {
         return $this->hasMany(AccountUsage::class);
+    }
+
+    /**
+     * The stored totals of the whole reseller (WHM servers only).
+     *
+     * @return HasOne<ServerUsage, $this>
+     */
+    public function serverUsage(): HasOne
+    {
+        return $this->hasOne(ServerUsage::class);
     }
 
     /**

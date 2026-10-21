@@ -25,6 +25,7 @@ return [
     'section_quota' => 'Hosting kotası',
     'quota_resource' => ':resource %:percent',
     'quota_mailbox' => ':address kotası %:percent',
+    'go_to_server' => 'Sunucuya git',
     'quota_shared' => ':count müşteriyle paylaşılıyor',
     'quota_more' => ':count uyarı daha',
     'empty' => 'Bugün yapılacak bir şey yok',

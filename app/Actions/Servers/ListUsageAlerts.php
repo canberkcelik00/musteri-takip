@@ -7,6 +7,7 @@ use App\Enums\UsageLevel;
 use App\Models\AccountUsage;
 use App\Models\CustomerServiceItem;
 use App\Models\Mailbox;
+use App\Models\ServerUsage;
 use App\Support\Servers\LinkedAccounts;
 use App\Support\Servers\ResourceLabel;
 use App\Support\Settings;
@@ -14,7 +15,8 @@ use Illuminate\Support\Collection;
 
 /**
  * Every stored hosting resource that is at or above the warning threshold right now, for linked
- * accounts of active services only. Stateless: the digest and "Bugün" list what is over the
+ * accounts of active services only, plus the reseller totals of active WHM servers whose limit
+ * was read (T-118). Stateless: the digest and "Bugün" list what is over the
  * threshold, the warning e-mail picks from it what is not yet announced. Fullest first.
  *
  * Resources without a limit never alert, and neither do the `lve*` resources: CloudLinux reports
@@ -100,6 +102,36 @@ class ListUsageAlerts
                 warnedLevel: $mailbox->warned_level,
                 owners: $this->owners($this->ownersOfMailbox($items, $mailbox)),
             );
+        }
+
+        foreach (ServerUsage::query()->whereNotNull('refreshed_at')->with('server')->get() as $serverUsage) {
+            if ($serverUsage->server->isArchived()) {
+                continue;
+            }
+
+            foreach ($serverUsage->resources ?? [] as $resource) {
+                $level = $resource['limit_read'] ? UsageLevel::of($resource['used'], $resource['limit'], $threshold) : null;
+
+                if ($level === null) {
+                    continue;
+                }
+
+                $alerts[] = new UsageAlert(
+                    accountUsageId: null,
+                    resourceId: $resource['id'],
+                    mailboxId: null,
+                    subject: ResourceLabel::for($resource['id'], $resource['label']),
+                    used: $resource['used'],
+                    limit: (int) $resource['limit'],
+                    isBytes: $resource['is_bytes'],
+                    level: $level,
+                    warnedLevel: UsageLevel::tryFrom((string) ($serverUsage->warned_levels[$resource['id']] ?? '')),
+                    owners: [],
+                    serverUsageId: $serverUsage->id,
+                    serverId: $serverUsage->server_id,
+                    serverName: $serverUsage->server->name,
+                );
+            }
         }
 
         return collect($alerts)
