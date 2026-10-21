@@ -337,6 +337,9 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
   - Yapılacak: WHM sunucusunun bayi toplamı (disk, trafik, hesap sayısı ve limitleri) `resellerstats`/`acctcounts` ile, reddedilirse `listaccts`/`showbw` toplamıyla okunur (`RemoteServerApi::resellerTotals`); `server_usages` tablosu; `RefreshServerTotals`/`RefreshStaleServerTotals` ayarlı aralıkta; eşik aşımı hesap uyarılarıyla aynı yoldan (e-posta, özet, Bugün'de "Sunucu: X"); Sunucular ekranında "Bayi: ..." satırı.
   - Kabul: Limitli/limitsiz okuma, bayta çeviri, reddedilince geri düşüş ve limitin "okunamadı" olması, yetki hatasında geri düşmeme; aralık kuralı; arşivli/cPanel atlama; tek seferlik e-posta ve kötüleşince yeniden uyarı; özet ve Bugün satırı; Sunucular satırı (testli).
 - [ ] **K-9.2 Bayi toplamı canlı doğrulaması (kullanıcı):** Canlı bayi token'ıyla Sunucular ekranında "Bayi: ..." satırının geldiğini ve limitlerin görünüp görünmediğini kontrol et; limit görünmüyorsa token `resellerstats`/`acctcounts`'e kapalıdır (toplam yine görünür).
+- [x] **G-9.7 Hesabın tüm alan adları** — Bağımlılık: G-9.2, G-9.4 (kullanıcı kararı U-21)
+  - Yapılacak: Kullanım yenilemesi WHM hesabının ana, ek ve park alan adlarını da okur ve `customer_service_items.remote_domains`'e yazar; hizmet satırında "+N alan adı", hizmet düzenleme ve Kullanım pencerelerinde tam liste; `Customer::search` bu alan adlarıyla da bulur.
+  - Kabul: Alan adı okuma (küçük harf, alt alan adı yok, cPanel'de yok, okunamazsa kullanım yine okunur ve eski liste kalır); yalnız hesaba bağlı kalemlere yazma; `otherDomains`; satır, düzenleme ve Kullanım penceresi metinleri; harf duyarsız arama ve iptal edilmiş hizmetin alan adıyla bulma (testli).
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 

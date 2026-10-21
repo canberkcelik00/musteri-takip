@@ -107,6 +107,9 @@ class Customer extends Model
                         $query->whereRaw(
                             "JSON_UNQUOTE(JSON_EXTRACT(details, '$.domain')) COLLATE utf8mb4_unicode_ci LIKE ?",
                             [$like],
+                        )->orWhereRaw(
+                            "JSON_SEARCH(remote_domains, 'one', ?) IS NOT NULL",
+                            [mb_strtolower($like)],
                         );
                     });
             });

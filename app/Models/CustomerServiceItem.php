@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property ServiceType $type
  * @property array<string, mixed>|null $details
+ * @property list<string>|null $remote_domains written by the usage refresh, never by a form
  * @property string|null $license_key
  */
 #[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
@@ -60,6 +61,23 @@ class CustomerServiceItem extends Model
     }
 
     /**
+     * The other domains of the hosting account this item is linked to: the main, addon and
+     * parked domains the server reported at the last usage refresh (T-119), without the item's
+     * own domain. Empty for an item that is not linked or was never refreshed.
+     *
+     * @return list<string>
+     */
+    public function otherDomains(): array
+    {
+        $own = mb_strtolower((string) ($this->details['domain'] ?? ''));
+
+        return array_values(array_filter(
+            (array) $this->remote_domains,
+            fn (string $domain): bool => $domain !== $own,
+        ));
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -69,6 +87,7 @@ class CustomerServiceItem extends Model
         return [
             'type' => ServiceType::class,
             'details' => 'array',
+            'remote_domains' => 'array',
             'license_key' => 'encrypted',
         ];
     }

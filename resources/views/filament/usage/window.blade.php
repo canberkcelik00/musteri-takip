@@ -24,6 +24,10 @@
             <p class="fi-usage-note">{{ __('usage.shared_account', ['count' => $report->sharedDomains]) }}</p>
         @endif
 
+        @if ($report->domains !== [])
+            <p class="fi-usage-note">{{ __('usage.other_domains', ['domains' => implode(', ', $report->domains)]) }}</p>
+        @endif
+
         @if ($report->gauges !== [])
             <div class="fi-usage-gauges">
                 @foreach ($report->gauges as $meter)

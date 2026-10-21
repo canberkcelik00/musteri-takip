@@ -47,6 +47,11 @@ class CpanelApi extends ServerApiClient
         return [$account->domain];
     }
 
+    protected function accountDomains(RemoteAccount $account): ?array
+    {
+        return null;
+    }
+
     public function resellerTotals(): RemoteResellerTotals
     {
         throw new LogicException('A cPanel connection has no reseller totals.');

@@ -131,6 +131,7 @@ Faz 8 ile mevcut tablolara eklenen alanlar:
 
 - **catalog_services:** `server_id` (FK servers, boş olabilir) ve `remote_package` (string, boş olabilir); `server_id` + `remote_package` benzersiz. WHM paketinden gelen hosting hizmetini işaretler.
 - **customer_service_items:** `server_id` (FK servers, boş olabilir) ve `remote_key` (string, boş olabilir; WHM'de cPanel kullanıcı adı, cPanel'de alan adı); `server_id` + `remote_key` benzersiz. `details` içindeki `domain`, `server`, `cpanel_username` yine doldurulur.
+- **customer_service_items.remote_domains** (json, boş olabilir): WHM hesabındaki ana, ek (addon) ve park alan adları, küçük harfle, ana alan adı ilk sırada; alt alan adları yok. Sunucunun yazdığı önbellektir: kullanım yenilemesi (G-9.2) aynı sunucuda `remote_key` = hesap kullanıcısı olan bütün kalemlere yazar, hiçbir form yazmaz. Okunamazsa eski değer korunur; iptal edilmiş hizmetin kalemi son listeyi saklar (arama için). Kalemin kendi alan adı çıkarılmış hâli `CustomerServiceItem::otherDomains()` ile hesaplanır (T-119).
 
 WHM paket alanları katalog `details`'ine şöyle eşlenir: `QUOTA` → `disk_space` ("1000 MB", sınırsız → "Limitsiz"), `BWLIMIT` → `monthly_traffic`, `MAXPOP` → `email_accounts`, `MAXSQL` → `databases`, `MAXADDON` + 1 → `sites`, `provider` = sunucu adı.
 

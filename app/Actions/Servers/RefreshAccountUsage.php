@@ -4,6 +4,7 @@ namespace App\Actions\Servers;
 
 use App\Exceptions\RemoteServerError;
 use App\Models\AccountUsage;
+use App\Models\CustomerServiceItem;
 use App\Models\Mailbox;
 use App\Models\Server;
 use App\Support\Servers\RemoteAccount;
@@ -53,6 +54,12 @@ class RefreshAccountUsage
             'failed_at' => null,
             'failure_reason' => null,
         ]);
+
+        if ($usage->domains !== null) {
+            CustomerServiceItem::query()
+                ->where(['server_id' => $server->getKey(), 'remote_key' => $username])
+                ->update(['remote_domains' => json_encode($usage->domains)]);
+        }
 
         foreach ($usage->mailboxes as $mailbox) {
             Mailbox::query()->updateOrCreate([...$keys, 'address' => $mailbox->address], [

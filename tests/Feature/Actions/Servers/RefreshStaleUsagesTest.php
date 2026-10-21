@@ -33,6 +33,7 @@ function fakeServerUsage(array $brokenUsers = []): void
         $function = match (true) {
             str_contains($url, 'get_usages') => 'get_usages',
             str_contains($url, 'list_pops_with_disk') => 'list_pops_with_disk',
+            str_contains($url, 'list_domains') => 'list_domains',
             default => 'list_databases',
         };
         $body = json_decode(file_get_contents(base_path("tests/Fixtures/cpanel/{$function}.json")), true);
@@ -80,17 +81,17 @@ it('refreshes an account again only after an hour', function () {
     linkedHostingService(Server::factory()->whm()->create(), 'logi');
 
     app(RefreshStaleUsages::class)->handle();
-    expect(usageCallsTo('logi'))->toBe(3);
+    expect(usageCallsTo('logi'))->toBe(4);
 
     $this->travelTo('2026-10-21 09:59:00');
     $result = app(RefreshStaleUsages::class)->handle();
     expect($result->refreshed)->toBe(0)
-        ->and(usageCallsTo('logi'))->toBe(3);
+        ->and(usageCallsTo('logi'))->toBe(4);
 
     $this->travelTo('2026-10-21 10:00:00');
     $result = app(RefreshStaleUsages::class)->handle();
     expect($result->refreshed)->toBe(1)
-        ->and(usageCallsTo('logi'))->toBe(6)
+        ->and(usageCallsTo('logi'))->toBe(8)
         ->and(AccountUsage::query()->count())->toBe(1)
         ->and(Mailbox::query()->count())->toBe(3);
 });
@@ -143,7 +144,7 @@ it('stops when the time budget is used up and finishes the rest on the next runs
 
     expect(array_map(fn ($run): array => [$run->refreshed, $run->remaining], $runs))->toBe([[1, 2], [1, 1], [1, 0], [0, 0]])
         ->and(AccountUsage::query()->count())->toBe(3)
-        ->and(usageCallsTo('bir') + usageCallsTo('iki') + usageCallsTo('uc'))->toBe(9);
+        ->and(usageCallsTo('bir') + usageCallsTo('iki') + usageCallsTo('uc'))->toBe(12);
 });
 
 it('reads accounts never read before the oldest ones', function () {

@@ -70,6 +70,7 @@ class BuildUsageReport
             databases: collect($usage->databases ?? [])
                 ->map(fn (array $database): UsageMeter => new UsageMeter($database['name'], $database['name'], $database['bytes'], null, true, null))
                 ->all(),
+            domains: $item->otherDomains(),
         );
     }
 

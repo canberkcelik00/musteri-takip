@@ -123,6 +123,7 @@ Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna g�
 - **Bugün:** kota satırları yapılacakların sonunda; konu "Disk %94 · logi.com.tr" veya "info@logi.com.tr kotası %97", durum "Dolmak üzere" / "Dolu" rozeti, tutar "—", düğme "Kullanımı gör" Kullanım penceresini Bugün'de açar (karta gitmeden iş bitirilebilir); penceredeki müşteri adı karta bağlantıdır.
 - **Sunucular ekranı:** satır işlemleri ikide kalır; `md`'den "Kullanım" sütunu: "gg.aa.yyyy ss:dd · 3 uyarı", başarısızsa kırmızı "Yenilenemedi: yetki hatası".
 - **Bayi toplamı (WHM):** Sunucular ekranında "Kullanım" sütununun altında soluk tek satır: "Bayi: Disk 38 GB / 50 GB · Trafik 120 GB / sınırsız · 24 / 30 hesap"; limit okunamadıysa yalnız toplam ("Bayi: Disk 38 GB · 24 hesap"). Eşik aşan kaynak varsa satır amber/kırmızı olur. Bugün'de satır "Sunucu: X · Bayi diski %94 · Dolmak üzere" ve "Sunucuya git" (Sunucular ekranı); kullanım penceresi sunucu için açılmaz. Yeni düğme yoktur.
+- **Hesabın diğer alan adları (WHM):** Müşteri kartında hizmet satırının soluk satırı kısa kalır: "logi.com.tr +3 alan adı" (diğer alan adı yoksa ek metin çıkmaz). Hizmet düzenleme penceresinde, sunucuya bağlı kalemin bölümünde kullanım özetinin üstünde soluk satır: "Hesaptaki diğer alan adları: ikinci.com, logi.net"; Kullanım penceresinde başlık notlarının arasında aynı satır. Yeni düğme yoktur.
 
 ### Tablolar (tüm listeler)
 

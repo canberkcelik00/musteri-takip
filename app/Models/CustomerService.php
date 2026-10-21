@@ -110,6 +110,24 @@ class CustomerService extends Model
     }
 
     /**
+     * The other domains of the hosting accounts this service's items are linked to, without the
+     * items' own domains, distinct (T-119; {@see CustomerServiceItem::otherDomains()}). Uses the
+     * loaded `items` relation when available.
+     *
+     * @return list<string>
+     */
+    public function otherDomains(): array
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+
+        return $items
+            ->flatMap(fn (CustomerServiceItem $item): array => $item->otherDomains())
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * Distinct domain names from this service's items (customer_service_items.details->domain),
      * in the order first seen (T-66). Uses the loaded `items` relation when available, so
      * relation manager tables that eager-load it do not query per row. The single place this

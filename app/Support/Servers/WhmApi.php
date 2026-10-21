@@ -79,6 +79,29 @@ class WhmApi extends ServerApiClient
         return array_values(array_unique($domains)) ?: [$account->domain];
     }
 
+    protected function accountDomains(RemoteAccount $account): ?array
+    {
+        try {
+            $data = $this->uapiData('DomainInfo', 'list_domains', $account);
+        } catch (RemoteServerError) {
+            return null;
+        }
+
+        if (! is_array($data) || ! isset($data['main_domain'])) {
+            return null;
+        }
+
+        $domains = array_map(
+            fn (string $domain): string => mb_strtolower($domain),
+            array_filter(
+                array_map('strval', [...(array) $data['main_domain'], ...(array) ($data['addon_domains'] ?? []), ...(array) ($data['parked_domains'] ?? [])]),
+                fn (string $domain): bool => $domain !== '',
+            ),
+        );
+
+        return array_values(array_unique($domains));
+    }
+
     /**
      * Disk, bandwidth and account counts of the reseller with their limits. `resellerstats` and
      * `acctcounts` give the limits but may be closed to a reseller token ("Access denied" with

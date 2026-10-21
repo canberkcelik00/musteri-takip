@@ -59,6 +59,7 @@ return [
     'badge_more' => ':count sorun daha',
     'summary_mailboxes' => ':count e-posta',
     'summary_none' => 'Kullanım henüz okunmadı',
+    'other_domains' => 'Hesaptaki diğer alan adları: :domains',
     'server_owner' => 'Sunucu: :name',
     'reseller_summary' => 'Bayi: :parts',
     'reseller_disk' => 'Disk :value',

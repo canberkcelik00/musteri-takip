@@ -84,8 +84,18 @@ abstract class ServerApiClient implements RemoteServerApi
             resources: array_values(array_map(RemoteResource::fromUapi(...), array_filter($resources, fn (array $row): bool => isset($row['id'])))),
             mailboxes: array_values(array_map(RemoteMailbox::fromUapi(...), array_filter($mailboxes, fn (array $row): bool => isset($row['email']) || isset($row['login'])))),
             databases: array_values(array_map(RemoteDatabase::fromUapi(...), array_filter($databases, fn (array $row): bool => isset($row['database'])))),
+            domains: $this->accountDomains($account),
         );
     }
+
+    /**
+     * Main, addon and parked domains of the account, lower case, main first (no sub domains);
+     * null when this kind of connection does not give them or the call failed, so the usage
+     * read never fails for the domains.
+     *
+     * @return list<string>|null
+     */
+    abstract protected function accountDomains(RemoteAccount $account): ?array;
 
     /**
      * The `data` of one UAPI call made for the account.

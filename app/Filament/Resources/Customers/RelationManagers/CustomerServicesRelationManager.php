@@ -180,6 +180,11 @@ class CustomerServicesRelationManager extends RelationManager
     private function nameDescription(CustomerService $record): ?Htmlable
     {
         $domains = implode(', ', $record->domains());
+        $others = count($record->otherDomains());
+
+        if ($domains !== '' && $others > 0) {
+            $domains .= ' +'.__('customer_services.more_domains', ['count' => $others]);
+        }
 
         $badge = match (true) {
             $record->status === CustomerServiceStatus::Cancelled => MobileStatusBadge::html($record->status->getLabel(), 'gray', self::BADGE_BELOW_XL),
@@ -370,6 +375,12 @@ class CustomerServicesRelationManager extends RelationManager
 
         if ($item->server_id !== null && $item->remote_key !== null) {
             $summary = app(BuildUsageReport::class)->handle($item)?->summary();
+
+            if ($item->otherDomains() !== []) {
+                $fields[] = Text::make(__('usage.other_domains', ['domains' => implode(', ', $item->otherDomains())]))
+                    ->color('gray')
+                    ->columnSpanFull();
+            }
 
             $fields[] = Text::make(filled($summary) ? $summary : __('usage.summary_none'))
                 ->color('gray')

@@ -19,6 +19,7 @@ final readonly class UsageReport
      * @param  list<UsageMeter>  $counters
      * @param  list<UsageMailbox>  $mailboxes
      * @param  list<UsageMeter>  $databases
+     * @param  list<string>  $domains  the other domains of the account (WHM), as read by the refresh
      */
     public function __construct(
         public int $itemId,
@@ -33,6 +34,7 @@ final readonly class UsageReport
         public array $counters,
         public array $mailboxes,
         public array $databases,
+        public array $domains = [],
     ) {}
 
     public function hasData(): bool
