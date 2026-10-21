@@ -59,8 +59,7 @@
                                                     {{ ($this->recordPaymentAction())(['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value]) }}
                                                 @endunless
                                             @elseif ($row['type'] === 'quota')
-                                                {{-- Until the "Kullanım" window (G-9.4) the button opens the customer's card. --}}
-                                                <x-filament::button tag="a" :href="$this->customerUrl($row['customer'])" color="gray" size="sm">{{ __('today.view_usage') }}</x-filament::button>
+                                                {{ ($this->viewUsageAction())(['item' => $row['item_id']]) }}
                                             @else
                                                 {{ ($this->confirmFreeContinuationAction())(['customerService' => $row['service']->id]) }}
                                                 {{ ($this->removeFreeAction())(['customerService' => $row['service']->id]) }}

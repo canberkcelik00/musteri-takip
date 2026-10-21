@@ -327,7 +327,7 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.3 Uyarılar: e-posta, özet, Bugün** — Bağımlılık: G-9.2
   - Yapılacak: "Kullanım uyarı eşiği" ayarı (%90; Genel ayarlar formu); eşik/durum hesabı tek yerde; `QuotaWarningMail` (eşiği yeni aşan her şey tek e-postada, müşteri kartı bağlantılı); `warning_sent_at` ile tek seferlik uyarı; `BuildDigest`'e "Kotası dolmak üzere olanlar" bölümü (`isEmpty` dahil); Bugün'e kota satırları ("Kullanımı gör", G-9.4 gelene kadar müşteri kartına).
   - Kabul: Eşik ve tek seferlik uyarı; eşiğin altına inip yeniden aşınca yeni uyarı; gönderim hatasında sonraki çalışmada yeniden deneme; limitsizin uyarmaması; özet bölümü; Bugün satırları; arşivli müşteri ve iptal edilmiş hizmetin görünmemesi (testli).
-- [ ] **G-9.4 Kullanımın arayüzde gösterilmesi** — Bağımlılık: G-9.2
+- [x] **G-9.4 Kullanımın arayüzde gösterilmesi** — Bağımlılık: G-9.2
   - Yapılacak: `docs/UI.md` §5 "Kullanım penceresi" ve ilgili satırlar: salt okunur "Kullanım" penceresi ("Şimdi yenile", "Kapat"); müşteri kartı hizmet satırında yalnız eşik aşılınca rozet; hizmet düzenleme penceresinde özet satırı ve "Kullanımı gör"; Bugün'deki kota satırlarının düğmesi pencereyi Bugün'de açar; Sunucular ekranında "Kullanım" sütunu.
   - Kabul: Bölümün yalnız sunucuya bağlı hosting hizmetinde görünmesi; değerler, limitsiz durum ve e-posta tablosu; cPanel'de alan adına göre süzme; rozetin yalnız eşik aşılınca çıkması; "Şimdi yenile" ile güncelleme ve hata mesajı; Sunucular sütunu; tık sayıları `docs/UI.md` §7'ye eklenir (Livewire testi).
 

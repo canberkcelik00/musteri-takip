@@ -1573,3 +1573,112 @@ body {
         grid-column: 1 / -1;
     }
 }
+
+/*
+ * The read-only "Kullanım" window (G-9.4, ViewUsageAction, docs/UI.md "Kullanım penceresi"):
+ * gauges with a bar, a two-column counter list and a mailbox list that stacks on a narrow screen.
+ * The level colours are the warning and danger palette of the badges, always next to their text.
+ */
+.fi-usage {
+    @apply flex flex-col gap-4;
+    font-size: var(--mt-text-body);
+    color: var(--mt-text);
+}
+
+.fi-usage-updated,
+.fi-usage-note {
+    font-size: var(--mt-text-help);
+    color: var(--mt-text-muted);
+}
+
+.fi-usage-error {
+    @apply rounded-lg border border-warning-300 bg-warning-50 p-3 text-warning-900 dark:border-warning-700 dark:bg-warning-950 dark:text-warning-100;
+}
+
+.fi-usage-gauges {
+    @apply flex flex-col gap-3;
+}
+
+.fi-usage-gauge-head {
+    @apply flex flex-wrap items-baseline justify-between gap-x-3;
+}
+
+.fi-usage-label {
+    font-weight: 600;
+}
+
+.fi-usage-bar {
+    @apply mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700;
+}
+
+.fi-usage-bar-fill {
+    @apply h-full rounded-full bg-gray-500 dark:bg-gray-400;
+
+    &.fi-usage-level-nearly_full {
+        @apply bg-warning-500;
+    }
+
+    &.fi-usage-level-full {
+        @apply bg-danger-600;
+    }
+}
+
+.fi-usage-value.fi-usage-level-nearly_full,
+.fi-usage-counter dd.fi-usage-level-nearly_full,
+.fi-usage-mailbox-value.fi-usage-level-nearly_full {
+    @apply font-semibold text-warning-700 dark:text-warning-400;
+}
+
+.fi-usage-value.fi-usage-level-full,
+.fi-usage-counter dd.fi-usage-level-full,
+.fi-usage-mailbox-value.fi-usage-level-full {
+    @apply font-semibold text-danger-700 dark:text-danger-400;
+}
+
+.fi-usage-counters {
+    @apply grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2;
+}
+
+.fi-usage-counter {
+    @apply flex justify-between gap-3 border-b border-gray-100 py-1 dark:border-gray-800;
+
+    & dt {
+        color: var(--mt-text-muted);
+    }
+}
+
+.fi-usage-heading {
+    font-weight: 600;
+    cursor: default;
+}
+
+.fi-usage-databases > summary {
+    cursor: pointer;
+}
+
+.fi-usage-mailboxes {
+    @apply mt-1 flex flex-col;
+}
+
+.fi-usage-mailbox {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-gray-100 py-1.5 dark:border-gray-800;
+}
+
+.fi-usage-address {
+    @apply min-w-0 flex-1 break-all;
+}
+
+.fi-usage-mailbox-status {
+    @apply flex flex-wrap gap-1;
+}
+
+/* The in-row badge of the customer card: a small button-like badge under the domain. */
+.fi-usage-badge {
+    @apply mt-1 block cursor-pointer;
+
+    & .fi-badge:not(.fi-wrapped),
+    & .fi-badge-label:not(.fi-wrapped) {
+        @apply overflow-visible text-wrap;
+        text-overflow: clip;
+    }
+}

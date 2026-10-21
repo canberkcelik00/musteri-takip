@@ -27,7 +27,6 @@ return [
     'quota_mailbox' => ':address kotası %:percent',
     'quota_shared' => ':count müşteriyle paylaşılıyor',
     'quota_more' => ':count uyarı daha',
-    'view_usage' => 'Kullanımı gör',
     'empty' => 'Bugün yapılacak bir şey yok',
     'view_all' => 'Tümünü gör (:count)',
 ];

@@ -15,7 +15,7 @@ use App\Support\ByteSize;
 final readonly class UsageAlert
 {
     /**
-     * @param  list<array{customer_id: int, short_name: string, domain: string|null}>  $owners
+     * @param  list<array{item_id: int, customer_id: int, short_name: string, domain: string|null}>  $owners
      */
     public function __construct(
         public int $accountUsageId,

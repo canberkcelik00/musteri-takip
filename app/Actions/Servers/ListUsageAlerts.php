@@ -24,6 +24,14 @@ class ListUsageAlerts
 {
     private const string MOMENTARY_RESOURCE_PREFIX = 'lve';
 
+    /**
+     * Whether a resource is a momentary figure (CloudLinux `lve*`) rather than a quota.
+     */
+    public static function isMomentary(string $resourceId): bool
+    {
+        return str_starts_with($resourceId, self::MOMENTARY_RESOURCE_PREFIX);
+    }
+
     public function __construct(private readonly Settings $settings) {}
 
     /**
@@ -46,7 +54,7 @@ class ListUsageAlerts
             }
 
             foreach ($usage->resources ?? [] as $resource) {
-                $level = str_starts_with($resource['id'], self::MOMENTARY_RESOURCE_PREFIX)
+                $level = self::isMomentary($resource['id'])
                     ? null
                     : UsageLevel::of($resource['used'], $resource['limit'], $threshold);
 
@@ -115,12 +123,13 @@ class ListUsageAlerts
 
     /**
      * @param  Collection<int, CustomerServiceItem>  $items
-     * @return list<array{customer_id: int, short_name: string, domain: string|null}>
+     * @return list<array{item_id: int, customer_id: int, short_name: string, domain: string|null}>
      */
     private function owners(Collection $items): array
     {
         return $items
             ->map(fn (CustomerServiceItem $item): array => [
+                'item_id' => $item->getKey(),
                 'customer_id' => $item->customerService->customer_id,
                 'short_name' => $item->customerService->customer->short_name,
                 'domain' => $item->details['domain'] ?? $item->remote_key,

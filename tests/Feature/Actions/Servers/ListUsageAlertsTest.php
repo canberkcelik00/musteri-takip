@@ -28,6 +28,7 @@ it('lists a resource at or above the threshold with its owner', function () {
         ->and($alerts[0]->usageText())->toBe('4,7 GB / 5 GB')
         ->and($alerts[0]->warnedLevel)->toBeNull()
         ->and($alerts[0]->owners)->toBe([[
+            'item_id' => $service->items()->firstOrFail()->id,
             'customer_id' => $service->customer_id,
             'short_name' => $service->customer->short_name,
             'domain' => 'logi.com.tr',

@@ -7,6 +7,7 @@ use App\Actions\Today\ListTodayTasks;
 use App\Filament\Actions\ConfirmFreeContinuationAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\RemoveFreeFlagAction;
+use App\Filament\Actions\ViewUsageAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -76,6 +77,15 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     }
 
     /**
+     * "Kullanımı gör" of a quota row: the "Kullanım" window opens here on Bugün, so the work is
+     * done without going to the customer's card.
+     */
+    public function viewUsageAction(): Action
+    {
+        return ViewUsageAction::make()->icon(null);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function getViewData(): array
@@ -141,6 +151,7 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
 
             $rows[] = [
                 'type' => 'quota',
+                'item_id' => $owner['item_id'],
                 'customer' => $customers[$owner['customer_id']],
                 'subject' => $this->quotaSubject($alert, $owner['domain']),
                 'date' => __('money.empty'),

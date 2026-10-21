@@ -9,6 +9,7 @@ use App\Actions\CustomerServices\PreviewCustomerServiceCancellation;
 use App\Actions\CustomerServices\ReactivateCustomerService;
 use App\Actions\CustomerServices\ReopenCustomerServiceCharge;
 use App\Actions\CustomerServices\UpdateCustomerService;
+use App\Actions\Servers\BuildUsageReport;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
@@ -16,6 +17,7 @@ use App\Exceptions\InvalidCustomerService;
 use App\Filament\Actions\AssignCustomerServiceAction;
 use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\RemoveFreeFlagAction;
+use App\Filament\Actions\ViewUsageAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Forms\Components\CurrencySelect;
 use App\Filament\Forms\Components\MoneyInput;
@@ -35,6 +37,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -49,6 +52,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\HtmlString;
 
 /**
@@ -116,7 +120,7 @@ class CustomerServicesRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->scopes(['withInUse'])
-                ->with('items')
+                ->with('items.server')
                 ->where('status', $this->status())
                 ->orderBy('end_date')
                 ->orderBy('id'))
@@ -183,7 +187,9 @@ class CustomerServicesRelationManager extends RelationManager
             default => null,
         };
 
-        if ($domains === '' && $badge === null) {
+        $usageBadge = $this->usageBadge($record);
+
+        if ($domains === '' && $badge === null && $usageBadge === null) {
             return null;
         }
 
@@ -193,7 +199,49 @@ class CustomerServicesRelationManager extends RelationManager
             $html .= $badge->toHtml();
         }
 
+        if ($usageBadge !== null) {
+            $html .= $usageBadge;
+        }
+
         return new HtmlString($html);
+    }
+
+    /**
+     * The "Kullanım" window of the card's service row (G-9.4): opened by the badge that shows
+     * only while an active service's linked hosting account is at or over the warning threshold.
+     */
+    public function viewUsageAction(): ViewUsageAction
+    {
+        return ViewUsageAction::make();
+    }
+
+    /**
+     * The worst problem of the service's linked accounts as one clickable badge ("Disk %94"),
+     * or nothing while every account is below the threshold.
+     */
+    private function usageBadge(CustomerService $record): ?string
+    {
+        if ($record->status !== CustomerServiceStatus::Active) {
+            return null;
+        }
+
+        $worst = null;
+
+        foreach ($record->items as $item) {
+            $badge = app(BuildUsageReport::class)->handle($item)?->badge();
+
+            if ($badge !== null && ($worst === null || $badge['level']->severity() > $worst['badge']['level']->severity())) {
+                $worst = ['item' => $item, 'badge' => $badge];
+            }
+        }
+
+        return $worst === null
+            ? null
+            : View::make('filament.support.usage-badge', [
+                'itemId' => $worst['item']->id,
+                'label' => $worst['badge']['text'],
+                'color' => $worst['badge']['level']->getColor(),
+            ])->render();
     }
 
     private function editAction(string $name = 'editService'): Action
@@ -300,7 +348,10 @@ class CustomerServicesRelationManager extends RelationManager
     }
 
     /**
-     * @return list<TextInput>
+     * The item's own fields; a hosting item linked to a server account also gets its one-line
+     * usage summary and the "Kullanımı gör" button (G-9.4), after the fields.
+     *
+     * @return list<Component>
      */
     private function editItemFields(CustomerServiceItem $item): array
     {
@@ -315,6 +366,17 @@ class CustomerServicesRelationManager extends RelationManager
             $fields[] = TextInput::make("items.{$item->id}.license_key")
                 ->label(__('customer_services.license_key'))
                 ->maxLength(255);
+        }
+
+        if ($item->server_id !== null && $item->remote_key !== null) {
+            $summary = app(BuildUsageReport::class)->handle($item)?->summary();
+
+            $fields[] = Text::make(filled($summary) ? $summary : __('usage.summary_none'))
+                ->color('gray')
+                ->columnSpanFull();
+            $fields[] = Actions::make([
+                ViewUsageAction::make("viewUsage{$item->id}")->arguments(['item' => $item->id])->outlined(),
+            ])->columnSpanFull();
         }
 
         return $fields;
