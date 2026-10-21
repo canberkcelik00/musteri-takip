@@ -783,6 +783,7 @@ class ComposerStaticInit45cfd8cb52957bc24f8f738bc9daa754
         'App\\Enums\\DeployResult' => __DIR__ . '/../..' . '/app/Enums/DeployResult.php',
         'App\\Enums\\DigestFrequency' => __DIR__ . '/../..' . '/app/Enums/DigestFrequency.php',
         'App\\Enums\\DigestResult' => __DIR__ . '/../..' . '/app/Enums/DigestResult.php',
+        'App\\Enums\\RefreshIntervalUnit' => __DIR__ . '/../..' . '/app/Enums/RefreshIntervalUnit.php',
         'App\\Enums\\RemoteServerErrorReason' => __DIR__ . '/../..' . '/app/Enums/RemoteServerErrorReason.php',
         'App\\Enums\\SchedulerStatus' => __DIR__ . '/../..' . '/app/Enums/SchedulerStatus.php',
         'App\\Enums\\ServerType' => __DIR__ . '/../..' . '/app/Enums/ServerType.php',
