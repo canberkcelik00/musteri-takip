@@ -137,6 +137,24 @@ class Settings
     }
 
     /**
+     * How often, in minutes, the usage of a linked hosting account is read from its server
+     * (15 minutes to 30 days, Faz 9); the scheduler runs every 15 minutes at the shortest.
+     */
+    public function usageRefreshMinutes(): int
+    {
+        $key = SettingKey::UsageRefreshMinutes;
+        $minutes = filter_var($this->get($key), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 15, 'max_range' => 43200],
+        ]);
+
+        if ($minutes === false) {
+            return (int) $this->fallback($key);
+        }
+
+        return $minutes;
+    }
+
+    /**
      * Whether renewal reminders are sent to the customers' primary contacts (G-5B.1); off until
      * the owner turns it on.
      */

@@ -3,11 +3,13 @@
 use App\Actions\Servers\RefreshAccountUsage;
 use App\Actions\Servers\RefreshStaleUsages;
 use App\Enums\RemoteServerErrorReason;
+use App\Enums\SettingKey;
 use App\Models\AccountUsage;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\Mailbox;
 use App\Models\Server;
+use App\Support\Settings;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -72,7 +74,7 @@ it('reads the usage of the accounts of linked active services', function () {
         ->and(Mailbox::query()->where('remote_username', 'logi')->count())->toBe(3);
 });
 
-it('refreshes an account again only after six hours', function () {
+it('refreshes an account again only after an hour', function () {
     fakeServerUsage();
     $this->travelTo('2026-10-21 09:00:00');
     linkedHostingService(Server::factory()->whm()->create(), 'logi');
@@ -80,12 +82,12 @@ it('refreshes an account again only after six hours', function () {
     app(RefreshStaleUsages::class)->handle();
     expect(usageCallsTo('logi'))->toBe(3);
 
-    $this->travelTo('2026-10-21 14:59:00');
+    $this->travelTo('2026-10-21 09:59:00');
     $result = app(RefreshStaleUsages::class)->handle();
     expect($result->refreshed)->toBe(0)
         ->and(usageCallsTo('logi'))->toBe(3);
 
-    $this->travelTo('2026-10-21 15:00:00');
+    $this->travelTo('2026-10-21 10:00:00');
     $result = app(RefreshStaleUsages::class)->handle();
     expect($result->refreshed)->toBe(1)
         ->and(usageCallsTo('logi'))->toBe(6)
@@ -105,7 +107,7 @@ it('counts a failed attempt as an attempt, so a broken server is not asked on ev
         ->and($second->failed)->toBe(0)
         ->and(usageCallsTo('logi'))->toBe(1);
 
-    $this->travelTo('2026-10-21 15:00:00');
+    $this->travelTo('2026-10-21 10:00:00');
 
     expect(app(RefreshStaleUsages::class)->handle()->failed)->toBe(1)
         ->and(usageCallsTo('logi'))->toBe(2);
@@ -237,4 +239,19 @@ it('tells what the command did', function () {
     $this->artisan('app:refresh-server-usage')
         ->expectsOutputToContain('Kullanım: 0 hesap yenilendi')
         ->assertSuccessful();
+});
+
+it('uses the usage refresh interval of the settings', function () {
+    fakeServerUsage();
+    app(Settings::class)->set(SettingKey::UsageRefreshMinutes, '180');
+    $this->travelTo('2026-10-21 09:00:00');
+    linkedHostingService(Server::factory()->whm()->create(), 'logi');
+
+    app(RefreshStaleUsages::class)->handle();
+
+    $this->travelTo('2026-10-21 11:59:00');
+    expect(app(RefreshStaleUsages::class)->handle()->refreshed)->toBe(0);
+
+    $this->travelTo('2026-10-21 12:00:00');
+    expect(app(RefreshStaleUsages::class)->handle()->refreshed)->toBe(1);
 });

@@ -208,3 +208,22 @@ it('falls back to 90 percent for an invalid usage warning percent and logs it', 
         fn (string $message, array $context) => $context === ['key' => 'usage_warning_percent', 'value' => $percent],
     );
 })->with(['0', '101', 'abc', '12.5']);
+
+it('reads 60 minutes as the usage refresh interval until one is stored', function () {
+    expect($this->settings->usageRefreshMinutes())->toBe(60);
+
+    $this->settings->set(SettingKey::UsageRefreshMinutes, '240');
+
+    expect($this->settings->usageRefreshMinutes())->toBe(240);
+});
+
+it('falls back to 60 minutes for an invalid usage refresh interval and logs it', function (string $minutes) {
+    Log::spy();
+
+    $this->settings->set(SettingKey::UsageRefreshMinutes, $minutes);
+
+    expect($this->settings->usageRefreshMinutes())->toBe(60);
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message, array $context) => $context === ['key' => 'usage_refresh_minutes', 'value' => $minutes],
+    );
+})->with(['10', '43201', 'abc']);

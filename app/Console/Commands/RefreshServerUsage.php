@@ -9,7 +9,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('app:refresh-server-usage')]
-#[Description('Refresh the stored usage of hosting accounts that were not refreshed for six hours, then e-mail new quota warnings')]
+#[Description('Refresh the stored usage of hosting accounts that were not refreshed for the configured interval, then e-mail new quota warnings')]
 class RefreshServerUsage extends Command
 {
     /**

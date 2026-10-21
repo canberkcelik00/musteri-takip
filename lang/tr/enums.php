@@ -23,6 +23,12 @@ return [
         'full' => 'Dolu',
     ],
 
+    'refresh_interval_unit' => [
+        'minute' => 'Dakika',
+        'hour' => 'Saat',
+        'day' => 'Gün',
+    ],
+
     'digest_frequency' => [
         'daily' => 'Günlük',
         'monthly' => 'Aylık',

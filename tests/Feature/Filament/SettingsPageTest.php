@@ -2,6 +2,7 @@
 
 use App\Actions\CustomerServices\CreateDueRenewalCharges;
 use App\Enums\DigestFrequency;
+use App\Enums\RefreshIntervalUnit;
 use App\Enums\SettingKey;
 use App\Filament\Pages\ManageSettings;
 use App\Mail\TestMail;
@@ -289,4 +290,23 @@ it('shows and saves the usage warning threshold', function () {
         ->assertHasFormErrors(['usage_warning_percent']);
 
     expect(app(Settings::class)->usageWarningPercent())->toBe(80);
+});
+
+it('shows and saves the usage refresh interval as a number and a unit', function () {
+    Livewire::test(ManageSettings::class)
+        ->assertSee('Kullanım yenileme aralığı')
+        ->assertSchemaStateSet(['usage_refresh_value' => 1, 'usage_refresh_unit' => RefreshIntervalUnit::Hour])
+        ->fillForm(['usage_refresh_value' => 30, 'usage_refresh_unit' => 'minute'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(Settings::class)->usageRefreshMinutes())->toBe(30);
+
+    Livewire::test(ManageSettings::class)
+        ->assertSchemaStateSet(['usage_refresh_value' => 30, 'usage_refresh_unit' => RefreshIntervalUnit::Minute])
+        ->fillForm(['usage_refresh_value' => 10, 'usage_refresh_unit' => 'minute'])
+        ->call('save')
+        ->assertHasErrors(['usage_refresh_value']);
+
+    expect(app(Settings::class)->usageRefreshMinutes())->toBe(30);
 });

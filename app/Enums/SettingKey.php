@@ -11,6 +11,7 @@ enum SettingKey: string
     case DigestDayOfMonth = 'digest_day_of_month';
     case CustomerRemindersEnabled = 'customer_reminders_enabled';
     case UsageWarningPercent = 'usage_warning_percent';
+    case UsageRefreshMinutes = 'usage_refresh_minutes';
 
     /**
      * Internal state, not shown on the settings page: when the digest was last handled.
@@ -41,6 +42,7 @@ enum SettingKey: string
             self::DigestDayOfMonth => '15',
             self::CustomerRemindersEnabled => '0',
             self::UsageWarningPercent => '90',
+            self::UsageRefreshMinutes => '60',
             self::DigestLastRunAt => null,
             self::SchedulerLastRunAt => null,
             self::SchedulerFailedServiceIds => null,

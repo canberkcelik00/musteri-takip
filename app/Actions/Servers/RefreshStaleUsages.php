@@ -7,12 +7,13 @@ use App\Models\CustomerServiceItem;
 use App\Models\Mailbox;
 use App\Models\Server;
 use App\Support\Servers\LinkedAccounts;
+use App\Support\Settings;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
  * Refresh the usage of every hosting account that has a linked, active service and was not asked
- * for six hours ("henüz yapılmadıysa yap"; docs/DECISIONS.md T-112). Called on every scheduler
+ * for the configured interval ("henüz yapılmadıysa yap"; docs/DECISIONS.md T-112). Called on every scheduler
  * run. Accounts never asked come first, then the oldest attempt; a failed attempt counts as an
  * attempt, so a broken server is retried after the interval, not on every run.
  *
@@ -25,9 +26,10 @@ use Illuminate\Support\Collection;
  */
 class RefreshStaleUsages
 {
-    private const int REFRESH_AFTER_HOURS = 6;
-
-    public function __construct(private readonly RefreshAccountUsage $refreshAccountUsage) {}
+    public function __construct(
+        private readonly RefreshAccountUsage $refreshAccountUsage,
+        private readonly Settings $settings,
+    ) {}
 
     public function handle(int $budgetSeconds = 60): UsageRefreshResult
     {
@@ -79,7 +81,7 @@ class RefreshStaleUsages
      */
     private function due(Collection $targets, Carbon $now): Collection
     {
-        $threshold = $now->copy()->subHours(self::REFRESH_AFTER_HOURS);
+        $threshold = $now->copy()->subMinutes($this->settings->usageRefreshMinutes());
 
         $attempts = AccountUsage::query()
             ->whereIn('server_id', $targets->map(fn (array $target): int => $target[0]->getKey())->unique()->all())

@@ -161,3 +161,31 @@ it('rejects a usage warning percent outside 1 to 100', function (mixed $percent)
 
     expect(app(Settings::class)->usageWarningPercent())->toBe(90);
 })->with([0, 101, 'cok', null]);
+
+it('stores the usage refresh interval as minutes', function (int $value, string $unit, int $minutes) {
+    updateSettings(['usage_refresh_value' => $value, 'usage_refresh_unit' => $unit]);
+
+    expect(app(Settings::class)->usageRefreshMinutes())->toBe($minutes);
+})->with([
+    '30 minutes' => [30, 'minute', 30],
+    '4 hours' => [4, 'hour', 240],
+    '2 days' => [2, 'day', 2880],
+]);
+
+it('keeps the usage refresh interval when the data does not carry it', function () {
+    updateSettings(['usage_refresh_value' => 3, 'usage_refresh_unit' => 'hour']);
+    updateSettings(['renewal_lead_days' => 20]);
+
+    expect(app(Settings::class)->usageRefreshMinutes())->toBe(180);
+});
+
+it('rejects a usage refresh interval under 15 minutes or over 30 days', function (int $value, string $unit) {
+    expect(fn () => updateSettings(['usage_refresh_value' => $value, 'usage_refresh_unit' => $unit]))
+        ->toThrow(fn (ValidationException $exception) => expect($exception->errors())->toHaveKey('usage_refresh_value'));
+
+    expect(app(Settings::class)->usageRefreshMinutes())->toBe(60);
+})->with([
+    '10 minutes' => [10, 'minute'],
+    '31 days' => [31, 'day'],
+    '721 hours' => [721, 'hour'],
+]);

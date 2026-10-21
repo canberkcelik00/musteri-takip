@@ -277,3 +277,4 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | quote_bcc_email | — | Gönderilen tekliflerin kopyasının gideceği adres (Faz 6) |
 | company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6) |
 | usage_warning_percent | 90 | Kullanım uyarı eşiği (%, 1–100); disk, trafik, e-posta kutusu ve sayaçlar için (Faz 9) |
+| usage_refresh_minutes | 60 | Kullanım yenileme aralığı (dakika, 15–43200); ayar sayfasında sayı + birim (Dakika, Saat, Gün) olarak girilir, birim saklanmaz (Faz 9) |

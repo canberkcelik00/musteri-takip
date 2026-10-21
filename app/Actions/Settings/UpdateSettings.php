@@ -3,6 +3,7 @@
 namespace App\Actions\Settings;
 
 use App\Enums\DigestFrequency;
+use App\Enums\RefreshIntervalUnit;
 use App\Enums\SettingKey;
 use App\Support\Settings;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,8 @@ class UpdateSettings
             'notification_email' => ['nullable', 'string', 'email', 'max:255'],
             'customer_reminders_enabled' => ['sometimes', 'boolean'],
             'usage_warning_percent' => ['sometimes', 'required', 'integer', 'min:1', 'max:100'],
+            'usage_refresh_value' => ['sometimes', 'required', 'integer', 'min:1', 'max:43200'],
+            'usage_refresh_unit' => ['required_with:usage_refresh_value', Rule::enum(RefreshIntervalUnit::class)],
         ];
     }
 
@@ -55,7 +58,10 @@ class UpdateSettings
      * month is stored only for the monthly digest; with the daily one the stored day is kept,
      * so it comes back when monthly is chosen again.
      *
-     * @param  array{renewal_lead_days: int|string|null, digest_frequency: DigestFrequency|string|null, digest_day_of_month?: int|string|null, digest_time: string|null, notification_email?: string|null, customer_reminders_enabled?: bool|int|string|null, usage_warning_percent?: int|string|null}  $data
+     * The usage refresh interval comes as a number and a unit and is stored as minutes, 15
+     * minutes to 30 days; a missing one keeps the stored interval.
+     *
+     * @param  array{renewal_lead_days: int|string|null, digest_frequency: DigestFrequency|string|null, digest_day_of_month?: int|string|null, digest_time: string|null, notification_email?: string|null, customer_reminders_enabled?: bool|int|string|null, usage_warning_percent?: int|string|null, usage_refresh_value?: int|string|null, usage_refresh_unit?: RefreshIntervalUnit|string|null}  $data
      *
      * @throws ValidationException
      */
@@ -68,10 +74,21 @@ class UpdateSettings
             $data['digest_frequency'] = $data['digest_frequency']->value;
         }
 
+        if (($data['usage_refresh_unit'] ?? null) instanceof RefreshIntervalUnit) {
+            $data['usage_refresh_unit'] = $data['usage_refresh_unit']->value;
+        }
+
         $validated = Validator::make($data, self::rules())->validate();
         $frequency = DigestFrequency::from($validated['digest_frequency']);
+        $refreshMinutes = isset($validated['usage_refresh_value'])
+            ? RefreshIntervalUnit::from($validated['usage_refresh_unit'])->minutes((int) $validated['usage_refresh_value'])
+            : null;
 
-        DB::transaction(function () use ($validated, $frequency): void {
+        if ($refreshMinutes !== null && ($refreshMinutes < 15 || $refreshMinutes > 43200)) {
+            throw ValidationException::withMessages(['usage_refresh_value' => __('settings.usage_refresh_interval_range')]);
+        }
+
+        DB::transaction(function () use ($validated, $frequency, $refreshMinutes): void {
             $this->settings->set(SettingKey::RenewalLeadDays, (string) $validated['renewal_lead_days']);
             $this->settings->set(SettingKey::DigestFrequency, $frequency->value);
 
@@ -88,6 +105,10 @@ class UpdateSettings
 
             if (array_key_exists('usage_warning_percent', $validated)) {
                 $this->settings->set(SettingKey::UsageWarningPercent, (string) $validated['usage_warning_percent']);
+            }
+
+            if ($refreshMinutes !== null) {
+                $this->settings->set(SettingKey::UsageRefreshMinutes, (string) $refreshMinutes);
             }
         });
     }

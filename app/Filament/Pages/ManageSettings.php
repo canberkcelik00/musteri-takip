@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Actions\Settings\SendTestEmail;
 use App\Actions\Settings\UpdateSettings;
 use App\Enums\DigestFrequency;
+use App\Enums\RefreshIntervalUnit;
 use App\Support\Settings;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -16,6 +17,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
@@ -59,7 +61,11 @@ class ManageSettings extends Page
 
     public function mount(Settings $settings): void
     {
+        [$refreshValue, $refreshUnit] = RefreshIntervalUnit::split($settings->usageRefreshMinutes());
+
         $this->form->fill([
+            'usage_refresh_value' => $refreshValue,
+            'usage_refresh_unit' => $refreshUnit,
             'renewal_lead_days' => $settings->renewalLeadDays(),
             'digest_frequency' => $settings->digestFrequency(),
             'digest_day_of_month' => $settings->digestDayOfMonth(),
@@ -123,6 +129,20 @@ class ManageSettings extends Page
                     ->maxValue(100)
                     ->suffix('%')
                     ->required(),
+                Grid::make(2)->schema([
+                    TextInput::make('usage_refresh_value')
+                        ->label(__('settings.usage_refresh_interval'))
+                        ->helperText(__('settings.usage_refresh_interval_help'))
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(43200)
+                        ->required(),
+                    Select::make('usage_refresh_unit')
+                        ->label(__('settings.usage_refresh_unit'))
+                        ->options(RefreshIntervalUnit::class)
+                        ->native(false)
+                        ->required(),
+                ]),
                 Toggle::make('customer_reminders_enabled')
                     ->label(__('settings.customer_reminders_enabled'))
                     ->helperText(__('settings.customer_reminders_enabled_help')),
