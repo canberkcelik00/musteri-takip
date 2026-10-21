@@ -176,6 +176,7 @@ Yenilemede sunucuda artık olmayan e-posta satırı silinir; bağlı hizmeti kal
 | --- | --- | --- | --- |
 | server_id | FK servers | Evet | Benzersiz; `cascadeOnDelete` |
 | resources | json | Hayır | `{id, label, used, limit, is_bytes, limit_read}` listesi; kimlikler `reseller_disk`, `reseller_bandwidth`, `reseller_accounts`; bayt bayttır, `limit` boşsa limitsiz, `limit_read` yanlışsa limit okunamadı (bilinmiyor, uyarı yok) |
+| accounts | json | Hayır | Sunucudaki her hesap için `{username, domain, plan, suspended, suspend_reason, disk, disk_limit, bw, bw_limit}` listesi (`listaccts` + `showbw`); bayt bayttır, limit boşsa limitsizdir, `bw` boşsa trafik okunamadı (T-120) |
 | refreshed_at | timestamp | Hayır | Son başarılı okuma |
 | failed_at | timestamp | Hayır | Yalnız son başarısız deneme; başarılı okumada boşalır |
 | failure_reason | enum RemoteServerErrorReason | Hayır | |

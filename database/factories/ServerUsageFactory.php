@@ -26,6 +26,10 @@ class ServerUsageFactory extends Factory
                 ['id' => 'reseller_bandwidth', 'label' => 'Reseller Bandwidth', 'used' => 128849018880, 'limit' => null, 'is_bytes' => true, 'limit_read' => true],
                 ['id' => 'reseller_accounts', 'label' => 'Reseller Accounts', 'used' => 24, 'limit' => 30, 'is_bytes' => false, 'limit_read' => true],
             ],
+            'accounts' => [
+                ['username' => 'logi', 'domain' => 'logi.com.tr', 'plan' => 'gold', 'suspended' => false, 'suspend_reason' => null, 'disk' => 5046586572, 'disk_limit' => 5368709120, 'bw' => 1073741824, 'bw_limit' => 10737418240],
+                ['username' => 'askida', 'domain' => 'askida.com', 'plan' => 'mini', 'suspended' => true, 'suspend_reason' => 'Odeme yapilmadi', 'disk' => 1610612736, 'disk_limit' => null, 'bw' => 2147483648, 'bw_limit' => null],
+            ],
             'refreshed_at' => now(),
         ];
     }

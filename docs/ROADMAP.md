@@ -340,6 +340,10 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.7 Hesabın tüm alan adları** — Bağımlılık: G-9.2, G-9.4 (kullanıcı kararı U-21)
   - Yapılacak: Kullanım yenilemesi WHM hesabının ana, ek ve park alan adlarını da okur ve `customer_service_items.remote_domains`'e yazar; hizmet satırında "+N alan adı", hizmet düzenleme ve Kullanım pencerelerinde tam liste; `Customer::search` bu alan adlarıyla da bulur.
   - Kabul: Alan adı okuma (küçük harf, alt alan adı yok, cPanel'de yok, okunamazsa kullanım yine okunur ve eski liste kalır); yalnız hesaba bağlı kalemlere yazma; `otherDomains`; satır, düzenleme ve Kullanım penceresi metinleri; harf duyarsız arama ve iptal edilmiş hizmetin alan adıyla bulma (testli).
+- [x] **G-9.8 Sunucu kullanım penceresi** — Bağımlılık: G-9.6 (kullanıcı kararı U-22)
+  - Yapılacak: Bayi yenilemesi hesap listesini de saklar (`server_usages.accounts`, `listaccts` + `showbw`); Sunucular ekranında "Kullanım" sütununa tıklayınca salt okunur sunucu penceresi: bayi göstergeleri, tahsis edilen disk/trafik toplamı, sayaçlar ve bütün hesapların tablosu (müşteri, disk, trafik, askı ve eşik rozetleri); "Şimdi yenile".
+  - Kabul: Hesap satırlarının okunması (bayta çeviri, limitsiz, askı nedeni), `resellerstats` reddedilse de hesap listesi, `showbw` okunamazsa trafik "—"; rapor sıralaması, müşteri eşlemesi (bağlı değil, arşivli), tahsis toplamı, eşik ayarı; pencere metinleri, limit okunamadı notu, hata ve boş durum, "Şimdi yenile" ve hata bildirimi, cPanel'de pencerenin olmaması (testli).
+- [ ] **K-9.3 Sunucu penceresi canlı doğrulaması (kullanıcı):** Yayından sonra Sunucular ekranında "Kullanım" sütununa tıklayıp hesap tablosunun, müşteri adlarının ve (token izin veriyorsa) bayi limitlerinin geldiğini kontrol et.
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 

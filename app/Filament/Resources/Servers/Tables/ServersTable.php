@@ -7,6 +7,7 @@ use App\Actions\Servers\ListUsageAlerts;
 use App\Actions\Servers\TestServerConnection;
 use App\Enums\UsageLevel;
 use App\Filament\Actions\PullFromServerAction;
+use App\Filament\Actions\ViewServerUsageAction;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\AccountUsage;
 use App\Models\Server;
@@ -48,6 +49,7 @@ class ServersTable
                 TextColumn::make('usage')
                     ->label(__('usage.servers_column'))
                     ->visibleFrom('md')
+                    ->action(ViewServerUsageAction::make())
                     ->state(function (Server $record) use (&$warningsByServer): string {
                         $failed = $record->accountUsages->first(fn (AccountUsage $usage): bool => $usage->failure_reason !== null) ?? ($record->serverUsage?->failure_reason !== null ? $record->serverUsage : null);
 

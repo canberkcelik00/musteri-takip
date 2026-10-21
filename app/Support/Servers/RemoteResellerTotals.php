@@ -10,6 +10,9 @@ namespace App\Support\Servers;
  */
 final readonly class RemoteResellerTotals
 {
+    /**
+     * @param  list<RemoteServerAccount>  $accountRows  one row per account of the reseller
+     */
     public function __construct(
         public int $diskBytes,
         public ?int $diskLimitBytes,
@@ -19,7 +22,18 @@ final readonly class RemoteResellerTotals
         public int $accounts,
         public ?int $accountsLimit,
         public bool $accountsLimitRead,
+        public array $accountRows = [],
     ) {}
+
+    /**
+     * The stored form of the account rows (`server_usages.accounts`).
+     *
+     * @return list<array{username: string, domain: string, plan: string|null, suspended: bool, suspend_reason: string|null, disk: int, disk_limit: int|null, bw: int|null, bw_limit: int|null}>
+     */
+    public function toAccounts(): array
+    {
+        return array_map(fn (RemoteServerAccount $account): array => $account->toArray(), $this->accountRows);
+    }
 
     /**
      * The stored form: one entry per resource, like an account's resources plus `limit_read`.

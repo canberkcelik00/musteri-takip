@@ -1,1 +1,1 @@
-{"data":{"acct":[{"user":"logi","totalbytes":1073741824},{"user":"askida","totalbytes":2147483648}]},"metadata":{"result":1,"reason":"OK","command":"showbw","version":1}}
+{"data":{"acct":[{"user":"logi","maindomain":"logi.com.tr","totalbytes":1073741824,"limit":10737418240,"unlimited":0},{"user":"askida","maindomain":"askida.com","totalbytes":2147483648,"limit":0,"unlimited":1}]},"metadata":{"result":1,"reason":"OK","command":"showbw","version":1}}

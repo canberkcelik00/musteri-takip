@@ -20,13 +20,14 @@ use Illuminate\Support\Carbon;
  * to the {@see UsageLevel} value already e-mailed, `warning_sent_at` is the last e-mail.
  *
  * @property list<array{id: string, label: string, used: int, limit: int|null, is_bytes: bool, limit_read: bool}>|null $resources
+ * @property list<array{username: string, domain: string, plan: string|null, suspended: bool, suspend_reason: string|null, disk: int, disk_limit: int|null, bw: int|null, bw_limit: int|null}>|null $accounts one row per account of the reseller; a null limit is unlimited, a null `bw` was not readable
  * @property Carbon|null $refreshed_at
  * @property Carbon|null $failed_at
  * @property RemoteServerErrorReason|null $failure_reason
  * @property array<string, string>|null $warned_levels
  * @property Carbon|null $warning_sent_at
  */
-#[Fillable(['server_id', 'resources', 'refreshed_at', 'failed_at', 'failure_reason', 'warned_levels', 'warning_sent_at'])]
+#[Fillable(['server_id', 'resources', 'accounts', 'refreshed_at', 'failed_at', 'failure_reason', 'warned_levels', 'warning_sent_at'])]
 class ServerUsage extends Model
 {
     /** @use HasFactory<ServerUsageFactory> */
@@ -57,6 +58,7 @@ class ServerUsage extends Model
     {
         return [
             'resources' => 'array',
+            'accounts' => 'array',
             'refreshed_at' => 'datetime',
             'failed_at' => 'datetime',
             'failure_reason' => RemoteServerErrorReason::class,

@@ -103,40 +103,42 @@ class WhmApi extends ServerApiClient
     }
 
     /**
-     * Disk, bandwidth and account counts of the reseller with their limits. `resellerstats` and
-     * `acctcounts` give the limits but may be closed to a reseller token ("Access denied" with
-     * `metadata.result` 0); then the totals are summed from `listaccts` and `showbw`, which a
-     * reseller may always read, and the limits stay unknown. A connection or authorization
-     * failure is never retried that way.
+     * Disk, bandwidth and account counts of the reseller with their limits, and one row per
+     * account. `resellerstats` and `acctcounts` give the limits but may be closed to a reseller
+     * token ("Access denied" with `metadata.result` 0); then the totals are summed from
+     * `listaccts` and `showbw`, which a reseller may always read, and the limits stay unknown. The
+     * account rows come from those two calls on every read; an unreadable `showbw` leaves the
+     * accounts' bandwidth unknown. A connection or authorization failure is never retried.
      */
     public function resellerTotals(): RemoteResellerTotals
     {
         $user = urlencode($this->server->username);
         $stats = $this->optionalRequest("json-api/resellerstats?api.version=1&user={$user}")['data']['reseller'] ?? null;
         $counts = $this->optionalRequest("json-api/acctcounts?api.version=1&user={$user}")['data']['reseller'] ?? null;
+        $rows = $this->optionalRequest('json-api/listaccts?api.version=1')['data']['acct'] ?? null;
+        $bandwidth = $this->optionalRequest('json-api/showbw?api.version=1')['data']['acct'] ?? null;
 
         $statsRead = is_array($stats) && isset($stats['diskused'], $stats['totalbwused']);
         $countsRead = is_array($counts) && isset($counts['active']);
+        $rows = is_array($rows) ? array_values(array_filter($rows, fn (mixed $row): bool => is_array($row) && isset($row['user']))) : null;
+        $bandwidthByUser = is_array($bandwidth) ? self::bandwidthByUser($bandwidth) : null;
 
-        $accounts = $statsRead && $countsRead ? [] : $this->listAccountRows();
-
-        if ($statsRead) {
-            $diskBytes = self::megabytes($stats['diskused']);
-            $bandwidthBytes = self::megabytes($stats['totalbwused']);
-        } else {
-            $diskBytes = array_sum(array_map(fn (array $row): int => self::sizeToBytes((string) ($row['diskused'] ?? '0')), $accounts));
-            $bandwidthBytes = $this->bandwidthOfAccounts();
+        if ((! $statsRead && ($rows === null || $bandwidthByUser === null)) || (! $countsRead && $rows === null)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
         }
 
+        $accounts = array_map(fn (array $row): RemoteServerAccount => self::accountOf($row, $bandwidthByUser), $rows ?? []);
+
         return new RemoteResellerTotals(
-            diskBytes: $diskBytes,
+            diskBytes: $statsRead ? self::megabytes($stats['diskused']) : array_sum(array_map(fn (RemoteServerAccount $account): int => $account->diskBytes, $accounts)),
             diskLimitBytes: $statsRead ? self::megabyteLimit($stats['diskquota'] ?? null) : null,
-            bandwidthBytes: $bandwidthBytes,
+            bandwidthBytes: $statsRead ? self::megabytes($stats['totalbwused']) : array_sum(array_column($bandwidthByUser, 'bytes')),
             bandwidthLimitBytes: $statsRead ? self::megabyteLimit($stats['bandwidthlimit'] ?? null) : null,
             transferLimitsRead: $statsRead,
             accounts: $countsRead ? (int) $counts['active'] + (int) ($counts['suspended'] ?? 0) : count($accounts),
             accountsLimit: $countsRead && (int) ($counts['limit'] ?? 0) > 0 ? (int) $counts['limit'] : null,
             accountsLimitRead: $countsRead,
+            accountRows: $accounts,
         );
     }
 
@@ -162,33 +164,48 @@ class WhmApi extends ServerApiClient
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * Bytes used and limit (null: unlimited) of every account in a `showbw` answer, by user.
      *
-     * @throws RemoteServerError
+     * @param  array<int|string, mixed>  $rows
+     * @return array<string, array{bytes: int, limit: int|null}>
      */
-    private function listAccountRows(): array
+    private static function bandwidthByUser(array $rows): array
     {
-        $rows = $this->request('json-api/listaccts?api.version=1')['data']['acct'] ?? null;
+        $byUser = [];
 
-        if (! is_array($rows)) {
-            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        foreach ($rows as $row) {
+            if (! is_array($row) || ! isset($row['user'])) {
+                continue;
+            }
+
+            $limit = (int) ($row['unlimited'] ?? 0) === 1 || ! is_numeric($row['limit'] ?? null) || (int) $row['limit'] <= 0 ? null : (int) $row['limit'];
+            $byUser[(string) $row['user']] = ['bytes' => (int) ($row['totalbytes'] ?? 0), 'limit' => $limit];
         }
 
-        return array_values(array_filter($rows, is_array(...)));
+        return $byUser;
     }
 
     /**
-     * @throws RemoteServerError
+     * @param  array<string, mixed>  $row  a `listaccts` account
+     * @param  array<string, array{bytes: int, limit: int|null}>|null  $bandwidthByUser  null when `showbw` could not be read
      */
-    private function bandwidthOfAccounts(): int
+    private static function accountOf(array $row, ?array $bandwidthByUser): RemoteServerAccount
     {
-        $rows = $this->request('json-api/showbw?api.version=1')['data']['acct'] ?? null;
+        $user = (string) $row['user'];
+        $diskLimit = self::sizeToBytes((string) ($row['disklimit'] ?? '0'));
+        $reason = trim((string) ($row['suspendreason'] ?? ''));
 
-        if (! is_array($rows)) {
-            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
-        }
-
-        return array_sum(array_map(fn (mixed $row): int => is_array($row) ? (int) ($row['totalbytes'] ?? 0) : 0, $rows));
+        return new RemoteServerAccount(
+            username: $user,
+            domain: (string) ($row['domain'] ?? ''),
+            plan: ($row['plan'] ?? '') !== '' ? (string) $row['plan'] : null,
+            suspended: (int) ($row['suspended'] ?? 0) === 1,
+            suspendReason: $reason !== '' && $reason !== 'not suspended' ? $reason : null,
+            diskBytes: self::sizeToBytes((string) ($row['diskused'] ?? '0')),
+            diskLimitBytes: $diskLimit > 0 ? $diskLimit : null,
+            bandwidthBytes: $bandwidthByUser === null ? null : ($bandwidthByUser[$user]['bytes'] ?? 0),
+            bandwidthLimitBytes: $bandwidthByUser[$user]['limit'] ?? null,
+        );
     }
 
     /**

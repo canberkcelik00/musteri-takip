@@ -32,6 +32,7 @@ class RefreshServerTotals
             ['server_id' => $server->getKey()],
             [
                 'resources' => $totals->toResources(),
+                'accounts' => $totals->toAccounts(),
                 'refreshed_at' => $now,
                 'failed_at' => null,
                 'failure_reason' => null,

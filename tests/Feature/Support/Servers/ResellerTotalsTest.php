@@ -100,6 +100,45 @@ it('does not fall back when the token is not authorized', function () {
     Http::assertNotSent(fn ($request): bool => str_contains($request->url(), 'listaccts'));
 });
 
+it('reads one row per account with its disk, bandwidth, limits and suspension', function () {
+    fakeResellerCalls();
+
+    $rows = ServerApiClient::for(resellerServer())->resellerTotals()->toAccounts();
+
+    expect($rows)->toHaveCount(2)
+        ->and($rows[0])->toBe([
+            'username' => 'logi', 'domain' => 'logi.com.tr', 'plan' => 'gold', 'suspended' => false, 'suspend_reason' => null,
+            'disk' => 512 * 1048576, 'disk_limit' => 5000 * 1048576, 'bw' => 1073741824, 'bw_limit' => 10737418240,
+        ])
+        ->and($rows[1])->toBe([
+            'username' => 'askida', 'domain' => 'askida.com', 'plan' => 'mini', 'suspended' => true, 'suspend_reason' => 'Odeme yapilmadi',
+            'disk' => 1536 * 1048576, 'disk_limit' => null, 'bw' => 2147483648, 'bw_limit' => null,
+        ]);
+});
+
+it('still gives the account rows when the reseller statistics are refused', function () {
+    fakeResellerCalls(['resellerstats' => deniedResponse(), 'acctcounts' => deniedResponse()]);
+
+    expect(ServerApiClient::for(resellerServer())->resellerTotals()->toAccounts())->toHaveCount(2);
+});
+
+it('leaves the bandwidth of the accounts unknown when it cannot be read', function () {
+    fakeResellerCalls(['showbw' => deniedResponse()]);
+
+    $totals = ServerApiClient::for(resellerServer())->resellerTotals();
+
+    expect($totals->toAccounts()[0])->toMatchArray(['bw' => null, 'bw_limit' => null, 'disk' => 512 * 1048576])
+        ->and($totals->bandwidthBytes)->toBe(122880 * 1048576);
+});
+
+it('fails when neither the statistics nor the account list can be read', function () {
+    fakeResellerCalls(['resellerstats' => deniedResponse(), 'listaccts' => deniedResponse()]);
+
+    expect(fn () => ServerApiClient::for(resellerServer())->resellerTotals())->toThrow(
+        fn (RemoteServerError $error): bool => $error->reason === RemoteServerErrorReason::InvalidResponse,
+    );
+});
+
 it('stores the totals as resources with a limit_read mark', function () {
     fakeResellerCalls();
 
