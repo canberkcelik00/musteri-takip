@@ -359,7 +359,7 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 - [x] **G-6.2 Teklif oluşturma ve düzenleme Action'ları** — Bağımlılık: G-6.1
   - Yapılacak: `app/Actions/Quotes`: `CreateQuote` (başlangıç kalemi, numara, `valid_until`), `UpdateQuote` (alıcı, notlar, kalemler; yalnız taslakta) ve `DeleteQuote` (yalnız taslakta). Fiyat ve para birimi katalogdan kopyalanır, değiştirilebilir.
   - Kabul: Yıl içinde sıralı numara verilir, yeni yılda 0001'den başlar. Eşzamanlı iki oluşturmada numara çakışmaz. Elle alıcıda ad ve e-posta zorunludur. Gönderilmiş teklif düzenlenemez ve silinemez. Katalog fiyatı sonradan değişince teklif etkilenmez (hepsi testli).
-- [ ] **G-6.3 Teklif PDF'i** — Bağımlılık: G-6.2; paket: `barryvdh/laravel-dompdf` (onaylandı, U-23)
+- [x] **G-6.3 Teklif PDF'i** — Bağımlılık: G-6.2; paket: `barryvdh/laravel-dompdf` (onaylandı, U-23)
   - Yapılacak: Paket kurulur, DejaVu font ayarlanır. `RenderQuotePdf` Action'ı ve Blade görünümü: firma bilgileri ve logo, numara, tarih, geçerlilik, alıcı, kalemler (paket içeriği alt satırda), "Ücretsiz", para birimi başına toplam, notlar.
   - Kabul: PDF üretilir. Metinde Türkçe karakterler, "Ücretsiz" ve ayrı toplamlar bulunur. Logo yoksa da PDF üretilir (testli). Dosya Türkçe karakterlerle gözle kontrol edilir.
 - [ ] **G-6.4 E-postayla gönderim** — Bağımlılık: G-6.3

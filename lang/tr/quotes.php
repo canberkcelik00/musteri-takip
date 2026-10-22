@@ -8,4 +8,18 @@ return [
     'item_required' => 'Teklifte en az bir kalem olmalıdır.',
     'invalid_item' => 'Teklif kalemi, katalogdaki bir hizmet ya da paketle ilişkili olmalıdır.',
     'customer_archived' => 'Arşivlenmiş müşteriye teklif hazırlanamaz; önce müşteriyi arşivden çıkarın.',
+
+    'pdf' => [
+        'title' => 'Teklif',
+        'number' => 'Teklif no',
+        'date' => 'Tarih',
+        'valid_until' => 'Geçerlilik',
+        'recipient' => 'Sayın',
+        'tax' => 'Vergi dairesi / no',
+        'column_name' => 'Hizmet',
+        'column_price' => 'Fiyat',
+        'free' => 'Ücretsiz',
+        'total' => 'Toplam',
+        'notes' => 'Notlar',
+    ],
 ];
