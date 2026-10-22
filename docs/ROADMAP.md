@@ -362,7 +362,7 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 - [x] **G-6.3 Teklif PDF'i** — Bağımlılık: G-6.2; paket: `barryvdh/laravel-dompdf` (onaylandı, U-23)
   - Yapılacak: Paket kurulur, DejaVu font ayarlanır. `RenderQuotePdf` Action'ı ve Blade görünümü: firma bilgileri ve logo, numara, tarih, geçerlilik, alıcı, kalemler (paket içeriği alt satırda), "Ücretsiz", para birimi başına toplam, notlar.
   - Kabul: PDF üretilir. Metinde Türkçe karakterler, "Ücretsiz" ve ayrı toplamlar bulunur. Logo yoksa da PDF üretilir (testli). Dosya Türkçe karakterlerle gözle kontrol edilir.
-- [ ] **G-6.4 E-postayla gönderim** — Bağımlılık: G-6.3
+- [x] **G-6.4 E-postayla gönderim** — Bağımlılık: G-6.3
   - Yapılacak: `QuoteMail` (PDF ekli; HTML ve düz metin sürümü) ve `SendQuote` Action'ı: alıcı varsayılanı, BCC, `sent_at`/`sent_to`, taslaktan "gönderildi" durumuna geçiş. Tekrar gönderimde içerik aynı kalır, `valid_until` yenilenir.
   - Kabul: Başarılı gönderimde durum, tarih ve adres kaydedilir. Hata olursa teklif taslak kalır. BCC ayarlı adrese, ayar boşsa bildirim adresine gider. Tekrar gönderim süresi dolmuş teklifi yeniden geçerli yapar. Kabul edilmiş veya reddedilmiş teklif gönderilemez (hepsi testli). Görünüm Mailpit'te kontrol edilir.
 - [ ] **G-6.5 Kabul ve red** — Bağımlılık: G-6.2

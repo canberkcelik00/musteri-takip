@@ -46,4 +46,14 @@ class InvalidQuote extends DomainException
     {
         return new self(__('quotes.customer_archived'), QuoteErrorReason::CustomerArchived);
     }
+
+    public static function notSendable(): self
+    {
+        return new self(__('quotes.not_sendable'), QuoteErrorReason::NotSendable);
+    }
+
+    public static function noRecipient(): self
+    {
+        return new self(__('quotes.no_recipient'), QuoteErrorReason::NoRecipient);
+    }
 }

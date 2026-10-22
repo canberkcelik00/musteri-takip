@@ -11,4 +11,6 @@ enum QuoteErrorReason: string
     case ItemRequired = 'item_required';
     case InvalidItem = 'invalid_item';
     case CustomerArchived = 'customer_archived';
+    case NotSendable = 'not_sendable';
+    case NoRecipient = 'no_recipient';
 }
