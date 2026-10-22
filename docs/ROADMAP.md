@@ -356,7 +356,7 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 - [x] **G-6.1 Veri katmanı** — Bağımlılık: Faz 5B
   - Yapılacak: `QuoteStatus` enum'u (`draft`, `sent`, `accepted`, `rejected`) ve `lang/tr` metinleri. `quotes` ve `quote_items` migration'ları, `customer_services.quote_item_id` (boş olabilir). Modeller Attribute stilinde, ilişkileriyle. Factory durumları: taslak, gönderilmiş, süresi dolmuş, kabul, red, elle alıcı. Hesaplanan değerler: `Quote::isExpired()`, görünen durum ve para birimi başına toplam. Ayar anahtarları `quote_validity_days`, `quote_bcc_email` ve `company_details`, `Settings` metotlarıyla.
   - Kabul: Kalemde katalog hizmeti ve paketten tam olarak biri dolu olur. Numara benzersizdir. "Süresi doldu" hesaplanır: `valid_until` günü boyunca geçerlidir, ertesi gün dolar (`travelTo`). Toplamlarda farklı para birimleri karışmaz, ücretsiz kalem toplama katılmaz. Ayar varsayılanları döner (hepsi testli).
-- [ ] **G-6.2 Teklif oluşturma ve düzenleme Action'ları** — Bağımlılık: G-6.1
+- [x] **G-6.2 Teklif oluşturma ve düzenleme Action'ları** — Bağımlılık: G-6.1
   - Yapılacak: `app/Actions/Quotes`: `CreateQuote` (başlangıç kalemi, numara, `valid_until`), `UpdateQuote` (alıcı, notlar, kalemler; yalnız taslakta) ve `DeleteQuote` (yalnız taslakta). Fiyat ve para birimi katalogdan kopyalanır, değiştirilebilir.
   - Kabul: Yıl içinde sıralı numara verilir, yeni yılda 0001'den başlar. Eşzamanlı iki oluşturmada numara çakışmaz. Elle alıcıda ad ve e-posta zorunludur. Gönderilmiş teklif düzenlenemez ve silinemez. Katalog fiyatı sonradan değişince teklif etkilenmez (hepsi testli).
 - [ ] **G-6.3 Teklif PDF'i** — Bağımlılık: G-6.2; paket: `barryvdh/laravel-dompdf` (onaylandı, U-23)
