@@ -187,7 +187,7 @@ it('wraps the package name; the included services and the badge show from md', f
 
     $package = Package::factory()->withCatalogServices()->create();
 
-    expect(collect($table->getFlatRecordActions())->keys()->all())->toBe(['edit'])
+    expect(collect($table->getFlatRecordActions())->keys()->all())->toBe(['edit', 'createQuote'])
         ->and($table->getAction('edit')->record($package)->getExtraAttributes())->toBe([]);
 });
 

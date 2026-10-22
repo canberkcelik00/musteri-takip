@@ -181,15 +181,15 @@ it('never shows a badge without an explicit color, so the colorless-badge gray s
     expect($violations)->toBe([]);
 });
 
-it('uses gray only for cancelled and archived', function () {
+it('uses gray only for passive states: cancelled, archived, and a quote that is a draft or rejected', function () {
     $violations = [];
 
     foreach (File::allFiles(app_path('Filament')) as $file) {
         $contents = $file->getContents();
 
-        // Enum-driven colors: the arm that returns gray must be the cancelled one.
+        // Enum-driven colors: the arm that returns gray must be a passive one (docs/UI.md §6).
         foreach (preg_split('/\R/', $contents) ?: [] as $line) {
-            if (str_contains($line, "=> 'gray'") && ! str_contains($line, 'Cancelled')) {
+            if (str_contains($line, "=> 'gray'") && ! preg_match('/Cancelled|QuoteDisplayStatus::Draft, QuoteDisplayStatus::Rejected/', $line)) {
                 $violations[] = $file->getFilename().': '.trim($line);
             }
         }

@@ -9,8 +9,10 @@ use App\Actions\Payments\RecordPayment;
 use App\Enums\ChargeErrorReason;
 use App\Enums\CustomerServiceErrorReason;
 use App\Enums\CustomerServiceStatus;
+use App\Enums\QuoteErrorReason;
 use App\Exceptions\InvalidCharge;
 use App\Exceptions\InvalidCustomerService;
+use App\Exceptions\InvalidQuote;
 use App\Filament\Actions\AssignCustomerServiceAction;
 use App\Filament\Actions\CreateCustomerAction;
 use App\Filament\Actions\EditCustomerAction;
@@ -31,6 +33,7 @@ use App\Filament\Resources\Packages\PackageResource;
 use App\Filament\Resources\Packages\Pages\ListPackages;
 use App\Filament\Resources\PaymentMethods\Pages\ManagePaymentMethods;
 use App\Filament\Resources\Payments\Pages\ListPayments;
+use App\Filament\Resources\Quotes\Pages\ListQuotes;
 use App\Filament\Support\FieldError;
 use App\Filament\Support\RecordActionsSection;
 use App\Filament\Tables\Columns\MoneyColumn;
@@ -43,6 +46,7 @@ use App\Models\CustomerService;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Quote;
 use App\Models\User;
 use App\Providers\AppServiceProvider;
 use Filament\Actions\Action;
@@ -112,6 +116,7 @@ function everyTable(): array
         'Ödemeler' => [ListPayments::class, []],
         'Katalog hizmetleri' => [ListCatalogServices::class, []],
         'Paketler' => [ListPackages::class, []],
+        'Teklifler' => [ListQuotes::class, []],
         'Ödeme yöntemleri' => [ManagePaymentMethods::class, []],
         'Kart: hizmetler' => [CustomerServicesRelationManager::class, $card],
         'Kart: iptal edilenler' => [CancelledCustomerServicesRelationManager::class, $card],
@@ -155,6 +160,13 @@ describe('rows', function () {
             [ListCatalogServices::class, [], [CatalogService::factory()->create(), CatalogService::factory()->archived()->create()]],
             [ListPackages::class, [], [Package::factory()->withCatalogServices()->create(), Package::factory()->withCatalogServices()->archived()->create()]],
             [ManagePaymentMethods::class, [], PaymentMethod::query()->get()->all()],
+            [ListQuotes::class, [], [
+                Quote::factory()->create(),
+                Quote::factory()->sent()->create(),
+                Quote::factory()->expired()->create(),
+                Quote::factory()->accepted()->create(),
+                Quote::factory()->rejected()->create(),
+            ]],
         ];
 
         foreach ($records as [$class, $parameters, $models]) {
@@ -549,10 +561,17 @@ describe('error messages', function () {
             ->and(FieldError::fieldFor(CustomerServiceErrorReason::UpcomingChargeExists))->toBe('end_date')
             ->and(FieldError::fieldFor(CustomerServiceErrorReason::PeriodAlreadyEnded))->toBe('start_date')
             ->and(FieldError::fieldFor(CustomerServiceErrorReason::CustomerArchived))->toBeNull()
-            ->and(FieldError::fieldFor(ChargeErrorReason::NotOpen))->toBeNull();
+            ->and(FieldError::fieldFor(ChargeErrorReason::NotOpen))->toBeNull()
+            ->and(FieldError::fieldFor(QuoteErrorReason::RecipientRequired))->toBe('recipient_name')
+            ->and(FieldError::fieldFor(QuoteErrorReason::RecipientEmailInvalid))->toBe('recipient_email')
+            ->and(FieldError::fieldFor(QuoteErrorReason::NoRecipient))->toBe('recipient_email')
+            ->and(FieldError::fieldFor(QuoteErrorReason::ItemRequired))->toBe('items')
+            ->and(FieldError::fieldFor(QuoteErrorReason::ShortNameTaken))->toBe('short_name')
+            ->and(FieldError::fieldFor(QuoteErrorReason::Expired))->toBeNull();
 
         expect((new ReflectionClass(InvalidCharge::class))->hasMethod('field'))->toBeFalse()
-            ->and((new ReflectionClass(InvalidCustomerService::class))->hasMethod('field'))->toBeFalse();
+            ->and((new ReflectionClass(InvalidCustomerService::class))->hasMethod('field'))->toBeFalse()
+            ->and((new ReflectionClass(InvalidQuote::class))->hasMethod('field'))->toBeFalse();
     });
 
     it('shows a split refusal under the amount field, not as a notification', function () {

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Packages\Tables;
 
+use App\Filament\Actions\CreateQuoteAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Package;
@@ -47,6 +48,7 @@ class PackagesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                CreateQuoteAction::make(),
             ])
             ->emptyStateHeading(__('packages.empty_heading'))
             ->emptyStateDescription(__('packages.empty_description'))

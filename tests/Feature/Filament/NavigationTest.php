@@ -9,7 +9,7 @@ beforeEach(function () {
     $this->get('/panel'); // boots the panel so navigation groups and items are registered
 });
 
-it('orders the menu by frequency: Bugün, Müşteriler, then the grouped items (docs/UI.md §3)', function () {
+it('orders the menu by frequency: Bugün, Müşteriler, Teklifler, then the grouped items (docs/UI.md §3)', function () {
     $groups = collect(Filament::getNavigation())
         ->map(fn ($group) => [
             'label' => $group->getLabel(),
@@ -18,7 +18,7 @@ it('orders the menu by frequency: Bugün, Müşteriler, then the grouped items (
         ->values();
 
     expect($groups[0]['label'])->toBeNull()
-        ->and($groups[0]['items'])->toBe(['Bugün', 'Müşteriler']);
+        ->and($groups[0]['items'])->toBe(['Bugün', 'Müşteriler', 'Teklifler']);
 
     $collections = $groups->firstWhere('label', 'Tahsilat');
     expect($collections['items'])->toBe(['Açık borçlar', 'Ödemeler']);

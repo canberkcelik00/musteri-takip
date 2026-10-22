@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\CatalogServices\Tables;
 
 use App\Enums\ServiceType;
+use App\Filament\Actions\CreateQuoteAction;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\CatalogService;
@@ -60,6 +61,7 @@ class CatalogServicesTable
             ])
             ->recordActions([
                 EditAction::make()->extraAttributes(['class' => self::HIDDEN_BELOW_MD]),
+                CreateQuoteAction::make(),
             ])
             ->emptyStateHeading(__('catalog_services.empty_heading'))
             ->emptyStateDescription(__('catalog_services.empty_description'))

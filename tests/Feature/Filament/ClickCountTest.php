@@ -1,19 +1,28 @@
 <?php
 
+use App\Enums\QuoteStatus;
 use App\Enums\ServiceType;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
 use App\Filament\Resources\Charges\Pages\ListCharges;
 use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Resources\Payments\PaymentResource;
+use App\Filament\Resources\Quotes\Pages\ListQuotes;
+use App\Filament\Resources\Quotes\QuoteResource;
 use App\Filament\Widgets\TodayStats;
 use App\Filament\Widgets\TodayTasks;
 use App\Livewire\TopbarActions;
 use App\Models\CatalogService;
 use App\Models\Charge;
+use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Models\Quote;
+use App\Models\QuoteItem;
 use App\Models\User;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 
 /**
@@ -83,4 +92,44 @@ it('goes from the overdue stat card to the filtered list in one click, the filte
     expect($indicators->all())->toContain(__('charges.only_overdue'));
 
     $list->assertSee('Gecikmiş borç')->assertDontSee('Gelecek borç');
+});
+
+it('prepares and sends a quote from the catalog in 1 (Teklif oluştur) + recipient + 1 (Kaydet) + 1 (Gönder) + 1 (the window\'s button)', function () {
+    Mail::fake();
+    $service = CatalogService::factory()->create(['price' => 150000]);
+    $customer = Customer::factory()->create();
+    Contact::factory()->for($customer)->primary()->create(['email' => 'ayse@example.com']);
+
+    // Click 1 + the recipient + click 2 (Kaydet): the draft is made and the quote list opens.
+    Livewire::test(ListCatalogServices::class)
+        ->callAction(TestAction::make('createQuote')->table($service), ['customer_id' => $customer->id])
+        ->assertHasNoFormErrors()
+        ->assertRedirect(QuoteResource::getUrl('index'));
+
+    $quote = Quote::query()->sole();
+
+    // Click 3 (Gönder opens its window with the address filled in) + click 4 (Gönder in the window).
+    Livewire::test(ListQuotes::class)
+        ->mountAction(TestAction::make('sendQuote')->table($quote))
+        ->assertSchemaStateSet(['recipient_email' => 'ayse@example.com'])
+        ->callMountedAction()
+        ->assertHasNoFormErrors();
+
+    expect($quote->fresh()->status)->toBe(QuoteStatus::Sent);
+});
+
+it('accepts a sent quote in 1 (Kabul et) + 1 (the window\'s button), the start date and short name coming filled', function () {
+    $quote = Quote::factory()->sent()->manualRecipient()->create([
+        'valid_until' => '2026-06-30',
+        'recipient_company' => 'Veli Ltd.',
+    ]);
+    QuoteItem::factory()->for($quote)->create();
+
+    Livewire::test(ListQuotes::class)
+        ->mountAction(TestAction::make('acceptQuote')->table($quote))
+        ->assertSchemaStateSet(['start_date' => '2026-06-15', 'short_name' => 'Veli Ltd.'])
+        ->callMountedAction()
+        ->assertHasNoFormErrors();
+
+    expect($quote->fresh()->status)->toBe(QuoteStatus::Accepted);
 });

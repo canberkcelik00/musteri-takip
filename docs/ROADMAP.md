@@ -368,10 +368,13 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 - [x] **G-6.5 Kabul ve red** — Bağımlılık: G-6.2
   - Yapılacak: `AcceptQuote`: mevcut müşteride doğrudan atama; elle alıcıda `CreateCustomer` (kısa ad verilir, teklifteki kişi birincil kişi olur). Her kalem için `AssignCustomerService` (`price`, `currency`, `is_free`, `start_date`, `quote_item_id`); teklifin `customer_id`'si doldurulur; hepsi tek transaction. `RejectQuote` hiçbir kayıt oluşturmaz.
   - Kabul: Her kalem için ayrı müşteri hizmeti oluşur, hepsi aynı başlangıç tarihiyle. Ücretli kalemde ilk dönem borcu doğar, ücretsiz kalemde doğmaz. Kısa ad çakışırsa hiçbir kayıt oluşmaz. Süresi dolmuş veya taslak teklif kabul edilemez ve reddedilemez; iki kez kabul edilemez. Arşivli müşteriye kabul reddedilir. Alacak bakiyesi yeni borca düşer (hepsi testli).
-- [ ] **G-6.6 Teklif ekranları** — Bağımlılık: G-6.4, G-6.5
-  - Yapılacak: UI.md §5 "Teklifler" kurallarına göre: menü öğesi ve liste, katalog hizmeti ve paket satırlarında "Teklif oluştur", teklif formu penceresi, PDF indirme, Gönder / Kabul / Red pencereleri, müşteri kartında teklifler bölümü; Genel ayarlara teklif geçerliliği, BCC adresi ve firma bilgileri/logo.
-  - Kabul: Akışlar Livewire testleriyle korunur. Gönderilmiş teklifin formu kilitli açılır. Durum rozetleri UI.md §6 renklerine uyar. Tık sayıları UI.md §7'deki hedeflerde (`ClickCountTest`). Ekranlar 375–1440 px'te yatay kaymaz.
-- [ ] **G-6.7 Uçtan uca ve canlı deneme** — Bağımlılık: G-6.6, K-6.1
+- [x] **G-6.6 Teklif ekranları** — Bağımlılık: G-6.4, G-6.5 (U-24: kapsam G-6.7 ile ikiye bölündü)
+  - Yapılacak: UI.md §5 "Teklifler" kurallarına göre: "Teklifler" menü öğesi ve listesi (numara + alıcı, toplam, geçerlilik, durum; durum süzgeci ve arama); katalog hizmeti ve paket satırlarında "Teklif oluştur" ile listede "Yeni teklif"; taslak için düzenlenebilir, gönderilmiş için kilitli teklif penceresi; PDF indir, Gönder / Tekrar gönder, Kabul et, Reddet ve (yalnız taslakta) Sil.
+  - Kabul: Akışlar Livewire testleriyle korunur. Gönderilmiş teklifin penceresi kilitli açılır. Satırda en çok iki metinli işlem. Durum rozetleri UI.md §6 renklerine uyar (gri = pasif: taslak, reddedilmiş). Tık sayıları UI.md §7'deki hedeflerde (`ClickCountTest`).
+- [ ] **G-6.7 Ayarlar ve müşteri kartı** — Bağımlılık: G-6.6
+  - Yapılacak: Genel ayarlara teklif geçerliliği (gün), teklif BCC adresi ve firma bilgileri (ad, adres, telefon, e-posta, vergi dairesi/no) ile logo yükleme (`local` disk, projedeki ilk dosya yükleme); `UpdateSettings` bunları yazar, değiştirilen/kaldırılan logonun eski dosyası silinir. Müşteri kartında, "Son ödemeler"in altında yalnız teklifi olan müşteride "Teklifler" bölümü (numara, toplam, durum; yeni satır düğmesi yok), `QUOTES_CHANGED_EVENT` ile yenilenir.
+  - Kabul: Ayarlar kaydedilir ve `Settings` okuyucularında görünür; geçerlilik aralığı dışı ve geçersiz e-posta reddedilir; logo yüklenir, PDF'te çıkar, kaldırılınca dosya silinir (testli). Kartta bölüm yalnız teklifi olan müşteride görünür ve kabulden sonra yenilenir. Ekranlar 375–1440 px'te yatay kaymaz.
+- [ ] **G-6.8 Uçtan uca ve canlı deneme** — Bağımlılık: G-6.7, K-6.1
   - Kabul: Tek test katalogdan teklif oluşturmadan e-postaya, elle alıcının kabulüne, müşteri kartında hizmetlerin ve ilk borcun görünmesine kadar gider. Canlıda kullanıcı kendi adresine bir teklif gönderip PDF'i kontrol eder.
 
 **Faz 6 bittiğinde:** Fiyat verilen kişiye teklif sistemden gider ve kabul edilince müşteri ve hizmet elle girilmeden oluşur.

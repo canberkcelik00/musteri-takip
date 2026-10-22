@@ -4,8 +4,10 @@ namespace App\Filament\Support;
 
 use App\Enums\ChargeErrorReason;
 use App\Enums\CustomerServiceErrorReason;
+use App\Enums\QuoteErrorReason;
 use App\Exceptions\InvalidCharge;
 use App\Exceptions\InvalidCustomerService;
+use App\Exceptions\InvalidQuote;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
@@ -21,7 +23,7 @@ final class FieldError
     /**
      * @param  list<string>  $fields  state names of the fields in the action's form
      */
-    public static function report(InvalidCharge|InvalidCustomerService $exception, Action $action, array $fields): void
+    public static function report(InvalidCharge|InvalidCustomerService|InvalidQuote $exception, Action $action, array $fields): void
     {
         $field = self::fieldFor($exception->reason);
 
@@ -39,7 +41,7 @@ final class FieldError
         $action->halt();
     }
 
-    public static function fieldFor(ChargeErrorReason|CustomerServiceErrorReason $reason): ?string
+    public static function fieldFor(ChargeErrorReason|CustomerServiceErrorReason|QuoteErrorReason $reason): ?string
     {
         return match ($reason) {
             ChargeErrorReason::AmountNotPositive,
@@ -61,6 +63,19 @@ final class FieldError
             CustomerServiceErrorReason::ItemNotInSoldService,
             CustomerServiceErrorReason::CustomerArchived,
             CustomerServiceErrorReason::CancelledServiceLocked => null,
+
+            QuoteErrorReason::RecipientRequired => 'recipient_name',
+            QuoteErrorReason::RecipientEmailInvalid,
+            QuoteErrorReason::NoRecipient => 'recipient_email',
+            QuoteErrorReason::ItemRequired => 'items',
+            QuoteErrorReason::ShortNameTaken => 'short_name',
+            QuoteErrorReason::NotDraft,
+            QuoteErrorReason::PriceNotPositive,
+            QuoteErrorReason::InvalidItem,
+            QuoteErrorReason::CustomerArchived,
+            QuoteErrorReason::NotSendable,
+            QuoteErrorReason::NotSent,
+            QuoteErrorReason::Expired => null,
         };
     }
 }

@@ -5,6 +5,7 @@ return [
     'collections' => 'Tahsilat',
     'open_charges' => 'Açık borçlar',
     'catalog' => 'Katalog',
+    'quotes' => 'Teklifler',
     'settings' => 'Ayarlar',
     'general' => 'Genel',
     'new_customer' => 'Yeni müşteri',
