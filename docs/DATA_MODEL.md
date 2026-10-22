@@ -199,13 +199,13 @@ Yalnız arşivsiz WHM sunucuları için doğar; sunucu arşivlenince veya cPanel
 | recipient_email | string | Hayır | Elle yazılan alıcı |
 | status | enum | Evet | `draft`, `sent`, `accepted`, `rejected` |
 | valid_until | date | Evet | Oluşturma tarihi + ayarlardaki süre |
-| sent_at | timestamp | Hayır | Son gönderim |
+| sent_at | timestamp | Hayır | Son gönderim; tekrar gönderimde `valid_until` bugün + ayardaki süreye yenilenir |
 | sent_to | string | Hayır | Son gönderilen adres |
 | accepted_at | timestamp | Hayır | |
 | rejected_at | timestamp | Hayır | |
 | notes | text | Hayır | PDF'te görünen açıklama |
 
-Kısıtlar: `customer_id` boşsa `recipient_name` ve `recipient_email` zorunludur. "Süresi doldu" saklanmaz: `status = sent` ve `valid_until` geçmişse hesaplanır. `sent` durumundaki teklif ve kalemleri düzenlenemez.
+Kısıtlar: `customer_id` boşsa `recipient_name` ve `recipient_email` zorunludur. "Süresi doldu" saklanmaz: `status = sent` ve `valid_until` geçmişse hesaplanır. `sent` durumundaki teklif ve kalemleri düzenlenemez. Kabul ve red yalnız `sent` ve süresi dolmamış teklifte yapılır (`valid_until` günü boyunca geçerlidir). Yalnız `draft` teklif silinebilir. Numara oluşturmada satır kilidiyle verilir.
 
 **quote_items**
 
@@ -291,6 +291,6 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | scheduler_failed_service_ids | — | İç durum, ekranda yok: son çalışmada hata veren müşteri hizmetlerinin id'leri (JSON liste); hatasız çalışmada silinir (G-5.6) |
 | quote_validity_days | 15 | Teklif geçerlilik süresi (Faz 6) |
 | quote_bcc_email | — | Gönderilen tekliflerin kopyasının gideceği adres (Faz 6) |
-| company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6) |
+| company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6). JSON: ad, adres, telefon, e-posta, vergi dairesi/no ve `storage/app` altındaki logo yolu; logo PDF'e base64 gömülür (symlink gerekmez) |
 | usage_warning_percent | 90 | Kullanım uyarı eşiği (%, 1–100); disk, trafik, e-posta kutusu ve sayaçlar için (Faz 9) |
 | usage_refresh_minutes | 60 | Kullanım yenileme aralığı (dakika, 15–43200); ayar sayfasında sayı + birim (Dakika, Saat, Gün) olarak girilir, birim saklanmaz (Faz 9) |

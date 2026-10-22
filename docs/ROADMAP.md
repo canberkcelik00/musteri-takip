@@ -347,7 +347,36 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 
-## Faz 6 ve sonrası
+## Faz 6 – Teklifler
 
-Teklifler ve sonraki fazların görevleri, MVP bitip sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.
+Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-postayla göndermek ve kabulde müşteri ile müşteri hizmetlerinin kendiliğinden oluşması. Kurallar PRD §Teklifler'de, kararlar U-16 ve U-23'te. Faz 8 ve 9'dan sonra yapılır. Her görev tek oturumdur; e-posta testlerde `Mail::fake()` ile yapılır.
+
+- [x] **G-6.0 Doküman güncellemesi:** PRD §Teklifler (tekrar gönderim, süresi dolan teklif, kabul penceresi, karışık para birimi), DATA_MODEL (`quotes` kısıtları, `company_details`), UI.md (menü, Teklifler ekran kuralları, tık sayıları), DECISIONS U-23, bu faz.
+- [ ] **K-6.1 Gönderen ve firma bilgileri (kullanıcı):** cPanel'de teklif gönderen adresini aç (örn. teklif@…). SMTP'nin canlıda çalıştığını Genel ayarlardaki "Test e-postası gönder" ile doğrula. SPF/DKIM'i kontrol et, logo dosyasını hazırla.
+- [ ] **G-6.1 Veri katmanı** — Bağımlılık: Faz 5B
+  - Yapılacak: `QuoteStatus` enum'u (`draft`, `sent`, `accepted`, `rejected`) ve `lang/tr` metinleri. `quotes` ve `quote_items` migration'ları, `customer_services.quote_item_id` (boş olabilir). Modeller Attribute stilinde, ilişkileriyle. Factory durumları: taslak, gönderilmiş, süresi dolmuş, kabul, red, elle alıcı. Hesaplanan değerler: `Quote::isExpired()`, görünen durum ve para birimi başına toplam. Ayar anahtarları `quote_validity_days`, `quote_bcc_email` ve `company_details`, `Settings` metotlarıyla.
+  - Kabul: Kalemde katalog hizmeti ve paketten tam olarak biri dolu olur. Numara benzersizdir. "Süresi doldu" hesaplanır: `valid_until` günü boyunca geçerlidir, ertesi gün dolar (`travelTo`). Toplamlarda farklı para birimleri karışmaz, ücretsiz kalem toplama katılmaz. Ayar varsayılanları döner (hepsi testli).
+- [ ] **G-6.2 Teklif oluşturma ve düzenleme Action'ları** — Bağımlılık: G-6.1
+  - Yapılacak: `app/Actions/Quotes`: `CreateQuote` (başlangıç kalemi, numara, `valid_until`), `UpdateQuote` (alıcı, notlar, kalemler; yalnız taslakta) ve `DeleteQuote` (yalnız taslakta). Fiyat ve para birimi katalogdan kopyalanır, değiştirilebilir.
+  - Kabul: Yıl içinde sıralı numara verilir, yeni yılda 0001'den başlar. Eşzamanlı iki oluşturmada numara çakışmaz. Elle alıcıda ad ve e-posta zorunludur. Gönderilmiş teklif düzenlenemez ve silinemez. Katalog fiyatı sonradan değişince teklif etkilenmez (hepsi testli).
+- [ ] **G-6.3 Teklif PDF'i** — Bağımlılık: G-6.2; paket: `barryvdh/laravel-dompdf` (onaylandı, U-23)
+  - Yapılacak: Paket kurulur, DejaVu font ayarlanır. `RenderQuotePdf` Action'ı ve Blade görünümü: firma bilgileri ve logo, numara, tarih, geçerlilik, alıcı, kalemler (paket içeriği alt satırda), "Ücretsiz", para birimi başına toplam, notlar.
+  - Kabul: PDF üretilir. Metinde Türkçe karakterler, "Ücretsiz" ve ayrı toplamlar bulunur. Logo yoksa da PDF üretilir (testli). Dosya Türkçe karakterlerle gözle kontrol edilir.
+- [ ] **G-6.4 E-postayla gönderim** — Bağımlılık: G-6.3
+  - Yapılacak: `QuoteMail` (PDF ekli; HTML ve düz metin sürümü) ve `SendQuote` Action'ı: alıcı varsayılanı, BCC, `sent_at`/`sent_to`, taslaktan "gönderildi" durumuna geçiş. Tekrar gönderimde içerik aynı kalır, `valid_until` yenilenir.
+  - Kabul: Başarılı gönderimde durum, tarih ve adres kaydedilir. Hata olursa teklif taslak kalır. BCC ayarlı adrese, ayar boşsa bildirim adresine gider. Tekrar gönderim süresi dolmuş teklifi yeniden geçerli yapar. Kabul edilmiş veya reddedilmiş teklif gönderilemez (hepsi testli). Görünüm Mailpit'te kontrol edilir.
+- [ ] **G-6.5 Kabul ve red** — Bağımlılık: G-6.2
+  - Yapılacak: `AcceptQuote`: mevcut müşteride doğrudan atama; elle alıcıda `CreateCustomer` (kısa ad verilir, teklifteki kişi birincil kişi olur). Her kalem için `AssignCustomerService` (`price`, `currency`, `is_free`, `start_date`, `quote_item_id`); teklifin `customer_id`'si doldurulur; hepsi tek transaction. `RejectQuote` hiçbir kayıt oluşturmaz.
+  - Kabul: Her kalem için ayrı müşteri hizmeti oluşur, hepsi aynı başlangıç tarihiyle. Ücretli kalemde ilk dönem borcu doğar, ücretsiz kalemde doğmaz. Kısa ad çakışırsa hiçbir kayıt oluşmaz. Süresi dolmuş veya taslak teklif kabul edilemez ve reddedilemez; iki kez kabul edilemez. Arşivli müşteriye kabul reddedilir. Alacak bakiyesi yeni borca düşer (hepsi testli).
+- [ ] **G-6.6 Teklif ekranları** — Bağımlılık: G-6.4, G-6.5
+  - Yapılacak: UI.md §5 "Teklifler" kurallarına göre: menü öğesi ve liste, katalog hizmeti ve paket satırlarında "Teklif oluştur", teklif formu penceresi, PDF indirme, Gönder / Kabul / Red pencereleri, müşteri kartında teklifler bölümü; Genel ayarlara teklif geçerliliği, BCC adresi ve firma bilgileri/logo.
+  - Kabul: Akışlar Livewire testleriyle korunur. Gönderilmiş teklifin formu kilitli açılır. Durum rozetleri UI.md §6 renklerine uyar. Tık sayıları UI.md §7'deki hedeflerde (`ClickCountTest`). Ekranlar 375–1440 px'te yatay kaymaz.
+- [ ] **G-6.7 Uçtan uca ve canlı deneme** — Bağımlılık: G-6.6, K-6.1
+  - Kabul: Tek test katalogdan teklif oluşturmadan e-postaya, elle alıcının kabulüne, müşteri kartında hizmetlerin ve ilk borcun görünmesine kadar gider. Canlıda kullanıcı kendi adresine bir teklif gönderip PDF'i kontrol eder.
+
+**Faz 6 bittiğinde:** Fiyat verilen kişiye teklif sistemden gider ve kabul edilince müşteri ve hizmet elle girilmeden oluşur.
+
+## Faz 7 ve sonrası
+
+Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.
 

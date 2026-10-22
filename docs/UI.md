@@ -46,9 +46,10 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | --- | --- | --- |
 | 1 | **Bugün** | Açılış sayfası: yapılacaklar ve özet sayılar |
 | 2 | **Müşteriler** | Liste ve kartlar |
-| 3 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
-| 4 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
-| 5 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (en altta; Faz 8) |
+| 3 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
+| 4 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
+| 5 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
+| 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (en altta; Faz 8) |
 
 **Üst çubuk (her sayfada aynı yerde):**
 
@@ -107,6 +108,14 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
   - Son ödemeler: son 5; "Tüm ödemeler" bağlantısı.
 - **Sağ sütun:** Birincil kişi (telefon ve e-posta tıklanınca aranır/yazılır), diğer kişiler, fatura bilgileri, notlar. Düzenleme buradan.
 - **En altta, ayrı:** Arşivle, Sil.
+
+### Teklifler (Faz 6, U-23)
+
+- **Giriş noktaları:** Katalog hizmetleri ve Paketler listelerinde satırda "Düzenle" yanında "Teklif oluştur" (en fazla iki işlem kuralına uyar; `md` altında ad düzenlemeyi açtığı için bu genişlikte "Teklif oluştur" satırda tek kalır). Teklifler listesinde sayfa başlığının sağında "Yeni teklif" (ikincil).
+- **Liste:** Numara (kalın) + alıcı (soluk), toplam (para birimi başına, sağa hizalı), geçerlilik, durum rozeti (Taslak gri, Gönderildi renksiz düz metin, Süresi doldu amber, Kabul edildi yeşil, Reddedildi gri). Satırda en çok iki metinli işlem: taslakta "Düzenle" + "Gönder"; gönderilmişte "Kabul et" + "Reddet" (süresi dolmuşta "Tekrar gönder"). PDF ve diğer işlemler satıra tıklayınca açılan teklif penceresindedir.
+- **Teklif formu:** Ortada açılan pencere. Alıcı (müşteri seç ya da elle yaz), kalemler (ekle/çıkar, fiyat, ücretsiz), notlar. Gönderilmiş teklifin formu kilitli, salt okunur açılır; altında "PDF indir" ve "Tekrar gönder" durur. Sil yalnız taslakta, en sonda, ayrı ve onaylı.
+- **Gönder penceresi:** Tek alan, alıcı e-postası (varsayılan gelir). Kabul penceresi: başlangıç tarihi ve (elle alıcıda) kısa ad. Red onaylıdır.
+- **Müşteri kartı:** Sol sütunda, "Son ödemeler"in altında yalnız teklifi olan müşteride "Teklifler" bölümü (numara, toplam, durum); yeni satır düğmesi yoktur.
 
 ### Kullanım penceresi (Faz 9)
 
@@ -197,6 +206,8 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Karttaki hizmetin kullanımını görmek | 1 (uyarı rozeti) ya da 2 (hizmet adı → Kullanımı gör) |
 | Hesabın kullanımını sunucudan hemen yenilemek | Kullanım penceresinde 1 (Şimdi yenile) |
 | Sunucunun bayi toplamını ve bütün hesaplarını görmek | 1 ("Kullanım" sütununa tıklamak) |
+| Katalogdaki hizmetten teklif hazırlayıp göndermek | 1 (Teklif oluştur) + alıcı + 1 (Kaydet) + 1 (Gönder) + 1 (Gönder penceresinde onay) |
+| Gönderilmiş teklifi kabul etmek | 1 (Kabul et) + 1 (pencerede onay; tarih ve kısa ad varsayılanlarla gelir) |
 
 ## 8. Şu anki panelden farklar
 

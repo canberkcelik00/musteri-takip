@@ -124,31 +124,37 @@ stateDiagram-v2
     Gonderildi --> KabulEdildi
     Gonderildi --> Reddedildi
     Gonderildi --> SuresiDoldu: Geçerlilik bitti
+    SuresiDoldu --> Gonderildi: Tekrar gönder
 ```
 
-Teklifte elle durum yönetimi yoktur: "gönderildi" e-posta gidince, "süresi doldu" geçerlilik bitince otomatik olur. Kullanıcının tek işi kabul veya red için tek tıklamadır. Taslak teklif düzenlenebilir; gönderildikten sonra kilitlenir.
+Teklifte elle durum yönetimi yoktur: "gönderildi" e-posta gidince, "süresi doldu" geçerlilik bitince otomatik olur. Kullanıcının tek işi kabul veya red için tek tıklamadır. Taslak teklif düzenlenebilir ve silinebilir; gönderildikten sonra kilitlenir ve silinemez.
 
 **Oluşturma**
 
 - Alıcı mevcut müşteriden seçilir veya ad, firma, telefon, e-posta elle yazılır. Elle yazılan kişi müşteri listesine eklenmez.
 - Fiyat katalogdan gelir, teklifte değiştirilebilir.
 - Her teklife otomatik numara (örn. TKL-2026-0001), tarih ve geçerlilik süresi verilir (varsayılan 15 gün, ayarlardan).
-- Teklif butona basılan hizmet veya paketle başlar; katalogdan başka hizmet ve paketler de eklenebilir. PDF'te kalem listesi ve toplam görünür.
-- Her teklif kalemi ücretsiz işaretlenebilir; PDF'te "Ücretsiz" olarak görünür ve kabulde oluşan müşteri hizmeti de ücretsiz işaretli gelir.
+- Teklif butona basılan hizmet veya paketle başlar; katalogdan başka hizmet ve paketler de eklenebilir (arşivlenmişler listelenmez). PDF'te kalem listesi ve toplam görünür; paketin içindeki hizmetler paket satırının altında yazar.
+- Bir teklifte farklı para birimli kalemler olabilir; toplam para birimi başına ayrı gösterilir ("12.000 TL + 350 USD").
+- Her teklif kalemi ücretsiz işaretlenebilir; PDF'te "Ücretsiz" olarak görünür, toplama katılmaz ve kabulde oluşan müşteri hizmeti de ücretsiz işaretli gelir.
+- PDF'in başında Genel ayarlarda girilen firma bilgileri ve logo yer alır.
 
 **Gönderim**
 
 - PDF ekiyle e-posta gönderilir; alıcı varsayılan olarak teklifteki veya birincil kişinin e-postasıdır, değiştirilebilir.
-- Kopyası kullanıcıya BCC ile gider.
-- Başarılı gönderimde durum otomatik "gönderildi" olur; tarih ve adres kaydedilir.
-- Gönderilmiş teklif aynı içerikle tekrar gönderilebilir.
+- Kopyası kullanıcıya BCC ile gider (ayarlardaki teklif BCC adresi; boşsa bildirim adresi).
+- Başarılı gönderimde durum otomatik "gönderildi" olur; tarih ve adres kaydedilir. Gönderim başarısız olursa durum değişmez.
+- Gönderilmiş teklif aynı içerikle tekrar gönderilebilir; tekrar gönderimde geçerlilik bugünden yeniden başlar (süresi dolmuş teklif böylece yeniden geçerli olur).
 
 **Kabul**
 
+- Kabul ve red yalnız gönderilmiş ve süresi dolmamış teklifte yapılır.
+- Kabul penceresinde başlangıç tarihi (varsayılan kabul günü) girilir; elle yazılan kişide yeni müşterinin kısa adı da bu pencerede görünür.
 - Mevcut müşteride hizmet veya paket doğrudan atanır.
-- Elle yazılan kişi için müşteri otomatik oluşturulur: kısa ad teklifteki firma adı (firma yoksa kişinin adı) olur, teklifteki kişi birincil ilgili kişi olur. Kısa ad sonradan müşteri kartından değiştirilebilir.
-- Teklif fiyatı müşteri hizmetine geçer; başlangıç tarihi varsayılan olarak kabul tarihidir, değiştirilebilir.
-- Her teklif kalemi için ayrı bir müşteri hizmeti oluşur; hepsi aynı başlangıç tarihiyle başlar.
+- Elle yazılan kişi için müşteri otomatik oluşturulur: kısa ad teklifteki firma adıyla (firma yoksa kişinin adıyla) dolu gelir ve kabul penceresinde değiştirilebilir; bu ad başka bir müşteride varsa kabul yapılmaz ve alanın altında hata görünür. Teklifteki kişi birincil ilgili kişi olur. Kısa ad sonradan müşteri kartından da değiştirilebilir.
+- Teklif fiyatı müşteri hizmetine geçer.
+- Her teklif kalemi için ayrı bir müşteri hizmeti oluşur; hepsi aynı başlangıç tarihiyle başlar. Alan adı gibi müşteriye özel bilgiler sonradan müşteri kartından girilir.
+- Kabul bütün olarak yapılır: bir kalem oluşamazsa hiçbir kayıt oluşmaz.
 
 **Red:** Teklif kapanır, hiçbir kayıt oluşmaz.
 
@@ -384,7 +390,7 @@ Toplu Excel içe aktarma yoktur; mevcut kayıtlar ekranlardan elle girilir ("Bu 
 | 3 – İş mantığı | Borç oluşturma, dönem ilerletme, iptal, ödeme dağıtımı, alacak bakiyesi, zamanlanmış görevler; hepsi testli |
 | 4 – Arayüz | Filament ekranları: müşteriler, katalog, müşteri hizmetleri, borçlar, ödemeler, ayarlar |
 | 5 – Yayına alma, panel ve MVP kapanışı | Otomatik yayına alma ve kurulum rehberi, ana panel, özet e-postası, uçtan uca testler, canlıya geçiş |
-| 6 – Teklifler | Teklif, kalemler, PDF, e-posta gönderimi, kabulde otomatik müşteri ve hizmet |
+| 6 – Teklifler | Teklif, kalemler, PDF, e-posta gönderimi, kabulde otomatik müşteri ve hizmet (Faz 8 ve 9'dan sonra yapılır) |
 | 7 – İz ve esneklik | Fiyat/tarih değişiklik geçmişi, %50 ön ödeme kuralı |
 | 8 – Sunucu entegrasyonu | WHM reseller ve çok alan adlı cPanel bağlantıları; paket ve hesapların elle "Sunucudan çek" ile içe aktarılması (Faz 6'dan önce yapılır) |
 | 9 – Sunucu kullanımı ve kota uyarıları | Hosting hesaplarının disk, trafik, e-posta kutusu ve sayaç kullanımının okunması, saklanması, gösterilmesi; eşik aşımında uyarı e-postası, özet ve Bugün satırı |
