@@ -13,4 +13,7 @@ enum QuoteErrorReason: string
     case CustomerArchived = 'customer_archived';
     case NotSendable = 'not_sendable';
     case NoRecipient = 'no_recipient';
+    case NotSent = 'not_sent';
+    case Expired = 'expired';
+    case ShortNameTaken = 'short_name_taken';
 }

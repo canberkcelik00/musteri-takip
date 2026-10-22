@@ -7,9 +7,12 @@ return [
     'price_not_positive' => 'Fiyat sıfırdan büyük olmalıdır; ücret alınmayacaksa ücretsiz işaretleyin.',
     'item_required' => 'Teklifte en az bir kalem olmalıdır.',
     'invalid_item' => 'Teklif kalemi, katalogdaki bir hizmet ya da paketle ilişkili olmalıdır.',
-    'customer_archived' => 'Arşivlenmiş müşteriye teklif hazırlanamaz; önce müşteriyi arşivden çıkarın.',
+    'customer_archived' => 'Müşteri arşivlenmiş; önce müşteriyi arşivden çıkarın.',
     'not_sendable' => 'Kabul edilmiş veya reddedilmiş teklif gönderilemez.',
     'no_recipient' => 'Teklifin gönderileceği e-posta adresi yok; adresi yazın.',
+    'not_sent' => 'Yalnız gönderilmiş teklif kabul edilebilir veya reddedilebilir.',
+    'expired' => 'Teklifin süresi dolmuş; tekrar gönderip geçerliliğini yenileyin.',
+    'short_name_taken' => 'Bu kısa ad başka bir müşteride var; farklı bir ad yazın.',
 
     'mail' => [
         'subject' => 'Teklif :number',

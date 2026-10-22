@@ -365,7 +365,7 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 - [x] **G-6.4 E-postayla gönderim** — Bağımlılık: G-6.3
   - Yapılacak: `QuoteMail` (PDF ekli; HTML ve düz metin sürümü) ve `SendQuote` Action'ı: alıcı varsayılanı, BCC, `sent_at`/`sent_to`, taslaktan "gönderildi" durumuna geçiş. Tekrar gönderimde içerik aynı kalır, `valid_until` yenilenir.
   - Kabul: Başarılı gönderimde durum, tarih ve adres kaydedilir. Hata olursa teklif taslak kalır. BCC ayarlı adrese, ayar boşsa bildirim adresine gider. Tekrar gönderim süresi dolmuş teklifi yeniden geçerli yapar. Kabul edilmiş veya reddedilmiş teklif gönderilemez (hepsi testli). Görünüm Mailpit'te kontrol edilir.
-- [ ] **G-6.5 Kabul ve red** — Bağımlılık: G-6.2
+- [x] **G-6.5 Kabul ve red** — Bağımlılık: G-6.2
   - Yapılacak: `AcceptQuote`: mevcut müşteride doğrudan atama; elle alıcıda `CreateCustomer` (kısa ad verilir, teklifteki kişi birincil kişi olur). Her kalem için `AssignCustomerService` (`price`, `currency`, `is_free`, `start_date`, `quote_item_id`); teklifin `customer_id`'si doldurulur; hepsi tek transaction. `RejectQuote` hiçbir kayıt oluşturmaz.
   - Kabul: Her kalem için ayrı müşteri hizmeti oluşur, hepsi aynı başlangıç tarihiyle. Ücretli kalemde ilk dönem borcu doğar, ücretsiz kalemde doğmaz. Kısa ad çakışırsa hiçbir kayıt oluşmaz. Süresi dolmuş veya taslak teklif kabul edilemez ve reddedilemez; iki kez kabul edilemez. Arşivli müşteriye kabul reddedilir. Alacak bakiyesi yeni borca düşer (hepsi testli).
 - [ ] **G-6.6 Teklif ekranları** — Bağımlılık: G-6.4, G-6.5

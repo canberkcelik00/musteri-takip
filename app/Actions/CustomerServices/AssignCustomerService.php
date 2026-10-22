@@ -29,7 +29,10 @@ class AssignCustomerService
      * has already ended is rejected, so no past period charges are ever created. An archived
      * customer must be unarchived first.
      *
-     * @param  array{start_date: CarbonInterface|string, price?: int, currency?: Currency, is_free?: bool, create_first_charge?: bool, notes?: ?string, items?: array<int, array{details?: array<string, mixed>|null, license_key?: string|null}>}  $attributes
+     * A service created from an accepted quote item (G-6.5) passes `quote_item_id` and the name
+     * the quote showed, so the customer service keeps what was quoted.
+     *
+     * @param  array{start_date: CarbonInterface|string, name?: string, quote_item_id?: ?int, price?: int, currency?: Currency, is_free?: bool, create_first_charge?: bool, notes?: ?string, items?: array<int, array{details?: array<string, mixed>|null, license_key?: string|null}>}  $attributes
      */
     public function handle(Customer $customer, CatalogService|Package $sold, array $attributes): CustomerService
     {
@@ -66,7 +69,8 @@ class AssignCustomerService
             $customerService = $customer->customerServices()->create([
                 'catalog_service_id' => $sold instanceof CatalogService ? $sold->id : null,
                 'package_id' => $sold instanceof Package ? $sold->id : null,
-                'name' => $sold->name,
+                'quote_item_id' => $attributes['quote_item_id'] ?? null,
+                'name' => $attributes['name'] ?? $sold->name,
                 'price' => $price,
                 'currency' => $attributes['currency'] ?? $sold->currency,
                 'period_months' => $periodMonths,
