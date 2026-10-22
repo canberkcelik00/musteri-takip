@@ -227,3 +227,85 @@ it('falls back to 60 minutes for an invalid usage refresh interval and logs it',
         fn (string $message, array $context) => $context === ['key' => 'usage_refresh_minutes', 'value' => $minutes],
     );
 })->with(['10', '43201', 'abc']);
+
+it('reads 15 days as the quote validity until one is stored', function () {
+    expect($this->settings->quoteValidityDays())->toBe(15);
+
+    $this->settings->set(SettingKey::QuoteValidityDays, '30');
+
+    expect($this->settings->quoteValidityDays())->toBe(30);
+});
+
+it('falls back to 15 quote validity days for an invalid value and logs it', function (string $days) {
+    Log::spy();
+
+    $this->settings->set(SettingKey::QuoteValidityDays, $days);
+
+    expect($this->settings->quoteValidityDays())->toBe(15);
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message, array $context) => $context === ['key' => 'quote_validity_days', 'value' => $days],
+    );
+})->with(['0', '366', 'abc']);
+
+it('reads no quote BCC address until one is stored', function () {
+    expect($this->settings->quoteBccEmail())->toBeNull();
+
+    $this->settings->set(SettingKey::QuoteBccEmail, 'teklif@example.com');
+
+    expect($this->settings->quoteBccEmail())->toBe('teklif@example.com');
+});
+
+it('falls back to no quote BCC address for an invalid address and logs it', function () {
+    Log::spy();
+
+    $this->settings->set(SettingKey::QuoteBccEmail, 'gecersiz');
+
+    expect($this->settings->quoteBccEmail())->toBeNull();
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message, array $context) => $context === ['key' => 'quote_bcc_email', 'value' => 'gecersiz'],
+    );
+});
+
+it('reads empty company details until some are stored', function () {
+    Log::spy();
+
+    expect($this->settings->companyDetails())->toBe([
+        'name' => null,
+        'address' => null,
+        'phone' => null,
+        'email' => null,
+        'tax_office' => null,
+        'tax_number' => null,
+        'logo_path' => null,
+    ]);
+
+    Log::shouldNotHaveReceived('warning');
+});
+
+it('reads the stored company details, dropping blank and unknown values', function () {
+    $this->settings->set(SettingKey::CompanyDetails, (string) json_encode([
+        'name' => 'Örnek Bilişim',
+        'phone' => '',
+        'logo_path' => 'company/logo.png',
+        'unknown' => 'x',
+    ]));
+
+    $details = $this->settings->companyDetails();
+
+    expect($details['name'])->toBe('Örnek Bilişim')
+        ->and($details['logo_path'])->toBe('company/logo.png')
+        ->and($details['phone'])->toBeNull()
+        ->and($details)->not->toHaveKey('unknown')
+        ->and(array_keys($details))->toBe(Settings::COMPANY_DETAIL_KEYS);
+});
+
+it('reads unreadable company details as empty and logs it', function () {
+    Log::spy();
+
+    $this->settings->set(SettingKey::CompanyDetails, 'not json');
+
+    expect(array_filter($this->settings->companyDetails()))->toBe([]);
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message, array $context) => $context === ['key' => 'company_details', 'value' => 'not json'],
+    );
+});

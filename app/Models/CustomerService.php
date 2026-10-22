@@ -32,6 +32,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'catalog_service_id',
     'package_id',
+    'quote_item_id',
     'name',
     'price',
     'currency',
@@ -91,6 +92,16 @@ class CustomerService extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
+    }
+
+    /**
+     * The quote item this service was created from, when it came from an accepted quote.
+     *
+     * @return BelongsTo<QuoteItem, $this>
+     */
+    public function quoteItem(): BelongsTo
+    {
+        return $this->belongsTo(QuoteItem::class);
     }
 
     /**

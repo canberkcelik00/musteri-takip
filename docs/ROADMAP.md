@@ -353,7 +353,7 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 
 - [x] **G-6.0 Doküman güncellemesi:** PRD §Teklifler (tekrar gönderim, süresi dolan teklif, kabul penceresi, karışık para birimi), DATA_MODEL (`quotes` kısıtları, `company_details`), UI.md (menü, Teklifler ekran kuralları, tık sayıları), DECISIONS U-23, bu faz.
 - [ ] **K-6.1 Gönderen ve firma bilgileri (kullanıcı):** cPanel'de teklif gönderen adresini aç (örn. teklif@…). SMTP'nin canlıda çalıştığını Genel ayarlardaki "Test e-postası gönder" ile doğrula. SPF/DKIM'i kontrol et, logo dosyasını hazırla.
-- [ ] **G-6.1 Veri katmanı** — Bağımlılık: Faz 5B
+- [x] **G-6.1 Veri katmanı** — Bağımlılık: Faz 5B
   - Yapılacak: `QuoteStatus` enum'u (`draft`, `sent`, `accepted`, `rejected`) ve `lang/tr` metinleri. `quotes` ve `quote_items` migration'ları, `customer_services.quote_item_id` (boş olabilir). Modeller Attribute stilinde, ilişkileriyle. Factory durumları: taslak, gönderilmiş, süresi dolmuş, kabul, red, elle alıcı. Hesaplanan değerler: `Quote::isExpired()`, görünen durum ve para birimi başına toplam. Ayar anahtarları `quote_validity_days`, `quote_bcc_email` ve `company_details`, `Settings` metotlarıyla.
   - Kabul: Kalemde katalog hizmeti ve paketten tam olarak biri dolu olur. Numara benzersizdir. "Süresi doldu" hesaplanır: `valid_until` günü boyunca geçerlidir, ertesi gün dolar (`travelTo`). Toplamlarda farklı para birimleri karışmaz, ücretsiz kalem toplama katılmaz. Ayar varsayılanları döner (hepsi testli).
 - [ ] **G-6.2 Teklif oluşturma ve düzenleme Action'ları** — Bağımlılık: G-6.1

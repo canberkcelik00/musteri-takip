@@ -45,13 +45,13 @@ class CatalogService extends Model
     }
 
     /**
-     * A catalog service in a package or sold to a customer is archived, not deleted.
+     * A catalog service in a package, on a quote or sold to a customer is archived, not deleted.
      *
      * @return list<string>
      */
     protected function usageRelations(): array
     {
-        return ['packages', 'customerServices', 'customerServiceItems'];
+        return ['packages', 'customerServices', 'customerServiceItems', 'quoteItems'];
     }
 
     /**
@@ -86,6 +86,14 @@ class CatalogService extends Model
     public function customerServiceItems(): HasMany
     {
         return $this->hasMany(CustomerServiceItem::class);
+    }
+
+    /**
+     * @return HasMany<QuoteItem, $this>
+     */
+    public function quoteItems(): HasMany
+    {
+        return $this->hasMany(QuoteItem::class);
     }
 
     /**

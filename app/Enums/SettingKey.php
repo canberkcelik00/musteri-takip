@@ -12,6 +12,13 @@ enum SettingKey: string
     case CustomerRemindersEnabled = 'customer_reminders_enabled';
     case UsageWarningPercent = 'usage_warning_percent';
     case UsageRefreshMinutes = 'usage_refresh_minutes';
+    case QuoteValidityDays = 'quote_validity_days';
+    case QuoteBccEmail = 'quote_bcc_email';
+
+    /**
+     * Company details printed on the quote PDF, stored as a JSON object (Settings::companyDetails()).
+     */
+    case CompanyDetails = 'company_details';
 
     /**
      * Internal state, not shown on the settings page: when the digest was last handled.
@@ -43,6 +50,9 @@ enum SettingKey: string
             self::CustomerRemindersEnabled => '0',
             self::UsageWarningPercent => '90',
             self::UsageRefreshMinutes => '60',
+            self::QuoteValidityDays => '15',
+            self::QuoteBccEmail => null,
+            self::CompanyDetails => null,
             self::DigestLastRunAt => null,
             self::SchedulerLastRunAt => null,
             self::SchedulerFailedServiceIds => null,

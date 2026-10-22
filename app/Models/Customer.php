@@ -26,13 +26,21 @@ class Customer extends Model
     use Archivable, HasFactory, TracksUsage;
 
     /**
-     * A customer with a service, charge or payment is archived, not deleted.
+     * A customer with a service, charge, payment or quote is archived, not deleted.
      *
      * @return list<string>
      */
     protected function usageRelations(): array
     {
-        return ['customerServices', 'charges', 'payments'];
+        return ['customerServices', 'charges', 'payments', 'quotes'];
+    }
+
+    /**
+     * @return HasMany<Quote, $this>
+     */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class);
     }
 
     /**

@@ -4,6 +4,8 @@ use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
+use App\Enums\QuoteDisplayStatus;
+use App\Enums\QuoteStatus;
 use Filament\Support\Contracts\HasLabel;
 
 it('has the values and Turkish labels in the data model', function (string $enum, array $labels) {
@@ -19,5 +21,7 @@ it('has the values and Turkish labels in the data model', function (string $enum
     'currency' => [Currency::class, ['TRY' => 'TL', 'USD' => 'USD', 'EUR' => 'EUR']],
     'customer service status' => [CustomerServiceStatus::class, ['active' => 'Aktif', 'cancelled' => 'İptal edildi']],
     'charge status' => [ChargeStatus::class, ['open' => 'Açık', 'paid' => 'Ödendi', 'cancelled' => 'İptal edildi']],
+    'quote status' => [QuoteStatus::class, ['draft' => 'Taslak', 'sent' => 'Gönderildi', 'accepted' => 'Kabul edildi', 'rejected' => 'Reddedildi']],
+    'quote display status' => [QuoteDisplayStatus::class, ['draft' => 'Taslak', 'sent' => 'Gönderildi', 'expired' => 'Süresi doldu', 'accepted' => 'Kabul edildi', 'rejected' => 'Reddedildi']],
     'allocation source' => [AllocationSource::class, ['payment' => 'Ödeme', 'credit_balance' => 'Alacak bakiyesi']],
 ]);

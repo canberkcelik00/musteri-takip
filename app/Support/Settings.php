@@ -20,6 +20,11 @@ use Illuminate\Support\Facades\Log;
 class Settings
 {
     /**
+     * The keys of the company details JSON.
+     */
+    public const COMPANY_DETAIL_KEYS = ['name', 'address', 'phone', 'email', 'tax_office', 'tax_number', 'logo_path'];
+
+    /**
      * Get the stored value, or the default when nothing is stored.
      */
     public function get(SettingKey $key): ?string
@@ -152,6 +157,71 @@ class Settings
         }
 
         return $minutes;
+    }
+
+    /**
+     * Days a quote stays valid from the day it is created or re-sent (1–365, Faz 6).
+     */
+    public function quoteValidityDays(): int
+    {
+        $key = SettingKey::QuoteValidityDays;
+        $days = filter_var($this->get($key), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1, 'max_range' => 365],
+        ]);
+
+        if ($days === false) {
+            return (int) $this->fallback($key);
+        }
+
+        return $days;
+    }
+
+    /**
+     * Address that gets a copy of every sent quote, or null when not set (Faz 6).
+     */
+    public function quoteBccEmail(): ?string
+    {
+        $key = SettingKey::QuoteBccEmail;
+        $email = $this->get($key);
+
+        if ($email !== null && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            return $this->fallback($key);
+        }
+
+        return $email;
+    }
+
+    /**
+     * Company details printed on the quote PDF, always with every key of
+     * {@see self::COMPANY_DETAIL_KEYS}; a missing or unreadable value gives all-null.
+     * `logo_path` is a path under `storage/app`.
+     *
+     * @return array{name: ?string, address: ?string, phone: ?string, email: ?string, tax_office: ?string, tax_number: ?string, logo_path: ?string}
+     */
+    public function companyDetails(): array
+    {
+        $key = SettingKey::CompanyDetails;
+        $stored = $this->get($key);
+        $decoded = $stored === null ? [] : json_decode($stored, true);
+
+        if (! is_array($decoded)) {
+            $this->fallback($key);
+            $decoded = [];
+        }
+
+        $text = fn (string $detailKey): ?string => is_string($decoded[$detailKey] ?? null) && $decoded[$detailKey] !== ''
+            ? $decoded[$detailKey]
+            : null;
+
+        return [
+            'name' => $text('name'),
+            'address' => $text('address'),
+            'phone' => $text('phone'),
+            'email' => $text('email'),
+            'tax_office' => $text('tax_office'),
+            'tax_number' => $text('tax_number'),
+            'logo_path' => $text('logo_path'),
+        ];
     }
 
     /**

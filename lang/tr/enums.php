@@ -18,6 +18,21 @@ return [
         'cancelled' => 'İptal edildi',
     ],
 
+    'quote_status' => [
+        'draft' => 'Taslak',
+        'sent' => 'Gönderildi',
+        'accepted' => 'Kabul edildi',
+        'rejected' => 'Reddedildi',
+    ],
+
+    'quote_display_status' => [
+        'draft' => 'Taslak',
+        'sent' => 'Gönderildi',
+        'expired' => 'Süresi doldu',
+        'accepted' => 'Kabul edildi',
+        'rejected' => 'Reddedildi',
+    ],
+
     'usage_level' => [
         'nearly_full' => 'Dolmak üzere',
         'full' => 'Dolu',

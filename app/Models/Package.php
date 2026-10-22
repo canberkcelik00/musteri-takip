@@ -29,13 +29,13 @@ class Package extends Model
     ];
 
     /**
-     * A package sold to a customer is archived, not deleted.
+     * A package sold to a customer or put on a quote is archived, not deleted.
      *
      * @return list<string>
      */
     protected function usageRelations(): array
     {
-        return ['customerServices'];
+        return ['customerServices', 'quoteItems'];
     }
 
     /**
@@ -52,6 +52,14 @@ class Package extends Model
     public function customerServices(): HasMany
     {
         return $this->hasMany(CustomerService::class);
+    }
+
+    /**
+     * @return HasMany<QuoteItem, $this>
+     */
+    public function quoteItems(): HasMany
+    {
+        return $this->hasMany(QuoteItem::class);
     }
 
     /**
