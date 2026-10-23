@@ -18,7 +18,7 @@ dataset('text pairs', [
     'soluk metin / panel' => ['mt-text-muted', 'mt-panel-bg'],
     'soluk metin / tablo başlığı' => ['mt-text-muted', 'mt-table-head-bg'],
     'menü metni / menü' => ['mt-sidebar-text', 'mt-sidebar-bg'],
-    'menü metni / üzerine gelme zemini' => ['mt-sidebar-text', 'mt-sidebar-active-bg'],
+    'menü metni / üzerine gelme zemini' => ['mt-sidebar-text', 'mt-sidebar-hover-bg'],
     'menü grup başlığı / menü' => ['mt-sidebar-group', 'mt-sidebar-bg'],
     'seçili menü metni / seçili zemin' => ['mt-sidebar-active-text', 'mt-sidebar-active-bg'],
     'düğme metni / primary' => ['mt-on-primary', 'mt-primary'],
@@ -26,6 +26,8 @@ dataset('text pairs', [
     'bağlantı / panel' => ['mt-link', 'mt-panel-bg'],
     'bağlantı / sayfa' => ['mt-link', 'mt-page-bg'],
     'tehlikeli düğme metni / zemin' => ['mt-danger-text', 'mt-danger-bg'],
+    'tehlikeli düğme metni / üzerine gelme zemini' => ['mt-danger-text', 'mt-danger-hover-bg'],
+    'menü grup başlığı / üzerine gelme zemini' => ['mt-sidebar-group', 'mt-sidebar-hover-bg'],
     'kırmızı rozet' => ['mt-badge-red-text', 'mt-badge-red-bg'],
     'amber rozet' => ['mt-badge-amber-text', 'mt-badge-amber-bg'],
     'yeşil rozet' => ['mt-badge-green-text', 'mt-badge-green-bg'],
@@ -101,8 +103,8 @@ it('keeps the token table anchors in the scales', function () {
     $light = designTokens('light');
     $dark = designTokens('dark');
 
-    expect(strtolower(AdminPanelProvider::PRIMARY_SCALE[600]))->toBe($light['mt-primary'])
-        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[700]))->toBe($light['mt-primary-hover'])
+    expect(strtolower(AdminPanelProvider::PRIMARY_SCALE[500]))->toBe($light['mt-primary'])
+        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[600]))->toBe($light['mt-primary-hover'])
         ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[600]))->toBe($light['mt-link'])
         ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[400]))->toBe($dark['mt-link'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[50]))->toBe($light['mt-table-head-bg'])

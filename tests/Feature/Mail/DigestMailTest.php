@@ -212,7 +212,7 @@ it('writes the remaining amount note in the muted text color, not the link color
 
     $html = digestMailFor()->render();
 
-    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #6e6e73;[^>]*>\s*Kalan 1\.500 TL/')
+    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #6c6c70;[^>]*>\s*Kalan 1\.500 TL/')
         ->and($html)->toContain('.dg-note')
-        ->and($html)->toContain('color: #ababb0 !important');
+        ->and($html)->toContain('color: #98989d !important');
 });

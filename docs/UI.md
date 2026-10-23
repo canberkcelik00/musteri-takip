@@ -155,13 +155,14 @@ Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna g�
 
 ## 6. Görsel dil
 
-Faz 4C'den beri (T-130) Apple tarzı: sakin yüzeyler, yumuşak köşeler, hap biçimli düğmeler, kenarlıksız gölgeli kartlar, buzlu cam üst çubuk. Referans: `docs/design/apple/referans.html` ([tasarım sayfası](https://claude.ai/artifact/4hcfCNE5ARAoJdUYr5NAYG)).
+Faz 4C'den beri (T-130, T-132) Apple "Ayarlar" tarzı: gri gruplu zemin üstünde beyaz yuvarlak gruplar, seçili menü satırı mavi dolgu, yeşil anahtarlar, hap düğmeler. **Buzlu cam (bulanıklık) yoktur:** her kaydırmada sayfayı yeniden boyar ve üst çubuğa konunca "Ödeme al" gibi pencereleri içine hapsediyordu; çubuklar neredeyse opak düz renktir. İlk taslak: `docs/design/apple/referans.html` ([tasarım sayfası](https://claude.ai/artifact/4hcfCNE5ARAoJdUYr5NAYG)); buzlu cam ve renkler taslakta eskidir, güncel değerler bu bölümdedir.
 
-- **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir.
-- **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur.
-- **Menü kareleri:** Kenar menüde her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi). Renkler durum renklerinden ayrı tutulur: Bugün mavi, Müşteriler çivit, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri.
+- **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir. Koyu tema gerçek siyah zeminli, #1C1C1E kartlıdır.
+- **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur. Yeşil anahtar (açık durum) iOS yeşilidir; ödendi rozetinin yeşilinden ayrı bir iştir ve yalnız anahtarda kullanılır.
+- **Menü:** Kenar menü sayfa zemini renginde, sağında ince çizgi. Her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi): Bugün mavi, Müşteriler çivit, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri. Üzerine gelinen satır açık gri, seçili satır mavi dolgu ve beyaz yazıdır; seçili satırın karesi yarı saydam beyaz olur.
 - **Simge işlemleri (Kural 5'in istisnası):** WhatsApp, ara, e-posta, siteyi aç ve kopyala yazısız, simgeli düğmedir; ipucu ve erişilebilir ad Türkçe, `lang/tr`'den gelir.
 - **Avatar:** Müşteri adının solunda, kısa adın iki baş harfi (Türkçe büyük harf) ve müşteriye sabit bir renk; süstür, ekran okuyucudan gizlidir.
+- **Denetimler:** Anahtar açıkken yeşil, kapalıyken gri, topuz beyaz ve gölgeli; onay kutusu ve radyo işaretliyken mavi; açılır menüler gölgeli beyaz yuvarlak levha, üzerine gelinen öğe mavi dolgu ve beyaz yazı; sayfalamada geçerli sayfa mavi dolgu; giriş sayfası gri zeminde tek beyaz kart.
 - **Yazı:** Sistem yazı tipi (`-apple-system`, SF Pro); olmayan cihazda panelin yerel yazı tipi (dış bağlantı yok). Sayılarda eş genişlikte rakamlar.
 - **Yoğunluk:** Orta: tablo satırı ~48 px (avatarlı ~52 px), formlarda rahat boşluk.
 - **Logo ve ad:** Sol üstte logo simgesi (#ff3800) ve "Müşteri Takip"; şimdilik yer tutucu simge, firma logosu gelince değiştirilir.
@@ -170,37 +171,37 @@ Faz 4C'den beri (T-130) Apple tarzı: sakin yüzeyler, yumuşak köşeler, hap b
 
 | Token | Açık tema | Koyu tema |
 | --- | --- | --- |
-| Kenar menü zemini | #EDEDF2 | #262628 |
-| Kenar menü metni / grup başlığı | #1D1D1F / #636366 | #F5F5F7 / #ABABB0 |
-| Seçili menü öğesi | zemin #DCDCE3, metin #1D1D1F, kalın | zemin #3A3A3C, metin #F5F5F7 |
-| Menü kareleri | mavi #0A74E0, çivit #5E5CE6, turuncu #D9730D, mor #AF52DE, yeşil #2E9D4B, deniz mavisi #2A8FA3, gri #7C7C82; simge beyaz, 24 px kare, köşe 6 px | aynı |
-| Sayfa zemini | #F5F5F7 | #1C1C1E |
-| Kart ve panel | #FFFFFF, kenarlık yok, gölge | #2C2C2E, kenarlık yok |
-| Üst çubuk | yarı saydam #F5F5F7 (%80) + bulanıklık, altında ince çizgi | yarı saydam #1C1C1E (%80) + bulanıklık |
-| Çizgi / satır ayırıcı / tablo başlığı zemini | #E5E5EA / #ECECF0 / #FAFAFC | #3A3A3C / #38383A / #2C2C2E |
-| Satır üzerine gelme zemini | #F5F5F7 | #3A3A3C |
-| Metin / soluk metin | #1D1D1F / #6E6E73 | #F5F5F7 / #ABABB0 |
-| Birincil (primary) | #0066CC, üzerine gelince #0057AD, düğme metni #FFFFFF; bağlantı rengi aynı | dolgu #0A72E0, üzerine gelince #0A62C2, düğme metni #FFFFFF; bağlantı rengi #5AA9FF |
-| Tehlikeli düğme | metin #D70015, zemin #FDECEA, kenarlık yok; dolu kırmızı zemin yoktur. Üzerine gelince zemin biraz koyulaşır, metin aynı | metin #FF8A84, zemin #4A2A29; üzerine gelince biraz açılır |
+| Sayfa zemini | #F2F2F7 | #000000 |
+| Kart, grup ve panel | #FFFFFF, kenarlık yok, çok hafif gölge | #1C1C1E, kenarlık ve gölge yok |
+| Kenar menü zemini | #F2F2F7, sağda #D1D1D6 çizgi | #000000, sağda #38383A çizgi |
+| Kenar menü metni / grup başlığı | #1D1D1F / #636366 | #F5F5F7 / #98989D |
+| Menü satırı: üzerine gelme / seçili | zemin #E5E5EA / zemin #0071E3, metin #FFFFFF, kalın | zemin #1C1C1E / zemin #0A72E0, metin #FFFFFF, kalın |
+| Menü kareleri | mavi #0A74E0, çivit #5E5CE6, turuncu #D9730D, mor #AF52DE, yeşil #2E9D4B, deniz mavisi #2A8FA3, gri #7C7C82; simge beyaz, 24 px kare, köşe 6 px; seçili satırda yarı saydam beyaz | aynı |
+| Üst çubuk | #F2F2F7 (%94 opak), altında ince çizgi | #000000 (%92 opak) |
+| Çizgi / satır ayırıcı / tablo başlığı zemini | #D1D1D6 / #E5E5EA / #FFFFFF (kartla aynı) | #38383A / #38383A / #1C1C1E |
+| Satır üzerine gelme zemini | #F2F2F7 | #2C2C2E |
+| Metin / soluk metin | #1D1D1F / #6C6C70 | #F5F5F7 / #98989D |
+| Birincil (primary) | dolgu #0071E3, üzerine gelince #0066CC, düğme metni #FFFFFF; bağlantı #0066CC | dolgu #0A72E0, üzerine gelince #0A62C2, düğme metni #FFFFFF; bağlantı #409CFF |
+| Yeşil anahtar | #34C759 | #30D158 |
+| Tehlikeli düğme | metin #D70015, zemin #FEF3F2, üzerine gelince #FDE8E5, kenarlık yok; dolu kırmızı zemin yoktur | metin #FF8A84, zemin #3D2423, üzerine gelince #4D2C2A |
 | Rozet: kırmızı (zemin / metin / nokta) | #FDECEA / #B3261E / #FF3B30 | #4A2A29 / #FFA39D / #FF453A |
 | Rozet: amber | #FFF3DB / #8A5300 / #FF9F0A | #4A3A1E / #FFC25C / #FF9F0A |
 | Rozet: yeşil | #E3F6E8 / #1B6E32 / #34C759 | #1F4A2B / #6FDC8C / #30D158 |
 | Rozet: gri | #EBEBF0 / #55555B / #8E8E93 | #3A3A3C / #C7C7CC / #8E8E93 |
 | Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, tam yuvarlak (hap) köşe; yalnız kırmızı, amber, yeşil ve gri vardır; renk sınıfsız rozet (Filament'in varsayılan grisi) gri çizilir, bu yüzden uygulamada rengi verilmemiş rozet olmaz | aynı |
-| Filtre çipi | beyaz zemin, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | koyu panel zemini |
-| Yazı ölçeği | sayfa başlığı 34/700 (−0,022em), form penceresi başlığı 22/700, büyük tutar 26/650 (−0,02em), bölüm başlığı 17/650, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
+| Filtre çipi | gri dolgulu, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | aynı |
+| Yazı ölçeği | sayfa başlığı 34/700 (−0,022em), alt başlık 15, form penceresi başlığı 17/600, büyük tutar 26/600 (−0,02em), bölüm başlığı 17/600, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
 | Tablo metni | 14 px / 400 | aynı |
-| Kenarlık | kart ve tablolarda yok (gölge ve zemin farkı ayırır); giriş alanında 1 px çizgi rengi | aynı |
+| Kenarlık | kart ve tablolarda yok (zemin farkı ayırır); giriş alanı gri dolgulu, kenarlıksız | aynı |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 22 px, tablo hücresi 12×16 px, panel başlığı 14×18 px | aynı |
 | Çerçeve ölçüleri | kenar menü 272 px, üst çubuk 56 px, arama kutusu 340 px, tablo arama kutusu 300 px, form penceresi 640 px, alt sekme çubuğu 56 px (+ güvenli alan), dar ekranda ekran genişliği − 2×16 px (iç boşluk 24 px) | aynı |
-| Köşe | kart 16 px, form penceresi 20 px, giriş alanı 10 px, menü karesi 6 px, düğme ve rozet tam yuvarlak | aynı |
-| Gölge | kartta `0 1px 2px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.05)`; menü, çubuklar ve satırlarda yok | kartta yok, koyu zemin farkı ayırır |
-| Odak halkası | 2 px #0066CC, 2 px boşlukla; kenar menüde de aynı | 2 px #5AA9FF |
-| Gri skala (50–950) | #FAFAFC, #ECECF0, #E5E5EA, #C7C7CC, #A1A1A6, #8E8E93, #6E6E73, #48484A, #3A3A3C, #2C2C2E, #1C1C1E | aynı skala |
-| Primary mavi skala (50–950) | #F0F7FF, #DCEBFC, #B9D8FA, #8BBDF5, #5AA9FF, #2B86EA, #0066CC, #0057AD, #0A4A91, #0B3B73, #082B55 | aynı skala |
+| Köşe | kart 12 px, açılır menü 12 px, form penceresi 18 px, giriş alanı 10 px, menü karesi 6 px, düğme ve rozet tam yuvarlak | aynı |
+| Gölge | kartta `0 1px 2px rgba(0,0,0,.05)`; açılır menüde `0 8px 30px rgba(0,0,0,.14)`; pencerede `0 30px 80px rgba(0,0,0,.3)`; menü, çubuklar ve satırlarda yok. Bulanıklık (`backdrop-filter`) hiçbir yerde yok | kartta yok; menü ve pencerede daha koyu gölge |
+| Odak halkası | 2 px #0066CC, 2 px boşlukla; kenar menüde de aynı | 2 px #409CFF |
+| Gri skala (50–950) | #FFFFFF, #E5E5EA, #D1D1D6, #C7C7CC, #AEAEB2, #8E8E93, #6C6C70, #48484A, #38383A, #1C1C1E, #000000 | aynı skala |
+| Primary mavi skala (50–950) | #F0F7FF, #DCEBFC, #B9D8FA, #8BBDF5, #409CFF, #0071E3, #0066CC, #0057AD, #0A4A91, #0B3B73, #082B55 | aynı skala |
 
-Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 çizgi, 600 soluk metin, 800 koyu çizgi, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 600 düğme ve bağlantı, 700 üzerine gelme ve 400 koyu temadaki bağlantıdır. Durum paletleri (danger = Red, warning = Amber, success = Green) Filament'in hazır paletleridir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
-
+Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 çizgi, 600 soluk metin, 800 koyu çizgi, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 500 düğme dolgusu, 600 üzerine gelme ve bağlantı, 400 koyu temadaki bağlantıdır. Durum paletleri (danger = Red, warning = Amber, success = Green) Filament'in hazır paletleridir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
 
 ## 7. Hedef tık sayıları (kabul ölçütü)
 

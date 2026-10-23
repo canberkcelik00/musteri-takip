@@ -71,6 +71,48 @@ it('hides the tab bar from lg up and shows it below, in place of the hamburger',
         ->and(implode("\n", designRuleBodies('.fi-topbar-open-sidebar-btn')))->toContain('display: none');
 });
 
+it('uses no filter, backdrop filter or transform on the bars, so nothing repaints on scroll and the action windows rendered inside the topbar are not trapped (T-132)', function () {
+    $css = (string) preg_replace('#/\*.*?\*/#s', '', designThemeCss());
+
+    // A backdrop filter repaints the page on every scroll; on the topbar it also became the containing
+    // block of the "Ödeme al" and "Yeni müşteri" windows Filament renders inside it.
+    expect($css)->not->toMatch('/(?<![-\w])(backdrop-filter|-webkit-backdrop-filter|filter)\s*:/');
+
+    foreach (['.fi-topbar', '.fi-topbar-ctn', '.fi-topbar-end', '.fi-topbar-actions', '.fi-global-search-ctn'] as $selector) {
+        expect(implode("\n", designRuleBodies($selector)))
+            ->not->toMatch('/(?<![-\w])(transform|perspective|contain|will-change)\s*:/', "{$selector} would trap its fixed descendants");
+    }
+});
+
+it('paints the selected menu row blue with white text, the hover row gray, and the squares translucent when selected', function () {
+    $active = implode('
+', designRuleBodies('.fi-sidebar-item.fi-active > .fi-sidebar-item-btn'));
+    $hover = implode('
+', designRuleBodies('.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover'));
+    $square = implode('
+', designRuleBodies('.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-icon'));
+
+    expect($active)->toContain('background-color: var(--mt-sidebar-active-bg)')
+        ->and($active)->toContain('color: var(--mt-sidebar-active-text)')
+        ->and($hover)->toContain('background-color: var(--mt-sidebar-hover-bg)')
+        ->and($square)->toContain('var(--mt-nav-on-active)');
+});
+
+it('draws the switch green when on and gray when off, the check boxes and the current page blue', function () {
+    expect(implode('
+', designRuleBodies('.fi-toggle.fi-toggle-on')))->toContain('var(--mt-green)')
+        ->and(implode('
+', designRuleBodies('.fi-toggle.fi-toggle-off')))->toContain('var(--mt-row-divider)')
+        ->and(designThemeCss())->toContain('.fi-pagination .fi-pagination-item.fi-active .fi-pagination-item-btn')
+        ->and(designThemeCss())->toContain("input[type='checkbox'].fi-checkbox-input:checked");
+
+    foreach (['light', 'dark'] as $theme) {
+        $tokens = designTokens($theme);
+
+        expect(designContrast($tokens['mt-green'], $tokens['mt-panel-bg']))->toBeGreaterThanOrEqual(1.5);
+    }
+});
+
 it('gives the avatar two letters, the Turkish way, and a stable color', function (string $name, string $initials) {
     expect(Avatar::initials($name))->toBe($initials);
 })->with([

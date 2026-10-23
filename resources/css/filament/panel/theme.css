@@ -4,7 +4,7 @@
 @source '../../../../resources/views/filament/**/*';
 
 /*
- * Design tokens (docs/UI.md §6, Apple style, G-4C.2, T-130).
+ * Design tokens (docs/UI.md §6, Apple "Ayarlar" style, G-4C.2, T-130, T-132).
  *
  * The only place in this file where literal colors and shadows are allowed (enforced by
  * DesignTokensTest). Component rules below use `var(--mt-*)` or Filament's palette utilities. The
@@ -13,27 +13,31 @@
  *
  * Brand color: used only for the logo mark, never for buttons, menu items or status badges.
  *
- * Primary: --mt-primary is the fill of a button (white text on it) and --mt-link the text color
- * of links and outlined controls. They are one blue in the light theme; in the dark theme the
- * fill is a deeper blue that carries white text and the link is a lighter one that reads on the
- * dark panel.
+ * There is no frosted glass anywhere (T-132): a `backdrop-filter` repaints the page on every
+ * scroll and, on the topbar, trapped the action windows. The bars are an almost opaque flat color.
+ *
+ * Primary: --mt-primary is the fill of a button (white text on it), --mt-primary-hover its hover,
+ * and --mt-link the text color of links and outlined controls. In the dark theme the fill is a
+ * deeper blue that carries white text and the link is a lighter one that reads on the dark panel.
  */
 :root {
     --mt-brand: #ff3800;
     --mt-on-brand: #ffffff;
     --mt-whatsapp: #128c4a;
+    --mt-green: #34c759;
 
-    --mt-sidebar-bg: #ededf2;
+    --mt-sidebar-bg: #f2f2f7;
     --mt-sidebar-text: #1d1d1f;
     --mt-sidebar-group: #636366;
-    --mt-sidebar-active-bg: #dcdce3;
-    --mt-sidebar-active-text: #1d1d1f;
+    --mt-sidebar-hover-bg: #e5e5ea;
+    --mt-sidebar-active-bg: #0071e3;
+    --mt-sidebar-active-text: #ffffff;
     --mt-sidebar-focus: #0066cc;
     --mt-topbar-height: 56px;
     --mt-tabbar-height: 56px;
     --mt-search-width: 340px;
     --mt-table-search-width: 300px;
-    --mt-topbar-bg: rgba(245, 245, 247, 0.8);
+    --mt-topbar-bg: rgba(242, 242, 247, 0.94);
 
     --mt-nav-blue: #0a74e0;
     --mt-nav-indigo: #5e5ce6;
@@ -42,6 +46,7 @@
     --mt-nav-green: #2e9d4b;
     --mt-nav-teal: #2a8fa3;
     --mt-nav-gray: #7c7c82;
+    --mt-nav-on-active: rgba(255, 255, 255, 0.24);
 
     --mt-avatar-1: #5e5ce6;
     --mt-avatar-2: #0a74e0;
@@ -52,26 +57,27 @@
     --mt-avatar-7: #6d28d9;
     --mt-avatar-8: #475569;
 
-    --mt-page-bg: #f5f5f7;
+    --mt-page-bg: #f2f2f7;
     --mt-panel-bg: #ffffff;
-    --mt-field-bg: rgba(0, 0, 0, 0.05);
-    --mt-border: #e5e5ea;
+    --mt-field-bg: rgba(118, 118, 128, 0.12);
+    --mt-border: #d1d1d6;
     --mt-border-width: 1px;
-    --mt-row-divider: #ececf0;
-    --mt-table-head-bg: #fafafc;
-    --mt-row-hover: #f5f5f7;
+    --mt-row-divider: #e5e5ea;
+    --mt-table-head-bg: #ffffff;
+    --mt-row-hover: #f2f2f7;
     --mt-text: #1d1d1f;
-    --mt-text-muted: #6e6e73;
-    --mt-scrim: rgba(0, 0, 0, 0.28);
+    --mt-text-muted: #6c6c70;
+    --mt-scrim: rgba(0, 0, 0, 0.3);
 
-    --mt-primary: #0066cc;
-    --mt-primary-hover: #0057ad;
+    --mt-primary: #0071e3;
+    --mt-primary-hover: #0066cc;
     --mt-on-primary: #ffffff;
     --mt-link: #0066cc;
 
     --mt-danger-text: #d70015;
-    --mt-danger-border: #fdecea;
-    --mt-danger-bg: #fdecea;
+    --mt-danger-border: #fef3f2;
+    --mt-danger-bg: #fef3f2;
+    --mt-danger-hover-bg: #fde8e5;
 
     --mt-badge-red-bg: #fdecea;
     --mt-badge-red-text: #b3261e;
@@ -102,7 +108,8 @@
     --mt-weight-body: 400;
     --mt-text-help: 13px;
     --mt-text-help-small: 12px;
-    --mt-text-panel-title: 22px;
+    --mt-text-subheading: 15px;
+    --mt-text-panel-title: 17px;
 
     --mt-space-page-y: 24px;
     --mt-space-page-x: 28px;
@@ -115,14 +122,17 @@
     --mt-modal-width: 640px;
 
     --mt-radius: 10px;
-    --mt-radius-card: 16px;
-    --mt-radius-modal: 20px;
+    --mt-radius-card: 12px;
+    --mt-radius-menu: 12px;
+    --mt-radius-modal: 18px;
     --mt-radius-nav: 6px;
     --mt-radius-badge: 999px;
     --mt-radius-pill: 999px;
     --mt-shadow: none;
-    --mt-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
-    --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.35);
+    --mt-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --mt-shadow-menu: 0 8px 30px rgba(0, 0, 0, 0.14);
+    --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.3);
+    --mt-shadow-knob: 0 2px 4px rgba(0, 0, 0, 0.25);
 
     --mt-focus-width: 2px;
     --mt-focus-offset: 2px;
@@ -130,35 +140,38 @@
 }
 
 :root.dark {
-    --mt-sidebar-bg: #262628;
+    --mt-sidebar-bg: #000000;
     --mt-sidebar-text: #f5f5f7;
-    --mt-sidebar-group: #ababb0;
-    --mt-sidebar-active-bg: #3a3a3c;
-    --mt-sidebar-active-text: #f5f5f7;
-    --mt-sidebar-focus: #5aa9ff;
-    --mt-topbar-bg: rgba(28, 28, 30, 0.8);
+    --mt-sidebar-group: #98989d;
+    --mt-sidebar-hover-bg: #1c1c1e;
+    --mt-sidebar-active-bg: #0a72e0;
+    --mt-sidebar-active-text: #ffffff;
+    --mt-sidebar-focus: #409cff;
+    --mt-topbar-bg: rgba(0, 0, 0, 0.92);
 
     --mt-whatsapp: #4ade80;
+    --mt-green: #30d158;
 
-    --mt-page-bg: #1c1c1e;
-    --mt-panel-bg: #2c2c2e;
-    --mt-field-bg: rgba(255, 255, 255, 0.08);
-    --mt-border: #3a3a3c;
+    --mt-page-bg: #000000;
+    --mt-panel-bg: #1c1c1e;
+    --mt-field-bg: rgba(118, 118, 128, 0.24);
+    --mt-border: #38383a;
     --mt-row-divider: #38383a;
-    --mt-table-head-bg: #2c2c2e;
-    --mt-row-hover: #3a3a3c;
+    --mt-table-head-bg: #1c1c1e;
+    --mt-row-hover: #2c2c2e;
     --mt-text: #f5f5f7;
-    --mt-text-muted: #ababb0;
-    --mt-scrim: rgba(0, 0, 0, 0.5);
+    --mt-text-muted: #98989d;
+    --mt-scrim: rgba(0, 0, 0, 0.55);
 
     --mt-primary: #0a72e0;
     --mt-primary-hover: #0a62c2;
     --mt-on-primary: #ffffff;
-    --mt-link: #5aa9ff;
+    --mt-link: #409cff;
 
     --mt-danger-text: #ff8a84;
-    --mt-danger-border: #4a2a29;
-    --mt-danger-bg: #4a2a29;
+    --mt-danger-border: #3d2423;
+    --mt-danger-bg: #3d2423;
+    --mt-danger-hover-bg: #4d2c2a;
 
     --mt-badge-red-bg: #4a2a29;
     --mt-badge-red-text: #ffa39d;
@@ -172,9 +185,10 @@
     --mt-badge-gray-text: #c7c7cc;
 
     --mt-shadow-card: none;
-    --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.6);
+    --mt-shadow-menu: 0 8px 30px rgba(0, 0, 0, 0.6);
+    --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.7);
 
-    --mt-focus-color: #5aa9ff;
+    --mt-focus-color: #409cff;
 }
 
 /*
@@ -191,11 +205,13 @@
     --topbar-height: var(--mt-topbar-height);
     background-color: var(--mt-page-bg);
     color: var(--mt-text);
+    -webkit-font-smoothing: antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', var(--font-family), system-ui, sans-serif;
 }
 
 .fi-body .fi-sidebar {
     background-color: var(--mt-sidebar-bg);
+    border-inline-end: var(--mt-border-width) solid var(--mt-border);
     box-shadow: none;
 }
 
@@ -270,7 +286,7 @@
 }
 
 .fi-sidebar-item-btn {
-    min-height: 38px;
+    min-height: 36px;
     gap: 10px;
     padding: 0 12px;
     border-radius: var(--mt-radius);
@@ -328,7 +344,7 @@
 
 .fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover,
 .fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:focus-visible {
-    background-color: var(--mt-sidebar-active-bg);
+    background-color: var(--mt-sidebar-hover-bg);
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
@@ -338,6 +354,17 @@
         font-weight: 600;
         color: var(--mt-sidebar-active-text);
     }
+}
+
+/* The selected item is a blue row with white text, as in iPad Settings; its colored square turns translucent white so it does not vanish into the blue. */
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn:hover,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn:focus-visible {
+    background-color: var(--mt-sidebar-active-bg);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-on-active);
+    color: var(--mt-sidebar-active-text);
 }
 
 .fi-sidebar-item-btn:focus-visible,
@@ -352,11 +379,15 @@
     min-height: var(--mt-topbar-height);
     padding-inline: var(--mt-space-page-x);
     background-color: var(--mt-topbar-bg);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
     box-shadow: none;
     border-bottom: var(--mt-border-width) solid var(--mt-border);
 }
+
+/*
+ * No frosted glass (T-132): a `backdrop-filter` repaints the page on every scroll and, on the
+ * topbar, made it the containing block of the action windows rendered inside it ("Ödeme al",
+ * "Yeni müşteri"), squeezing them into the bar. The topbar is an almost opaque flat color.
+ */
 
 /* Search box: a filled, borderless field with a key hint. */
 .fi-global-search-field .fi-input-wrp {
@@ -412,7 +443,7 @@
 
 .fi-header-subheading {
     margin-top: 6px;
-    font-size: var(--mt-text-body);
+    font-size: var(--mt-text-subheading);
     line-height: 20px;
     color: var(--mt-text-muted);
 }
@@ -462,8 +493,6 @@
         min-height: var(--mt-tabbar-height);
         padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
         background-color: var(--mt-topbar-bg);
-        -webkit-backdrop-filter: saturate(180%) blur(24px);
-        backdrop-filter: saturate(180%) blur(24px);
         border-top: var(--mt-border-width) solid var(--mt-border);
     }
 
@@ -933,7 +962,6 @@ body {
 .fi-ta-ctn .fi-ta-header-cell,
 .fi-ta-ctn .fi-ta-actions-header-cell {
     padding: var(--mt-space-cell-y) var(--mt-space-cell-x);
-    border-top: var(--mt-border-width) solid var(--mt-border);
     background-color: var(--mt-table-head-bg);
     font-size: var(--mt-text-help);
     font-weight: 600;
@@ -1248,8 +1276,8 @@ body {
     --dark-bg: var(--mt-danger-bg);
     --text: var(--mt-danger-text);
     --dark-text: var(--mt-danger-text);
-    --hover-bg: var(--mt-badge-red-bg);
-    --dark-hover-bg: var(--mt-badge-red-bg);
+    --hover-bg: var(--mt-danger-hover-bg);
+    --dark-hover-bg: var(--mt-danger-hover-bg);
     --hover-text: var(--mt-danger-text);
     --dark-hover-text: var(--mt-danger-text);
     --tw-ring-color: var(--mt-danger-border);
@@ -1279,8 +1307,7 @@ body {
  */
 .fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover {
     border-color: var(--mt-danger-border);
-    background-color: var(--mt-badge-red-bg);
-    filter: brightness(0.95);
+    background-color: var(--mt-danger-hover-bg);
 }
 
 /* The modal buttons ("Vazgeç" / "Kaydet" / confirmations) take the same looks through these rules. */
@@ -1320,8 +1347,7 @@ body {
 
 .fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover {
     border-color: var(--mt-danger-border);
-    background-color: var(--mt-badge-red-bg);
-    filter: brightness(0.95);
+    background-color: var(--mt-danger-hover-bg);
 }
 
 /*
@@ -1571,11 +1597,9 @@ body {
     box-shadow: var(--mt-shadow-modal);
 }
 
-/* The page behind a window is dimmed and blurred, not just darkened. */
+/* The page behind a window is dimmed. */
 .fi-modal-close-overlay {
     background-color: var(--mt-scrim);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
 }
 
 .fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal {
@@ -1654,10 +1678,10 @@ body {
     padding: 5px 14px;
     border: var(--mt-border-width) solid transparent;
     border-radius: var(--mt-radius-pill);
-    background-color: var(--mt-field-bg);
+    background-color: transparent;
     font-size: var(--mt-text-body);
     font-weight: 600;
-    color: var(--mt-text);
+    color: var(--mt-link);
 }
 
 .fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-close-btn,
@@ -2021,4 +2045,95 @@ body {
 .fi-domain-icon:focus-visible {
     outline: var(--mt-focus-width) solid var(--mt-focus-color);
     outline-offset: calc(-1 * var(--mt-focus-width));
+}
+
+/*
+ * Controls in the manner of Apple's Settings (G-4C, T-132, docs/UI.md §6). Colors only from tokens.
+ */
+
+/* Switch: green when on, a soft gray when off, a round white knob with a small shadow. */
+.fi-toggle.fi-toggle-off {
+    background-color: var(--mt-row-divider);
+}
+
+.fi-toggle.fi-toggle-on {
+    background-color: var(--mt-green);
+}
+
+.fi-toggle.fi-color {
+    --bg: var(--mt-green);
+    --dark-bg: var(--mt-green);
+}
+
+.fi-toggle > :first-child {
+    box-shadow: var(--mt-shadow-knob);
+}
+
+/* Check box and radio: blue fill when set, the same blue as the buttons. */
+input[type='checkbox'].fi-checkbox-input:checked,
+input[type='checkbox'].fi-checkbox-input:indeterminate,
+input[type='radio'].fi-radio-input:checked {
+    background-color: var(--mt-primary);
+}
+
+input[type='checkbox'].fi-checkbox-input {
+    border-radius: 6px;
+}
+
+/* Menus (user menu, filter and action menus, search results): a soft white sheet, no ring. */
+.fi-dropdown-panel,
+.fi-global-search-results-ctn {
+    border-radius: var(--mt-radius-menu);
+    background-color: var(--mt-panel-bg);
+    box-shadow: var(--mt-shadow-menu);
+}
+
+.fi-dropdown-list-item:not(.fi-disabled):not([disabled]):not(.fi-color):hover,
+.fi-dropdown-list-item:not(.fi-disabled):not([disabled]):not(.fi-color):focus-visible {
+    background-color: var(--mt-primary);
+    color: var(--mt-on-primary);
+
+    & .fi-dropdown-list-item-label,
+    & .fi-icon {
+        color: var(--mt-on-primary);
+    }
+}
+
+/* Pagination: round buttons, the current page filled blue. */
+.fi-pagination .fi-pagination-items {
+    border-radius: var(--mt-radius-pill);
+}
+
+.fi-pagination .fi-pagination-item.fi-active .fi-pagination-item-btn {
+    background-color: var(--mt-primary);
+}
+
+.fi-pagination .fi-pagination-item.fi-active .fi-pagination-item-label {
+    color: var(--mt-on-primary);
+}
+
+/* The sign-in page: the grouped gray ground with one white card in the middle. */
+.fi-simple-layout {
+    background-color: var(--mt-page-bg);
+}
+
+.fi-simple-main {
+    border-radius: var(--mt-radius-card);
+    background-color: var(--mt-panel-bg);
+    box-shadow: var(--mt-shadow-card);
+}
+
+.fi-simple-header-heading {
+    font-weight: var(--mt-weight-page-title);
+    letter-spacing: var(--mt-tracking-page-title);
+    color: var(--mt-text);
+}
+
+/* Thin, round scroll bars like macOS. */
+* {
+    scrollbar-width: thin;
+}
+
+::selection {
+    background-color: var(--mt-field-bg);
 }

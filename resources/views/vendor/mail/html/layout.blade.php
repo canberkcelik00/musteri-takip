@@ -42,13 +42,13 @@ width: 100% !important;
 body,
 .wrapper,
 .body {
-background-color: #1c1c1e !important;
+background-color: #000000 !important;
 color: #f5f5f7 !important;
 }
 
 .inner-body {
-background-color: #2c2c2e !important;
-border-color: #3a3a3c !important;
+background-color: #1c1c1e !important;
+border-color: #38383a !important;
 }
 
 .header a,
@@ -63,22 +63,22 @@ color: #f5f5f7 !important;
 .dg-hint,
 .dg-note,
 .footer p {
-color: #ababb0 !important;
+color: #98989d !important;
 }
 
 a,
 .dg-td a {
-color: #5aa9ff !important;
+color: #409cff !important;
 }
 
 .dg-table {
-border-color: #3a3a3c !important;
+border-color: #38383a !important;
 }
 
 .dg-th {
-background-color: #2c2c2e !important;
-border-color: #3a3a3c !important;
-color: #ababb0 !important;
+background-color: #1c1c1e !important;
+border-color: #38383a !important;
+color: #98989d !important;
 }
 
 .dg-td {

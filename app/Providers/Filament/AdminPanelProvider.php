@@ -24,8 +24,8 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class AdminPanelProvider extends PanelProvider
 {
     /**
-     * Apple blue primary scale (docs/UI.md §6): 600 is the button and link blue, 700 its hover,
-     * 400 the dark-mode link.
+     * Apple blue primary scale (docs/UI.md §6): 500 is the button fill, 600 its hover and the
+     * link blue, 400 the dark-mode link.
      *
      * @var array<int, string>
      */
@@ -34,8 +34,8 @@ class AdminPanelProvider extends PanelProvider
         100 => '#DCEBFC',
         200 => '#B9D8FA',
         300 => '#8BBDF5',
-        400 => '#5AA9FF',
-        500 => '#2B86EA',
+        400 => '#409CFF',
+        500 => '#0071E3',
         600 => '#0066CC',
         700 => '#0057AD',
         800 => '#0A4A91',
@@ -44,23 +44,23 @@ class AdminPanelProvider extends PanelProvider
     ];
 
     /**
-     * Cool neutral gray scale (docs/UI.md §6), anchored to the token table: 50 table head,
-     * 100 row divider, 200 border, 600 muted text, 800 dark border, 900 dark panel, 950 dark page.
+     * Cool neutral gray scale (docs/UI.md §6), anchored to the token table: 50 table head, 100 row
+     * divider, 200 border, 600 muted text, 800 dark border, 900 dark panel, 950 dark page.
      *
      * @var array<int, string>
      */
     public const GRAY_SCALE = [
-        50 => '#FAFAFC',
-        100 => '#ECECF0',
-        200 => '#E5E5EA',
+        50 => '#FFFFFF',
+        100 => '#E5E5EA',
+        200 => '#D1D1D6',
         300 => '#C7C7CC',
-        400 => '#A1A1A6',
+        400 => '#AEAEB2',
         500 => '#8E8E93',
-        600 => '#6E6E73',
+        600 => '#6C6C70',
         700 => '#48484A',
-        800 => '#3A3A3C',
-        900 => '#2C2C2E',
-        950 => '#1C1C1E',
+        800 => '#38383A',
+        900 => '#1C1C1E',
+        950 => '#000000',
     ];
 
     public function panel(Panel $panel): Panel
