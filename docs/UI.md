@@ -163,6 +163,9 @@ Faz 4C'den beri (T-130, T-132) Apple "Ayarlar" tarzı: gri gruplu zemin üstünd
 - **Simge işlemleri (Kural 5'in istisnası):** WhatsApp, ara, e-posta, siteyi aç ve kopyala yazısız, simgeli düğmedir; ipucu ve erişilebilir ad Türkçe, `lang/tr`'den gelir.
 - **Avatar:** Müşteri adının solunda, kısa adın iki baş harfi (Türkçe büyük harf) ve müşteriye sabit bir renk; süstür, ekran okuyucudan gizlidir.
 - **Denetimler:** Anahtar açıkken yeşil, kapalıyken gri, topuz beyaz ve gölgeli; onay kutusu ve radyo işaretliyken mavi; açılır menüler gölgeli beyaz yuvarlak levha, üzerine gelinen öğe mavi dolgu ve beyaz yazı; sayfalamada geçerli sayfa mavi dolgu; giriş sayfası gri zeminde tek beyaz kart.
+- **Seçim kutusu:** Hiçbir seçim kutusu yerel değildir (işletim sisteminin listesi biçimlendirilemez); kapalıyken gri dolgulu alan ve iOS çift ok, açıkken menülerle aynı levha: 32 px satır, 8 px köşe, vurgulanan satır mavi dolgu ve beyaz yazı, seçili öğe bağlantı renginde kalın.
+- **Sekmeler:** iOS bölümlü denetim: gri kapsül, seçili parça açık ve gölgeli, yazı koyu (mavi değil).
+- **Satır ucu:** Tıklanabilir satırın sonunda gri "›" (süs, ekran okuyucudan gizli). Üst çubuk avatarı gri degrade üstünde iki baş harf; ipucu koyu hap; pencerede çizgi yok, başlık ortalı; form etiketi 13/500 gri.
 - **Yazı:** Sistem yazı tipi (`-apple-system`, SF Pro); olmayan cihazda panelin yerel yazı tipi (dış bağlantı yok). Sayılarda eş genişlikte rakamlar.
 - **Yoğunluk:** Orta: tablo satırı ~48 px (avatarlı ~52 px), formlarda rahat boşluk.
 - **Logo ve ad:** Sol üstte logo simgesi (#ff3800) ve "Müşteri Takip"; şimdilik yer tutucu simge, firma logosu gelince değiştirilir.

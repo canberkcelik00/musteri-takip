@@ -14,7 +14,9 @@ use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\User;
 use App\Support\Avatar;
+use App\Support\AvatarProviders\InitialsAvatarProvider;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Livewire;
@@ -204,4 +206,70 @@ it('shows a phone and an e-mail icon beside the contact\'s number and address, b
         ->and($table->getColumn('email')->getIcon('x'))->toBe(Heroicon::OutlinedEnvelope)
         ->and($table->getColumn('phone')->record($contact)->getUrl())->toBe('tel:0532 000 00 00')
         ->and($table->getColumn('email')->record($contact)->getUrl())->toBe('mailto:ali@logi.com.tr');
+});
+
+it('centers a view used as an icon: the svg in its wrapper is a block filling it, so the WhatsApp glyph sits level with the buttons beside it (T-133)', function () {
+    $rules = implode("\n", designRuleBodies('.fi-icon > svg'));
+
+    expect($rules)->toContain('display: block')
+        ->and($rules)->toContain('width: 100%')
+        ->and($rules)->toContain('height: 100%')
+        ->and(view('filament.icons.whatsapp')->render())->toContain('width="100%"');
+});
+
+it('never opens the system\'s own list: every select is Filament\'s, and its list takes the menu look (T-133)', function () {
+    $select = Select::make('type');
+
+    expect($select->isNative())->toBeFalse();
+
+    $option = implode("\n", designRuleBodies('.fi-select-input .fi-select-input-option'));
+
+    expect($option)->toContain('border-radius: 8px')
+        ->and($option)->toContain('var(--mt-text)')
+        ->and(implode("\n", designRuleBodies('.fi-select-input .fi-select-input-btn')))->toContain('background-image: none');
+});
+
+it('gives the user menu a gray initials avatar drawn inline, with no avatar service', function () {
+    $user = User::factory()->create(['name' => 'Yasin Çelik']);
+
+    $uri = (new InitialsAvatarProvider)->get($user);
+    $svg = base64_decode(substr($uri, strlen('data:image/svg+xml;base64,')));
+
+    expect($uri)->toStartWith('data:image/svg+xml;base64,')
+        ->and($svg)->toContain('>YÇ</text>')
+        ->and($svg)->toContain(InitialsAvatarProvider::GRADIENT_TOP)
+        ->and($uri)->not->toContain('ui-avatars');
+
+    $this->get(Dashboard::getUrl())->assertOk()->assertDontSee('ui-avatars.com', false);
+
+    // White letters must read on the lighter end of the gradient (large, semibold text: 3:1).
+    expect(designContrast('#ffffff', InitialsAvatarProvider::GRADIENT_TOP))->toBeGreaterThanOrEqual(2.2);
+});
+
+it('draws the tabs as a segmented control, the clickable row\'s chevron as hidden decoration and the tooltip dark in both themes', function () {
+    $tabs = implode("\n", designRuleBodies('.fi-tabs:not(.fi-vertical)'));
+    $active = implode("\n", designRuleBodies('.fi-tabs .fi-tabs-item.fi-active'));
+    $chevron = implode("\n", designRuleBodies('.fi-ta-ctn .fi-ta-row.fi-clickable > td:last-child::after'));
+
+    expect($tabs)->toContain('var(--mt-field-bg)')
+        ->and($active)->toContain('var(--mt-segment-active-bg)')
+        ->and($chevron)->toContain("content: '›' / ''");
+
+    foreach (['light', 'dark'] as $theme) {
+        $tokens = designTokens($theme);
+
+        expect(designContrast($tokens['mt-text'], $tokens['mt-segment-active-bg']))->toBeGreaterThanOrEqual(4.5, "segment {$theme}")
+            ->and(designContrast($tokens['mt-tooltip-text'], $tokens['mt-tooltip-bg']))->toBeGreaterThanOrEqual(4.5, "tooltip {$theme}")
+            ->and(designContrast($tokens['mt-text-tertiary'], $tokens['mt-panel-bg']))->toBeGreaterThanOrEqual(3.0, "chevron {$theme}");
+    }
+});
+
+it('opens the search results from the field\'s left edge and highlights the row blue, with a soft focus halo on fields (T-133)', function () {
+    $panel = implode("\n", designRuleBodies('.fi-topbar .fi-global-search-results-ctn'));
+    $row = implode("\n", designRuleBodies('.fi-global-search-result:hover, .fi-global-search-result:focus-within'));
+
+    expect($panel)->toContain('inset-inline: 0 auto')
+        ->and(designThemeCss())->toContain('--mt-focus-ring')
+        ->and(designThemeCss())->toContain('.fi-global-search-result:hover')
+        ->and($row === '' || str_contains($row, 'var(--mt-primary)'))->toBeTrue();
 });

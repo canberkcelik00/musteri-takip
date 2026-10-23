@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Support\AvatarProviders\InitialsAvatarProvider;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -75,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => view('filament.panel.brand'))
             ->brandLogoHeight('1.75rem')
             ->sidebarWidth('17rem')
+            ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->viteTheme('resources/css/filament/panel/theme.css')
             ->defaultThemeMode(ThemeMode::Light)
             // Ctrl+K (⌘K on Mac) focuses the search box from any page (docs/UI.md §2 Kural

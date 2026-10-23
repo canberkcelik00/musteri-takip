@@ -5,6 +5,7 @@ namespace App\Providers;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables\Enums\FiltersLayout;
@@ -95,6 +96,10 @@ class AppServiceProvider extends ServiceProvider
             ->columns(1)
             ->defaultDateDisplayFormat(self::DATE_FORMAT)
             ->defaultDateTimeDisplayFormat(self::DATE_TIME_FORMAT));
+
+        // A native <select> opens the system's own list, which no stylesheet can reach (square corners, the OS blue, another
+        // typeface); Filament's own list takes the panel's menu look (T-133, docs/UI.md §6).
+        Select::configureUsing(fn (Select $select): Select => $select->native(false));
 
         DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker
             ->native(false)

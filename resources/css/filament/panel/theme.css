@@ -67,7 +67,13 @@
     --mt-row-hover: #f2f2f7;
     --mt-text: #1d1d1f;
     --mt-text-muted: #6c6c70;
+    --mt-text-tertiary: #8e8e93;
     --mt-scrim: rgba(0, 0, 0, 0.3);
+
+    --mt-segment-active-bg: #ffffff;
+    --mt-tooltip-bg: #3a3a3c;
+    --mt-tooltip-text: #ffffff;
+    --mt-ease: cubic-bezier(0.32, 0.72, 0, 1);
 
     --mt-primary: #0071e3;
     --mt-primary-hover: #0066cc;
@@ -137,6 +143,7 @@
     --mt-focus-width: 2px;
     --mt-focus-offset: 2px;
     --mt-focus-color: #0066cc;
+    --mt-focus-ring: rgba(0, 113, 227, 0.32);
 }
 
 :root.dark {
@@ -161,7 +168,12 @@
     --mt-row-hover: #2c2c2e;
     --mt-text: #f5f5f7;
     --mt-text-muted: #98989d;
+    --mt-text-tertiary: #8e8e93;
     --mt-scrim: rgba(0, 0, 0, 0.55);
+
+    --mt-segment-active-bg: #636366;
+    --mt-tooltip-bg: #48484a;
+    --mt-tooltip-text: #ffffff;
 
     --mt-primary: #0a72e0;
     --mt-primary-hover: #0a62c2;
@@ -189,6 +201,7 @@
     --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.7);
 
     --mt-focus-color: #409cff;
+    --mt-focus-ring: rgba(64, 156, 255, 0.42);
 }
 
 /*
@@ -1369,8 +1382,20 @@ body {
 }
 
 .fi-icon-btn.fi-whatsapp-action .fi-icon {
+    display: block;
     width: 20px;
     height: 20px;
+}
+
+/*
+ * A view used as an icon (the WhatsApp glyph) is wrapped by Filament in a `span.fi-icon`; its inline
+ * <svg> sat on the text baseline and rode above the buttons beside it. A block filling the wrapper
+ * centers like every Heroicon.
+ */
+.fi-icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 /* Links in a panel's header ("Tüm borçlar", "Düzenle"): in the interactive color, underlined on hover. */
@@ -2136,4 +2161,358 @@ input[type='checkbox'].fi-checkbox-input {
 
 ::selection {
     background-color: var(--mt-field-bg);
+}
+
+/*
+ * The select box (T-133): the closed field is a filled, borderless field like the others with the
+ * iOS up-down chevron; the open list is the same soft sheet as every menu, 32 px rows with rounded
+ * corners, the highlighted row blue with white text, the chosen one in the link color. The list is
+ * Filament's own (the selects are never native, AppServiceProvider), so it takes these rules; a
+ * native <select> list is drawn by the system and cannot be styled.
+ */
+.fi-select-input .fi-select-input-btn {
+    min-height: 36px;
+    background-image: none;
+    font-size: var(--mt-text-body);
+    color: var(--mt-text);
+}
+
+.fi-select-input .fi-select-input-ctn::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 10px;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    background-color: var(--mt-text-muted);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 6.5 8 3.5l3 3M5 9.5l3 3 3-3'/%3E%3C/svg%3E");
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+}
+
+.fi-select-input .fi-select-input-placeholder {
+    color: var(--mt-text-muted);
+}
+
+.fi-select-input .fi-dropdown-panel {
+    padding: 6px;
+    border: 0;
+    --tw-ring-color: transparent;
+}
+
+.fi-select-input .fi-select-input-options-ctn {
+    gap: 2px;
+}
+
+.fi-select-input .fi-select-input-options-ctn > * {
+    border-color: transparent;
+}
+
+.fi-select-input .fi-select-input-option {
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: var(--mt-text-body);
+    color: var(--mt-text);
+}
+
+.fi-select-input .fi-select-input-option.fi-selected {
+    font-weight: 600;
+    color: var(--mt-link);
+}
+
+.fi-select-input .fi-select-input-search-ctn {
+    padding: 4px 4px 6px;
+    background-color: var(--mt-panel-bg);
+}
+
+.fi-select-input .fi-select-input-search-ctn .fi-input {
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-field-bg);
+}
+
+.fi-select-input .fi-select-input-message {
+    color: var(--mt-text-muted);
+}
+
+/*
+ * Segmented control (tabs, T-133): a gray capsule with the chosen tab as a raised light segment,
+ * as in iOS; no blue text and no underline.
+ */
+.fi-tabs:not(.fi-vertical) {
+    gap: 2px;
+    padding: 2px;
+    border-radius: var(--mt-radius);
+    background-color: var(--mt-field-bg);
+    box-shadow: none;
+    --tw-ring-color: transparent;
+    border: 0;
+}
+
+.fi-tabs.fi-contained {
+    margin: var(--mt-space-panel-head-y) var(--mt-space-panel-head-x) 0;
+}
+
+.fi-tabs .fi-tabs-item {
+    border-radius: 8px;
+    font-size: var(--mt-text-help);
+    font-weight: 600;
+    background-color: transparent;
+}
+
+.fi-tabs .fi-tabs-item .fi-tabs-item-label,
+.fi-tabs .fi-tabs-item > .fi-icon {
+    color: var(--mt-text-muted);
+}
+
+.fi-tabs .fi-tabs-item.fi-active {
+    background-color: var(--mt-segment-active-bg);
+    box-shadow: var(--mt-shadow-card);
+}
+
+.fi-tabs .fi-tabs-item.fi-active .fi-tabs-item-label,
+.fi-tabs .fi-tabs-item.fi-active > .fi-icon {
+    color: var(--mt-text);
+}
+
+.fi-tabs .fi-tabs-item:not(.fi-active):hover {
+    background-color: transparent;
+}
+
+.fi-tabs .fi-tabs-item:focus-visible {
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: calc(-1 * var(--mt-focus-width));
+}
+
+/* A clickable row ends in the iOS disclosure chevron; decorative, so it carries no text for a screen reader. */
+.fi-ta-ctn .fi-ta-row.fi-clickable > td:last-child {
+    position: relative;
+    padding-inline-end: 28px;
+}
+
+.fi-ta-ctn .fi-ta-row.fi-clickable > td:last-child::after {
+    content: '›';
+    content: '›' / '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 12px;
+    transform: translateY(-50%);
+    font-size: 22px;
+    line-height: 1;
+    color: var(--mt-text-tertiary);
+}
+
+/* Empty list: a large quiet glyph instead of a tinted disc. */
+.fi-ta-ctn .fi-ta-empty-state-icon-bg {
+    background-color: transparent;
+}
+
+.fi-ta-ctn .fi-ta-empty-state-icon-bg .fi-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--mt-text-tertiary);
+}
+
+/* Breadcrumbs: small blue links, the current page in the muted color. */
+.fi-breadcrumbs ol li {
+    font-size: var(--mt-text-help);
+    font-weight: 500;
+    color: var(--mt-text-muted);
+}
+
+.fi-breadcrumbs ol li a {
+    color: var(--mt-link);
+}
+
+.fi-breadcrumbs ol li .fi-icon {
+    color: var(--mt-text-tertiary);
+}
+
+/* Windows are sheets: no rules between header, body and footer; the title is centered. */
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-header,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-header,
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal > .fi-modal-footer,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-footer {
+    border-color: transparent;
+}
+
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal .fi-modal-heading,
+.fi-ta-filters-modal > .fi-modal-window-ctn > .fi-modal-window .fi-modal-heading {
+    font-weight: 600;
+    text-align: center;
+}
+
+.fi-modal-close-btn {
+    background-color: var(--mt-field-bg);
+}
+
+/* Windows and menus move with transform and opacity only, on the iOS curve; nothing for a reduced-motion setting. */
+.fi-modal-window.fi-transition-enter-active,
+.fi-modal-window.fi-transition-leave-active,
+.fi-dropdown-panel.fi-transition-enter-active,
+.fi-dropdown-panel.fi-transition-leave-active {
+    transition-timing-function: var(--mt-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* Tooltips: a dark rounded pill, 12 px, in both themes. */
+.tippy-box:not([data-theme~='light']) {
+    --tippy-background-color: var(--mt-tooltip-bg);
+    border-radius: 8px;
+    font-size: var(--mt-text-help-small);
+    font-weight: 500;
+    color: var(--mt-tooltip-text);
+}
+
+/* Date picker: the chosen day a blue disc, today in the link color, weekday heads small and quiet. */
+.fi-fo-date-time-picker-panel {
+    border-radius: var(--mt-radius-menu);
+    background-color: var(--mt-panel-bg);
+    box-shadow: var(--mt-shadow-menu);
+}
+
+.fi-fo-date-time-picker-calendar-day.fi-selected {
+    background-color: var(--mt-primary);
+    color: var(--mt-on-primary);
+}
+
+.fi-fo-date-time-picker-calendar-day.fi-focused:not(.fi-selected):not(.fi-disabled) {
+    background-color: var(--mt-field-bg);
+}
+
+.fi-fo-date-time-picker-calendar-header-day {
+    font-size: var(--mt-text-help-small);
+    color: var(--mt-text-muted);
+}
+
+/* Labels of the form fields: small and quiet, as in iOS; the required mark is not red until a value is missing. */
+.fi-fo-field-label-content {
+    font-size: var(--mt-text-help);
+    font-weight: 500;
+    color: var(--mt-text-muted);
+}
+
+.fi-fo-field-label-content .fi-fo-field-label-required-mark {
+    color: var(--mt-text-muted);
+}
+
+/*
+ * Focus on a field (T-133): a 1 px blue edge and a soft 3 px halo, as in macOS and iOS; the edge
+ * alone carries the 3:1 contrast, the halo is decoration.
+ */
+.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within,
+.fi-global-search-field .fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within,
+.fi-ta-ctn .fi-ta-search-field .fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+    border-color: var(--mt-focus-color);
+    outline: 3px solid var(--mt-focus-ring);
+    outline-offset: 0;
+}
+
+.fi-input-wrp.fi-invalid:not(.fi-disabled):focus-within {
+    outline-color: var(--mt-danger-border);
+}
+
+/*
+ * Search results: the panel opens under the field from its left edge (Filament anchors it to the
+ * right edge, which in a left-hand search box pushed it under the sidebar), as wide as the field or
+ * 26 rem. A group head is a small quiet label, the rows are separated by inset hairlines, and the
+ * row under the pointer or the keyboard is the same blue as every menu.
+ */
+.fi-topbar .fi-global-search-results-ctn {
+    inset-inline: 0 auto;
+    width: max(100%, 26rem);
+    max-width: calc(100vw - 2 * var(--mt-space-page-x));
+    padding: 6px;
+}
+
+@media not all and (min-width: 40rem) {
+    .fi-topbar .fi-global-search-results-ctn {
+        inset-inline: 16px;
+        width: auto;
+        max-width: none;
+    }
+}
+
+.fi-global-search-results,
+.fi-global-search-result-group-results {
+    --tw-divide-y-reverse: 0;
+    border-color: transparent;
+}
+
+.fi-global-search-results > *,
+.fi-global-search-result-group-results > * {
+    border-color: transparent;
+}
+
+.fi-global-search-result-group-header {
+    border-color: transparent;
+    background-color: var(--mt-panel-bg);
+    padding: 8px 10px 4px;
+    font-size: var(--mt-text-help);
+    font-weight: 600;
+    text-transform: none;
+    color: var(--mt-text-muted);
+}
+
+.fi-global-search-result {
+    border-radius: 8px;
+}
+
+.fi-global-search-result-link {
+    padding: 8px 10px;
+}
+
+.fi-global-search-result-heading {
+    font-size: var(--mt-text-body);
+    font-weight: 600;
+    color: var(--mt-text);
+}
+
+.fi-global-search-result-detail {
+    font-size: var(--mt-text-help);
+    color: var(--mt-text-muted);
+}
+
+.fi-global-search-result-detail-label {
+    font-weight: 500;
+}
+
+.fi-global-search-result-actions {
+    padding: 0 10px 8px;
+}
+
+.fi-global-search-result:hover,
+.fi-global-search-result:focus-within {
+    background-color: var(--mt-primary);
+
+    & .fi-global-search-result-heading,
+    & .fi-global-search-result-detail,
+    & .fi-link {
+        color: var(--mt-on-primary);
+    }
+}
+
+/* A link or an icon being pressed fades a little, as on iOS, instead of underlining. */
+.fi-link.fi-color-primary:hover,
+.fi-ta-header .fi-link:hover,
+.fi-section-header .fi-link:hover {
+    text-decoration: none;
+    opacity: 0.7;
+}
+
+.fi-link:active,
+.fi-icon-btn:active,
+.fi-btn:active {
+    opacity: 0.7;
 }
