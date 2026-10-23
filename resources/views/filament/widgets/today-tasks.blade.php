@@ -63,6 +63,7 @@
                                         </td>
                                         <td class="fi-ta-cell fi-money">{{ $row['amount'] }}</td>
                                         <td class="fi-ta-cell fi-today-actions">
+<div class="fi-today-actions-row">
                                             @if ($row['type'] === 'server_quota')
                                                 <x-filament::link :href="$serversUrl" color="gray">{{ __('today.go_to_server') }}</x-filament::link>
                                             @elseif ($row['type'] === 'charge')
@@ -76,7 +77,8 @@
                                                 {{ ($this->confirmFreeContinuationAction())(['customerService' => $row['service']->id]) }}
                                                 {{ ($this->removeFreeAction())(['customerService' => $row['service']->id]) }}
                                             @endif
-                                        </td>
+                                        </div>
+</td>
                                     </tr>
                                 @endforeach
                             </tbody>

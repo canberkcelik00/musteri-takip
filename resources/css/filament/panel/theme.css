@@ -1189,8 +1189,16 @@ body {
     text-align: end;
 }
 
-.fi-today-tasks .fi-today-actions > * {
-    margin: 2px 0 2px 8px;
+.fi-today-tasks .fi-today-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px 8px;
+}
+
+.fi-today-tasks .fi-today-actions-row > * {
+    margin: 0;
 }
 
 /*
@@ -1200,6 +1208,10 @@ body {
 @media (min-width: 80rem) {
     .fi-today-tasks .fi-today-actions {
         white-space: nowrap;
+    }
+
+    .fi-today-tasks .fi-today-actions-row {
+        flex-wrap: nowrap;
     }
 }
 
@@ -2515,4 +2527,22 @@ input[type='checkbox'].fi-checkbox-input {
 .fi-icon-btn:active,
 .fi-btn:active {
     opacity: 0.7;
+}
+
+/*
+ * Row buttons sit on one center line (T-133): the pills and the round icon buttons ("Ödeme al" next
+ * to WhatsApp) share a centered flex row in the tables and on Bugün. Filament pulls an icon button
+ * 8 px out with a negative margin to line its 36 px target up with text; in a row with pills that
+ * margin and a baseline-aligned inline box put the icon above the pill, so the margin goes and the
+ * gap spaces the buttons instead.
+ */
+.fi-ta-actions,
+.fi-today-actions-row {
+    align-items: center;
+}
+
+.fi-ta-actions > .fi-icon-btn,
+.fi-today-actions-row > .fi-icon-btn {
+    margin: 0;
+    align-self: center;
 }

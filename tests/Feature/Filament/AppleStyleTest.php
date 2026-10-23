@@ -273,3 +273,19 @@ it('opens the search results from the field\'s left edge and highlights the row 
         ->and(designThemeCss())->toContain('.fi-global-search-result:hover')
         ->and($row === '' || str_contains($row, 'var(--mt-primary)'))->toBeTrue();
 });
+
+it('puts the buttons of a row on one center line: no negative margin on the icon button, a flex row on Bugün (T-133)', function () {
+    $icon = implode("\n", designRuleBodies('.fi-ta-actions > .fi-icon-btn'));
+    $row = implode("\n", designRuleBodies('.fi-today-tasks .fi-today-actions-row'));
+
+    expect($icon)->toContain('margin: 0')
+        ->and($icon)->toContain('align-self: center')
+        ->and($row)->toContain('display: flex')
+        ->and($row)->toContain('align-items: center');
+
+    $html = Livewire::test(TodayTasks::class)->html();
+    $customer = Customer::factory()->create();
+    Charge::factory()->for($customer)->create(['due_date' => today()->subDays(3)]);
+
+    expect(Livewire::test(TodayTasks::class)->html())->toContain('class="fi-today-actions-row"');
+});
