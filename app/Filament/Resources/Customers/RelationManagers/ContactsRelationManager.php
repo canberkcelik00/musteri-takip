@@ -107,10 +107,14 @@ class ContactsRelationManager extends RelationManager
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->title)),
                     TextColumn::make('phone')
                         ->label(__('contacts.phone'))
+                        ->icon(Heroicon::OutlinedPhone)
+                        ->iconColor('primary')
                         ->url(fn (Contact $record): ?string => filled($record->phone) ? "tel:{$record->phone}" : null)
                         ->visible(fn (?Contact $record): bool => $record === null || filled($record->phone)),
                     TextColumn::make('email')
                         ->label(__('contacts.email'))
+                        ->icon(Heroicon::OutlinedEnvelope)
+                        ->iconColor('primary')
                         ->wrap()
                         ->extraAttributes(['class' => self::WRAP_ANYWHERE])
                         ->url(fn (Contact $record): ?string => filled($record->email) ? "mailto:{$record->email}" : null)

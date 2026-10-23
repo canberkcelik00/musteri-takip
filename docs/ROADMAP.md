@@ -207,6 +207,29 @@ Hedef: Faz 4'te oturan yerleşim ve akışlar aynen kalırken panelin görünüm
 
 **Faz 4B bittiğinde:** Panel aynı akışlarla, tutarlı ve bilinçli seçilmiş bir görsel dille çalışıyor; stil değerleri tek yerde ve belgelenmiş.
 
+## Faz 4C – Apple tarzı tasarım
+
+Hedef: Panelin görünümünü Faz 4B'nin lacivert çerçevesinden Apple tarzına taşımak (kullanıcı kararı, T-130). Faz 4B'deki "yalnızca stil" ilkesi burada yalnız şu yerleşim eklemeleri için gevşer: simge işlemleri (WhatsApp, ara, e-posta, siteyi aç, kopyala), müşteri avatarları, dar ekranda alt sekme çubuğu. Sütunlar, metinler, düğme yerleri, iş kuralları, Action'lar ve süzgeç davranışı değişmez. Referans: `docs/design/apple/referans.html`.
+
+- [x] **G-4C.1 Kararlar ve belgeler** — Bağımlılık: G-4B.6
+  - Yapılacak: UI.md §2 Kural 5, §3 (dar ekran), §6 (Apple paleti, menü kareleri, simge işlemleri, avatar, ölçüler) yazılır; referans sayfa repoya alınır; DECISIONS'a T-130.
+  - Kabul: Belgeler birbiriyle çelişmiyor; kod değişmez.
+- [x] **G-4C.2 Tokenlar** — Bağımlılık: G-4C.1
+  - Yapılacak: `theme.css` token bloğu, `AdminPanelProvider` skalaları ve `DesignTokensTest` yeni değerlere.
+  - Kabul: Metin çiftleri iki temada ≥ 4,5:1; sabit renk yalnız token bloğunda; tema derleniyor.
+- [x] **G-4C.3 Çerçeve: menü, üst çubuk, başlık, alt sekme çubuğu** — Bağımlılık: G-4C.2
+  - Kabul: Menü kareleri her öğede; `lg` altında alt sekme çubuğu her sayfada; testler yeşil.
+- [x] **G-4C.4 Tablolar, rozetler, süzgeç çipleri** — Bağımlılık: G-4C.2
+- [x] **G-4C.5 Kartlar, düğmeler, form penceresi** — Bağımlılık: G-4C.2
+- [x] **G-4C.6 Simge işlemleri** — Bağımlılık: G-4C.2
+  - Kabul: WhatsApp, ara, e-posta, siteyi aç, kopyala simgeli, ipuculu ve erişilebilir adlı; davranış aynı.
+- [x] **G-4C.7 Müşteri avatarları** — Bağımlılık: G-4C.2
+- [ ] **G-4C.8 Koyu tema ve son kontrol** — Bağımlılık: G-4C.3, G-4C.4, G-4C.5, G-4C.6, G-4C.7
+  - Kabul: Altı ekran açık ve koyu temada 375–1440 px'te yatay kayma olmadan; tam paket yeşil.
+  - Durum: otomatik denetimler yapıldı (kontrast, token, sekme çubuğu, avatar, simge testleri; tam paket). Açık kalan: gerçek tarayıcıda altı ekranın açık ve koyu temada 375–1440 px'te gözle kontrolü ve `docs/design/ekranlar/` görüntülerinin yenilenmesi; bu oturumda tarayıcı aracı yoktu, kullanıcı bakıp onaylayınca kutu işaretlenir.
+
+**Faz 4C bittiğinde:** Panel Apple tarzında, aynı akışlarla çalışıyor; stil değerleri tek yerde ve belgelenmiş.
+
 ## Faz 5 – Yayına alma, panel ve MVP kapanışı
 
 Hedef: Sistemin hostingde çalışması, kullanıcıya ne yapması gerektiğini kendiliğinden söylemesi ve güvenle canlıya alınması. Yayına alma fazın başında kurulur ki panel ve özet e-postası canlıda denenebilsin.

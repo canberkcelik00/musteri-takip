@@ -1,14 +1,18 @@
 <header class="fi-header fi-customer-header">
     <div class="fi-customer-header-title">
-        @if ($breadcrumbs)
-            <x-filament::breadcrumbs :breadcrumbs="$breadcrumbs" />
-        @endif
+        @include('filament.support.avatar', ['name' => $customer->short_name, 'id' => $customer->id])
 
-        <h1 class="fi-header-heading">{{ $title }}</h1>
+        <div class="fi-customer-header-text">
+            @if ($breadcrumbs)
+                <x-filament::breadcrumbs :breadcrumbs="$breadcrumbs" />
+            @endif
 
-        @if (filled($subheading))
-            <p class="fi-header-subheading">{{ $subheading }}</p>
-        @endif
+            <h1 class="fi-header-heading">{{ $title }}</h1>
+
+            @if (filled($subheading))
+                <p class="fi-header-subheading">{{ $subheading }}</p>
+            @endif
+        </div>
     </div>
 
     <dl class="fi-customer-header-amounts">

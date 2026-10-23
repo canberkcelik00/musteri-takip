@@ -33,10 +33,15 @@
                                             @if ($row['type'] === 'server_quota')
                                                 <a href="{{ $serversUrl }}" class="fi-today-customer">{{ __('usage.server_owner', ['name' => $row['server_name']]) }}</a>
                                             @else
-                                                <a href="{{ $this->customerUrl($row['customer']) }}" class="fi-today-customer">{{ $row['customer']->short_name }}</a>
-                                                @if (filled($row['customer']->legal_title))
-                                                    <p class="fi-today-customer-title">{{ $row['customer']->legal_title }}</p>
-                                                @endif
+                                                <div class="fi-today-who">
+                                                    @include('filament.support.avatar', ['name' => $row['customer']->short_name, 'id' => $row['customer']->id])
+                                                    <div class="fi-today-who-text">
+                                                        <a href="{{ $this->customerUrl($row['customer']) }}" class="fi-today-customer">{{ $row['customer']->short_name }}</a>
+                                                        @if (filled($row['customer']->legal_title))
+                                                            <p class="fi-today-customer-title">{{ $row['customer']->legal_title }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             @endif
                                             {{-- Below `md` the "Durum" column is hidden; the state moves under the name. --}}
                                             <div class="fi-mobile-badge">

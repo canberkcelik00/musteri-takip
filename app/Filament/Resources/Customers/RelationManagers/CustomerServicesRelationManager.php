@@ -179,12 +179,11 @@ class CustomerServicesRelationManager extends RelationManager
      */
     private function nameDescription(CustomerService $record): ?Htmlable
     {
-        $domains = implode(', ', $record->domains());
+        $domains = $record->domains();
         $others = count($record->otherDomains());
-
-        if ($domains !== '' && $others > 0) {
-            $domains .= ' +'.__('customer_services.more_domains', ['count' => $others]);
-        }
+        $moreDomains = $domains !== [] && $others > 0
+            ? ' +'.__('customer_services.more_domains', ['count' => $others])
+            : '';
 
         $badge = match (true) {
             $record->status === CustomerServiceStatus::Cancelled => MobileStatusBadge::html($record->status->getLabel(), 'gray', self::BADGE_BELOW_XL),
@@ -194,11 +193,11 @@ class CustomerServicesRelationManager extends RelationManager
 
         $usageBadge = $this->usageBadge($record);
 
-        if ($domains === '' && $badge === null && $usageBadge === null) {
+        if ($domains === [] && $badge === null && $usageBadge === null) {
             return null;
         }
 
-        $html = e($domains);
+        $html = view('filament.support.domain-links', ['domains' => $domains])->render().e($moreDomains);
 
         if ($badge !== null) {
             $html .= $badge->toHtml();

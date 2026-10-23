@@ -171,7 +171,7 @@ it('takes the panel colors, loads nothing from outside and keeps badges on one l
 
     $html = digestMailFor()->render();
 
-    expect($html)->toContain('background-color: #1d3a6a')
+    expect($html)->toContain('background-color: #0066cc')
         ->and($html)->toContain('width="600"')
         ->and($html)->toContain('white-space: nowrap')
         ->and($html)->toContain('prefers-color-scheme: dark')
@@ -212,7 +212,7 @@ it('writes the remaining amount note in the muted text color, not the link color
 
     $html = digestMailFor()->render();
 
-    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #566173;[^>]*>\s*Kalan 1\.500 TL/')
+    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #6e6e73;[^>]*>\s*Kalan 1\.500 TL/')
         ->and($html)->toContain('.dg-note')
-        ->and($html)->toContain('color: #9aa5b5 !important');
+        ->and($html)->toContain('color: #ababb0 !important');
 });

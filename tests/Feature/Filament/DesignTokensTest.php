@@ -5,7 +5,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 
 /*
- * Design tokens (G-4B.2, docs/UI.md §6): every text/background pair reaches WCAG AA (4.5:1) in
+ * Design tokens (G-4B.2, restyled in G-4C.2, docs/UI.md §6): every text/background pair reaches WCAG AA (4.5:1) in
  * both themes, literal colors live only in the token block of the theme CSS, and Filament gets
  * the fixed primary and gray scales.
  */
@@ -23,7 +23,8 @@ dataset('text pairs', [
     'seçili menü metni / seçili zemin' => ['mt-sidebar-active-text', 'mt-sidebar-active-bg'],
     'düğme metni / primary' => ['mt-on-primary', 'mt-primary'],
     'düğme metni / primary hover' => ['mt-on-primary', 'mt-primary-hover'],
-    'primary bağlantı / panel' => ['mt-primary', 'mt-panel-bg'],
+    'bağlantı / panel' => ['mt-link', 'mt-panel-bg'],
+    'bağlantı / sayfa' => ['mt-link', 'mt-page-bg'],
     'tehlikeli düğme metni / zemin' => ['mt-danger-text', 'mt-danger-bg'],
     'kırmızı rozet' => ['mt-badge-red-text', 'mt-badge-red-bg'],
     'amber rozet' => ['mt-badge-amber-text', 'mt-badge-amber-bg'],
@@ -46,6 +47,7 @@ it('keeps text contrast at least 4.5:1', function (string $theme, string $foregr
 dataset('focus pairs', [
     'menü odak halkası / menü' => ['mt-sidebar-focus', 'mt-sidebar-bg'],
     'arama kutusu odak halkası / panel' => ['mt-focus-color', 'mt-panel-bg'],
+    'WhatsApp simgesi / panel' => ['mt-whatsapp', 'mt-panel-bg'],
 ]);
 
 it('keeps focus rings at least 3:1 against what they sit on', function (string $theme, string $ring, string $background) {
@@ -101,8 +103,8 @@ it('keeps the token table anchors in the scales', function () {
 
     expect(strtolower(AdminPanelProvider::PRIMARY_SCALE[600]))->toBe($light['mt-primary'])
         ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[700]))->toBe($light['mt-primary-hover'])
-        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[400]))->toBe($dark['mt-primary'])
-        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[300]))->toBe($dark['mt-primary-hover'])
+        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[600]))->toBe($light['mt-link'])
+        ->and(strtolower(AdminPanelProvider::PRIMARY_SCALE[400]))->toBe($dark['mt-link'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[50]))->toBe($light['mt-table-head-bg'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[100]))->toBe($light['mt-row-divider'])
         ->and(strtolower(AdminPanelProvider::GRAY_SCALE[200]))->toBe($light['mt-border'])

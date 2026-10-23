@@ -10,6 +10,7 @@ use App\Filament\Resources\Customers\CustomerResource;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Filament\Tables\Filters\ArchivedFilter;
 use App\Models\Customer;
+use App\Support\Avatar;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -43,6 +44,7 @@ class CustomersTable
                     ->label(__('customers.short_name'))
                     ->weight(FontWeight::Bold)
                     ->wrap()
+                    ->extraAttributes(fn (Customer $record): array => Avatar::cellAttributes($record->short_name, $record->id))
                     ->description(fn (Customer $record): ?string => $record->legal_title)
                     ->searchable()
                     ->sortable(),

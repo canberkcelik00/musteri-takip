@@ -139,8 +139,40 @@ it("shows a service's unique domain values as a faded line under its name, on th
     $customer = Customer::factory()->create();
     $service = withDomainItems(CustomerService::factory()->for($customer)->create(), ['logi.com.tr', 'logi.com.tr', 'mail.logi.com.tr']);
 
-    Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->assertTableColumnHasDescription('name', 'logi.com.tr, mail.logi.com.tr', $service);
+    $html = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable()->getColumn('name')
+        ->record($service)->getDescriptionBelow()->toHtml();
+
+    // The text is the same list as before (G-4C.6 only adds icon controls beside each domain).
+    expect(trim((string) preg_replace('/\s+/', ' ', strip_tags($html))))->toBe('logi.com.tr , mail.logi.com.tr');
+});
+
+it('gives each service domain an "open the site" and a "copy" icon, as spans so the name button is not nested (G-4C.6)', function () {
+    $customer = Customer::factory()->create();
+    $service = withDomainItems(CustomerService::factory()->for($customer)->create(), ['logi.com.tr', 'mail.logi.com.tr']);
+
+    $html = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable()->getColumn('name')
+        ->record($service)->getDescriptionBelow()->toHtml();
+
+    expect(substr_count($html, 'aria-label="Siteyi aç"'))->toBe(2)
+        ->and(substr_count($html, 'aria-label="Alan adını kopyala"'))->toBe(2)
+        ->and($html)->toContain('https:\/\/logi.com.tr')
+        ->and($html)->toContain('noopener,noreferrer')
+        ->and($html)->not->toContain('<button')
+        ->and($html)->not->toContain('<a ');
+});
+
+it('gives a domain that is not a plain host name a copy icon but no "open" link (G-4C.6)', function () {
+    $customer = Customer::factory()->create();
+    $service = withDomainItems(CustomerService::factory()->for($customer)->create(), ['not a host name']);
+
+    $html = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable()->getColumn('name')
+        ->record($service)->getDescriptionBelow()->toHtml();
+
+    expect($html)->not->toContain('Siteyi aç')
+        ->and($html)->toContain('Alan adını kopyala');
 });
 
 it("shows a cancelled service's domains the same way, on the collapsed section's table", function () {
@@ -525,7 +557,7 @@ it('keeps only "Ödeme al" and "WhatsApp" as row buttons on the card\'s charges;
 
     expect(array_keys($table->getFlatRecordActions()))->toBe(['recordPayment', 'whatsAppReminder'])
         ->and($table->getAction('recordPayment')->getExtraAttributes())->toBe([])
-        ->and($table->getAction('whatsAppReminder')->getExtraAttributes())->toBe(['class' => 'fi-hidden-below-md'])
+        ->and($table->getAction('whatsAppReminder')->getExtraAttributes())->toBe(['class' => 'fi-hidden-below-md fi-whatsapp-action'])
         ->and($table->getColumn('description')->getAction()->getName())->toBe('editCharge');
 
     $cancelOnMobile = [

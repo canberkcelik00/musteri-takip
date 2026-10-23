@@ -78,6 +78,8 @@ return [
     'free_action_not_applied' => 'Hizmet artık ücretsiz ya da aktif değil, işlem yapılmadı.',
     'actions_section' => 'Hizmet işlemleri',
     'more_domains' => ':count alan adı',
+    'open_site' => 'Siteyi aç',
+    'copy_domain' => 'Alan adını kopyala',
     'empty_heading' => 'Henüz hizmet yok',
     'empty_description' => 'Bu müşteriye hosting, alan adı gibi bir hizmet ekleyin; borçlar kendiliğinden oluşur.',
 ];

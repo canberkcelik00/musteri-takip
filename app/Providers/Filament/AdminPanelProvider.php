@@ -24,22 +24,23 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class AdminPanelProvider extends PanelProvider
 {
     /**
-     * Navy primary scale (docs/UI.md §6): 600 is the button, 700 its hover, 400 the dark-mode primary.
+     * Apple blue primary scale (docs/UI.md §6): 600 is the button and link blue, 700 its hover,
+     * 400 the dark-mode link.
      *
      * @var array<int, string>
      */
     public const PRIMARY_SCALE = [
-        50 => '#F1F5FB',
-        100 => '#E1E9F6',
-        200 => '#C6D5EE',
-        300 => '#9DB6E2',
-        400 => '#6F93D6',
-        500 => '#3F68B0',
-        600 => '#1D3A6A',
-        700 => '#152C52',
-        800 => '#10233F',
-        900 => '#0C1A30',
-        950 => '#08111F',
+        50 => '#F0F7FF',
+        100 => '#DCEBFC',
+        200 => '#B9D8FA',
+        300 => '#8BBDF5',
+        400 => '#5AA9FF',
+        500 => '#2B86EA',
+        600 => '#0066CC',
+        700 => '#0057AD',
+        800 => '#0A4A91',
+        900 => '#0B3B73',
+        950 => '#082B55',
     ];
 
     /**
@@ -49,17 +50,17 @@ class AdminPanelProvider extends PanelProvider
      * @var array<int, string>
      */
     public const GRAY_SCALE = [
-        50 => '#F8F9FB',
-        100 => '#EEF0F3',
-        200 => '#E0E4EA',
-        300 => '#C3CCD9',
-        400 => '#8B94A1',
-        500 => '#6B7585',
-        600 => '#566173',
-        700 => '#3B4657',
-        800 => '#253142',
-        900 => '#151E2B',
-        950 => '#0E1520',
+        50 => '#FAFAFC',
+        100 => '#ECECF0',
+        200 => '#E5E5EA',
+        300 => '#C7C7CC',
+        400 => '#A1A1A6',
+        500 => '#8E8E93',
+        600 => '#6E6E73',
+        700 => '#48484A',
+        800 => '#3A3A3C',
+        900 => '#2C2C2E',
+        950 => '#1C1C1E',
     ];
 
     public function panel(Panel $panel): Panel
@@ -89,6 +90,11 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_END,
                 fn (): string => view('filament.panel.search-close')->render(),
+            )
+            // The bottom tab bar of narrow screens (G-4C.3); only for a signed-in user, so not on the login page.
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => auth()->check() ? view('filament.panel.tab-bar')->render() : '',
             )
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,

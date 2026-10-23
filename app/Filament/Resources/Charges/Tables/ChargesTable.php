@@ -11,6 +11,7 @@ use App\Filament\Support\ChargeStatusBadge;
 use App\Filament\Tables\Columns\MoneyColumn;
 use App\Models\Charge;
 use App\Providers\AppServiceProvider;
+use App\Support\Avatar;
 use App\Support\Money;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
@@ -48,6 +49,7 @@ class ChargesTable
                     ->label(__('charges.customer'))
                     ->weight(FontWeight::Bold)
                     ->wrap()
+                    ->extraAttributes(fn (Charge $record): array => Avatar::cellAttributes($record->customer->short_name, $record->customer_id))
                     ->description(fn (Charge $record): Htmlable => self::linesBelowCustomer($record))
                     ->searchable()
                     ->url(fn (Charge $record): string => CustomerResource::getUrl('view', ['record' => $record->customer_id])),

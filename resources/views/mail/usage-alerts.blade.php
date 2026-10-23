@@ -9,7 +9,7 @@
 <tr>
 <td class="dg-td">@if ($alert->isServer())<a href="{{ \App\Filament\Resources\Servers\ServerResource::getUrl('index', panel: 'panel') }}">{{ __('usage.server_owner', ['name' => $alert->serverName]) }}</a>@else @foreach ($alert->owners as $owner)<a href="{{ $customerUrl($owner['customer_id']) }}">{{ $owner['short_name'] }}</a>@if (! $loop->last), @endif @endforeach @endif</td>
 <td class="dg-td">{{ $alert->subject }}</td>
-<td class="dg-td dg-num">{{ $alert->usageText() }}<span class="dg-note" style="color: #566173;">%{{ $alert->percent() }}</span></td>
+<td class="dg-td dg-num">{{ $alert->usageText() }}<span class="dg-note" style="color: #6e6e73;">%{{ $alert->percent() }}</span></td>
 <td class="dg-td dg-nowrap">@include('mail.digest.badge', ['color' => $alert->level->getColor(), 'label' => $alert->level->getLabel()])</td>
 </tr>
 @endforeach

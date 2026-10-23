@@ -29,7 +29,7 @@ Araştırmadan (başta Nielsen Norman Group'un uygulama tasarımı bulguları) b
 2. **Varsayılanlar dolu gelir:** Her formda en olası değer hazır gelir (tarih bugün, para birimi açık borçtan, yöntem son kullanılan). Kullanıcı yalnızca farklı olanı yazar.
 3. **Sistem durumu görünür:** Her işlemden sonra ne olduğu tek cümleyle söylenir ("1.900 TL borç kapatıldı, 600 TL alacak bakiyesine eklendi"). Bekleme 2 saniyeyi aşarsa yükleme göstergesi çıkar.
 4. **Hata mesajı neden ve nasıl söyler:** "Bir hata oluştu" yasak. Her mesaj sorunu ve çözümü söyler ("Önce müşterinin hizmetlerini iptal edin.").
-5. **Etiketsiz simge yok:** Her düğmede metin vardır; simge yalnızca metnin yanında yardımcıdır.
+5. **Etiketsiz simge yalnız tanınır iletişim işlemlerinde (T-130):** Her düğmede metin vardır; tek istisna WhatsApp, ara (telefon), e-posta, siteyi aç ve kopyala düğmeleridir: bunlar yalnız simgedir, ama her birinin Türkçe ipucu ve erişilebilir adı vardır. Başka hiçbir düğme simgeyle tek başına durmaz; simge diğerlerinde metnin yanında yardımcıdır.
 6. **"⋮" çöp çekmecesi yok:** İçinde ne olduğu belli olmayan "⋮" veya "Diğer" menüleri kullanılmaz. Sık işlemler satırda metinli durur; nadir işlemler kaydın kendi sayfasında/kartında, adlandırılmış bir bölümde durur.
 7. **Tehlikeli işlem ayrı durur:** Sil, İptal et gibi işlemler Kaydet'in yanında değil, ayrı, kırmızı ve onaylıdır. Yanlış tıklama ihtimali tasarımla düşürülür.
 8. **Bağlamı kapatma:** Formlar sayfanın üstünde, ortada açılan pencerede açılır; ayrı bir sayfaya gidilmez, pencere kapanınca kullanıcı aynı yerde kalır. Pencere bütün formlarda aynı genişliktedir ve dar ekranda ekrana sığar. Uzun formda başlık ile Vazgeç · Kaydet sabit kalır, yalnız alanlar kayar; klavyesi açık küçük telefonda olduğu gibi ekran çok kısaysa ikisi de formla birlikte kayar. Tablo filtreleri de aynı biçimde ortada açılır. (Kullanıcı kararı, T-84; önceki kural: formlar yandan açılan panelde açılır ve arkadaki kart görünür kalır.)
@@ -51,6 +51,8 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | 5 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
 | 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (en altta; Faz 8) |
 
+**Dar ekranda (`lg` altında):** Kenar menünün yerine altta sekme çubuğu durur: Bugün · Müşteriler · Açık borçlar · Menü ("Menü" tam menüyü kayan panelde açar). Aktif sekme vurgulu mavidir (T-130).
+
 **Üst çubuk (her sayfada aynı yerde):**
 
 - Solda: arama kutusu (`Ctrl+K`). Kısa ad, ticari ünvan, ilgili kişi ve **alan adıyla** arar; müşteriler çoğu zaman alan adıyla anılır ("logi.com.tr'nin hosting'i").
@@ -63,7 +65,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | --- | --- | --- |
 | Her yerden gereken iş | Üst çubuk | Ara, Ödeme al, Yeni |
 | Sayfanın ana işi | Sayfa başlığının sağı, ikincil düğme | Müşteriler: "Yeni müşteri" |
-| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" (Bugün ve kartta: "Ödeme al", "WhatsApp"); Sunucu: "Düzenle", "Sunucudan çek" ("Bağlantıyı dene" düzenleme penceresinin altında) (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
+| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" (Bugün ve kartta: "Ödeme al" ve WhatsApp simgesi); Sunucu: "Düzenle", "Sunucudan çek" ("Bağlantıyı dene" düzenleme penceresinin altında) (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
 | Kayda ait nadir iş | Kaydın kartında/sayfasında, adlandırılmış bölümde | Hizmet: "Ücretsiz yap", "Böl" |
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
@@ -79,7 +81,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ### Bugün (açılış sayfası)
 
 - **Üst satır, dört sayı:** Toplam alacak (para birimi başına), Gecikmiş tutar ve adet, Bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı. Her sayı tıklanınca ilgili süzülmüş listeye gider.
-- **Altında "Yapılacaklar" tek tablo olarak,** başlıkta iş sayısı ("6 iş"); sütunlar: Müşteri (kısa ad + ünvan), Konu, Vade / bitiş, Durum, Tutar, işlem. Satırlar öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir. Borç satırlarında, birincil kişinin telefonu varsa "Ödeme al"ın yanında ikincil bir "WhatsApp" bağlantısı durur (G-5B.4): hazır borç mesajıyla sohbeti yeni sekmede açar, kayıt tutmaz; `md` altında gizlidir. Kısmi ödenmiş borcun konusu "… · kısmi ödendi", ücretsiz hizmetin "… · ücretsiz" olur; ücretsiz hizmetin durumu rozetsiz düz metin "Karar bekliyor", tutarı "—" yazılır (gri rozet yalnız iptal/arşivdir). `md` altında Konu ve Vade gizlenir.
+- **Altında "Yapılacaklar" tek tablo olarak,** başlıkta iş sayısı ("6 iş"); sütunlar: Müşteri (kısa ad + ünvan), Konu, Vade / bitiş, Durum, Tutar, işlem. Satırlar öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir. Borç satırlarında, birincil kişinin telefonu varsa "Ödeme al"ın yanında ikincil bir WhatsApp simge düğmesi durur (yazısız; ipucu "WhatsApp") (G-5B.4): hazır borç mesajıyla sohbeti yeni sekmede açar, kayıt tutmaz; `md` altında gizlidir. Kısmi ödenmiş borcun konusu "… · kısmi ödendi", ücretsiz hizmetin "… · ücretsiz" olur; ücretsiz hizmetin durumu rozetsiz düz metin "Karar bekliyor", tutarı "—" yazılır (gri rozet yalnız iptal/arşivdir). `md` altında Konu ve Vade gizlenir.
 - Liste boşsa "Bugün yapılacak bir şey yok" yazar.
 - **Zamanlayıcı uyarısı (G-5.6):** yalnız sorun varken, dört sayının üstünde kırmızı (danger) kutu: zamanlayıcı hiç çalışmadıysa, 1 saatten uzun süredir çalışmıyorsa (bekleyen yayın varsa "yayın adresini açın") ve son çalışmada hata veren hizmet varsa (en çok 5 hizmet adı müşteri kartına bağlantıyla, fazlası "ve N hizmet daha"). Sorun yokken hiçbir şey görünmez.
 
@@ -104,7 +106,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - **Başlık şeridi (tam genişlik, tek kenarlıklı kart):** Yol (Müşteriler / kısa ad), kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi (para birimi başına, toplanmaz); sağda "Ödeme al" ve "Hizmet ekle", ikisi de ikincil (ekranın tek birincil düğmesi üst çubuktaki "Ödeme al"). `xl` (1280 px) altında ad kendi satırına geçer, tutarlar ve düğmeler altına iner.
 - **Sol sütun, sırayla:**
   - Hizmetler: aktifler, kompakt satırlar (ad ve altında alan adı, bitiş, fiyat, durum); başlıkta sağda "N aktif" sayacı. Satırda düğme yoktur, hizmet adına tıklamak düzenleme panelini açar. "Durum" sütunu `xl`'den görünür; `xl` altında rozet (yalnız iptal ve yenilemesi yaklaşan) adın altına iner. İptal edilmişler katlanmış "İptal edilenler (2)" altında.
-  - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar. Satırda "Ödeme al" ve (birincil kişinin telefonu varsa) "WhatsApp" düğmeleri vardır (G-5B.4; WhatsApp `md` altında gizlidir); borç açıklamasına tıklamak düzenleme panelini açar; panelin "Borç işlemleri" bölümünde yenileme borcu için "Hatırlatma gönder" de durur ve hatırlatılmış borcun açıklamasının altında soluk "Hatırlatma gönderildi: gg.aa.yyyy" satırı görünür (G-5B.2). "Vade" ve "Durum" sütunları `xl`'den görünür (karta özgü kural: sol sütun dar olduğu için Açık borçlar sayfasındaki `lg` kuralından farklıdır); `xl` altında vade açıklamanın altına, durum rozeti "Kalan"ın altına iner.
+  - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar. Satırda "Ödeme al" ve (birincil kişinin telefonu varsa) WhatsApp simge düğmesi vardır (G-5B.4; simge `md` altında gizlidir); borç açıklamasına tıklamak düzenleme panelini açar; panelin "Borç işlemleri" bölümünde yenileme borcu için "Hatırlatma gönder" de durur ve hatırlatılmış borcun açıklamasının altında soluk "Hatırlatma gönderildi: gg.aa.yyyy" satırı görünür (G-5B.2). "Vade" ve "Durum" sütunları `xl`'den görünür (karta özgü kural: sol sütun dar olduğu için Açık borçlar sayfasındaki `lg` kuralından farklıdır); `xl` altında vade açıklamanın altına, durum rozeti "Kalan"ın altına iner.
   - Son ödemeler: son 5; "Tüm ödemeler" bağlantısı.
 - **Sağ sütun:** Birincil kişi (telefon ve e-posta tıklanınca aranır/yazılır), diğer kişiler, fatura bilgileri, notlar. Düzenleme buradan.
 - **En altta, ayrı:** Arşivle, Sil.
@@ -153,44 +155,52 @@ Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna g�
 
 ## 6. Görsel dil
 
-- **Tema:** Açık tema varsayılan (uzun süre tablo okuma ve Excel alışkanlığı); koyu tema kullanıcı menüsünden seçilebilir.
-- **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde ve seçili menü çizgisinde; kırmızı/turuncu durum renkleriyle karışmaması için birincil düğmede kullanılmaz. Filament primary koyu lacivert: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur.
-- **Yazı:** Tek yazı tipi Inter (yerel sunucudan, dış bağlantı yok), sayılarda eş genişlikte rakamlar; tablo metni 14 px, başlıklar sade.
-- **Yoğunluk:** Tablolarda kompakt satırlar (Excel'e yakın); formlarda rahat boşluk.
+Faz 4C'den beri (T-130) Apple tarzı: sakin yüzeyler, yumuşak köşeler, hap biçimli düğmeler, kenarlıksız gölgeli kartlar, buzlu cam üst çubuk. Referans: `docs/design/apple/referans.html` ([tasarım sayfası](https://claude.ai/artifact/4hcfCNE5ARAoJdUYr5NAYG)).
+
+- **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir.
+- **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur.
+- **Menü kareleri:** Kenar menüde her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi). Renkler durum renklerinden ayrı tutulur: Bugün mavi, Müşteriler çivit, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri.
+- **Simge işlemleri (Kural 5'in istisnası):** WhatsApp, ara, e-posta, siteyi aç ve kopyala yazısız, simgeli düğmedir; ipucu ve erişilebilir ad Türkçe, `lang/tr`'den gelir.
+- **Avatar:** Müşteri adının solunda, kısa adın iki baş harfi (Türkçe büyük harf) ve müşteriye sabit bir renk; süstür, ekran okuyucudan gizlidir.
+- **Yazı:** Sistem yazı tipi (`-apple-system`, SF Pro); olmayan cihazda panelin yerel yazı tipi (dış bağlantı yok). Sayılarda eş genişlikte rakamlar.
+- **Yoğunluk:** Orta: tablo satırı ~48 px (avatarlı ~52 px), formlarda rahat boşluk.
 - **Logo ve ad:** Sol üstte logo simgesi (#ff3800) ve "Müşteri Takip"; şimdilik yer tutucu simge, firma logosu gelince değiştirilir.
-- **Tasarım tokenları:** Seçilen yön C · Lacivert çerçeve ([tasarım tuvali](https://claude.ai/artifact/Ev7Y2ZP2hbn3jhv47Q7UP6)). Değerler aşağıdaki tabloda; koyu tema değerleri G-4B.2'de doğrulandı: tüm metin/zemin çiftleri iki temada da en az 4,5:1 (`DesignTokensTest`). Değerler kodda tek yerde tanımlı: gri ve primary skalası `AdminPanelProvider::colors()` içinde (Filament düğme metni gibi kontrast seçimlerini bu paletten hesaplar); diğer tüm tokenlar `resources/css/filament/panel/theme.css` başındaki token bloğunda `--mt-*` değişkenleri olarak. Bileşen stilleri yalnızca bu değişkenleri ve palet sınıflarını kullanır; sabit renk kodu yazılmaz.
+- **Dar ekran:** `lg` altında kenar menü yerine altta iOS tarzı sekme çubuğu: Bugün · Müşteriler · Borçlar · Menü ("Menü" kayan menüyü açar).
+- **Tasarım tokenları:** Değerler aşağıdaki tabloda; tüm metin/zemin çiftleri iki temada da en az 4,5:1 (`DesignTokensTest`). Değerler kodda tek yerde tanımlı: gri ve primary skalası `AdminPanelProvider` içinde (Filament düğme metni gibi kontrast seçimlerini bu paletten hesaplar); diğer tüm tokenlar `resources/css/filament/panel/theme.css` başındaki token bloğunda `--mt-*` değişkenleri olarak. Bileşen stilleri yalnızca bu değişkenleri ve palet sınıflarını kullanır; sabit renk kodu yazılmaz.
 
 | Token | Açık tema | Koyu tema |
 | --- | --- | --- |
-| Kenar menü zemini | #0F1D33 | #0B1626 |
-| Kenar menü metni / grup başlığı | #C3CCD9 / #8A97AB | aynı |
-| Kenar menü simgeleri | 18 px, rengi grup başlığı (#8A97AB); seçili öğede #FFFFFF. Simge her zaman metnin yanındadır | aynı |
-| Seçili menü öğesi | zemin #1B2D4B, metin #FFFFFF, solda 3 px #FF3800 çizgi | aynı |
-| Sayfa zemini | #F4F6F9 | #0E1520 |
-| Panel ve üst çubuk | #FFFFFF, kenarlık #E0E4EA | #151E2B, kenarlık #253142 |
-| Satır ayırıcı / tablo başlığı zemini | #EEF0F3 / #F8F9FB | #1E2836 / #19222F |
-| Satır üzerine gelme zemini | #F8F9FB | #19222F |
-| Metin / soluk metin | #121A27 / #566173 | #E6EAF0 / #9AA5B5 |
-| Birincil (primary) | #1D3A6A, üzerine gelince #152C52 | #6F93D6, üzerine gelince #9DB6E2, düğme metni #0B1626 |
-| Tehlikeli düğme | metin #B42318, kenarlık #F1C4C0, zemin beyaz; her yerde çizgilidir (onay penceresindeki gönder düğmesi dahil), dolu kırmızı zemin yoktur. Üzerine gelince zemin #FDECEC (kırmızı rozet zemini) ve kenarlık #B42318 (metin rengi), metin aynı | metin #F38B82, kenarlık #5C2A2A; üzerine gelince zemin #34202B (kırmızı rozet zemini) ve kenarlık #F38B82 (metin rengi), metin aynı |
-| Rozet: kırmızı (zemin / metin / nokta) | #FDECEC / #9F1A1D / #D92D2D | zemin noktanın %16'sı (#151E2B üzerine: #34202B), metin #F5A3A3, nokta #D92D2D |
-| Rozet: amber | #FDF2D8 / #7F4C00 / #D98A00 | zemin noktanın %16'sı (#151E2B üzerine: #342F24), metin #F2C46B, nokta #D98A00 |
-| Rozet: yeşil | #E5F3E9 / #1D6633 / #2F9E55 | zemin noktanın %16'sı (#151E2B üzerine: #193232), metin #8FD3A6, nokta #2F9E55 |
-| Rozet: gri | #EEF0F3 / #4A5361 / #8B94A1 | zemin #232D3B, metin #B4BDC9 |
-| Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, köşe 4 px; yalnız kırmızı, amber, yeşil ve gri vardır; renk sınıfsız rozet (Filament'in varsayılan grisi) gri çizilir, bu yüzden uygulamada rengi verilmemiş rozet olmaz | aynı |
-| Filtre çipi | beyaz zemin, 1 px kenarlık, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | aynı |
-| Yazı ölçeği | sayfa başlığı 26/700, form penceresi başlığı 20/700, büyük tutar 30/700 (−0,01em), bölüm başlığı 15/600, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
+| Kenar menü zemini | #EDEDF2 | #262628 |
+| Kenar menü metni / grup başlığı | #1D1D1F / #636366 | #F5F5F7 / #ABABB0 |
+| Seçili menü öğesi | zemin #DCDCE3, metin #1D1D1F, kalın | zemin #3A3A3C, metin #F5F5F7 |
+| Menü kareleri | mavi #0A74E0, çivit #5E5CE6, turuncu #D9730D, mor #AF52DE, yeşil #2E9D4B, deniz mavisi #2A8FA3, gri #7C7C82; simge beyaz, 24 px kare, köşe 6 px | aynı |
+| Sayfa zemini | #F5F5F7 | #1C1C1E |
+| Kart ve panel | #FFFFFF, kenarlık yok, gölge | #2C2C2E, kenarlık yok |
+| Üst çubuk | yarı saydam #F5F5F7 (%80) + bulanıklık, altında ince çizgi | yarı saydam #1C1C1E (%80) + bulanıklık |
+| Çizgi / satır ayırıcı / tablo başlığı zemini | #E5E5EA / #ECECF0 / #FAFAFC | #3A3A3C / #38383A / #2C2C2E |
+| Satır üzerine gelme zemini | #F5F5F7 | #3A3A3C |
+| Metin / soluk metin | #1D1D1F / #6E6E73 | #F5F5F7 / #ABABB0 |
+| Birincil (primary) | #0066CC, üzerine gelince #0057AD, düğme metni #FFFFFF; bağlantı rengi aynı | dolgu #0A72E0, üzerine gelince #0A62C2, düğme metni #FFFFFF; bağlantı rengi #5AA9FF |
+| Tehlikeli düğme | metin #D70015, zemin #FDECEA, kenarlık yok; dolu kırmızı zemin yoktur. Üzerine gelince zemin biraz koyulaşır, metin aynı | metin #FF8A84, zemin #4A2A29; üzerine gelince biraz açılır |
+| Rozet: kırmızı (zemin / metin / nokta) | #FDECEA / #B3261E / #FF3B30 | #4A2A29 / #FFA39D / #FF453A |
+| Rozet: amber | #FFF3DB / #8A5300 / #FF9F0A | #4A3A1E / #FFC25C / #FF9F0A |
+| Rozet: yeşil | #E3F6E8 / #1B6E32 / #34C759 | #1F4A2B / #6FDC8C / #30D158 |
+| Rozet: gri | #EBEBF0 / #55555B / #8E8E93 | #3A3A3C / #C7C7CC / #8E8E93 |
+| Rozet biçimi | 6 px renk noktası + metin, 12 px / 600, tam yuvarlak (hap) köşe; yalnız kırmızı, amber, yeşil ve gri vardır; renk sınıfsız rozet (Filament'in varsayılan grisi) gri çizilir, bu yüzden uygulamada rengi verilmemiş rozet olmaz | aynı |
+| Filtre çipi | beyaz zemin, tam yuvarlak köşe, 14 px, nokta yok; "×" düğmesi 24 px hedef | koyu panel zemini |
+| Yazı ölçeği | sayfa başlığı 34/700 (−0,022em), form penceresi başlığı 22/700, büyük tutar 26/650 (−0,02em), bölüm başlığı 17/650, form etiketi 14/600, gövde ve tablo 14/400, yardımcı 12–13/400 | aynı |
 | Tablo metni | 14 px / 400 | aynı |
-| Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
-| Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
-| Çerçeve ölçüleri | kenar menü 272 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px, form penceresi 640 px, dar ekranda ekran genişliği − 2×16 px (iç boşluk 24 px) | aynı |
-| Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
-| Gölge | yok; ayrım kenarlıkla | yok |
-| Odak halkası | 2 px #1D3A6A, 2 px boşlukla; kenar menüde #6F93D6 | 2 px #6F93D6 (kenar menüde de aynı) |
-| Gri skala (50–950) | #F8F9FB, #EEF0F3, #E0E4EA, #C3CCD9, #8B94A1, #6B7585, #566173, #3B4657, #253142, #151E2B, #0E1520 | aynı skala |
-| Primary lacivert skala (50–950) | #F1F5FB, #E1E9F6, #C6D5EE, #9DB6E2, #6F93D6, #3F68B0, #1D3A6A, #152C52, #10233F, #0C1A30, #08111F | aynı skala |
+| Kenarlık | kart ve tablolarda yok (gölge ve zemin farkı ayırır); giriş alanında 1 px çizgi rengi | aynı |
+| Boşluk | sayfa kenarı 24×28 px, bloklar arası 22 px, tablo hücresi 12×16 px, panel başlığı 14×18 px | aynı |
+| Çerçeve ölçüleri | kenar menü 272 px, üst çubuk 56 px, arama kutusu 340 px, tablo arama kutusu 300 px, form penceresi 640 px, alt sekme çubuğu 56 px (+ güvenli alan), dar ekranda ekran genişliği − 2×16 px (iç boşluk 24 px) | aynı |
+| Köşe | kart 16 px, form penceresi 20 px, giriş alanı 10 px, menü karesi 6 px, düğme ve rozet tam yuvarlak | aynı |
+| Gölge | kartta `0 1px 2px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.05)`; menü, çubuklar ve satırlarda yok | kartta yok, koyu zemin farkı ayırır |
+| Odak halkası | 2 px #0066CC, 2 px boşlukla; kenar menüde de aynı | 2 px #5AA9FF |
+| Gri skala (50–950) | #FAFAFC, #ECECF0, #E5E5EA, #C7C7CC, #A1A1A6, #8E8E93, #6E6E73, #48484A, #3A3A3C, #2C2C2E, #1C1C1E | aynı skala |
+| Primary mavi skala (50–950) | #F0F7FF, #DCEBFC, #B9D8FA, #8BBDF5, #5AA9FF, #2B86EA, #0066CC, #0057AD, #0A4A91, #0B3B73, #082B55 | aynı skala |
 
-Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 kenarlık, 600 soluk metin, 800 koyu kenarlık, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 600 düğme, 700 üzerine gelme ve 400 koyu temadaki primary'dir. Durum paletleri (danger = Red, warning = Amber, success = Green) Filament'in hazır paletleridir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
+Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 çizgi, 600 soluk metin, 800 koyu çizgi, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 600 düğme ve bağlantı, 700 üzerine gelme ve 400 koyu temadaki bağlantıdır. Durum paletleri (danger = Red, warning = Amber, success = Green) Filament'in hazır paletleridir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
+
 
 ## 7. Hedef tık sayıları (kabul ölçütü)
 

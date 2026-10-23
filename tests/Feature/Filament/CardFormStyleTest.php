@@ -99,7 +99,7 @@ it('takes the card, form and button colors only from tokens', function (string $
     }
 })->with(cardFormRuleSelectors());
 
-it('draws the primary button from the navy tokens, with a darker hover in the light theme and a lighter one in the dark theme', function () {
+it('draws the primary button from the blue tokens, with a darker hover in both themes and white text on the fill', function () {
     $body = implode("\n", designRuleBodies('.fi-btn.fi-color-primary:not(.fi-outlined)'));
 
     expect($body)->toContain('--bg: var(--mt-primary)')
@@ -113,8 +113,9 @@ it('draws the primary button from the navy tokens, with a darker hover in the li
     $dark = designTokens('dark');
 
     expect(designLuminance($light['mt-primary-hover']))->toBeLessThan(designLuminance($light['mt-primary']))
-        ->and(designLuminance($dark['mt-primary-hover']))->toBeGreaterThan(designLuminance($dark['mt-primary']))
-        ->and($dark['mt-primary-hover'])->toBe('#9db6e2');
+        ->and(designLuminance($dark['mt-primary-hover']))->toBeLessThan(designLuminance($dark['mt-primary']))
+        ->and($dark['mt-primary-hover'])->toBe('#0a62c2')
+        ->and($dark['mt-link'])->toBe('#5aa9ff');
 });
 
 it('never gives a dangerous button a solid red fill, filled or outlined, on hover too', function () {
@@ -144,7 +145,7 @@ it('never gives a dangerous button a solid red fill, filled or outlined, on hove
     }
 });
 
-it('draws a dangerous button on hover with the pale red fill and the danger text color as its border, from the tokens, contrast-checked in both themes', function () {
+it('draws a dangerous button on hover with the pale red fill, a slight darkening and no outline, from the tokens, contrast-checked in both themes', function () {
     foreach ([
         '.fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover',
         '.fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover',
@@ -152,8 +153,9 @@ it('draws a dangerous button on hover with the pale red fill and the danger text
         $body = implode('
 ', designRuleBodies($selector));
 
-        expect($body)->toContain('border-color: var(--mt-danger-text)')
-            ->and($body)->toContain('background-color: var(--mt-badge-red-bg)');
+        expect($body)->toContain('border-color: var(--mt-danger-border)')
+            ->and($body)->toContain('background-color: var(--mt-badge-red-bg)')
+            ->and($body)->toContain('filter: brightness(0.95)');
     }
 
     expect(implode('

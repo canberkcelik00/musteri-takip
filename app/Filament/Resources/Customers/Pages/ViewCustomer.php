@@ -98,6 +98,7 @@ class ViewCustomer extends ViewRecord
         assert($customer instanceof Customer);
 
         return view('filament.customers.header', [
+            'customer' => $customer,
             'breadcrumbs' => array_slice($this->getBreadcrumbs(), 0, -1, true),
             'title' => $this->getTitle(),
             'subheading' => $this->getSubheading(),

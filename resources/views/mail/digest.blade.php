@@ -36,12 +36,12 @@
 <td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
 <td class="dg-td">{{ $charge->description }}
 @if ($creditAmount > 0 && $creditAmount < $charge->amount)
-<span class="dg-note" style="color: #566173;">{{ __('digest.partly_from_credit', ['amount' => (new Money($creditAmount, $charge->currency))->format()]) }}</span>
+<span class="dg-note" style="color: #6e6e73;">{{ __('digest.partly_from_credit', ['amount' => (new Money($creditAmount, $charge->currency))->format()]) }}</span>
 @endif
 </td>
 <td class="dg-td dg-num">{{ (new Money($charge->amount, $charge->currency))->format() }}
 @if ($charge->payment_badge !== null && $charge->payment_badge['state'] === 'partially_paid')
-<span class="dg-note" style="color: #566173;">{{ __('digest.remaining', ['amount' => (new Money($charge->remainingAmount(), $charge->currency))->format()]) }}</span>
+<span class="dg-note" style="color: #6e6e73;">{{ __('digest.remaining', ['amount' => (new Money($charge->remainingAmount(), $charge->currency))->format()]) }}</span>
 @endif
 </td>
 <td class="dg-td dg-nowrap">{{ $charge->due_date->format('d.m.Y') }}
@@ -85,7 +85,7 @@
 @foreach ($overdue as $charge)
 <tr>
 <td class="dg-td"><a href="{{ $customerUrl($charge->customer_id) }}">{{ $charge->customer->short_name }}</a></td>
-<td class="dg-td">{{ $charge->description }}<span class="dg-note" style="color: #566173;">{{ __('digest.column.due') }} {{ $charge->due_date->format('d.m.Y') }}</span></td>
+<td class="dg-td">{{ $charge->description }}<span class="dg-note" style="color: #6e6e73;">{{ __('digest.column.due') }} {{ $charge->due_date->format('d.m.Y') }}</span></td>
 <td class="dg-td dg-num">{{ (new Money($charge->remainingAmount(), $charge->currency))->format() }}</td>
 <td class="dg-td dg-nowrap">@include('mail.digest.badge', ['color' => 'danger', 'label' => __('charges.overdue_days', ['count' => $charge->daysOverdue()])])</td>
 </tr>

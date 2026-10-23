@@ -4,134 +4,177 @@
 @source '../../../../resources/views/filament/**/*';
 
 /*
- * Design tokens (docs/UI.md §6, direction C · Lacivert çerçeve, G-4B.2).
+ * Design tokens (docs/UI.md §6, Apple style, G-4C.2, T-130).
  *
- * The only place in this file where literal colors are allowed (enforced by DesignTokensTest).
- * Component rules below use `var(--mt-*)` or Filament's palette utilities. The primary and gray
- * scales live in AdminPanelProvider::colors() instead, because Filament picks text shades by
- * contrast from the PHP palette.
+ * The only place in this file where literal colors and shadows are allowed (enforced by
+ * DesignTokensTest). Component rules below use `var(--mt-*)` or Filament's palette utilities. The
+ * primary and gray scales live in AdminPanelProvider instead, because Filament picks text shades
+ * by contrast from the PHP palette.
  *
- * Brand color: used only for the logo mark and the active sidebar item's indicator bar, never
- * for buttons or status badges.
+ * Brand color: used only for the logo mark, never for buttons, menu items or status badges.
  *
- * Buttons (G-4B.5): Filament's own button map uses primary-600 with a lighter 500 hover in light
- * mode and primary-600 in dark mode; the button rules below take --mt-primary, a darker
- * --mt-primary-hover in the light theme and a lighter one (primary-300) in the dark theme, and
- * --mt-on-primary text instead.
+ * Primary: --mt-primary is the fill of a button (white text on it) and --mt-link the text color
+ * of links and outlined controls. They are one blue in the light theme; in the dark theme the
+ * fill is a deeper blue that carries white text and the link is a lighter one that reads on the
+ * dark panel.
  */
 :root {
     --mt-brand: #ff3800;
+    --mt-on-brand: #ffffff;
+    --mt-whatsapp: #128c4a;
 
-    --mt-sidebar-bg: #0f1d33;
-    --mt-sidebar-text: #c3ccd9;
-    --mt-sidebar-group: #8a97ab;
-    --mt-sidebar-active-bg: #1b2d4b;
-    --mt-sidebar-active-text: #ffffff;
-    --mt-sidebar-active-bar: 3px;
-    --mt-sidebar-focus: #6f93d6;
-    --mt-topbar-height: 62px;
-    --mt-search-width: 380px;
+    --mt-sidebar-bg: #ededf2;
+    --mt-sidebar-text: #1d1d1f;
+    --mt-sidebar-group: #636366;
+    --mt-sidebar-active-bg: #dcdce3;
+    --mt-sidebar-active-text: #1d1d1f;
+    --mt-sidebar-focus: #0066cc;
+    --mt-topbar-height: 56px;
+    --mt-tabbar-height: 56px;
+    --mt-search-width: 340px;
     --mt-table-search-width: 300px;
+    --mt-topbar-bg: rgba(245, 245, 247, 0.8);
 
-    --mt-page-bg: #f4f6f9;
+    --mt-nav-blue: #0a74e0;
+    --mt-nav-indigo: #5e5ce6;
+    --mt-nav-orange: #d9730d;
+    --mt-nav-purple: #af52de;
+    --mt-nav-green: #2e9d4b;
+    --mt-nav-teal: #2a8fa3;
+    --mt-nav-gray: #7c7c82;
+
+    --mt-avatar-1: #5e5ce6;
+    --mt-avatar-2: #0a74e0;
+    --mt-avatar-3: #177f43;
+    --mt-avatar-4: #c2410c;
+    --mt-avatar-5: #a21caf;
+    --mt-avatar-6: #0f766e;
+    --mt-avatar-7: #6d28d9;
+    --mt-avatar-8: #475569;
+
+    --mt-page-bg: #f5f5f7;
     --mt-panel-bg: #ffffff;
-    --mt-border: #e0e4ea;
+    --mt-field-bg: rgba(0, 0, 0, 0.05);
+    --mt-border: #e5e5ea;
     --mt-border-width: 1px;
-    --mt-row-divider: #eef0f3;
-    --mt-table-head-bg: #f8f9fb;
-    --mt-row-hover: #f8f9fb;
-    --mt-text: #121a27;
-    --mt-text-muted: #566173;
+    --mt-row-divider: #ececf0;
+    --mt-table-head-bg: #fafafc;
+    --mt-row-hover: #f5f5f7;
+    --mt-text: #1d1d1f;
+    --mt-text-muted: #6e6e73;
+    --mt-scrim: rgba(0, 0, 0, 0.28);
 
-    --mt-primary: #1d3a6a;
-    --mt-primary-hover: #152c52;
+    --mt-primary: #0066cc;
+    --mt-primary-hover: #0057ad;
     --mt-on-primary: #ffffff;
+    --mt-link: #0066cc;
 
-    --mt-danger-text: #b42318;
-    --mt-danger-border: #f1c4c0;
-    --mt-danger-bg: #ffffff;
+    --mt-danger-text: #d70015;
+    --mt-danger-border: #fdecea;
+    --mt-danger-bg: #fdecea;
 
-    --mt-badge-red-bg: #fdecec;
-    --mt-badge-red-text: #9f1a1d;
-    --mt-badge-red-dot: #d92d2d;
-    --mt-badge-amber-bg: #fdf2d8;
-    --mt-badge-amber-text: #7f4c00;
-    --mt-badge-amber-dot: #d98a00;
-    --mt-badge-green-bg: #e5f3e9;
-    --mt-badge-green-text: #1d6633;
-    --mt-badge-green-dot: #2f9e55;
-    --mt-badge-gray-bg: #eef0f3;
-    --mt-badge-gray-text: #4a5361;
-    --mt-badge-gray-dot: #8b94a1;
+    --mt-badge-red-bg: #fdecea;
+    --mt-badge-red-text: #b3261e;
+    --mt-badge-red-dot: #ff3b30;
+    --mt-badge-amber-bg: #fff3db;
+    --mt-badge-amber-text: #8a5300;
+    --mt-badge-amber-dot: #ff9f0a;
+    --mt-badge-green-bg: #e3f6e8;
+    --mt-badge-green-text: #1b6e32;
+    --mt-badge-green-dot: #34c759;
+    --mt-badge-gray-bg: #ebebf0;
+    --mt-badge-gray-text: #55555b;
+    --mt-badge-gray-dot: #8e8e93;
     --mt-badge-dot-size: 6px;
     --mt-badge-font-size: 12px;
     --mt-badge-font-weight: 600;
 
-    --mt-text-page-title: 26px;
+    --mt-text-page-title: 34px;
     --mt-weight-page-title: 700;
-    --mt-text-amount: 30px;
-    --mt-weight-amount: 700;
-    --mt-tracking-amount: -0.01em;
-    --mt-text-section-title: 15px;
+    --mt-tracking-page-title: -0.022em;
+    --mt-text-amount: 26px;
+    --mt-weight-amount: 600;
+    --mt-tracking-amount: -0.02em;
+    --mt-text-section-title: 17px;
     --mt-weight-section-title: 600;
     --mt-text-body: 14px;
     --mt-text-table: 14px;
     --mt-weight-body: 400;
     --mt-text-help: 13px;
     --mt-text-help-small: 12px;
-    --mt-text-panel-title: 20px;
+    --mt-text-panel-title: 22px;
 
     --mt-space-page-y: 24px;
     --mt-space-page-x: 28px;
-    --mt-space-block: 18px;
-    --mt-space-cell-y: 9px;
-    --mt-space-cell-x: 14px;
-    --mt-space-panel-head-y: 12px;
-    --mt-space-panel-head-x: 16px;
+    --mt-space-block: 22px;
+    --mt-space-cell-y: 12px;
+    --mt-space-cell-x: 16px;
+    --mt-space-panel-head-y: 14px;
+    --mt-space-panel-head-x: 18px;
     --mt-space-panel-body: 24px;
     --mt-modal-width: 640px;
 
-    --mt-radius: 6px;
-    --mt-radius-badge: 4px;
+    --mt-radius: 10px;
+    --mt-radius-card: 16px;
+    --mt-radius-modal: 20px;
+    --mt-radius-nav: 6px;
+    --mt-radius-badge: 999px;
+    --mt-radius-pill: 999px;
     --mt-shadow: none;
+    --mt-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
+    --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.35);
 
     --mt-focus-width: 2px;
     --mt-focus-offset: 2px;
-    --mt-focus-color: #1d3a6a;
+    --mt-focus-color: #0066cc;
 }
 
 :root.dark {
-    --mt-sidebar-bg: #0b1626;
-    --mt-sidebar-focus: #6f93d6;
+    --mt-sidebar-bg: #262628;
+    --mt-sidebar-text: #f5f5f7;
+    --mt-sidebar-group: #ababb0;
+    --mt-sidebar-active-bg: #3a3a3c;
+    --mt-sidebar-active-text: #f5f5f7;
+    --mt-sidebar-focus: #5aa9ff;
+    --mt-topbar-bg: rgba(28, 28, 30, 0.8);
 
-    --mt-page-bg: #0e1520;
-    --mt-panel-bg: #151e2b;
-    --mt-border: #253142;
-    --mt-row-divider: #1e2836;
-    --mt-table-head-bg: #19222f;
-    --mt-row-hover: #19222f;
-    --mt-text: #e6eaf0;
-    --mt-text-muted: #9aa5b5;
+    --mt-whatsapp: #4ade80;
 
-    --mt-primary: #6f93d6;
-    --mt-primary-hover: #9db6e2;
-    --mt-on-primary: #0b1626;
+    --mt-page-bg: #1c1c1e;
+    --mt-panel-bg: #2c2c2e;
+    --mt-field-bg: rgba(255, 255, 255, 0.08);
+    --mt-border: #3a3a3c;
+    --mt-row-divider: #38383a;
+    --mt-table-head-bg: #2c2c2e;
+    --mt-row-hover: #3a3a3c;
+    --mt-text: #f5f5f7;
+    --mt-text-muted: #ababb0;
+    --mt-scrim: rgba(0, 0, 0, 0.5);
 
-    --mt-danger-text: #f38b82;
-    --mt-danger-border: #5c2a2a;
-    --mt-danger-bg: #151e2b;
+    --mt-primary: #0a72e0;
+    --mt-primary-hover: #0a62c2;
+    --mt-on-primary: #ffffff;
+    --mt-link: #5aa9ff;
 
-    /* Red, amber and green: 16% of the dot over the dark panel (#151e2b), as fixed values. */
-    --mt-badge-red-bg: #34202b;
-    --mt-badge-red-text: #f5a3a3;
-    --mt-badge-amber-bg: #342f24;
-    --mt-badge-amber-text: #f2c46b;
-    --mt-badge-green-bg: #193232;
-    --mt-badge-green-text: #8fd3a6;
-    --mt-badge-gray-bg: #232d3b;
-    --mt-badge-gray-text: #b4bdc9;
+    --mt-danger-text: #ff8a84;
+    --mt-danger-border: #4a2a29;
+    --mt-danger-bg: #4a2a29;
 
-    --mt-focus-color: #6f93d6;
+    --mt-badge-red-bg: #4a2a29;
+    --mt-badge-red-text: #ffa39d;
+    --mt-badge-red-dot: #ff453a;
+    --mt-badge-amber-bg: #4a3a1e;
+    --mt-badge-amber-text: #ffc25c;
+    --mt-badge-green-bg: #1f4a2b;
+    --mt-badge-green-text: #6fdc8c;
+    --mt-badge-green-dot: #30d158;
+    --mt-badge-gray-bg: #3a3a3c;
+    --mt-badge-gray-text: #c7c7cc;
+
+    --mt-shadow-card: none;
+    --mt-shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.6);
+
+    --mt-focus-color: #5aa9ff;
 }
 
 /*
@@ -148,6 +191,7 @@
     --topbar-height: var(--mt-topbar-height);
     background-color: var(--mt-page-bg);
     color: var(--mt-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', var(--font-family), system-ui, sans-serif;
 }
 
 .fi-body .fi-sidebar {
@@ -183,7 +227,7 @@
     flex-shrink: 0;
     border-radius: 8px;
     background-color: var(--mt-brand);
-    color: var(--mt-sidebar-active-text);
+    color: var(--mt-on-brand);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: normal;
@@ -236,16 +280,44 @@
     display: none;
 }
 
-/* Icons always sit beside the label (docs/UI.md §2 Kural 5): muted gray, white on the active item. */
+/*
+ * Menu squares (docs/UI.md §6): a white icon on a rounded colored square, as in iOS Settings. The
+ * color follows the item's address; an item without a rule below stays gray. "Açık borçlar" is
+ * purple, not red, so it is not read as the overdue color.
+ */
 .fi-sidebar-item-icon {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
-    color: var(--mt-sidebar-group);
+    padding: 4px;
+    border-radius: var(--mt-radius-nav);
+    background-color: var(--mt-nav-gray);
+    color: var(--mt-on-brand);
 }
 
-.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-icon {
-    color: var(--mt-sidebar-active-text);
+.fi-sidebar-item-btn[href$='/panel'] > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-blue);
+}
+
+.fi-sidebar-item-btn[href$='/panel/customers'] > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-indigo);
+}
+
+.fi-sidebar-item-btn[href$='/panel/quotes'] > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-orange);
+}
+
+.fi-sidebar-item-btn[href$='/panel/charges'] > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-purple);
+}
+
+.fi-sidebar-item-btn[href$='/panel/payments'] > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-green);
+}
+
+.fi-sidebar-item-btn[href$='/panel/catalog-services'] > .fi-sidebar-item-icon,
+.fi-sidebar-item-btn[href$='/panel/packages'] > .fi-sidebar-item-icon {
+    background-color: var(--mt-nav-teal);
 }
 
 .fi-sidebar-item-label {
@@ -260,11 +332,7 @@
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
-    @apply border-s-[3px];
-    border-inline-start-color: var(--mt-brand);
     background-color: var(--mt-sidebar-active-bg);
-    /* The bar's width comes off the padding, so the label stays on the same line as the others. */
-    padding-inline-start: calc(12px - var(--mt-sidebar-active-bar));
 
     & > .fi-sidebar-item-label {
         font-weight: 600;
@@ -283,20 +351,22 @@
     height: var(--mt-topbar-height);
     min-height: var(--mt-topbar-height);
     padding-inline: var(--mt-space-page-x);
-    background-color: var(--mt-panel-bg);
+    background-color: var(--mt-topbar-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
     box-shadow: none;
     border-bottom: var(--mt-border-width) solid var(--mt-border);
 }
 
-/* Search box: page-colored field with a hairline border and a boxed key hint. */
+/* Search box: a filled, borderless field with a key hint. */
 .fi-global-search-field .fi-input-wrp {
     width: var(--mt-search-width);
     max-width: 100%;
-    height: 37px;
+    height: 34px;
     align-items: center;
-    border: var(--mt-border-width) solid var(--mt-border);
+    border: var(--mt-border-width) solid transparent;
     border-radius: var(--mt-radius);
-    background-color: var(--mt-page-bg);
+    background-color: var(--mt-field-bg);
     box-shadow: none;
 }
 
@@ -312,9 +382,9 @@
 
 .fi-global-search-field .fi-input-wrp-suffix .fi-input-wrp-label {
     padding: 1px 6px;
-    border: var(--mt-border-width) solid var(--mt-border);
-    border-radius: var(--mt-radius-badge);
-    background-color: var(--mt-panel-bg);
+    border: var(--mt-border-width) solid transparent;
+    border-radius: var(--mt-radius-nav);
+    background-color: var(--mt-field-bg);
     font-size: var(--mt-text-help-small);
     color: var(--mt-text-muted);
 }
@@ -327,8 +397,8 @@
 .fi-header-heading {
     font-size: var(--mt-text-page-title);
     font-weight: var(--mt-weight-page-title);
-    line-height: 1.3;
-    letter-spacing: -0.01em;
+    line-height: 1.15;
+    letter-spacing: var(--mt-tracking-page-title);
     color: var(--mt-text);
 }
 
@@ -369,6 +439,66 @@
     }
 
     .fi-topbar-start {
+        display: none;
+    }
+}
+
+/*
+ * Bottom tab bar (G-4C.3, docs/UI.md §3, markup in filament/panel/tab-bar): below `lg` only, in
+ * place of the hamburger; the "Menü" tab opens the slide-in menu. The page keeps room under it.
+ */
+.fi-tab-bar {
+    display: none;
+}
+
+@media not all and (min-width: 64rem) {
+    .fi-tab-bar {
+        position: fixed;
+        inset-inline: 0;
+        bottom: 0;
+        z-index: 20;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        min-height: var(--mt-tabbar-height);
+        padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+        background-color: var(--mt-topbar-bg);
+        -webkit-backdrop-filter: saturate(180%) blur(24px);
+        backdrop-filter: saturate(180%) blur(24px);
+        border-top: var(--mt-border-width) solid var(--mt-border);
+    }
+
+    .fi-tab-bar-item {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: 4px 0;
+        border: 0;
+        background-color: transparent;
+        font-size: var(--mt-text-help-small);
+        font-weight: 500;
+        color: var(--mt-text-muted);
+    }
+
+    .fi-tab-bar-item[aria-current='page'] {
+        color: var(--mt-link);
+    }
+
+    .fi-tab-bar-item:focus-visible {
+        outline: var(--mt-focus-width) solid var(--mt-focus-color);
+        outline-offset: calc(-1 * var(--mt-focus-width));
+        border-radius: var(--mt-radius);
+    }
+
+    .fi-tab-bar-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .fi-main-ctn {
+        padding-bottom: calc(var(--mt-tabbar-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .fi-topbar-open-sidebar-btn {
         display: none;
     }
 }
@@ -632,10 +762,10 @@ body {
 }
 
 .fi-ta-ctn {
-    border: var(--mt-border-width) solid var(--mt-border);
-    border-radius: var(--mt-radius);
+    border: 0;
+    border-radius: var(--mt-radius-card);
     background-color: var(--mt-panel-bg);
-    box-shadow: none;
+    box-shadow: var(--mt-shadow-card);
 }
 
 .fi-ta-ctn .fi-ta-main {
@@ -668,9 +798,9 @@ body {
 }
 
 .fi-ta-ctn .fi-ta-search-field .fi-input-wrp {
-    border: var(--mt-border-width) solid var(--mt-border);
+    border: var(--mt-border-width) solid transparent;
     border-radius: var(--mt-radius);
-    background-color: var(--mt-panel-bg);
+    background-color: var(--mt-field-bg);
     box-shadow: none;
 }
 
@@ -748,9 +878,9 @@ body {
 .fi-ta-ctn .fi-ta-filter-indicators .fi-badge {
     gap: 6px;
     padding: 5px 12px;
-    border: var(--mt-border-width) solid var(--mt-border);
-    border-radius: 999px;
-    background-color: var(--mt-panel-bg);
+    border: var(--mt-border-width) solid transparent;
+    border-radius: var(--mt-radius-pill);
+    background-color: var(--mt-field-bg);
     box-shadow: none;
     font-size: var(--mt-text-body);
     font-weight: var(--mt-weight-body);
@@ -921,7 +1051,7 @@ body {
 .fi-badge.fi-color:is(.fi-color-danger, .fi-color-warning, .fi-color-success):not(.fi-ta-filter-indicators *),
 .fi-badge:not(.fi-color):not(.fi-ta-filter-indicators *) {
     gap: 6px;
-    padding: 3px 8px;
+    padding: 3px 10px;
     border-radius: var(--mt-radius-badge);
     background-color: var(--mt-badge-bg);
     box-shadow: none;
@@ -1086,7 +1216,7 @@ body {
  * a hairline; danger is never a solid red fill, in the filled and in the outlined form alike.
  */
 .fi-btn {
-    border-radius: var(--mt-radius);
+    border-radius: var(--mt-radius-pill);
     box-shadow: none;
     font-weight: 600;
 }
@@ -1104,14 +1234,13 @@ body {
 
 .fi-btn:not(.fi-color):not(.fi-outlined) {
     border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    background-color: var(--mt-panel-bg);
+    background-color: var(--mt-field-bg);
     color: var(--mt-text);
     --tw-ring-color: transparent;
 }
 
 .fi-btn:not(.fi-color):not(.fi-outlined):not(.fi-disabled):not([disabled]):hover {
-    background-color: var(--mt-row-hover);
+    background-color: var(--mt-row-divider);
 }
 
 .fi-btn.fi-color-danger {
@@ -1149,8 +1278,9 @@ body {
  * state selectors so it outranks Filament's own outlined hover tint.
  */
 .fi-btn.fi-color.fi-color-danger:not(.fi-disabled):not([disabled]):hover {
-    border-color: var(--mt-danger-text);
+    border-color: var(--mt-danger-border);
     background-color: var(--mt-badge-red-bg);
+    filter: brightness(0.95);
 }
 
 /* The modal buttons ("Vazgeç" / "Kaydet" / confirmations) take the same looks through these rules. */
@@ -1168,36 +1298,66 @@ body {
 }
 
 .fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link {
-    padding: 3px 8px;
+    padding: 4px 12px;
     border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    border-radius: var(--mt-radius);
-    background-color: var(--mt-panel-bg);
+    border-radius: var(--mt-radius-pill);
+    background-color: var(--mt-field-bg);
     font-weight: 600;
-    color: var(--mt-text);
+    color: var(--mt-link);
     text-decoration: none;
 }
 
 .fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link:hover {
-    background-color: var(--mt-row-hover);
+    background-color: var(--mt-row-divider);
     text-decoration: none;
 }
 
 .fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger {
     border-color: var(--mt-danger-border);
+    background-color: var(--mt-danger-bg);
     color: var(--mt-danger-text);
 }
 
 .fi-ta-ctn .fi-ta-cell .fi-ac-link-action.fi-link.fi-color-danger:hover {
-    border-color: var(--mt-danger-text);
+    border-color: var(--mt-danger-border);
     background-color: var(--mt-badge-red-bg);
+    filter: brightness(0.95);
 }
 
-/* Links in a panel's header ("Tüm borçlar", "Düzenle"): underlined, in the interactive color. */
+/*
+ * Icon-only actions (G-4C.6, docs/UI.md §2 Kural 5): WhatsApp, call, e-mail, open site, copy. A
+ * 36 px round target with the icon in its own color and a soft fill on hover; the name is the
+ * tooltip and the screen-reader text.
+ */
+.fi-icon-btn {
+    border-radius: var(--mt-radius-pill);
+}
+
+.fi-icon-btn.fi-whatsapp-action,
+.fi-icon-btn.fi-whatsapp-action:not(.fi-disabled):not([disabled]):hover {
+    color: var(--mt-whatsapp);
+}
+
+.fi-icon-btn.fi-whatsapp-action:not(.fi-disabled):not([disabled]):hover {
+    background-color: var(--mt-field-bg);
+}
+
+.fi-icon-btn.fi-whatsapp-action .fi-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Links in a panel's header ("Tüm borçlar", "Düzenle"): in the interactive color, underlined on hover. */
 .fi-link.fi-color-primary,
 .fi-ta-header .fi-link,
 .fi-section-header .fi-link {
-    color: var(--mt-primary);
+    color: var(--mt-link);
+    text-decoration: none;
+}
+
+.fi-link.fi-color-primary:hover,
+.fi-ta-header .fi-link:hover,
+.fi-section-header .fi-link:hover {
     text-decoration: underline;
 }
 
@@ -1207,11 +1367,10 @@ body {
  */
 .fi-section:not(.fi-section-not-contained):not(.fi-aside),
 .fi-wi-stats-overview-stat {
-    border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    border-radius: var(--mt-radius);
+    border: 0;
+    border-radius: var(--mt-radius-card);
     background-color: var(--mt-panel-bg);
-    box-shadow: none;
+    box-shadow: var(--mt-shadow-card);
 }
 
 .fi-section:not(.fi-section-not-contained):not(.fi-aside) > .fi-section-header {
@@ -1220,7 +1379,7 @@ body {
 
 .fi-section:not(.fi-section-not-contained).fi-section-has-header:not(.fi-collapsed) > .fi-section-content-ctn {
     border-top: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
+    border-color: var(--mt-row-divider);
 }
 
 .fi-section:not(.fi-section-not-contained):not(.fi-divided) > .fi-section-content-ctn > .fi-section-content {
@@ -1294,10 +1453,10 @@ body {
     align-items: center;
     gap: 16px 40px;
     padding: 20px 24px;
-    border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    border-radius: var(--mt-radius);
+    border: 0;
+    border-radius: var(--mt-radius-card);
     background-color: var(--mt-panel-bg);
+    box-shadow: var(--mt-shadow-card);
 }
 
 .fi-customer-header .fi-header-actions-ctn {
@@ -1373,9 +1532,8 @@ body {
 
 .fi-input-wrp {
     border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
     border-radius: var(--mt-radius);
-    background-color: var(--mt-panel-bg);
+    background-color: var(--mt-field-bg);
     box-shadow: none;
 }
 
@@ -1407,11 +1565,17 @@ body {
 }
 
 .fi-modal > .fi-modal-window-ctn > .fi-modal-window {
-    border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    border-radius: var(--mt-radius);
+    border: 0;
+    border-radius: var(--mt-radius-modal);
     background-color: var(--mt-panel-bg);
-    box-shadow: none;
+    box-shadow: var(--mt-shadow-modal);
+}
+
+/* The page behind a window is dimmed and blurred, not just darkened. */
+.fi-modal-close-overlay {
+    background-color: var(--mt-scrim);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
 }
 
 .fi-modal > .fi-modal-window-ctn > .fi-modal-window.fi-mt-form-modal {
@@ -1487,11 +1651,10 @@ body {
     inset-inline-end: 12px;
     width: auto;
     height: auto;
-    padding: 5px 12px;
+    padding: 5px 14px;
     border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    border-radius: var(--mt-radius);
-    background-color: var(--mt-panel-bg);
+    border-radius: var(--mt-radius-pill);
+    background-color: var(--mt-field-bg);
     font-size: var(--mt-text-body);
     font-weight: 600;
     color: var(--mt-text);
@@ -1516,17 +1679,16 @@ body {
 }
 
 .fi-modal-close-btn:hover {
-    background-color: var(--mt-row-hover);
+    background-color: var(--mt-row-divider);
 }
 
-/* Notifications: a bordered panel, the status color only in the icon (docs/UI.md §6). */
+/* Notifications: a floating card, the status color only in the icon (docs/UI.md §6). */
 .fi-no-notification:not(.fi-inline),
 .fi-no-notification.fi-color:not(.fi-inline) {
     border: var(--mt-border-width) solid transparent;
-    border-color: var(--mt-border);
-    border-radius: var(--mt-radius);
+    border-radius: var(--mt-radius-card);
     background-color: var(--mt-panel-bg);
-    box-shadow: none;
+    box-shadow: var(--mt-shadow-modal);
 }
 
 .fi-no-notification .fi-no-notification-title {
@@ -1720,4 +1882,143 @@ body {
         @apply overflow-visible text-wrap;
         text-overflow: clip;
     }
+}
+
+/*
+ * Customer avatars (G-4C.7, docs/UI.md §6): a round badge with the short name's two letters, the
+ * color fixed by the customer. In a table cell it is drawn by a pseudo-element from the cell's
+ * `data-initials` (so the column keeps its text, description and sorting); on Bugün and the card's
+ * header it is a real `fi-mt-avatar` element. Decorative only, never the only carrier of a name.
+ */
+.fi-mt-avatar-1 {
+    --mt-avatar: var(--mt-avatar-1);
+}
+
+.fi-mt-avatar-2 {
+    --mt-avatar: var(--mt-avatar-2);
+}
+
+.fi-mt-avatar-3 {
+    --mt-avatar: var(--mt-avatar-3);
+}
+
+.fi-mt-avatar-4 {
+    --mt-avatar: var(--mt-avatar-4);
+}
+
+.fi-mt-avatar-5 {
+    --mt-avatar: var(--mt-avatar-5);
+}
+
+.fi-mt-avatar-6 {
+    --mt-avatar: var(--mt-avatar-6);
+}
+
+.fi-mt-avatar-7 {
+    --mt-avatar: var(--mt-avatar-7);
+}
+
+.fi-mt-avatar-8 {
+    --mt-avatar: var(--mt-avatar-8);
+}
+
+.fi-mt-avatar,
+.fi-mt-avatar-cell::before {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--mt-radius-pill);
+    background-color: var(--mt-avatar);
+    font-size: var(--mt-text-help-small);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--mt-on-brand);
+}
+
+.fi-mt-avatar-cell {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 12px;
+
+    &::before {
+        content: attr(data-initials);
+        content: attr(data-initials) / '';
+        grid-column: 1;
+        grid-row: 1 / span 2;
+    }
+
+    & > * {
+        grid-column: 2;
+    }
+}
+
+.fi-today-who {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fi-today-who-text {
+    min-width: 0;
+}
+
+.fi-customer-header-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.fi-customer-header-title .fi-mt-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: var(--mt-text-body);
+}
+
+.fi-customer-header-text {
+    min-width: 0;
+}
+
+/*
+ * A service's domain with its "open the site" and "copy" icons (G-4C.6, filament/support/domain-links):
+ * 32 px round targets that sit tightly against the text and do not make the line taller.
+ */
+.fi-domain {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    overflow-wrap: anywhere;
+}
+
+.fi-domain-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-block: -8px;
+    border: 0;
+    border-radius: var(--mt-radius-pill);
+    background-color: transparent;
+    color: var(--mt-link);
+    cursor: pointer;
+
+    & .fi-icon,
+    & svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.fi-domain-icon:hover {
+    background-color: var(--mt-field-bg);
+}
+
+.fi-domain-icon:focus-visible {
+    outline: var(--mt-focus-width) solid var(--mt-focus-color);
+    outline-offset: calc(-1 * var(--mt-focus-width));
 }

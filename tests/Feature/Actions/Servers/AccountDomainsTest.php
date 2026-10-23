@@ -114,9 +114,13 @@ it('says on the service row how many other domains the account has', function ()
     $service = UsageScenario::linkedService($server, 'logi', domain: 'logi.com.tr');
     $service->items()->firstOrFail()->forceFill(['remote_domains' => ['logi.com.tr', 'ikinci.com', 'logi.net']])->save();
 
-    Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $service->customer, 'pageClass' => ViewCustomer::class])
-        ->assertSee('logi.com.tr +2 alan adı')
-        ->assertDontSee('ikinci.com');
+    $html = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $service->customer, 'pageClass' => ViewCustomer::class])
+        ->instance()->getTable()->getColumn('name')
+        ->record($service)->getDescriptionBelow()->toHtml();
+
+    // The domain now carries its icon controls (G-4C.6); the visible text is still the same line.
+    expect(trim((string) preg_replace('/\s+/', ' ', strip_tags($html))))->toBe('logi.com.tr +2 alan adı')
+        ->and($html)->not->toContain('ikinci.com');
 });
 
 it('adds nothing to the service row without other domains', function () {

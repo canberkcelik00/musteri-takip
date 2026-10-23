@@ -8,8 +8,10 @@ use Filament\Actions\Action;
 use Illuminate\Support\Collection;
 
 /**
- * "WhatsApp" on an open charge's row (G-5B.4, docs/UI.md §4): a link that opens a WhatsApp chat
- * with the primary contact and a ready message about the charge in a new tab. Nothing is saved
+ * The WhatsApp icon on an open charge's row (G-5B.4, G-4C.6, docs/UI.md §2 Kural 5 and §4): a link
+ * that opens a WhatsApp chat with the primary contact and a ready message about the charge in a
+ * new tab. It is an icon button without visible text; its tooltip and the screen-reader label are
+ * the translated "WhatsApp". Nothing is saved
  * and nothing asks for confirmation; the link comes from BuildWhatsAppReminder, and the button is
  * hidden when there is none (no phone number, archived customer, charge not open). Hidden below
  * `md` like the other secondary row actions, so a narrow row keeps only "Ödeme al".
@@ -70,8 +72,11 @@ class WhatsAppReminderAction extends Action
 
         $this
             ->label(__('reminders.whatsapp.label'))
+            ->icon(view('filament.icons.whatsapp'))
+            ->iconButton()
+            ->tooltip(__('reminders.whatsapp.label'))
             ->color('gray')
-            ->extraAttributes(['class' => 'fi-hidden-below-md'])
+            ->extraAttributes(['class' => 'fi-hidden-below-md fi-whatsapp-action'])
             ->url(fn (?Charge $record): ?string => $this->linkFor($record), shouldOpenInNewTab: true)
             ->visible(fn (?Charge $record): bool => $this->linkFor($record) !== null);
     }

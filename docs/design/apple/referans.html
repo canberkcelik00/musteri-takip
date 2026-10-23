@@ -1,0 +1,452 @@
+<title>Müşteri Takip Apple Tasarımı</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a macOS-style window floating on a soft wallpaper; translucent source-list sidebar, large-title toolbar, inset grouped lists. Below 860px it becomes an iOS-style app with a bottom tab bar. */
+:root {
+  --wall: linear-gradient(135deg, #cfd9ea 0%, #e3dbef 52%, #f3e2da 100%);
+  --win: #f5f5f7;
+  --surface: #ffffff;
+  --side: rgba(236, 236, 241, 0.74);
+  --bar: rgba(245, 245, 247, 0.78);
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --faint: #86868b;
+  --line: rgba(0, 0, 0, 0.08);
+  --fill: rgba(0, 0, 0, 0.05);
+  --fill-strong: rgba(0, 0, 0, 0.09);
+  --accent: #0071e3;
+  --accent-tint: rgba(0, 113, 227, 0.12);
+  --on-accent: #ffffff;
+  --red-fg: #d70015; --red-bg: rgba(255, 59, 48, 0.12);
+  --amber-fg: #a35a00; --amber-bg: rgba(255, 159, 10, 0.16);
+  --green-fg: #1b7a35; --green-bg: rgba(52, 199, 89, 0.16);
+  --gray-fg: #6e6e73; --gray-bg: rgba(120, 120, 128, 0.14);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
+  --win-shadow: 0 32px 80px rgba(30, 40, 70, 0.28), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+  --scrim: rgba(0, 0, 0, 0.28);
+  --brand: #ff3800;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --wall: linear-gradient(135deg, #151b29 0%, #231c36 52%, #2f2224 100%);
+    --win: #1c1c1e; --surface: #2c2c2e; --side: rgba(40, 40, 44, 0.74); --bar: rgba(28, 28, 30, 0.8);
+    --fg: #f5f5f7; --muted: #a1a1a6; --faint: #8e8e93;
+    --line: rgba(255, 255, 255, 0.1); --fill: rgba(255, 255, 255, 0.08); --fill-strong: rgba(255, 255, 255, 0.14);
+    --accent: #0a84ff; --accent-tint: rgba(10, 132, 255, 0.24);
+    --red-fg: #ff6961; --red-bg: rgba(255, 69, 58, 0.2);
+    --amber-fg: #ffb340; --amber-bg: rgba(255, 159, 10, 0.2);
+    --green-fg: #30d158; --green-bg: rgba(48, 209, 88, 0.2);
+    --gray-fg: #a1a1a6; --gray-bg: rgba(235, 235, 245, 0.14);
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); --win-shadow: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+    --scrim: rgba(0, 0, 0, 0.5); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --wall: linear-gradient(135deg, #151b29 0%, #231c36 52%, #2f2224 100%);
+  --win: #1c1c1e; --surface: #2c2c2e; --side: rgba(40, 40, 44, 0.74); --bar: rgba(28, 28, 30, 0.8);
+  --fg: #f5f5f7; --muted: #a1a1a6; --faint: #8e8e93;
+  --line: rgba(255, 255, 255, 0.1); --fill: rgba(255, 255, 255, 0.08); --fill-strong: rgba(255, 255, 255, 0.14);
+  --accent: #0a84ff; --accent-tint: rgba(10, 132, 255, 0.24);
+  --red-fg: #ff6961; --red-bg: rgba(255, 69, 58, 0.2);
+  --amber-fg: #ffb340; --amber-bg: rgba(255, 159, 10, 0.2);
+  --green-fg: #30d158; --green-bg: rgba(48, 209, 88, 0.2);
+  --gray-fg: #a1a1a6; --gray-bg: rgba(235, 235, 245, 0.14);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); --win-shadow: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+  --scrim: rgba(0, 0, 0, 0.5); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--wall) fixed, var(--win); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent-tint); outline-offset: 1px; box-shadow: 0 0 0 1.5px var(--accent); }
+
+.stage { padding: 20px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); display: grid; place-items: center; min-height: 100dvh; }
+.window { width: 100%; max-width: 1320px; height: min(900px, calc(100dvh - 40px)); min-height: 640px; background: var(--win); border-radius: 14px; box-shadow: var(--win-shadow); display: grid; grid-template-columns: 272px minmax(0, 1fr); overflow: hidden; }
+
+/* Sidebar */
+.side { background: var(--side); backdrop-filter: saturate(180%) blur(30px); -webkit-backdrop-filter: saturate(180%) blur(30px); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; padding: 0 12px 14px; }
+.lights { display: flex; gap: 8px; height: 52px; align-items: center; padding-inline: 8px; }
+.lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.lights i:nth-child(1) { background: #ff5f57; } .lights i:nth-child(2) { background: #febc2e; } .lights i:nth-child(3) { background: #28c840; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 8px 14px; font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+.mark { width: 30px; height: 30px; border-radius: 8px; background: var(--brand); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.nav { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; flex: 1; }
+.group { display: flex; flex-direction: column; gap: 1px; }
+.glabel { font-size: 12px; font-weight: 600; color: var(--faint); padding: 4px 10px; display: flex; justify-content: space-between; }
+.item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 36px; padding: 0 10px; border: 0; background: transparent; border-radius: 8px; text-align: left; font-size: 14px; font-weight: 500; color: var(--fg); }
+.item:hover { background: var(--fill); }
+.item[aria-current="page"] { background: var(--fill-strong); font-weight: 600; }
+.ico { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; flex-shrink: 0; color: #fff; }
+.ico svg { width: 15px; height: 15px; }
+.c-blue { background: #0a84ff; } .c-indigo { background: #5e5ce6; } .c-orange { background: #ff9f0a; } .c-red { background: #ff453a; }
+.c-green { background: #30b350; } .c-teal { background: #30a6b8; } .c-gray { background: #8e8e93; }
+.bottom { margin-top: auto; }
+
+/* Pane */
+.pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
+.toolbar { position: sticky; top: 0; z-index: 5; height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding-inline: 28px; background: var(--bar); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); border-bottom: 1px solid var(--line); }
+.search { flex: 0 1 340px; height: 32px; border-radius: 9px; background: var(--fill); display: flex; align-items: center; gap: 8px; padding-inline: 10px; color: var(--faint); font-size: 14px; min-width: 0; }
+.search svg { width: 15px; height: 15px; flex-shrink: 0; }
+.search input { border: 0; background: transparent; outline: 0; flex: 1; min-width: 0; color: var(--fg); }
+.search input::placeholder { color: var(--faint); }
+.search kbd { font: 500 11px var(--font); color: var(--faint); background: var(--fill); border-radius: 5px; padding: 1px 6px; }
+.grow { flex: 1; }
+.btn { height: 34px; padding-inline: 16px; border: 0; border-radius: 999px; background: var(--fill); font-weight: 600; font-size: 14px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { background: var(--fill-strong); }
+.btn.primary { background: var(--accent); color: var(--on-accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.tint { background: var(--accent-tint); color: var(--accent); }
+.btn.tint:hover { filter: brightness(0.96); }
+.btn.sm { height: 28px; padding-inline: 12px; font-size: 13px; }
+.btn.plain { background: transparent; color: var(--accent); padding-inline: 8px; }
+
+.scroll { flex: 1; overflow-y: auto; min-height: 0; }
+.content { padding: 8px 28px 40px; max-width: 1000px; display: grid; gap: 22px; }
+.title h1 { margin: 0; font-size: 34px; line-height: 1.12; font-weight: 700; letter-spacing: -0.022em; }
+.title p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+.title { padding-top: 14px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; }
+
+/* Cards */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.card { background: var(--surface); border-radius: 16px; box-shadow: var(--card-shadow); min-width: 0; }
+.stat { padding: 16px 18px 18px; display: grid; gap: 2px; text-align: left; border: 0; width: 100%; color: inherit; }
+.stat:hover { transform: translateY(-1px); }
+.stat { transition: transform .15s ease; }
+.stat .k { font-size: 13px; font-weight: 500; color: var(--muted); }
+.stat .v { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; margin-top: 4px; white-space: nowrap; }
+.stat .v small { font-size: 15px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+.stat .v + .v { margin-top: 0; }
+.stat .s { font-size: 12.5px; color: var(--faint); margin-top: 4px; }
+.stat.warn .v { color: var(--red-fg); }
+
+.listhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 4px; margin-bottom: -10px; }
+.listhead h2 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.015em; }
+.count { color: var(--muted); font-size: 14px; }
+.list { overflow: hidden; }
+.row { display: grid; align-items: center; gap: 14px; padding: 12px 18px; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 18px; right: 0; height: 1px; background: var(--line); }
+.row.hov:hover { background: var(--fill); cursor: pointer; }
+.row.head { padding-block: 9px; font-size: 12px; font-weight: 600; color: var(--faint); letter-spacing: 0.01em; }
+.row.head:hover { background: transparent; cursor: default; }
+.cols-task { grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.5fr) 92px 110px 118px auto; }
+.cols-cust { grid-template-columns: minmax(0, 2.4fr) 130px 120px 70px auto; }
+.cols-debt { grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) 96px 110px 126px; }
+.who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 13px; flex-shrink: 0; }
+.nm { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sub { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txt { min-width: 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.num small { display: block; font-weight: 400; font-size: 12px; color: var(--faint); }
+.num.over { color: var(--red-fg); }
+.date { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.acts { display: flex; gap: 6px; justify-content: flex-end; white-space: nowrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding-inline: 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.red { background: var(--red-bg); color: var(--red-fg); } .pill.amber { background: var(--amber-bg); color: var(--amber-fg); }
+.pill.green { background: var(--green-bg); color: var(--green-fg); } .pill.gray { background: var(--gray-bg); color: var(--gray-fg); }
+.tot { display: flex; justify-content: flex-end; gap: 28px; padding: 14px 18px; background: var(--fill); font-variant-numeric: tabular-nums; }
+.tot span { color: var(--muted); } .tot b { margin-left: 8px; }
+.empty { padding: 56px 20px; text-align: center; color: var(--muted); }
+.empty b { display: block; font-size: 17px; color: var(--fg); margin-bottom: 4px; }
+
+.seg { display: inline-flex; background: var(--fill); border-radius: 9px; padding: 2px; gap: 2px; max-width: 100%; overflow-x: auto; }
+.seg button { border: 0; background: transparent; height: 28px; padding-inline: 14px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--fg); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14), 0 0 0 0.5px rgba(0, 0, 0, 0.04); font-weight: 600; }
+
+/* Sheet */
+.scrim { position: fixed; inset: 0; background: var(--scrim); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; z-index: 50; }
+.sheet { width: min(480px, 100%); background: var(--surface); border-radius: 20px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); padding: 24px; display: grid; gap: 18px; max-height: calc(100dvh - 32px); overflow-y: auto; animation: pop .18s ease-out; }
+@keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.sheet h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em; }
+.fields { display: grid; background: var(--win); border-radius: 12px; }
+.field { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 10px; padding: 0 14px; min-height: 46px; position: relative; }
+.field + .field::before { content: ""; position: absolute; top: 0; left: 14px; right: 0; height: 1px; background: var(--line); }
+.field label { color: var(--muted); }
+.field input, .field select { border: 0; background: transparent; outline: 0; text-align: right; min-width: 0; height: 44px; width: 100%; }
+.field select { direction: rtl; cursor: pointer; }
+.field .seg { justify-self: end; }
+.sheetact { display: flex; justify-content: flex-end; gap: 10px; }
+.sheetact .btn { height: 38px; padding-inline: 20px; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--win); padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 13px; z-index: 60; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+
+.tabbar { display: none; }
+
+/* Narrow: iOS-style app */
+@media (max-width: 1100px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols-task { grid-template-columns: minmax(0, 2fr) 110px 118px auto; }
+  .cols-task .c-topic, .cols-task .c-date { display: none; }
+  .cols-debt { grid-template-columns: minmax(0, 2fr) 96px 126px; }
+  .cols-debt .c-desc, .cols-debt .c-status { display: none; }
+}
+@media (max-width: 860px) {
+  body { background: var(--win); }
+  .stage { padding: 0; display: block; }
+  .window { height: auto; min-height: 100dvh; max-width: none; border-radius: 0; box-shadow: none; display: block; overflow: visible; }
+  .side { display: none; }
+  .pane { min-height: 100dvh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .toolbar { padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); padding-top: env(safe-area-inset-top, 0px); height: calc(52px + env(safe-area-inset-top, 0px)); }
+  .scroll { overflow: visible; }
+  .content { padding: 4px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px)); gap: 18px; }
+  .title h1 { font-size: 32px; }
+  .search kbd, .search-label-long, .btn.hide-sm { display: none; }
+  .search { flex: 1 1 auto; }
+  .stat .v { font-size: 22px; }
+  .cols-cust { grid-template-columns: minmax(0, 1fr) auto; }
+  .cols-cust .c-ren, .cols-cust .c-n { display: none; }
+  .row.head { display: none; }
+  .tabbar { display: grid; grid-template-columns: repeat(3, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--bar); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); border-top: 1px solid var(--line); padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
+  .tabbar button { border: 0; background: transparent; display: grid; justify-items: center; gap: 2px; font-size: 11px; font-weight: 500; color: var(--faint); padding: 4px 0; }
+  .tabbar button svg { width: 24px; height: 24px; }
+  .tabbar button[aria-current="page"] { color: var(--accent); }
+}
+@media (max-width: 520px) {
+  .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cols-task { grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px; }
+  .cols-task .c-status, .cols-task .c-who { grid-column: 1; }
+  .cols-task .c-amt { grid-column: 2; grid-row: 1; }
+  .cols-task .c-status { display: none; }
+  .cols-task .acts { grid-column: 1 / -1; justify-content: flex-start; }
+  .cols-debt .c-due { display: none; }
+  .cols-debt { grid-template-columns: minmax(0, 1fr) auto; }
+  .field { grid-template-columns: 96px 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } .stat { transition: none; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-today" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="g-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8.5" r="3.3"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><path d="M16.5 6.3a2.8 2.8 0 0 1 0 5M18.5 14.5c1.4.6 2.2 2 2.5 3.8"/></symbol>
+    <symbol id="g-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5V8h4M9 13h6M9 16.5h6"/></symbol>
+    <symbol id="g-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2.5-1.5-2 1.5-1.5-1.2-1.5 1.2-2-1.5L6 20.5z"/><path d="M9 8.5h6M9 12h6"/></symbol>
+    <symbol id="g-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12.5" rx="2.5"/><path d="M3 10.5h18M7 15h3"/></symbol>
+    <symbol id="g-stack" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="5" y="10" width="14" height="9" rx="2"/><path d="M7.5 6.5h9M9.5 3.5h5"/></symbol>
+    <symbol id="g-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></symbol>
+    <symbol id="g-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="4" y="8" width="16" height="11" rx="2.5"/><circle cx="16" cy="13.5" r="1"/></symbol>
+    <symbol id="g-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+    <symbol id="g-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="stage">
+  <div class="window">
+    <aside class="side" aria-label="Menü">
+      <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="brand"><span class="mark">MT</span>Müşteri Takip</div>
+      <nav class="nav" id="nav"></nav>
+    </aside>
+    <div class="pane">
+      <header class="toolbar">
+        <label class="search"><svg><use href="#g-search"/></svg><input id="q" type="search" placeholder="Müşteri veya alan adı ara" autocomplete="off"><kbd>⌘K</kbd></label>
+        <span class="grow"></span>
+        <button class="btn tint hide-sm" type="button" id="newCustomer">Yeni müşteri</button>
+        <button class="btn primary" type="button" id="pay">Ödeme al</button>
+      </header>
+      <div class="scroll"><main class="content" id="view"></main></div>
+    </div>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Ana gezinme"></nav>
+<div id="overlay"></div>
+
+<script>
+/* ---------- Data (example records; amounts in kuruş, never summed across currencies) ---------- */
+var TODAY = '23 Ekim 2026, Cuma';
+var CUSTOMERS = [
+  { s: 'Logi', t: 'Logi Yazılım Ltd. Şti.', debt: { TL: 1240000 }, over: true, ren: '14.11.2026', n: 3, c: '#5e5ce6' },
+  { s: 'Ege Turizm', t: 'Ege Turizm Seyahat A.Ş.', debt: { TL: 2150000 }, over: true, ren: '30.10.2026', n: 4, c: '#ff9f0a' },
+  { s: 'Anka Mimarlık', t: 'Anka Mimarlık ve Müh. A.Ş.', debt: { TL: 860000 }, over: false, ren: '02.11.2026', n: 2, c: '#30a6b8' },
+  { s: 'Delta Gıda', t: 'Delta Gıda San. ve Tic. Ltd.', debt: { USD: 120000 }, over: false, ren: '19.12.2026', n: 2, c: '#ff453a' },
+  { s: 'Kule Spor', t: 'Kule Spor Kulübü Derneği', debt: {}, over: false, ren: '05.01.2027', n: 1, c: '#30b350' },
+  { s: 'Mavi Kırtasiye', t: 'Mavi Kırtasiye Tic.', debt: { TL: 400000 }, over: false, ren: '28.11.2026', n: 1, c: '#0a84ff' },
+  { s: 'Nehir Diş', t: 'Nehir Diş Polikliniği', debt: {}, over: false, ren: '23.03.2027', n: 2, c: '#bf5af2' },
+  { s: 'Plato Akademi', t: 'Plato Eğitim Hizmetleri', debt: { TL: 300000 }, over: false, ren: '11.02.2027', n: 1, c: '#8e8e93' }
+];
+var DEBTS = [
+  { who: 'Logi', desc: 'logi.com.tr · Alan adı yenileme', due: '02.10.2026', st: 'red', stt: 'Gecikmiş', cur: 'TL', left: 1240000 },
+  { who: 'Ege Turizm', desc: 'egeturizm.com.tr · Hosting 2026', due: '10.10.2026', st: 'red', stt: 'Gecikmiş', cur: 'TL', left: 2150000 },
+  { who: 'Delta Gıda', desc: 'deltagida.com · SSL sertifikası', due: '26.10.2026', st: 'amber', stt: 'Yaklaşan', cur: 'USD', left: 120000 },
+  { who: 'Mavi Kırtasiye', desc: 'mavikirtasiye.com · Hosting 2026', due: '28.10.2026', st: 'amber', stt: 'Yaklaşan', cur: 'TL', left: 400000 },
+  { who: 'Plato Akademi', desc: 'platoakademi.org · Bakım 2026', due: '30.10.2026', st: 'amber', stt: 'Yaklaşan', cur: 'TL', left: 300000 },
+  { who: 'Anka Mimarlık', desc: 'ankamimarlik.com · Hosting 2026', due: '05.11.2026', st: 'amber', stt: 'Kısmi ödendi', cur: 'TL', left: 860000, of: 1200000 }
+];
+
+/* ---------- Helpers ---------- */
+function money(k, cur) {
+  var whole = Math.trunc(k / 100), frac = String(k % 100).padStart(2, '0');
+  return String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + frac + ' ' + cur;
+}
+function initials(s) { var p = s.split(' '); return (p[0][0] + (p[1] ? p[1][0] : p[0][1])).toUpperCase(); }
+function cust(s) { return CUSTOMERS.filter(function (c) { return c.s === s; })[0]; }
+function who(c) { return '<div class="who"><span class="av" style="background:' + c.c + '">' + initials(c.s) + '</span><div class="txt"><div class="nm">' + c.s + '</div><div class="sub">' + c.t + '</div></div></div>'; }
+function pill(cls, t) { return '<span class="pill ' + cls + '">' + t + '</span>'; }
+function debtText(d) { var o = []; for (var k in d) { o.push(money(d[k], k)); } return o.length ? o.join(' · ') : '—'; }
+
+/* ---------- Menu ---------- */
+var ITEMS = [
+  { id: 'bugun', label: 'Bugün', g: 'g-today', c: 'c-blue' },
+  { id: 'musteriler', label: 'Müşteriler', g: 'g-users', c: 'c-indigo' },
+  { id: 'teklifler', label: 'Teklifler', g: 'g-doc', c: 'c-orange' },
+  { group: 'Tahsilat' },
+  { id: 'borclar', label: 'Açık borçlar', g: 'g-receipt', c: 'c-red' },
+  { id: 'odemeler', label: 'Ödemeler', g: 'g-card', c: 'c-green' },
+  { group: 'Katalog' },
+  { id: 'hizmetler', label: 'Hizmetler', g: 'g-stack', c: 'c-teal' },
+  { group: 'Ayarlar', bottom: true },
+  { id: 'genel', label: 'Genel', g: 'g-gear', c: 'c-gray' },
+  { id: 'yontemler', label: 'Ödeme yöntemleri', g: 'g-wallet', c: 'c-gray' },
+  { id: 'sunucular', label: 'Sunucular', g: 'g-server', c: 'c-gray' }
+];
+var TABS = [['bugun', 'Bugün', 'g-today'], ['musteriler', 'Müşteriler', 'g-users'], ['borclar', 'Borçlar', 'g-receipt']];
+var state = { view: 'bugun', filter: 'all', debtFilter: 'open', q: '' };
+
+function renderNav() {
+  var html = '', open = false;
+  ITEMS.forEach(function (it) {
+    if (it.group) { if (open) { html += '</div>'; } html += '<div class="group' + (it.bottom ? ' bottom' : '') + '"><div class="glabel">' + it.group + '</div>'; open = true; return; }
+    if (!open) { html += '<div class="group">'; open = true; }
+    html += '<button class="item" type="button" data-go="' + it.id + '"' + (state.view === it.id ? ' aria-current="page"' : '') + '><span class="ico ' + it.c + '"><svg><use href="#' + it.g + '"/></svg></span>' + it.label + '</button>';
+  });
+  document.getElementById('nav').innerHTML = html + '</div>';
+  document.getElementById('tabbar').innerHTML = TABS.map(function (t) {
+    return '<button type="button" data-go="' + t[0] + '"' + (state.view === t[0] ? ' aria-current="page"' : '') + '><svg><use href="#' + t[2] + '"/></svg>' + t[1] + '</button>';
+  }).join('');
+}
+
+/* ---------- Views ---------- */
+function viewBugun() {
+  var tasks = [
+    { c: 'Logi', topic: 'Alan adı yenileme borcu', date: '02.10.2026', st: pill('red', 'Gecikmiş'), amt: money(1240000, 'TL'), a: ['Ödeme al'], wa: true },
+    { c: 'Ege Turizm', topic: 'Hosting 2026 borcu', date: '10.10.2026', st: pill('red', 'Gecikmiş'), amt: money(2150000, 'TL'), a: ['Ödeme al'], wa: true },
+    { c: 'Delta Gıda', topic: 'SSL sertifikası borcu', date: '26.10.2026', st: pill('amber', 'Yaklaşan'), amt: money(120000, 'USD'), a: ['Ödeme al'], wa: true },
+    { c: 'Mavi Kırtasiye', topic: 'Hosting 2026 borcu', date: '28.10.2026', st: pill('amber', 'Yaklaşan'), amt: money(400000, 'TL'), a: ['Ödeme al'], wa: true },
+    { c: 'Plato Akademi', topic: 'Bakım 2026 borcu', date: '30.10.2026', st: pill('amber', 'Yaklaşan'), amt: money(300000, 'TL'), a: ['Ödeme al'], wa: true },
+    { c: 'Kule Spor', topic: 'Hosting için ücretsiz devam kararı', date: '31.10.2026', st: pill('gray', 'Karar bekliyor'), amt: '—', a: ['Ücretsiz devam et', 'Ücretli yap'], wa: false }
+  ];
+  var rows = tasks.map(function (t) {
+    var c = cust(t.c);
+    return '<div class="row hov cols-task"><div class="c-who">' + who(c) + '</div><div class="c-topic sub" style="font-size:14px;color:var(--fg)">' + t.topic + '</div><div class="c-date date">' + t.date + '</div><div class="c-status">' + t.st + '</div><div class="c-amt num">' + t.amt + '</div><div class="acts">' +
+      (t.wa ? '<button class="btn plain sm hide-sm" type="button">WhatsApp</button>' : '') +
+      t.a.map(function (a, i) { return '<button class="btn sm ' + (i === 0 && t.a.length === 1 ? 'tint' : '') + '" type="button" data-pay="' + t.c + '">' + a + '</button>'; }).join('') + '</div></div>';
+  }).join('');
+  return '<div class="title"><div><h1>Bugün</h1><p>' + TODAY + '</p></div></div>' +
+    '<div class="stats">' +
+    '<button class="card stat" type="button" data-go="borclar"><span class="k">Toplam alacak</span><span class="v">49.500,00 <small>TL</small></span><span class="v">1.200,00 <small>USD</small></span><span class="s">6 açık borç</span></button>' +
+    '<button class="card stat warn" type="button" data-go="borclar"><span class="k">Gecikmiş tutar</span><span class="v">33.900,00 <small>TL</small></span><span class="s">2 borç gecikmiş</span></button>' +
+    '<button class="card stat" type="button" data-go="borclar"><span class="k">Bu ay vadesi gelen</span><span class="v">7.000,00 <small>TL</small></span><span class="v">1.200,00 <small>USD</small></span><span class="s">4 borç</span></button>' +
+    '<button class="card stat" type="button" data-go="musteriler"><span class="k">30 gün içinde yenilenecek</span><span class="v">4 <small>hizmet</small></span><span class="s">3 müşteri</span></button>' +
+    '</div>' +
+    '<div class="listhead"><h2>Yapılacaklar</h2><span class="count">6 iş</span></div>' +
+    '<div class="card list">' + rows + '</div>';
+}
+
+function viewMusteriler() {
+  var q = state.q.toLowerCase();
+  var list = CUSTOMERS.filter(function (c) {
+    if (q && (c.s + ' ' + c.t).toLowerCase().indexOf(q) < 0) { return false; }
+    if (state.filter === 'over') { return c.over; }
+    if (state.filter === 'debt') { return Object.keys(c.debt).length > 0; }
+    return true;
+  }).sort(function (a, b) { return (b.over - a.over) || a.s.localeCompare(b.s, 'tr'); });
+  var segs = [['all', 'Tümü'], ['over', 'Gecikmiş'], ['debt', 'Borcu olan']].map(function (s) {
+    return '<button type="button" data-filter="' + s[0] + '" aria-pressed="' + (state.filter === s[0]) + '">' + s[1] + '</button>';
+  }).join('');
+  var rows = list.map(function (c) {
+    var has = Object.keys(c.debt).length > 0;
+    return '<div class="row hov cols-cust">' + who(c) + '<div class="num' + (c.over ? ' over' : '') + '">' + debtText(c.debt) + '</div><div class="c-ren date">' + c.ren + '</div><div class="c-n date" style="text-align:center">' + c.n + '</div><div class="acts">' + (has ? '<button class="btn sm tint" type="button" data-pay="' + c.s + '">Ödeme al</button>' : '') + '</div></div>';
+  }).join('');
+  return '<div class="title"><div><h1>Müşteriler</h1><p>Gecikmiş borcu olanlar üstte.</p></div><button class="btn tint hide-sm" type="button" data-newcust>Yeni müşteri</button></div>' +
+    '<div class="listhead"><div class="seg" role="group" aria-label="Süzgeç">' + segs + '</div><span class="count">' + list.length + ' müşteri</span></div>' +
+    '<div class="card list"><div class="row head cols-cust"><div>Müşteri</div><div style="text-align:right">Açık borç</div><div class="c-ren">En yakın yenileme</div><div class="c-n" style="text-align:center">Hizmet</div><div></div></div>' +
+    (rows || '<div class="empty"><b>Eşleşen müşteri yok</b>Aramayı kısaltın ya da süzgeci "Tümü" yapın.</div>') + '</div>';
+}
+
+function viewBorclar() {
+  var q = state.q.toLowerCase();
+  var list = DEBTS.filter(function (d) { return !q || (d.who + ' ' + d.desc).toLowerCase().indexOf(q) >= 0; });
+  if (state.debtFilter === 'over') { list = list.filter(function (d) { return d.st === 'red'; }); }
+  var segs = [['open', 'Açık'], ['over', 'Gecikmiş']].map(function (s) {
+    return '<button type="button" data-dfilter="' + s[0] + '" aria-pressed="' + (state.debtFilter === s[0]) + '">' + s[1] + '</button>';
+  }).join('');
+  var totals = {};
+  list.forEach(function (d) { totals[d.cur] = (totals[d.cur] || 0) + d.left; });
+  var rows = list.map(function (d) {
+    var c = cust(d.who);
+    return '<div class="row hov cols-debt">' + '<div>' + who(c).replace(c.t, c.t) + '</div>' + '<div class="c-desc sub" style="font-size:14px;color:var(--fg)">' + d.desc + '</div><div class="c-due date">' + d.due + '</div><div class="c-status">' + pill(d.st, d.stt) + '</div><div class="num' + (d.st === 'red' ? ' over' : '') + '">' + money(d.left, d.cur) + (d.of ? '<small>' + money(d.of, d.cur) + '\'den</small>' : '') + '</div></div>';
+  }).join('');
+  var tot = Object.keys(totals).map(function (k) { return '<span>Toplam ' + k + '<b style="color:var(--fg)">' + money(totals[k], k) + '</b></span>'; }).join('');
+  return '<div class="title"><div><h1>Açık borçlar</h1><p>Para birimleri ayrı toplanır.</p></div></div>' +
+    '<div class="listhead"><div class="seg" role="group" aria-label="Süzgeç">' + segs + '</div><span class="count">' + list.length + ' borç</span></div>' +
+    '<div class="card list"><div class="row head cols-debt"><div>Müşteri</div><div class="c-desc">Açıklama</div><div class="c-due">Vade</div><div class="c-status">Durum</div><div style="text-align:right">Kalan</div></div>' +
+    (rows || '<div class="empty"><b>Eşleşen borç yok</b>Aramayı kısaltın.</div>') + (tot ? '<div class="tot">' + tot + '</div>' : '') + '</div>';
+}
+
+function viewPlaceholder() {
+  var it = ITEMS.filter(function (i) { return i.id === state.view; })[0];
+  return '<div class="title"><div><h1>' + it.label + '</h1></div></div><div class="card"><div class="empty"><b>Bu ekran bu denemede çizilmedi</b>Bugün, Müşteriler ve Açık borçlar ekranlarına soldan geçebilirsiniz.</div></div>';
+}
+
+function render() {
+  renderNav();
+  var v = { bugun: viewBugun, musteriler: viewMusteriler, borclar: viewBorclar }[state.view] || viewPlaceholder;
+  document.getElementById('view').innerHTML = v();
+  try { history.replaceState(null, '', '#' + state.view); } catch (e) {}
+}
+
+/* ---------- Payment sheet ---------- */
+var lastFocus = null;
+function openPay(name) {
+  lastFocus = document.activeElement;
+  var opts = CUSTOMERS.map(function (c) { return '<option' + (c.s === name ? ' selected' : '') + '>' + c.s + '</option>'; }).join('');
+  document.getElementById('overlay').innerHTML =
+    '<div class="scrim" id="scrim"><form class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="st"><h2 id="st">Ödeme al</h2>' +
+    '<div class="fields">' +
+    '<div class="field"><label for="f-c">Müşteri</label><select id="f-c">' + opts + '</select></div>' +
+    '<div class="field"><label for="f-a">Tutar</label><input id="f-a" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>' +
+    '<div class="field"><label>Para birimi</label><div class="seg" id="f-cur"><button type="button" aria-pressed="true">TL</button><button type="button" aria-pressed="false">USD</button></div></div>' +
+    '<div class="field"><label for="f-m">Yöntem</label><select id="f-m"><option>Havale / EFT</option><option>Kredi kartı</option><option>Nakit</option></select></div>' +
+    '<div class="field"><label for="f-d">Tarih</label><input id="f-d" value="23.10.2026"></div>' +
+    '</div><div class="sheetact"><button class="btn" type="button" id="cancel">İptal</button><button class="btn primary" type="submit">Kaydet</button></div></form></div>';
+  document.getElementById('f-a').focus();
+}
+function closePay() {
+  document.getElementById('overlay').innerHTML = '';
+  if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
+}
+function toast(t) {
+  var el = document.createElement('div'); el.className = 'toast'; el.textContent = t; el.setAttribute('role', 'status');
+  document.body.appendChild(el); setTimeout(function () { el.remove(); }, 2600);
+}
+
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('[data-go],[data-pay],[data-filter],[data-dfilter],#pay,#cancel,#scrim,#f-cur button,[data-newcust],#newCustomer');
+  if (!t) { return; }
+  if (t.id === 'scrim') { if (e.target === t) { closePay(); } return; }
+  if (t.id === 'cancel') { closePay(); return; }
+  if (t.closest('#f-cur')) { t.parentNode.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b === t)); }); return; }
+  if (t.dataset.go) { state.view = t.dataset.go; render(); return; }
+  if (t.dataset.filter) { state.filter = t.dataset.filter; render(); return; }
+  if (t.dataset.dfilter) { state.debtFilter = t.dataset.dfilter; render(); return; }
+  if (t.id === 'newCustomer' || t.hasAttribute('data-newcust')) { toast('Yeni müşteri penceresi bu denemede çizilmedi'); return; }
+  openPay(t.dataset.pay || '');
+});
+document.addEventListener('submit', function (e) { e.preventDefault(); closePay(); toast('Ödeme kaydedildi · örnek ekran'); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && document.getElementById('scrim')) { closePay(); }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); document.getElementById('q').focus(); }
+});
+document.getElementById('q').addEventListener('input', function (e) {
+  state.q = e.target.value;
+  if (state.view === 'bugun') { state.view = 'musteriler'; }
+  render();
+});
+
+var h = (location.hash || '').slice(1);
+if (['bugun', 'musteriler', 'borclar'].indexOf(h) >= 0) { state.view = h; }
+render();
+</script>

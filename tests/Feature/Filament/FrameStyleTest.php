@@ -162,13 +162,23 @@ it('sets the sidebar to 272 px and keeps it from collapsing on the desktop', fun
         ->and($panel->isSidebarFullyCollapsibleOnDesktop())->toBeFalse();
 });
 
-it('shows an icon beside every menu item, in the muted menu color and white when active', function () {
+it('draws every menu icon as a white glyph on a colored rounded square, with a color rule per menu address (G-4C.3)', function () {
     $icon = implode("\n", designRuleBodies('.fi-sidebar-item-icon'));
-    $active = implode("\n", designRuleBodies('.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-icon'));
 
     expect($icon)->not->toContain('display: none')
-        ->and($icon)->toContain('var(--mt-sidebar-group)')
-        ->and($active)->toContain('var(--mt-sidebar-active-text)');
+        ->and($icon)->toContain('var(--mt-nav-gray)')
+        ->and($icon)->toContain('var(--mt-on-brand)')
+        ->and($icon)->toContain('border-radius: var(--mt-radius-nav)');
+
+    $this->get(Dashboard::getUrl())->assertOk();
+
+    // "Ayarlar" items keep the gray default; every other item has its own color.
+    foreach (collect(Filament::getNavigation())->reject(fn ($group) => $group->getLabel() === __('navigation.settings'))->flatMap(fn ($group) => $group->getItems()) as $item) {
+        $path = parse_url($item->getUrl(), PHP_URL_PATH);
+
+        expect(designRuleBodies(".fi-sidebar-item-btn[href\$='{$path}'] > .fi-sidebar-item-icon"))
+            ->not->toBeEmpty("The menu item {$path} has no color rule");
+    }
 });
 
 it('gives every menu item its own icon', function () {
