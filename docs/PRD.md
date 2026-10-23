@@ -257,6 +257,8 @@ Vadesi geçip ödenmeyen borç "gecikmiş" olarak işaretlenir ve özette kaç g
 
 Her satırda ilgili kayda bağlantı vardır.
 
+**WhatsApp ile hatırlatma (G-5B.4):** Müşterilere en kolay ulaşılan yol çoğu zaman WhatsApp'tır. Açık her borç için (yenileme borcu olması ya da gecikmiş olması aranmaz) Bugün'deki borç satırında ve müşteri kartının Açık borçlar satırında "WhatsApp" bağlantısı bulunur; tıklanınca birincil kişinin sohbeti hazır yazılmış borç mesajıyla yeni sekmede açılır. Sistem mesajı kendisi göndermez ve gönderildiğini bilmez, bu yüzden hiçbir kayıt tutulmaz; kullanıcı mesajı okuyup WhatsApp'ta kendisi gönderir. Mesaj kişinin adını, hizmetin alan adını ve borç açıklamasını, kalan tutarı, vadeyi (gecikmişse "geçmiştir", değilse "son günü"), varsa firma adı ve IBAN'ı içerir. Birincil kişinin telefonu yoksa ya da geçerli bir numaraya çevrilemiyorsa, borç açık değilse ve müşteri arşivliyse bağlantı çıkmaz. IBAN, Genel ayarlardaki firma bilgilerinde tutulur (TR ile başlayan 26 karakter).
+
 ## Veri modeli
 
 Sistem 13 tablodan oluşur; bu bölüm tabloları ve aralarındaki ilişkiyi gösterir, alan detayları ayrı sekmededir. Parantez içindeki adlar kodda kullanılacak adlardır.

@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Payments\RecordPayment;
+use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Actions\Scheduler\RecordSchedulerRun;
 use App\Actions\Today\SummarizeToday;
 use App\Enums\ChargeStatus;
@@ -14,6 +15,7 @@ use App\Filament\Widgets\SchedulerHealth;
 use App\Filament\Widgets\TodayStats;
 use App\Filament\Widgets\TodayTasks;
 use App\Models\Charge;
+use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\PaymentMethod;
@@ -388,4 +390,34 @@ describe('scheduler warning', function () {
             ->assertDontSeeLivewire(SchedulerHealth::class)
             ->assertSeeLivewire(TodayStats::class);
     });
+});
+
+it('puts a WhatsApp link next to "Ödeme al" on charge rows with a usable phone number', function () {
+    $withPhone = Customer::factory()->create(['short_name' => 'Telefonlu']);
+    Contact::factory()->for($withPhone)->primary()->create(['name' => 'Ali Veli', 'phone' => '0111 111 11 11']);
+    $overdue = Charge::factory()->for($withPhone)->create(['due_date' => '2026-06-10']);
+    $dueSoon = Charge::factory()->for($withPhone)->create(['due_date' => '2026-06-18']);
+
+    $withoutPhone = Customer::factory()->create(['short_name' => 'Telefonsuz']);
+    Contact::factory()->for($withoutPhone)->primary()->create(['phone' => null]);
+    Charge::factory()->for($withoutPhone)->create(['due_date' => '2026-06-10']);
+
+    $component = Livewire::test(TodayTasks::class)->assertSee('Telefonsuz');
+    $html = $component->html();
+    $builder = app(BuildWhatsAppReminder::class);
+
+    expect(substr_count($html, 'https://wa.me/'))->toBe(2)
+        ->and($html)->toContain(e($builder->handle($overdue)))
+        ->and($html)->toContain(e($builder->handle($dueSoon)))
+        ->and($html)->toContain('target="_blank"');
+});
+
+it('has no WhatsApp link on free decision rows', function () {
+    $customer = Customer::factory()->create();
+    Contact::factory()->for($customer)->primary()->create(['phone' => '0111 111 11 11']);
+    CustomerService::factory()->for($customer)->free()->create(['start_date' => '2025-07-05', 'end_date' => '2026-07-05']);
+
+    Livewire::test(TodayTasks::class)
+        ->assertSee(__('today.free_suffix'))
+        ->assertDontSee('WhatsApp');
 });

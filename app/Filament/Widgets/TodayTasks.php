@@ -2,12 +2,14 @@
 
 namespace App\Filament\Widgets;
 
+use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Actions\Servers\UsageAlert;
 use App\Actions\Today\ListTodayTasks;
 use App\Filament\Actions\ConfirmFreeContinuationAction;
 use App\Filament\Actions\RecordPaymentAction;
 use App\Filament\Actions\RemoveFreeFlagAction;
 use App\Filament\Actions\ViewUsageAction;
+use App\Filament\Actions\WhatsAppReminderAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Resources\Customers\CustomerResource;
@@ -22,6 +24,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -30,7 +33,7 @@ use Illuminate\Support\Collection;
  * one, hosting quota warnings, has no filtered list to link to), each
  * capped at 10 rows with a "Tümünü gör" link to its filtered list when there are more. Only
  * calls ListTodayTasks for its data and the shared row Actions (RecordPaymentAction,
- * RemoveFreeFlagAction, ConfirmFreeContinuationAction) for its buttons; no business logic here.
+ * RemoveFreeFlagAction, ConfirmFreeContinuationAction, WhatsAppReminderAction) for its buttons; no business logic here.
  */
 class TodayTasks extends Widget implements HasActions, HasSchemas
 {
@@ -51,6 +54,15 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     protected ?Collection $freeServices = null;
 
     /**
+     * The charges of the rows being rendered, handed to the WhatsApp action for the same reason.
+     *
+     * @var Collection<int, Charge>|null
+     */
+    protected ?Collection $charges = null;
+
+    protected ?BuildWhatsAppReminder $whatsAppLinks = null;
+
+    /**
      * The row buttons are secondary (gray, text only; G-4B.5, docs/UI.md §4 "Birincil düğme
      * kuralı"): the one primary button of the page is "Ödeme al" in the top bar.
      */
@@ -59,6 +71,15 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
         return RecordPaymentAction::make()
             ->color('gray')
             ->icon(null);
+    }
+
+    /**
+     * "WhatsApp" of an overdue or due-soon charge row: a link to a ready message in WhatsApp,
+     * next to "Ödeme al" (G-5B.4).
+     */
+    public function whatsAppReminderAction(): Action
+    {
+        return WhatsAppReminderAction::make()->knownCharges($this->charges)->linkBuilder($this->whatsAppLinks);
     }
 
     public function removeFreeAction(): Action
@@ -93,6 +114,10 @@ class TodayTasks extends Widget implements HasActions, HasSchemas
     {
         $tasks = app(ListTodayTasks::class)->handle();
         $this->freeServices = $tasks['free_decisions']['items']->keyBy('id');
+        $this->charges = (new EloquentCollection([...$tasks['overdue']['items'], ...$tasks['due_soon']['items']]))
+            ->load(['customer.primaryContact', 'customerService.items'])
+            ->keyBy('id');
+        $this->whatsAppLinks = app(BuildWhatsAppReminder::class);
 
         return [
             ...$tasks,

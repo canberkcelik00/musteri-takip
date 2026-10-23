@@ -22,7 +22,7 @@ class ContactFactory extends Factory
             'customer_id' => Customer::factory(),
             'name' => fake()->name(),
             'title' => fake()->jobTitle(),
-            'phone' => fake()->phoneNumber(),
+            'phone' => fake()->numerify('0111 111 11 ##'),
             'email' => fake()->safeEmail(),
             'is_primary' => false,
         ];

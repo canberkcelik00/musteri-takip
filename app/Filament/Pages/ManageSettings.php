@@ -76,6 +76,7 @@ class ManageSettings extends Page
             'company_email' => $company['email'],
             'company_tax_office' => $company['tax_office'],
             'company_tax_number' => $company['tax_number'],
+            'company_iban' => $company['iban'],
             'company_logo' => $company['logo_path'],
             'usage_refresh_value' => $refreshValue,
             'usage_refresh_unit' => $refreshUnit,
@@ -200,6 +201,11 @@ class ManageSettings extends Page
                         TextInput::make('company_tax_number')
                             ->label(__('settings.company_tax_number'))
                             ->maxLength(255),
+                        TextInput::make('company_iban')
+                            ->label(__('settings.company_iban'))
+                            ->helperText(__('settings.company_iban_help'))
+                            ->maxLength(40)
+                            ->columnSpanFull(),
                         FileUpload::make('company_logo')
                             ->label(__('settings.company_logo'))
                             ->helperText(__('settings.company_logo_help'))

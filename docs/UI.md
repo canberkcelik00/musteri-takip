@@ -63,7 +63,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | --- | --- | --- |
 | Her yerden gereken iş | Üst çubuk | Ara, Ödeme al, Yeni |
 | Sayfanın ana işi | Sayfa başlığının sağı, ikincil düğme | Müşteriler: "Yeni müşteri" |
-| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle"; Sunucu: "Düzenle", "Sunucudan çek" ("Bağlantıyı dene" düzenleme penceresinin altında) (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
+| Kayda ait sık iş | Satırda, metinli, en fazla iki | Borç: "Ödeme al", "Düzenle" (Bugün ve kartta: "Ödeme al", "WhatsApp"); Sunucu: "Düzenle", "Sunucudan çek" ("Bağlantıyı dene" düzenleme penceresinin altında) (Açık borçlar listesinde `md` altında yalnız "Ödeme al"; aşağıdaki not) |
 | Kayda ait nadir iş | Kaydın kartında/sayfasında, adlandırılmış bölümde | Hizmet: "Ücretsiz yap", "Böl" |
 | Tehlikeli iş | En sonda, ayrı, kırmızı, onaylı | Sil, Hizmeti iptal et |
 | Ayar | Yalnızca Ayarlar menüsünde | Yenileme gün sayısı |
@@ -79,7 +79,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 ### Bugün (açılış sayfası)
 
 - **Üst satır, dört sayı:** Toplam alacak (para birimi başına), Gecikmiş tutar ve adet, Bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı. Her sayı tıklanınca ilgili süzülmüş listeye gider.
-- **Altında "Yapılacaklar" tek tablo olarak,** başlıkta iş sayısı ("6 iş"); sütunlar: Müşteri (kısa ad + ünvan), Konu, Vade / bitiş, Durum, Tutar, işlem. Satırlar öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir. Kısmi ödenmiş borcun konusu "… · kısmi ödendi", ücretsiz hizmetin "… · ücretsiz" olur; ücretsiz hizmetin durumu rozetsiz düz metin "Karar bekliyor", tutarı "—" yazılır (gri rozet yalnız iptal/arşivdir). `md` altında Konu ve Vade gizlenir.
+- **Altında "Yapılacaklar" tek tablo olarak,** başlıkta iş sayısı ("6 iş"); sütunlar: Müşteri (kısa ad + ünvan), Konu, Vade / bitiş, Durum, Tutar, işlem. Satırlar öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir. Borç satırlarında, birincil kişinin telefonu varsa "Ödeme al"ın yanında ikincil bir "WhatsApp" bağlantısı durur (G-5B.4): hazır borç mesajıyla sohbeti yeni sekmede açar, kayıt tutmaz; `md` altında gizlidir. Kısmi ödenmiş borcun konusu "… · kısmi ödendi", ücretsiz hizmetin "… · ücretsiz" olur; ücretsiz hizmetin durumu rozetsiz düz metin "Karar bekliyor", tutarı "—" yazılır (gri rozet yalnız iptal/arşivdir). `md` altında Konu ve Vade gizlenir.
 - Liste boşsa "Bugün yapılacak bir şey yok" yazar.
 - **Zamanlayıcı uyarısı (G-5.6):** yalnız sorun varken, dört sayının üstünde kırmızı (danger) kutu: zamanlayıcı hiç çalışmadıysa, 1 saatten uzun süredir çalışmıyorsa (bekleyen yayın varsa "yayın adresini açın") ve son çalışmada hata veren hizmet varsa (en çok 5 hizmet adı müşteri kartına bağlantıyla, fazlası "ve N hizmet daha"). Sorun yokken hiçbir şey görünmez.
 
@@ -104,7 +104,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - **Başlık şeridi (tam genişlik, tek kenarlıklı kart):** Yol (Müşteriler / kısa ad), kısa ad ve ticari ünvan; büyük yazıyla açık borç ve alacak bakiyesi (para birimi başına, toplanmaz); sağda "Ödeme al" ve "Hizmet ekle", ikisi de ikincil (ekranın tek birincil düğmesi üst çubuktaki "Ödeme al"). `xl` (1280 px) altında ad kendi satırına geçer, tutarlar ve düğmeler altına iner.
 - **Sol sütun, sırayla:**
   - Hizmetler: aktifler, kompakt satırlar (ad ve altında alan adı, bitiş, fiyat, durum); başlıkta sağda "N aktif" sayacı. Satırda düğme yoktur, hizmet adına tıklamak düzenleme panelini açar. "Durum" sütunu `xl`'den görünür; `xl` altında rozet (yalnız iptal ve yenilemesi yaklaşan) adın altına iner. İptal edilmişler katlanmış "İptal edilenler (2)" altında.
-  - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar. Satırda yalnız "Ödeme al" düğmesi vardır; borç açıklamasına tıklamak düzenleme panelini açar; panelin "Borç işlemleri" bölümünde yenileme borcu için "Hatırlatma gönder" de durur ve hatırlatılmış borcun açıklamasının altında soluk "Hatırlatma gönderildi: gg.aa.yyyy" satırı görünür (G-5B.2). "Vade" ve "Durum" sütunları `xl`'den görünür (karta özgü kural: sol sütun dar olduğu için Açık borçlar sayfasındaki `lg` kuralından farklıdır); `xl` altında vade açıklamanın altına, durum rozeti "Kalan"ın altına iner.
+  - Açık borçlar: yalnızca açıklar; "Tüm borçlar" bağlantısı geçmişi açar. Satırda "Ödeme al" ve (birincil kişinin telefonu varsa) "WhatsApp" düğmeleri vardır (G-5B.4; WhatsApp `md` altında gizlidir); borç açıklamasına tıklamak düzenleme panelini açar; panelin "Borç işlemleri" bölümünde yenileme borcu için "Hatırlatma gönder" de durur ve hatırlatılmış borcun açıklamasının altında soluk "Hatırlatma gönderildi: gg.aa.yyyy" satırı görünür (G-5B.2). "Vade" ve "Durum" sütunları `xl`'den görünür (karta özgü kural: sol sütun dar olduğu için Açık borçlar sayfasındaki `lg` kuralından farklıdır); `xl` altında vade açıklamanın altına, durum rozeti "Kalan"ın altına iner.
   - Son ödemeler: son 5; "Tüm ödemeler" bağlantısı.
 - **Sağ sütun:** Birincil kişi (telefon ve e-posta tıklanınca aranır/yazılır), diğer kişiler, fatura bilgileri, notlar. Düzenleme buradan.
 - **En altta, ayrı:** Arşivle, Sil.
@@ -199,6 +199,7 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Müşteriyi alan adıyla bulup kartını açmak | `Ctrl+K` + yazma + 1 |
 | Herhangi bir sayfadan ödeme kaydetmek | 1 (Ödeme al) + müşteri seç + tutar + 1 (Kaydet) |
 | Bugün listesinden gecikmiş borcun ödemesini almak | 1 (Ödeme al) + tutar + 1 |
+| Bir borcu WhatsApp'tan hatırlatmak (Bugün'den ya da kartın borç satırından) | 1 (WhatsApp; mesaj hazır gelir, gönderme WhatsApp'ta) |
 | Karttan hizmet eklemek | 1 + seçim + 1 |
 | Gecikmiş tüm borçları görmek | 1 (Bugün'deki sayı kartı) |
 | Sunucudan hesap çekmek | 1 (Sunucudan çek) + yeni paketlerin fiyatları (WHM) ya da başlangıç tarihi (cPanel) + gerekirse müşteri adı seçimi (varsayılan ana alan adı gelir) + 1 (Çek) |

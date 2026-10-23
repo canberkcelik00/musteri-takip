@@ -22,7 +22,7 @@ class Settings
     /**
      * The keys of the company details JSON.
      */
-    public const COMPANY_DETAIL_KEYS = ['name', 'address', 'phone', 'email', 'tax_office', 'tax_number', 'logo_path'];
+    public const COMPANY_DETAIL_KEYS = ['name', 'address', 'phone', 'email', 'tax_office', 'tax_number', 'iban', 'logo_path'];
 
     /**
      * Get the stored value, or the default when nothing is stored.
@@ -196,7 +196,7 @@ class Settings
      * {@see self::COMPANY_DETAIL_KEYS}; a missing or unreadable value gives all-null.
      * `logo_path` is a path under `storage/app`.
      *
-     * @return array{name: ?string, address: ?string, phone: ?string, email: ?string, tax_office: ?string, tax_number: ?string, logo_path: ?string}
+     * @return array{name: ?string, address: ?string, phone: ?string, email: ?string, tax_office: ?string, tax_number: ?string, iban: ?string, logo_path: ?string}
      */
     public function companyDetails(): array
     {
@@ -220,6 +220,7 @@ class Settings
             'email' => $text('email'),
             'tax_office' => $text('tax_office'),
             'tax_number' => $text('tax_number'),
+            'iban' => $text('iban'),
             'logo_path' => $text('logo_path'),
         ];
     }

@@ -118,7 +118,7 @@ it('creates a customer with its first contact as the primary contact and opens i
             'contact' => [
                 'name' => 'Murat Kaya',
                 'title' => 'Bilgi İşlem Sorumlusu',
-                'phone' => '0532 412 18 90',
+                'phone' => '0111 111 11 10',
                 'email' => 'murat.kaya@example.com',
             ],
         ])

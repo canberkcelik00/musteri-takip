@@ -44,7 +44,7 @@ function manualSentQuote(array $attributes = []): Quote
         'valid_until' => '2027-03-15',
         'recipient_name' => 'Ali Veli',
         'recipient_company' => 'Veli Ltd.',
-        'recipient_phone' => '0532 111 22 33',
+        'recipient_phone' => '0111 111 11 11',
         'recipient_email' => 'ali@example.com',
         ...$attributes,
     ]);
@@ -189,7 +189,7 @@ describe('hand-written recipient', function () {
             ->and($accepted->status)->toBe(QuoteStatus::Accepted)
             ->and($customer->contacts)->toHaveCount(1)
             ->and($contact->name)->toBe('Ali Veli')
-            ->and($contact->phone)->toBe('0532 111 22 33')
+            ->and($contact->phone)->toBe('0111 111 11 11')
             ->and($contact->email)->toBe('ali@example.com')
             ->and($contact->is_primary)->toBeTrue()
             ->and(CustomerService::query()->sole()->customer_id)->toBe($customer->id)

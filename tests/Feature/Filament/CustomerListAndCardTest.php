@@ -203,11 +203,11 @@ it('shows only the 5 most recent payments on the card', function () {
 
 it('links the contact phone and email as tel: and mailto:, in a single stacked column', function () {
     $customer = Customer::factory()->create();
-    Contact::factory()->for($customer)->primary()->create(['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem Sorumlusu', 'phone' => '0532 412 18 90', 'email' => 'murat@example.com']);
+    Contact::factory()->for($customer)->primary()->create(['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem Sorumlusu', 'phone' => '0111 111 11 10', 'email' => 'murat@example.com']);
 
     $html = Livewire::test(ContactsRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])->html();
 
-    expect($html)->toContain('tel:0532 412 18 90')
+    expect($html)->toContain('tel:0111 111 11 10')
         ->and($html)->toContain('mailto:murat@example.com')
         ->and($html)->toContain('Bilgi İşlem Sorumlusu');
 });
@@ -516,15 +516,16 @@ it('adds a below-xl status badge to the name description only for a cancelled or
         ->and($cancelledHtml)->toContain('fi-badge-below-xl');
 });
 
-it('keeps only "Ödeme al" as a row button on the card\'s charges; the description opens "Düzenle" at every width, with its "Borç işlemleri" section', function () {
+it('keeps only "Ödeme al" and "WhatsApp" as row buttons on the card\'s charges; the description opens "Düzenle" at every width, with its "Borç işlemleri" section', function () {
     $customer = Customer::factory()->create();
     $charge = Charge::factory()->for($customer)->create();
 
     $manager = Livewire::test(ChargesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class]);
     $table = $manager->instance()->getTable();
 
-    expect(array_keys($table->getFlatRecordActions()))->toBe(['recordPayment'])
+    expect(array_keys($table->getFlatRecordActions()))->toBe(['recordPayment', 'whatsAppReminder'])
         ->and($table->getAction('recordPayment')->getExtraAttributes())->toBe([])
+        ->and($table->getAction('whatsAppReminder')->getExtraAttributes())->toBe(['class' => 'fi-hidden-below-md'])
         ->and($table->getColumn('description')->getAction()->getName())->toBe('editCharge');
 
     $cancelOnMobile = [

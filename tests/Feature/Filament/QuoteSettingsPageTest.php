@@ -41,7 +41,7 @@ it('saves the quote validity, the BCC address and the company details', function
             'quote_bcc_email' => 'teklif@example.com',
             'company_name' => 'Örnek Bilişim Ltd.',
             'company_address' => "Merkez Mah.\nİstanbul",
-            'company_phone' => '0212 000 00 00',
+            'company_phone' => '0111 000 00 00',
             'company_email' => 'info@ornek.test',
             'company_tax_office' => 'Kadıköy',
             'company_tax_number' => '1234567890',
@@ -183,4 +183,17 @@ describe('logo', function () {
             ->toContain('Örnek Bilişim Ltd.')
             ->and(app(RenderQuotePdf::class)->handle($quote))->toStartWith('%PDF');
     });
+});
+
+it('saves the IBAN and shows it again', function () {
+    Livewire::test(ManageSettings::class)
+        ->fillForm(['company_iban' => 'tr33 0006 1005 1978 6457 8413 26'])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertNotified('Ayarlar kaydedildi.');
+
+    expect(app(Settings::class)->companyDetails()['iban'])->toBe('TR330006100519786457841326');
+
+    Livewire::test(ManageSettings::class)
+        ->assertSchemaStateSet(['company_iban' => 'TR330006100519786457841326']);
 });

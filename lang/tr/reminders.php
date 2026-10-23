@@ -28,4 +28,12 @@ return [
     'sent_notification' => 'Hatırlatma gönderildi',
     'send_failed' => 'Hatırlatma gönderilemedi',
     'command_failed' => ':count hatırlatma gönderilemedi; sonraki çalışmada yeniden denenecek.',
+    'whatsapp' => [
+        'label' => 'WhatsApp',
+        'overdue' => 'Merhaba :name, :description için :amount tutarındaki ödemenizin vadesi :date tarihinde geçmiştir.',
+        'due' => 'Merhaba :name, :description için :amount tutarındaki ödemenizin son günü :date.',
+        'iban_company' => 'Ödemeyi :company adına :iban IBAN’ına yapabilirsiniz.',
+        'iban' => 'Ödemeyi :iban IBAN’ına yapabilirsiniz.',
+        'closing' => 'İyi çalışmalar.',
+    ],
 ];

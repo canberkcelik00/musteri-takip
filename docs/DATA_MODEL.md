@@ -291,6 +291,6 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | scheduler_failed_service_ids | — | İç durum, ekranda yok: son çalışmada hata veren müşteri hizmetlerinin id'leri (JSON liste); hatasız çalışmada silinir (G-5.6) |
 | quote_validity_days | 15 | Teklif geçerlilik süresi (Faz 6) |
 | quote_bcc_email | — | Gönderilen tekliflerin kopyasının gideceği adres (Faz 6) |
-| company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6). JSON: ad, adres, telefon, e-posta, vergi dairesi/no ve `local` diskteki (`storage/app/private`) logo yolu; logo PDF'e base64 gömülür (symlink gerekmez) |
+| company_details | — | Teklif PDF'inde görünecek firma bilgileri ve logo (Faz 6). JSON: ad, adres, telefon, e-posta, vergi dairesi/no, IBAN (TR, boşluksuz; WhatsApp hatırlatmasında görünür, G-5B.4) ve `local` diskteki (`storage/app/private`) logo yolu; logo PDF'e base64 gömülür (symlink gerekmez) |
 | usage_warning_percent | 90 | Kullanım uyarı eşiği (%, 1–100); disk, trafik, e-posta kutusu ve sayaçlar için (Faz 9) |
 | usage_refresh_minutes | 60 | Kullanım yenileme aralığı (dakika, 15–43200); ayar sayfasında sayı + birim (Dakika, Saat, Gün) olarak girilir, birim saklanmaz (Faz 9) |

@@ -32,6 +32,8 @@ return [
     'company_email' => 'E-posta',
     'company_tax_office' => 'Vergi dairesi',
     'company_tax_number' => 'Vergi no',
+    'company_iban' => 'IBAN',
+    'company_iban_help' => 'TR ile başlayan 26 karakter; boşluklu yazılabilir. WhatsApp ile borç hatırlatmasında görünür.',
     'company_logo' => 'Logo',
     'company_logo_help' => 'PNG, JPEG veya GIF; en çok 1 MB. Yeni dosya yüklenince eskisi silinir.',
     'save' => 'Kaydet',

@@ -69,7 +69,7 @@ describe('company details', function () {
         saveQuoteSettings([
             'company_name' => ' Örnek Bilişim Ltd. ',
             'company_address' => "Merkez Mah.\nİstanbul",
-            'company_phone' => '0212 000 00 00',
+            'company_phone' => '0111 000 00 00',
             'company_email' => 'info@ornek.test',
             'company_tax_office' => 'Kadıköy',
             'company_tax_number' => '1234567890',
@@ -79,10 +79,11 @@ describe('company details', function () {
         expect(app(Settings::class)->companyDetails())->toBe([
             'name' => 'Örnek Bilişim Ltd.',
             'address' => "Merkez Mah.\nİstanbul",
-            'phone' => '0212 000 00 00',
+            'phone' => '0111 000 00 00',
             'email' => 'info@ornek.test',
             'tax_office' => 'Kadıköy',
             'tax_number' => '1234567890',
+            'iban' => null,
             'logo_path' => 'company/abc123.png',
         ]);
     });
@@ -166,4 +167,25 @@ describe('company details', function () {
 
         Storage::disk('local')->assertExists('onemli.txt');
     });
+});
+
+it('stores the IBAN without spaces and in capitals', function () {
+    saveQuoteSettings(['company_iban' => ' tr33 0006 1005 1978 6457 8413 26 ']);
+
+    expect(app(Settings::class)->companyDetails()['iban'])->toBe('TR330006100519786457841326');
+});
+
+it('rejects an IBAN that is not a Turkish one and stores nothing', function (string $iban) {
+    expect(fn () => saveQuoteSettings(['company_iban' => $iban]))->toThrow(ValidationException::class)
+        ->and(app(Settings::class)->companyDetails()['iban'])->toBeNull();
+})->with(['too short' => ['TR33 0006'], 'foreign' => ['DE89370400440532013000'], 'letters inside' => ['TR33000610051978645784132X']]);
+
+it('removes the IBAN when it is blank and keeps the other company details', function () {
+    saveQuoteSettings(['company_name' => 'Örnek', 'company_iban' => 'TR330006100519786457841326']);
+    saveQuoteSettings(['company_iban' => '  ']);
+
+    $details = app(Settings::class)->companyDetails();
+
+    expect($details['iban'])->toBeNull()
+        ->and($details['name'])->toBe('Örnek');
 });

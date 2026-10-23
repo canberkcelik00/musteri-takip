@@ -39,7 +39,7 @@ class QuoteFactory extends Factory
             'customer_id' => null,
             'recipient_name' => fake()->name(),
             'recipient_company' => fake()->company(),
-            'recipient_phone' => fake()->phoneNumber(),
+            'recipient_phone' => fake()->numerify('0111 111 11 ##'),
             'recipient_email' => fake()->safeEmail(),
         ]);
     }

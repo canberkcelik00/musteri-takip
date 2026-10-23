@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Customers\RelationManagers;
 use App\Enums\ChargeStatus;
 use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\RecordPaymentAction;
+use App\Filament\Actions\WhatsAppReminderAction;
 use App\Filament\Concerns\RefreshesOnPaymentOrChargeChange;
 use App\Filament\Resources\Charges\ChargeResource;
 use App\Filament\Support\ChargeStatusBadge;
@@ -72,7 +73,7 @@ class ChargesRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->where('status', ChargeStatus::Open)
                 ->withSum('allocations', 'amount')
-                ->with('customerService.items')
+                ->with(['customer.primaryContact', 'customerService.items'])
                 ->orderBy('due_date')
                 ->orderBy('id'))
             ->paginated(false)
@@ -116,6 +117,7 @@ class ChargesRelationManager extends RelationManager
                     ->icon(null)
                     ->color('gray')
                     ->visible(fn (Charge $record): bool => $record->status === ChargeStatus::Open),
+                WhatsAppReminderAction::make(),
             ])
             ->emptyStateHeading(__('charges.open_empty_heading'))
             ->emptyStateDescription(__('charges.open_empty_description'));

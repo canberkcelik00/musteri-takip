@@ -276,6 +276,7 @@ it('reads empty company details until some are stored', function () {
         'email' => null,
         'tax_office' => null,
         'tax_number' => null,
+        'iban' => null,
         'logo_path' => null,
     ]);
 

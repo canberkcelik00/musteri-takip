@@ -22,6 +22,8 @@ class UpdateSettings
 
     private const string LOGO_PATH_PATTERN = '/^company\/[A-Za-z0-9._-]+$/';
 
+    private const string IBAN_PATTERN = '/^TR\d{24}$/';
+
     private const array COMPANY_FIELDS = [
         'company_name' => 'name',
         'company_address' => 'address',
@@ -29,6 +31,7 @@ class UpdateSettings
         'company_email' => 'email',
         'company_tax_office' => 'tax_office',
         'company_tax_number' => 'tax_number',
+        'company_iban' => 'iban',
         'company_logo' => 'logo_path',
     ];
 
@@ -75,6 +78,7 @@ class UpdateSettings
             'company_email' => ['nullable', 'string', 'email', 'max:255'],
             'company_tax_office' => ['nullable', 'string', 'max:255'],
             'company_tax_number' => ['nullable', 'string', 'max:255'],
+            'company_iban' => ['nullable', 'string', 'regex:'.self::IBAN_PATTERN],
             'company_logo' => ['nullable', 'string', 'regex:'.self::LOGO_PATH_PATTERN],
         ];
     }
@@ -93,7 +97,7 @@ class UpdateSettings
      * when given; a given blank value removes it. The company details are one JSON setting that
      * keeps the fields not given.
      *
-     * @param  array{renewal_lead_days: int|string|null, digest_frequency: DigestFrequency|string|null, digest_day_of_month?: int|string|null, digest_time: string|null, notification_email?: string|null, customer_reminders_enabled?: bool|int|string|null, usage_warning_percent?: int|string|null, usage_refresh_value?: int|string|null, usage_refresh_unit?: RefreshIntervalUnit|string|null, quote_validity_days?: int|string|null, quote_bcc_email?: ?string, company_name?: ?string, company_address?: ?string, company_phone?: ?string, company_email?: ?string, company_tax_office?: ?string, company_tax_number?: ?string, company_logo?: string|array<int|string, string>|null}  $data
+     * @param  array{renewal_lead_days: int|string|null, digest_frequency: DigestFrequency|string|null, digest_day_of_month?: int|string|null, digest_time: string|null, notification_email?: string|null, customer_reminders_enabled?: bool|int|string|null, usage_warning_percent?: int|string|null, usage_refresh_value?: int|string|null, usage_refresh_unit?: RefreshIntervalUnit|string|null, quote_validity_days?: int|string|null, quote_bcc_email?: ?string, company_name?: ?string, company_address?: ?string, company_phone?: ?string, company_email?: ?string, company_tax_office?: ?string, company_tax_number?: ?string, company_iban?: ?string, company_logo?: string|array<int|string, string>|null}  $data
      *
      * @throws ValidationException
      */
@@ -158,7 +162,8 @@ class UpdateSettings
 
     /**
      * Blank quote and company values count as none (so a cleared field removes the value); the
-     * logo may arrive as a one-item list from the upload field.
+     * logo may arrive as a one-item list from the upload field. The IBAN is stored without spaces
+     * and in capitals, so it validates and prints the same however it was typed.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -173,6 +178,10 @@ class UpdateSettings
             $value = is_array($data[$field]) ? (array_values($data[$field])[0] ?? null) : $data[$field];
             $value = trim((string) $value);
             $data[$field] = $value === '' ? null : $value;
+        }
+
+        if (is_string($data['company_iban'] ?? null)) {
+            $data['company_iban'] = strtoupper((string) preg_replace('/\s+/', '', $data['company_iban']));
         }
 
         return $data;

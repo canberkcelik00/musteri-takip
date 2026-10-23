@@ -82,14 +82,14 @@ it('creates a quote for a hand-written recipient', function () {
     $quote = app(CreateQuote::class)->handle(CatalogService::factory()->create(), null, [
         'recipient_name' => ' Ali Veli ',
         'recipient_company' => 'Veli Ltd.',
-        'recipient_phone' => '0532 111 22 33',
+        'recipient_phone' => '0111 111 11 11',
         'recipient_email' => 'ali@example.com',
     ]);
 
     expect($quote->customer_id)->toBeNull()
         ->and($quote->recipient_name)->toBe('Ali Veli')
         ->and($quote->recipient_company)->toBe('Veli Ltd.')
-        ->and($quote->recipient_phone)->toBe('0532 111 22 33')
+        ->and($quote->recipient_phone)->toBe('0111 111 11 11')
         ->and($quote->recipient_email)->toBe('ali@example.com');
 });
 

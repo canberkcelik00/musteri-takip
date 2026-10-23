@@ -8,7 +8,7 @@ use Illuminate\Database\QueryException;
 it('creates a customer with its first contact as the primary contact', function () {
     $customer = app(CreateCustomer::class)->handle(
         ['short_name' => 'Logi', 'legal_title' => 'Logitech Ltd. Şti.', 'notes' => 'Not'],
-        ['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem', 'phone' => '0532 000 00 00', 'email' => 'murat@example.com'],
+        ['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem', 'phone' => '0111 000 00 00', 'email' => 'murat@example.com'],
     );
 
     expect($customer->short_name)->toBe('Logi')

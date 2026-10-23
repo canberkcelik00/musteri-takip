@@ -49,7 +49,7 @@ it('adds a contact that is not primary', function () {
         ->callAction(TestAction::make(CreateAction::class)->table(), [
             'name' => 'Ayşe Yeni',
             'title' => 'Muhasebe',
-            'phone' => '0216 111 22 33',
+            'phone' => '0111 111 22 33',
             'email' => 'ayse@example.com',
         ])
         ->assertHasNoFormErrors();
@@ -85,13 +85,13 @@ it('requires a name and a valid e-mail address', function () {
 
 it('edits a contact without changing whether it is primary', function () {
     contactsManager($this->customer)
-        ->callAction(TestAction::make('edit')->table($this->primary), ['name' => 'Ali Yeni Ad', 'phone' => '0555 000 00 00'])
+        ->callAction(TestAction::make('edit')->table($this->primary), ['name' => 'Ali Yeni Ad', 'phone' => '0111 000 00 00'])
         ->assertHasNoFormErrors();
 
     $this->primary->refresh();
 
     expect($this->primary->name)->toBe('Ali Yeni Ad')
-        ->and($this->primary->phone)->toBe('0555 000 00 00')
+        ->and($this->primary->phone)->toBe('0111 000 00 00')
         ->and($this->primary->is_primary)->toBeTrue();
 });
 

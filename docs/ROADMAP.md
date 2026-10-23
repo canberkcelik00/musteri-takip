@@ -277,6 +277,9 @@ Hedef: Yenileme borcu oluştuğunda müşterinin birincil ilgili kişisine siste
 - [x] **K-5B.1 Kullanıcı kararları** — Bağımlılık: yok
   - Yapılacak: E-posta metnini onayla; gönderen adresini ve hostingdeki SMTP bilgilerini hazırla; ilk haftalarda anahtarı açmadan önce Mailpit/test adresiyle birkaç örnek gönder.
   - Kapanış: Kullanıcı tarafından tamamlandı (20.10.2026).
+- [x] **G-5B.4 WhatsApp ile borç hatırlatması** — Bağımlılık: G-5B.2, G-6.7 (kullanıcı kararı U-25)
+  - Yapılacak: Bugün'deki borç satırlarında ve müşteri kartının Açık borçlar satırında, "Ödeme al"ın yanında "WhatsApp" bağlantısı: birincil kişinin sohbeti hazır yazılmış borç mesajıyla (kişi, alan adı ve açıklama, kalan tutar, vade, firma adı ve IBAN) yeni sekmede açılır; kayıt tutulmaz. `BuildWhatsAppReminder` Action'ı telefonu uluslararası biçime çevirir ve bağlantıyı üretir. Genel ayarlardaki firma bilgilerine IBAN alanı eklenir. Hazır veri (seeder, factory) ve testlerdeki telefonlar belirgin sahte numaralarla değiştirilir.
+  - Kabul: Telefon biçimleri (0'lı, +90'lı, 00'lı, yabancı, geçersiz), gecikmiş ve vadesi gelmemiş mesaj farkı, kısmi ödenmişte kalan tutar, para birimi, alan adı öneki, firma adı ve IBAN'lı/IBAN'sız mesaj, URL kodlama; kapalı borç, arşivli müşteri, kişisiz ya da telefonsuz müşteride bağlantı yok; IBAN doğrulama ve kayıt; Bugün ve kartta düğmenin görünmesi ve yeni sekmede açılması; ücretsiz karar satırlarında yok; liste sorgu sayısının veriyle artmaması (hepsi testli).
 
 **Faz 5B bittiğinde:** Yaklaşan yenilemeden müşteri sistemden haberdar oluyor; kullanıcının her yenileme için elle e-posta yazması gerekmiyor.
 

@@ -63,6 +63,7 @@
                                             @elseif ($row['type'] === 'charge')
                                                 @unless ($row['customer']->isArchived())
                                                     {{ ($this->recordPaymentAction())(['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value]) }}
+                                                    {{ ($this->whatsAppReminderAction())(['charge' => $row['charge']->id]) }}
                                                 @endunless
                                             @elseif ($row['type'] === 'quota')
                                                 {{ ($this->viewUsageAction())(['item' => $row['item_id']]) }}

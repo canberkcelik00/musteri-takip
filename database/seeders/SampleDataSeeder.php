@@ -136,8 +136,8 @@ class SampleDataSeeder extends Seeder
     private function seedLogi(): void
     {
         $customer = $this->customer('Logi', 'Logitech Bilgisayar Ürünleri Ltd. Şti.', 'Kozyatağı', '6080512345', 'Kozyatağı Mah. Değirmen Sok. No: 18, Kadıköy / İstanbul', [
-            ['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem Sorumlusu', 'phone' => '0532 412 18 90', 'email' => 'murat.kaya@example.com'],
-            ['name' => 'Elif Şahin', 'title' => 'Muhasebe', 'phone' => '0216 555 12 34', 'email' => 'muhasebe.logi@example.com'],
+            ['name' => 'Murat Kaya', 'title' => 'Bilgi İşlem Sorumlusu', 'phone' => '0111 111 11 10', 'email' => 'murat.kaya@example.com'],
+            ['name' => 'Elif Şahin', 'title' => 'Muhasebe', 'phone' => '0111 111 11 11', 'email' => 'muhasebe.logi@example.com'],
         ]);
 
         $start = $this->endingIn(20);
@@ -156,7 +156,7 @@ class SampleDataSeeder extends Seeder
     private function seedYildizMobilya(): void
     {
         $customer = $this->customer('Yıldız Mobilya', 'Yıldız Mobilya San. ve Tic. A.Ş.', 'İnegöl', '9870123456', 'Organize Sanayi Bölgesi 3. Cad. No: 7, İnegöl / Bursa', [
-            ['name' => 'Hasan Yıldız', 'title' => 'Genel Müdür', 'phone' => '0533 280 44 12', 'email' => 'hasan.yildiz@example.com'],
+            ['name' => 'Hasan Yıldız', 'title' => 'Genel Müdür', 'phone' => '0111 111 11 12', 'email' => 'hasan.yildiz@example.com'],
         ]);
 
         $start = $this->endingIn(15);
@@ -186,7 +186,7 @@ class SampleDataSeeder extends Seeder
     private function seedAydinHukuk(): void
     {
         $customer = $this->customer('Aydın Hukuk', 'Aydın Hukuk Bürosu', 'Çankaya', '3450987612', 'Kızılay Mah. Atatürk Blv. No: 112/6, Çankaya / Ankara', [
-            ['name' => 'Av. Zeynep Aydın', 'title' => 'Kurucu Ortak', 'phone' => '0312 419 22 30', 'email' => 'zeynep.aydin@example.com'],
+            ['name' => 'Av. Zeynep Aydın', 'title' => 'Kurucu Ortak', 'phone' => '0111 111 11 13', 'email' => 'zeynep.aydin@example.com'],
         ]);
 
         $start = $this->today->subMonthsNoOverflow(2);
@@ -202,7 +202,7 @@ class SampleDataSeeder extends Seeder
     private function seedDenizLojistik(): void
     {
         $customer = $this->customer('Deniz Lojistik', 'Deniz Lojistik ve Taşımacılık Ltd. Şti.', 'Konak', '2890456123', 'Alsancak Mah. Liman Cad. No: 41, Konak / İzmir', [
-            ['name' => 'Burak Demir', 'title' => 'Operasyon Müdürü', 'phone' => '0542 118 70 05', 'email' => 'burak.demir@example.com'],
+            ['name' => 'Burak Demir', 'title' => 'Operasyon Müdürü', 'phone' => '0111 111 11 14', 'email' => 'burak.demir@example.com'],
         ]);
 
         $start = $this->today->subMonthsNoOverflow(3);
@@ -222,7 +222,7 @@ class SampleDataSeeder extends Seeder
     private function seedEgeYazilim(): void
     {
         $customer = $this->customer('Ege Yazılım', 'Ege Yazılım ve Danışmanlık Ltd. Şti.', 'Bornova', '3310789045', 'Ege Üniversitesi Teknopark, Bornova / İzmir', [
-            ['name' => 'Can Öztürk', 'title' => 'Kurucu', 'phone' => '0535 610 90 21', 'email' => 'can.ozturk@example.com'],
+            ['name' => 'Can Öztürk', 'title' => 'Kurucu', 'phone' => '0111 111 11 15', 'email' => 'can.ozturk@example.com'],
         ]);
 
         $domainStart = $this->today->subMonthsNoOverflow(6);
@@ -245,7 +245,7 @@ class SampleDataSeeder extends Seeder
     private function seedKaradenizDernek(): void
     {
         $customer = $this->customer('Karadeniz Doğa Derneği', 'Karadeniz Doğa ve Çevre Koruma Derneği', 'Trabzon', '5120334478', 'Kemerkaya Mah. Uzun Sok. No: 9, Ortahisar / Trabzon', [
-            ['name' => 'Ayşe Karadeniz', 'title' => 'Dernek Başkanı', 'phone' => '0462 321 45 67', 'email' => 'ayse.karadeniz@example.com'],
+            ['name' => 'Ayşe Karadeniz', 'title' => 'Dernek Başkanı', 'phone' => '0111 111 11 16', 'email' => 'ayse.karadeniz@example.com'],
         ]);
 
         $this->assign($customer, $this->catalog['hosting_starter'], $this->endingIn(25), [
@@ -260,7 +260,7 @@ class SampleDataSeeder extends Seeder
     private function seedAnadoluGida(): void
     {
         $customer = $this->customer('Anadolu Gıda', 'Anadolu Gıda Pazarlama A.Ş.', 'Selçuklu', '0780654321', 'Sanayi Mah. Ankara Yolu No: 220, Selçuklu / Konya', [
-            ['name' => 'Mehmet Arslan', 'title' => 'Satın Alma', 'phone' => '0332 248 60 10', 'email' => 'mehmet.arslan@example.com'],
+            ['name' => 'Mehmet Arslan', 'title' => 'Satın Alma', 'phone' => '0111 111 11 17', 'email' => 'mehmet.arslan@example.com'],
         ]);
 
         $this->assign($customer, $this->catalog['email'], $this->today->subMonthsNoOverflow(10), [
@@ -283,7 +283,7 @@ class SampleDataSeeder extends Seeder
     private function seedKayaMatbaa(): void
     {
         $customer = $this->customer('Kaya Matbaa', null, null, null, 'Ostim OSB 1203. Cad. No: 15, Yenimahalle / Ankara', [
-            ['name' => 'Selim Kaya', 'title' => null, 'phone' => '0505 390 11 76', 'email' => 'selim.kaya@example.com'],
+            ['name' => 'Selim Kaya', 'title' => null, 'phone' => '0111 111 11 18', 'email' => 'selim.kaya@example.com'],
         ]);
 
         $this->assign($customer, $this->catalog['domain_com_tr'], $this->today, [
@@ -297,7 +297,7 @@ class SampleDataSeeder extends Seeder
     private function seedGunesTekstil(): void
     {
         $customer = $this->customer('Güneş Tekstil', 'Güneş Tekstil Konfeksiyon Ltd. Şti.', 'Merkezefendi', '4150098765', 'Sümer Mah. 2480 Sok. No: 4, Merkezefendi / Denizli', [
-            ['name' => 'Fatma Güneş', 'title' => 'Muhasebe', 'phone' => '0258 263 77 40', 'email' => 'fatma.gunes@example.com'],
+            ['name' => 'Fatma Güneş', 'title' => 'Muhasebe', 'phone' => '0111 111 11 19', 'email' => 'fatma.gunes@example.com'],
         ]);
 
         $start = $this->today->subMonthsNoOverflow(27);

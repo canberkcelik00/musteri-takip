@@ -2,6 +2,7 @@
 
 use App\Actions\CustomerServices\AssignCustomerService;
 use App\Actions\Payments\RecordPayment;
+use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Enums\Currency;
 use App\Enums\ServiceType;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
@@ -305,4 +306,26 @@ it('has the charge, service and payment actions on the card', function () {
     cardManager(PaymentsRelationManager::class, $customer)
         ->assertActionExists(TestAction::make('deletePayment')->table(Payment::query()->sole()))
         ->assertTableActionDoesNotExist('edit', null, Payment::query()->sole());
+});
+
+it('offers WhatsApp on an open charge row as a link that opens in a new tab', function () {
+    $customer = Customer::factory()->create();
+    Contact::factory()->for($customer)->primary()->create(['name' => 'Ali Veli', 'phone' => '0111 111 11 11']);
+    $charge = Charge::factory()->for($customer)->create(['description' => 'Linux Hosting 2026–2027']);
+
+    cardManager(ChargesRelationManager::class, $customer)
+        ->assertTableActionVisible('whatsAppReminder', $charge)
+        ->assertTableActionHasUrl('whatsAppReminder', app(BuildWhatsAppReminder::class)->handle($charge), $charge)
+        ->assertTableActionShouldOpenUrlInNewTab('whatsAppReminder', $charge)
+        ->assertSee('WhatsApp');
+});
+
+it('hides WhatsApp on the card when the primary contact has no usable phone number', function () {
+    $customer = Customer::factory()->create();
+    Contact::factory()->for($customer)->primary()->create(['phone' => null]);
+    $charge = Charge::factory()->for($customer)->create();
+
+    cardManager(ChargesRelationManager::class, $customer)
+        ->assertTableActionHidden('whatsAppReminder', $charge)
+        ->assertDontSee('WhatsApp');
 });

@@ -136,13 +136,13 @@ it('addresses a hand-written recipient', function () {
     $quote = Quote::factory()->manualRecipient()->create([
         'recipient_name' => 'Ali Veli',
         'recipient_company' => 'Veli Ltd.',
-        'recipient_phone' => '0532 111 22 33',
+        'recipient_phone' => '0111 111 11 11',
         'recipient_email' => 'ali@example.com',
     ]);
 
     expect(renderedHtml($quote))->toContain('Ali Veli')
         ->toContain('Veli Ltd.')
-        ->toContain('0532 111 22 33')
+        ->toContain('0111 111 11 11')
         ->toContain('ali@example.com');
 });
 
@@ -159,7 +159,7 @@ describe('company details', function () {
         app(Settings::class)->set(SettingKey::CompanyDetails, (string) json_encode([
             'name' => 'Örnek Bilişim Ltd.',
             'address' => "Merkez Mah. 1. Sk.\nİstanbul",
-            'phone' => '0212 000 00 00',
+            'phone' => '0111 000 00 00',
             'email' => 'info@ornek.test',
             'tax_office' => 'Kadıköy',
             'tax_number' => '1234567890',
@@ -170,7 +170,7 @@ describe('company details', function () {
         expect($html)->toContain('Örnek Bilişim Ltd.')
             ->toContain('Merkez Mah. 1. Sk.')
             ->toContain('İstanbul')
-            ->toContain('0212 000 00 00')
+            ->toContain('0111 000 00 00')
             ->toContain('info@ornek.test')
             ->toContain('Kadıköy / 1234567890');
     });
