@@ -25,6 +25,7 @@ return [
         'valid_until' => 'Geçerlilik',
         'status' => 'Durum',
     ],
+    'card_heading' => 'Teklifler',
     'filter_status' => 'Durum',
     'empty_heading' => 'Henüz teklif yok',
     'empty_description' => 'Katalogdaki bir hizmet ya da paketten teklif hazırlayın.',

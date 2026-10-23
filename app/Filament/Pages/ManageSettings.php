@@ -9,7 +9,9 @@ use App\Enums\RefreshIntervalUnit;
 use App\Support\Settings;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -18,6 +20,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
@@ -62,8 +65,18 @@ class ManageSettings extends Page
     public function mount(Settings $settings): void
     {
         [$refreshValue, $refreshUnit] = RefreshIntervalUnit::split($settings->usageRefreshMinutes());
+        $company = $settings->companyDetails();
 
         $this->form->fill([
+            'quote_validity_days' => $settings->quoteValidityDays(),
+            'quote_bcc_email' => $settings->quoteBccEmail(),
+            'company_name' => $company['name'],
+            'company_address' => $company['address'],
+            'company_phone' => $company['phone'],
+            'company_email' => $company['email'],
+            'company_tax_office' => $company['tax_office'],
+            'company_tax_number' => $company['tax_number'],
+            'company_logo' => $company['logo_path'],
             'usage_refresh_value' => $refreshValue,
             'usage_refresh_unit' => $refreshUnit,
             'renewal_lead_days' => $settings->renewalLeadDays(),
@@ -146,6 +159,58 @@ class ManageSettings extends Page
                 Toggle::make('customer_reminders_enabled')
                     ->label(__('settings.customer_reminders_enabled'))
                     ->helperText(__('settings.customer_reminders_enabled_help')),
+                Section::make(__('settings.quote_section'))
+                    ->schema([
+                        TextInput::make('quote_validity_days')
+                            ->label(__('settings.quote_validity_days'))
+                            ->helperText(__('settings.quote_validity_days_help'))
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(365)
+                            ->required(),
+                        TextInput::make('quote_bcc_email')
+                            ->label(__('settings.quote_bcc_email'))
+                            ->helperText(__('settings.quote_bcc_email_help'))
+                            ->email()
+                            ->maxLength(255),
+                    ]),
+                Section::make(__('settings.company_section'))
+                    ->description(__('settings.company_section_help'))
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('company_name')
+                            ->label(__('settings.company_name'))
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        Textarea::make('company_address')
+                            ->label(__('settings.company_address'))
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                        TextInput::make('company_phone')
+                            ->label(__('settings.company_phone'))
+                            ->tel()
+                            ->maxLength(255),
+                        TextInput::make('company_email')
+                            ->label(__('settings.company_email'))
+                            ->email()
+                            ->maxLength(255),
+                        TextInput::make('company_tax_office')
+                            ->label(__('settings.company_tax_office'))
+                            ->maxLength(255),
+                        TextInput::make('company_tax_number')
+                            ->label(__('settings.company_tax_number'))
+                            ->maxLength(255),
+                        FileUpload::make('company_logo')
+                            ->label(__('settings.company_logo'))
+                            ->helperText(__('settings.company_logo_help'))
+                            ->disk('local')
+                            ->directory(UpdateSettings::LOGO_DIRECTORY)
+                            ->visibility('private')
+                            ->image()
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
+                            ->maxSize(1024)
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 

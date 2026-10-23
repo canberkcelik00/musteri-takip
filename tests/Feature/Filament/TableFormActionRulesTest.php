@@ -29,6 +29,7 @@ use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Customers\RelationManagers\QuotesRelationManager;
 use App\Filament\Resources\Packages\PackageResource;
 use App\Filament\Resources\Packages\Pages\ListPackages;
 use App\Filament\Resources\PaymentMethods\Pages\ManagePaymentMethods;
@@ -123,6 +124,7 @@ function everyTable(): array
         'Kart: açık borçlar' => [ChargesRelationManager::class, $card],
         'Kart: son ödemeler' => [PaymentsRelationManager::class, $card],
         'Kart: kişiler' => [ContactsRelationManager::class, $card],
+        'Kart: teklifler' => [QuotesRelationManager::class, $card],
     ];
 }
 

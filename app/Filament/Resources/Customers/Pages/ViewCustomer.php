@@ -6,6 +6,7 @@ use App\Actions\Customers\DeleteCustomer;
 use App\Enums\CustomerServiceStatus;
 use App\Filament\Actions\ArchiveCustomerAction;
 use App\Filament\Actions\AssignCustomerServiceAction;
+use App\Filament\Actions\CreateQuoteAction;
 use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\EditChargeAction;
 use App\Filament\Actions\EditCustomerAction;
@@ -17,6 +18,7 @@ use App\Filament\Resources\Customers\RelationManagers\ChargesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\ContactsRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Customers\RelationManagers\QuotesRelationManager;
 use App\Filament\Resources\Customers\Schemas\CustomerInfolist;
 use App\Models\Customer;
 use Filament\Resources\Pages\ViewRecord;
@@ -124,6 +126,7 @@ class ViewCustomer extends ViewRecord
     #[On(RecordPaymentAction::PAYMENTS_CHANGED_EVENT)]
     #[On(EditChargeAction::CHARGES_CHANGED_EVENT)]
     #[On(AssignCustomerServiceAction::SERVICES_CHANGED_EVENT)]
+    #[On(CreateQuoteAction::QUOTES_CHANGED_EVENT)]
     public function refreshAfterPaymentChange(): void
     {
         $this->record->refresh();
@@ -179,6 +182,10 @@ class ViewCustomer extends ViewRecord
                 'ownerRecord' => $customer,
                 'pageClass' => static::class,
             ])->key('payments'),
+            Livewire::make(QuotesRelationManager::class, [
+                'ownerRecord' => $customer,
+                'pageClass' => static::class,
+            ])->key('quotes')->visible($customer->quotes()->exists()),
         ];
     }
 
