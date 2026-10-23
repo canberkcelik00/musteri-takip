@@ -73,7 +73,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(__('admin.brand_name'))
             ->brandLogo(fn () => view('filament.panel.brand'))
             ->brandLogoHeight('1.75rem')
-            ->sidebarWidth('14.5rem')
+            ->sidebarWidth('17rem')
             ->viteTheme('resources/css/filament/panel/theme.css')
             ->defaultThemeMode(ThemeMode::Light)
             // Ctrl+K (⌘K on Mac) focuses the search box from any page (docs/UI.md §2 Kural

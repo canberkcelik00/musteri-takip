@@ -162,7 +162,7 @@
 .fi-body .fi-sidebar .fi-sidebar-header {
     height: var(--mt-topbar-height);
     justify-content: flex-start;
-    padding-inline: 20px;
+    padding-inline: 24px;
     background-color: var(--mt-sidebar-bg);
     box-shadow: none;
 }
@@ -192,14 +192,14 @@
 .fi-sidebar-nav {
     @apply flex min-h-0 flex-1 flex-col overflow-y-auto;
     gap: 0;
-    padding: 6px 12px 16px;
+    padding: 6px 16px 16px;
 }
 
 .fi-sidebar-nav-groups {
     @apply flex-col;
     flex: 1 0 auto;
     margin-inline: 0;
-    gap: 16px;
+    gap: 20px;
 }
 
 /* "Ayarlar" is the last group: it sits at the bottom of the sidebar (docs/UI.md §3). */
@@ -226,26 +226,26 @@
 }
 
 .fi-sidebar-item-btn {
-    min-height: 34px;
+    min-height: 38px;
+    gap: 10px;
     padding: 0 12px;
     border-radius: var(--mt-radius);
-}
-
-.fi-sidebar-group-btn ~ .fi-sidebar-group-items .fi-sidebar-item-btn {
-    padding-inline-start: 28px;
-}
-
-.fi-sidebar-group-btn ~ .fi-sidebar-group-items .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
-    padding-inline-start: calc(28px - var(--mt-sidebar-active-bar));
 }
 
 .fi-sidebar-item-grouped-border {
     display: none;
 }
 
-/* The reference menu is text only; the icons also lose contrast on the navy background. */
+/* Icons always sit beside the label (docs/UI.md §2 Kural 5): muted gray, white on the active item. */
 .fi-sidebar-item-icon {
-    display: none;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--mt-sidebar-group);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-icon {
+    color: var(--mt-sidebar-active-text);
 }
 
 .fi-sidebar-item-label {

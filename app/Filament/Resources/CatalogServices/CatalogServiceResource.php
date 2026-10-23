@@ -17,7 +17,7 @@ class CatalogServiceResource extends Resource
 {
     protected static ?string $model = CatalogService::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedServerStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static string|UnitEnum|null $navigationGroup = null;
 

@@ -164,6 +164,7 @@ Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna g�
 | --- | --- | --- |
 | Kenar menü zemini | #0F1D33 | #0B1626 |
 | Kenar menü metni / grup başlığı | #C3CCD9 / #8A97AB | aynı |
+| Kenar menü simgeleri | 18 px, rengi grup başlığı (#8A97AB); seçili öğede #FFFFFF. Simge her zaman metnin yanındadır | aynı |
 | Seçili menü öğesi | zemin #1B2D4B, metin #FFFFFF, solda 3 px #FF3800 çizgi | aynı |
 | Sayfa zemini | #F4F6F9 | #0E1520 |
 | Panel ve üst çubuk | #FFFFFF, kenarlık #E0E4EA | #151E2B, kenarlık #253142 |
@@ -182,7 +183,7 @@ Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna g�
 | Tablo metni | 14 px / 400 | aynı |
 | Kenarlık | 1 px düz, renk #E0E4EA | 1 px düz, renk #253142 |
 | Boşluk | sayfa kenarı 24×28 px, bloklar arası 18 px, tablo hücresi 9×14 px, panel başlığı 12×16 px | aynı |
-| Çerçeve ölçüleri | kenar menü 232 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px, form penceresi 640 px, dar ekranda ekran genişliği − 2×16 px (iç boşluk 24 px) | aynı |
+| Çerçeve ölçüleri | kenar menü 272 px, üst çubuk 62 px, arama kutusu 380 px, tablo arama kutusu 300 px, form penceresi 640 px, dar ekranda ekran genişliği − 2×16 px (iç boşluk 24 px) | aynı |
 | Köşe | panel, düğme, giriş alanı 6 px; rozet 4 px | aynı |
 | Gölge | yok; ayrım kenarlıkla | yok |
 | Odak halkası | 2 px #1D3A6A, 2 px boşlukla; kenar menüde #6F93D6 | 2 px #6F93D6 (kenar menüde de aynı) |

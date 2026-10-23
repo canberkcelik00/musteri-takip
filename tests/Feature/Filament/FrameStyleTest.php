@@ -153,13 +153,33 @@ it('keeps the logo free of literal colors and the brand color on a token', funct
     $this->get(Dashboard::getUrl())->assertSee('MT');
 });
 
-it('sets the sidebar to 232 px and keeps it from collapsing on the desktop', function () {
+it('sets the sidebar to 272 px and keeps it from collapsing on the desktop', function () {
     $panel = Filament::getCurrentPanel();
 
     // A collapsible sidebar would change its width, and the topbar's left margin follows the fixed one.
-    expect($panel->getSidebarWidth())->toBe('14.5rem')
+    expect($panel->getSidebarWidth())->toBe('17rem')
         ->and($panel->isSidebarCollapsibleOnDesktop())->toBeFalse()
         ->and($panel->isSidebarFullyCollapsibleOnDesktop())->toBeFalse();
+});
+
+it('shows an icon beside every menu item, in the muted menu color and white when active', function () {
+    $icon = implode("\n", designRuleBodies('.fi-sidebar-item-icon'));
+    $active = implode("\n", designRuleBodies('.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-icon'));
+
+    expect($icon)->not->toContain('display: none')
+        ->and($icon)->toContain('var(--mt-sidebar-group)')
+        ->and($active)->toContain('var(--mt-sidebar-active-text)');
+});
+
+it('gives every menu item its own icon', function () {
+    $this->get(Dashboard::getUrl())->assertOk();
+
+    $icons = collect(Filament::getNavigation())
+        ->flatMap(fn ($group) => $group->getItems())
+        ->map(fn ($item) => $item->getIcon());
+
+    expect($icons->every(fn ($icon) => filled($icon)))->toBeTrue()
+        ->and($icons->unique()->count())->toBe($icons->count());
 });
 
 it('shows today\'s date under the "Bugün" title, in Istanbul time', function (Carbon $now) {
