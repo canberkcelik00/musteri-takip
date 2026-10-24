@@ -33,4 +33,6 @@ return [
     'updated' => 'Müşteri güncellendi.',
     'empty_heading' => 'Henüz müşteri yok',
     'empty_description' => 'İlk müşterinizi ekleyin; hizmetleri ve borçları kartında takip edin.',
+    'delete' => 'Sil',
+    'delete_heading' => 'Müşteriyi sil',
 ];

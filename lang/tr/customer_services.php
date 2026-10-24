@@ -82,4 +82,6 @@ return [
     'copy_domain' => 'Alan adını kopyala',
     'empty_heading' => 'Henüz hizmet yok',
     'empty_description' => 'Bu müşteriye hosting, alan adı gibi bir hizmet ekleyin; borçlar kendiliğinden oluşur.',
+    'delete' => 'Sil',
+    'delete_heading' => 'Hizmeti sil',
 ];

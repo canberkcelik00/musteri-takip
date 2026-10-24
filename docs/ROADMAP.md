@@ -414,7 +414,7 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
   - Yapılacak: `livewire/livewire` + `blade-ui-kit/blade-heroicons` açık bağımlılık, `routes/app.php`, `layouts/app` ve `layouts/guest`, cam tema CSS ve tokenlar, bileşen kiti (`x-ui.*`), `WindowHost`, giriş/çıkış/profil.
   - Kabul: `/app` girişsiz erişilemez, giriş/çıkış/profil çalışır; bileşenler ve cam tokenları testli (kontrast, sabit renk yalnız token bloğunda).
 - [x] **G-10.2 Tablo altyapısı, Müşteriler listesi, global arama, üst çubuk** — Bağımlılık: G-10.1
-- [ ] **G-10.3 Müşteri kartı ve pencereleri** — Bağımlılık: G-10.2
+- [x] **G-10.3 Müşteri kartı ve pencereleri** — Bağımlılık: G-10.2
 - [ ] **G-10.4 Açık borçlar ve Ödemeler** — Bağımlılık: G-10.3
 - [ ] **G-10.5 Bugün** — Bağımlılık: G-10.4
 - [ ] **G-10.6 Teklifler** — Bağımlılık: G-10.3

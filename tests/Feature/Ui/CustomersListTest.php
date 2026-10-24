@@ -147,7 +147,7 @@ it('opens the payment window for the row\'s customer', function () {
 it('makes the whole row open the customer card', function () {
     $customer = Customer::factory()->create();
 
-    Livewire::test(Index::class)->assertSee('data-href="'.route('filament.panel.resources.customers.view', ['record' => $customer]).'"', false);
+    Livewire::test(Index::class)->assertSee('data-href="'.route('app.customers.show', $customer).'"', false);
 });
 
 it('shows only customers whose renewal is near, or that await a free decision, when the filters are on', function () {
@@ -313,7 +313,7 @@ it('links the result to the customer card', function () {
 
     Livewire::test(Search::class)
         ->set('query', 'logi')
-        ->assertSee('href="'.route('filament.panel.resources.customers.view', ['record' => $customer]).'"', false);
+        ->assertSee('href="'.route('app.customers.show', $customer).'"', false);
 });
 
 it('shows up to three distinct domains in the result details', function () {

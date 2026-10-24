@@ -4,6 +4,7 @@ use App\Http\Controllers\App\LogoutController;
 use App\Livewire\Pages\Auth\Login;
 use App\Livewire\Pages\Auth\Profile;
 use App\Livewire\Pages\Customers\Index as CustomersIndex;
+use App\Livewire\Pages\Customers\Show as CustomersShow;
 use App\Livewire\Pages\Today;
 use Illuminate\Support\Facades\Route;
 
@@ -14,5 +15,6 @@ Route::middleware('auth')->group(function (): void {
     Route::livewire('/', Today::class)->name('today');
     Route::livewire('/profile', Profile::class)->name('profile');
     Route::livewire('/customers', CustomersIndex::class)->name('customers.index');
+    Route::livewire('/customers/{customer}', CustomersShow::class)->name('customers.show');
     Route::post('/logout', LogoutController::class)->name('logout');
 });

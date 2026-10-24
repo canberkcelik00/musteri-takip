@@ -38,7 +38,7 @@ it('redirects to the customer card after saving', function () {
 
     $id = Customer::query()->where('short_name', 'Logi')->value('id');
 
-    $component->assertRedirect(route('filament.panel.resources.customers.view', ['record' => $id]));
+    $component->assertRedirect(route('app.customers.show', $id));
 });
 
 it('asks for a short name and a contact name', function () {

@@ -24,7 +24,12 @@
         @if ($submit) wire:submit="{{ $submit }}" @endif
     >
         <div class="ui-window-header">{{ $title }}</div>
-        <div class="ui-window-body">{{ $slot }}</div>
+        <div class="ui-window-body">
+            @if (isset($errors) && $errors->has('form'))
+                <div class="ui-error-box" role="alert" style="margin-bottom: 12px">{{ $errors->first('form') }}</div>
+            @endif
+            {{ $slot }}
+        </div>
         @if (isset($footer))
             <div class="ui-window-footer">{{ $footer }}</div>
         @elseif ($submit)

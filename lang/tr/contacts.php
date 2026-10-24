@@ -17,4 +17,6 @@ return [
     'actions_section' => 'Kişi işlemleri',
     'empty_heading' => 'Henüz kişi yok',
     'empty_description' => 'Müşteriyle iletişim kuracağınız kişiyi ekleyin.',
+    'delete' => 'Sil',
+    'delete_heading' => 'Kişiyi sil',
 ];

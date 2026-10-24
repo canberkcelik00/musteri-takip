@@ -1,7 +1,22 @@
 <?php
 
+use App\Livewire\Windows\AssignService;
+use App\Livewire\Windows\CancelCharge;
+use App\Livewire\Windows\CancelService;
+use App\Livewire\Windows\Confirm;
+use App\Livewire\Windows\Contact;
 use App\Livewire\Windows\CreateCustomer;
+use App\Livewire\Windows\EditCharge;
+use App\Livewire\Windows\EditCustomer;
+use App\Livewire\Windows\EditService;
+use App\Livewire\Windows\MarkFree;
+use App\Livewire\Windows\ReactivateService;
 use App\Livewire\Windows\RecordPayment;
+use App\Livewire\Windows\RemoveFree;
+use App\Livewire\Windows\SendReminder;
+use App\Livewire\Windows\SplitCharge;
+use App\Livewire\Windows\ViewPayment;
+use App\Livewire\Windows\ViewUsage;
 
 return [
 
@@ -13,6 +28,21 @@ return [
     'windows' => [
         'record-payment' => RecordPayment::class,
         'create-customer' => CreateCustomer::class,
+        'edit-customer' => EditCustomer::class,
+        'contact' => Contact::class,
+        'assign-service' => AssignService::class,
+        'edit-service' => EditService::class,
+        'mark-free' => MarkFree::class,
+        'remove-free' => RemoveFree::class,
+        'cancel-service' => CancelService::class,
+        'reactivate-service' => ReactivateService::class,
+        'edit-charge' => EditCharge::class,
+        'split-charge' => SplitCharge::class,
+        'cancel-charge' => CancelCharge::class,
+        'send-reminder' => SendReminder::class,
+        'view-payment' => ViewPayment::class,
+        'view-usage' => ViewUsage::class,
+        'confirm' => Confirm::class,
     ],
 
     /*
