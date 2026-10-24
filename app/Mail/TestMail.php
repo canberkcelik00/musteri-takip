@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Filament\Pages\Dashboard;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -23,7 +22,7 @@ class TestMail extends Mailable
         return new Content(
             markdown: 'mail.test',
             text: 'mail.test-text',
-            with: ['panelUrl' => Dashboard::getUrl(panel: 'panel')],
+            with: ['panelUrl' => route('app.today')],
         );
     }
 }

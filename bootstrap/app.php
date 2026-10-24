@@ -16,9 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
             // Outside the web group on purpose: no session, CSRF or throttle (they use the
             // database, which does not exist yet on the first deploy). The key guards it.
             Route::match(['get', 'post'], '/deploy', DeployController::class)->name('deploy');
-
-            // The glass interface (Faz 10): /app, route names `app.*`.
-            Route::middleware('web')->prefix('app')->name('app.')->group(base_path('routes/app.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

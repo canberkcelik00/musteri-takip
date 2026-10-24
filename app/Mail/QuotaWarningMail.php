@@ -3,8 +3,6 @@
 namespace App\Mail;
 
 use App\Actions\Servers\UsageAlert;
-use App\Filament\Pages\Dashboard;
-use App\Filament\Resources\Customers\CustomerResource;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -41,8 +39,8 @@ class QuotaWarningMail extends Mailable
             markdown: 'mail.quota-warning',
             text: 'mail.quota-warning-text',
             with: [
-                'customerUrl' => fn (int $customerId): string => CustomerResource::getUrl('view', ['record' => $customerId], panel: 'panel'),
-                'panelUrl' => Dashboard::getUrl(panel: 'panel'),
+                'customerUrl' => fn (int $customerId): string => route('app.customers.show', $customerId),
+                'panelUrl' => route('app.today'),
             ],
         );
     }

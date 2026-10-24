@@ -5,7 +5,6 @@ use App\Actions\Digest\SendDigest;
 use App\Enums\DigestFrequency;
 use App\Enums\DigestResult;
 use App\Enums\SettingKey;
-use App\Filament\Resources\Customers\CustomerResource;
 use App\Mail\DigestMail;
 use App\Models\Server;
 use App\Support\Settings;
@@ -71,7 +70,7 @@ it('shows the quota section in both parts of the mail, with a link to the custom
     UsageScenario::usage($server, 'logi');
     $now = Carbon::now('Europe/Istanbul');
     $mail = new DigestMail(digestWithQuotaAlerts(), DigestFrequency::Monthly, $now);
-    $url = CustomerResource::getUrl('view', ['record' => $service->customer_id], panel: 'panel');
+    $url = route('app.customers.show', $service->customer_id);
 
     $mail->assertSeeInOrderInHtml([
         '1 kota uyarısı',

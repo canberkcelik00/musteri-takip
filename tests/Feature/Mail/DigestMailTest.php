@@ -4,7 +4,6 @@ use App\Actions\Digest\BuildDigest;
 use App\Enums\Currency;
 use App\Enums\DigestFrequency;
 use App\Enums\SettingKey;
-use App\Filament\Resources\Customers\CustomerResource;
 use App\Mail\DigestMail;
 use App\Models\Charge;
 use App\Models\Customer;
@@ -84,7 +83,7 @@ it('shows the three sections in Turkish with a link to the customer card on ever
     ]);
 
     foreach ([$logi, $acme, $mavi] as $customer) {
-        $mail->assertSeeInHtml('href="'.CustomerResource::getUrl('view', ['record' => $customer], panel: 'panel').'"', false);
+        $mail->assertSeeInHtml('href="'.route('app.customers.show', $customer).'"', false);
     }
 });
 

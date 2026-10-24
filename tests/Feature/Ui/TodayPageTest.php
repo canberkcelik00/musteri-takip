@@ -31,11 +31,11 @@ beforeEach(function () {
 });
 
 it('is the opening page of the glass interface and needs a signed-in user', function () {
-    $this->get('/app')->assertOk()->assertSee(__('navigation.today'));
+    $this->get('/')->assertOk()->assertSee(__('navigation.today'));
 
     auth()->logout();
 
-    $this->get('/app')->assertRedirect(route('app.login'));
+    $this->get('/')->assertRedirect(route('app.login'));
 });
 
 it('shows today\'s date under the title', function () {
@@ -289,13 +289,13 @@ describe('scheduler warning', function () {
         $this->artisan('app:process-customer-services')->assertSuccessful();
 
         $this->travelTo('2026-10-13 15:00:00');
-        $this->get('/app')->assertOk()->assertDontSee('ui-error-box', false);
+        $this->get('/')->assertOk()->assertDontSee('ui-error-box', false);
 
         $this->travelTo('2026-10-13 15:01:00');
-        $this->get('/app')->assertSee('Zamanlayıcı 1 saatten uzun süredir çalışmıyor (son çalışma: 13.10.2026 14:00).', false);
+        $this->get('/')->assertSee('Zamanlayıcı 1 saatten uzun süredir çalışmıyor (son çalışma: 13.10.2026 14:00).', false);
 
         $this->artisan('app:process-customer-services')->assertSuccessful();
-        $this->get('/app')->assertOk()->assertDontSee('ui-error-box', false);
+        $this->get('/')->assertOk()->assertDontSee('ui-error-box', false);
     });
 
     it('warns when the scheduler never ran', function () {
@@ -339,7 +339,7 @@ describe('scheduler warning', function () {
     it('shows nothing while the scheduler is healthy', function () {
         app(RecordSchedulerRun::class)->handle();
 
-        $this->get('/app')->assertOk()->assertDontSee('ui-error-box', false);
+        $this->get('/')->assertOk()->assertDontSee('ui-error-box', false);
     });
 });
 

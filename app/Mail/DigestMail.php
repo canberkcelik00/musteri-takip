@@ -4,8 +4,6 @@ namespace App\Mail;
 
 use App\Actions\Servers\UsageAlert;
 use App\Enums\DigestFrequency;
-use App\Filament\Pages\Dashboard;
-use App\Filament\Resources\Customers\CustomerResource;
 use App\Models\Charge;
 use App\Models\CustomerService;
 use Illuminate\Database\Eloquent\Collection;
@@ -43,8 +41,8 @@ class DigestMail extends Mailable
             markdown: 'mail.digest',
             text: 'mail.digest-text',
             with: [
-                'customerUrl' => fn (int $customerId): string => CustomerResource::getUrl('view', ['record' => $customerId], panel: 'panel'),
-                'panelUrl' => Dashboard::getUrl(panel: 'panel'),
+                'customerUrl' => fn (int $customerId): string => route('app.customers.show', $customerId),
+                'panelUrl' => route('app.today'),
             ],
         );
     }

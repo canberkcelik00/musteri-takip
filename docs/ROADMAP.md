@@ -419,8 +419,8 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
 - [x] **G-10.5 Bugün** — Bağımlılık: G-10.4
 - [x] **G-10.6 Teklifler** — Bağımlılık: G-10.3
 - [x] **G-10.7 Katalog ve Ayarlar** — Bağımlılık: G-10.3
-- [ ] **G-10.8 Geçiş** — Bağımlılık: G-10.5, G-10.6, G-10.7
-  - Yapılacak: `/` ve `/panel/*` yeni rotalara yönlendirilir, e-posta bağlantıları `route('app.*')`, bütünleşik testler yeni ekranlara.
+- [x] **G-10.8 Geçiş** — Bağımlılık: G-10.5, G-10.6, G-10.7
+  - Yapılacak: yeni arayüz `/app` yerine site kökünden sunulur (yönlendirme gerekmez: `/panel` zaten kaldırılacak), e-posta bağlantıları `route('app.*')`. Bütünleşik testlerin yeni ekranlara taşınması Filament'in kaldırıldığı G-10.9'da yapılır (eski ekranları sınadıkları için).
 - [ ] **G-10.9 Filament'i kaldır** — Bağımlılık: G-10.8
   - Yapılacak: paket, `app/Filament`, panel sağlayıcısı, görünümler, CSS/varlıklar, dağıtım ve CI adımları, `tests/Feature/Filament` → `tests/Feature/Ui`.
 - [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.9

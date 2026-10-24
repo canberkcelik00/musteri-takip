@@ -5,7 +5,6 @@ use App\Actions\Digest\SendDigest;
 use App\Enums\DigestFrequency;
 use App\Enums\DigestResult;
 use App\Enums\SettingKey;
-use App\Filament\Resources\Customers\CustomerResource;
 use App\Mail\DigestMail;
 use App\Support\Settings;
 use Illuminate\Support\Carbon;
@@ -91,7 +90,7 @@ it('shows the warning section in the mail, with a link to the customer card', fu
     $charge = renewalChargeToRemind(contact: ['email' => null]);
     $now = Carbon::now('Europe/Istanbul');
     $mail = new DigestMail(app(BuildDigest::class)->handle($now->copy()->subMonth(), $now), DigestFrequency::Monthly, $now);
-    $url = CustomerResource::getUrl('view', ['record' => $charge->customer_id], panel: 'panel');
+    $url = route('app.customers.show', $charge->customer_id);
 
     $mail->assertSeeInOrderInHtml([
         '1 hatırlatma gönderilemedi',

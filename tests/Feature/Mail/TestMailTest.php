@@ -1,6 +1,5 @@
 <?php
 
-use App\Filament\Pages\Dashboard;
 use App\Mail\TestMail;
 
 it('has a Turkish subject, text and a link to the panel', function () {
@@ -8,13 +7,13 @@ it('has a Turkish subject, text and a link to the panel', function () {
 
     $mail->assertHasSubject('Test e-postası')
         ->assertSeeInHtml('Bu e-posta, e-posta ayarlarını denemek için gönderildi.')
-        ->assertSeeInHtml(Dashboard::getUrl(panel: 'panel'), false);
+        ->assertSeeInHtml(route('app.today'), false);
 });
 
 it('has a plain text version without HTML', function () {
     $mail = new TestMail;
 
     $mail->assertSeeInText('Bu e-posta, e-posta ayarlarını denemek için gönderildi.')
-        ->assertSeeInText('Panele git: '.Dashboard::getUrl(panel: 'panel'));
+        ->assertSeeInText('Panele git: '.route('app.today'));
     expect($mail->render())->toBeString();
 });

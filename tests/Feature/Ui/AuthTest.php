@@ -10,14 +10,14 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 it('does not show the glass interface to a guest', function () {
-    $this->get('/app')->assertRedirect(route('app.login'));
-    $this->get('/app/profile')->assertRedirect(route('app.login'));
+    $this->get('/')->assertRedirect(route('app.login'));
+    $this->get('/profile')->assertRedirect(route('app.login'));
 });
 
 it('shows the login page to a guest and sends a signed-in user home', function () {
-    $this->get('/app/login')->assertOk()->assertSee(__('ui.login.submit'));
+    $this->get('/login')->assertOk()->assertSee(__('ui.login.submit'));
 
-    $this->actingAs(User::factory()->create())->get('/app/login')->assertRedirect(route('app.today'));
+    $this->actingAs(User::factory()->create())->get('/login')->assertRedirect(route('app.today'));
 });
 
 it('signs in with the right credentials', function () {
@@ -36,7 +36,7 @@ it('signs in with the right credentials', function () {
 it('goes back to the page that was asked for before signing in', function () {
     $user = User::factory()->create(['password' => 'secret-pass']);
 
-    $this->get('/app/profile')->assertRedirect(route('app.login'));
+    $this->get('/profile')->assertRedirect(route('app.login'));
 
     Livewire::test(Login::class)
         ->set('email', $user->email)
