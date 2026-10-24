@@ -59,4 +59,5 @@ return [
     'open_empty_heading' => 'Açık borç yok',
     'open_empty_description' => 'Bu müşterinin ödenmemiş borcu bulunmuyor.',
     'empty_description' => 'Müşteriye hizmet eklendiğinde borçlar kendiliğinden oluşur.',
+    'count' => ':count borç',
 ];

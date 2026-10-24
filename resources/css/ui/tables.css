@@ -818,3 +818,24 @@
     flex-wrap: wrap;
     gap: 4px;
 }
+
+.ui-below-md {
+    display: block;
+}
+
+.ui-below-lg {
+    display: block;
+    margin-top: 2px;
+}
+
+@media (min-width: 768px) {
+    .ui-below-md {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .ui-below-lg {
+        display: none;
+    }
+}

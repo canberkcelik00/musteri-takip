@@ -46,4 +46,5 @@ return [
     'empty_description' => 'Bir müşteriden ödeme aldığınızda burada listelenir.',
     'recent_empty_heading' => 'Henüz ödeme yok',
     'recent_empty_description' => 'Bu müşteriden aldığınız ödemeler burada görünür.',
+    'count' => ':count ödeme',
 ];
