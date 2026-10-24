@@ -1,4 +1,0 @@
-@import '{{ filamentThemeCssPath }}';
-
-@source '../../../../app/Filament/{{ classDirectory }}**/*';
-@source '../../../../resources/views/filament/{{ viewDirectory }}**/*';
