@@ -2,9 +2,7 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasLabel;
-
-enum ServerType: string implements HasLabel
+enum ServerType: string
 {
     case Whm = 'whm';
     case Cpanel = 'cpanel';

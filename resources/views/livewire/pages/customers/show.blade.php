@@ -24,7 +24,7 @@
             <x-ui.avatar :name="$customer->short_name" :id="$customer->id" />
             <div class="min-w-0">
                 <div class="ui-crumbs">
-                    <a href="{{ route(Route::has('app.customers.index') ? 'app.customers.index' : 'filament.panel.resources.customers.index') }}">{{ __('customers.plural') }}</a>
+                    <a href="{{ route('app.customers.index') }}">{{ __('customers.plural') }}</a>
                     / {{ $customer->short_name }}
                 </div>
                 <h1>{{ $customer->short_name }}</h1>

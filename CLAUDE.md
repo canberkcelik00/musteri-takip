@@ -15,11 +15,11 @@ Bu dosyalar arasında çelişki görürsen kendin çözme; dur ve kullanıcıya 
 ## Sürümler (sabit)
 
 - Laravel 13, PHP 8.3 (`composer.json` platform 8.3; 8.4'e özgü özellik kullanma)
-- Filament 5 (Faz 10'da kaldırılacak, T-135); yeni arayüz Livewire 4 + Alpine + Tailwind 4, `/app` altında
+- Arayüz: Livewire 4 + Alpine + Tailwind 4 (cam arayüz, site kökünde); Filament Faz 10'da kaldırıldı (T-135)
 - MySQL 8.0
 - Pest, Pint, Larastan
 
-Laravel, Livewire ve Filament API'leri için hafızana güvenme: Laravel Boost'un dokümantasyon araçlarıyla kurulu sürümün dokümantasyonuna bak. Laravel 13 ve Filament 5 görece yeni; eski sürüm kalıplarını (ör. Filament 3/4 sözdizimi) kullanma.
+Laravel ve Livewire API'leri için hafızana güvenme: Laravel Boost'un dokümantasyon araçlarıyla kurulu sürümün dokümantasyonuna bak. Laravel 13 ve Livewire 4 görece yeni; eski sürüm kalıplarını kullanma.
 
 ## Ortam ve komutlar
 
@@ -57,7 +57,7 @@ Windows'a özgü kurallar:
 
 ## Kod kuralları
 
-- **İş mantığı `app/Actions` altında.** Her kural tek bir Action sınıfında; Filament ekranları, komutlar ve zamanlanmış görevler sadece Action çağırır. Arayüzde iş mantığı yok.
+- **İş mantığı `app/Actions` altında.** Her kural tek bir Action sınıfında; Livewire ekranları ve pencereleri, komutlar ve zamanlanmış görevler sadece Action çağırır. Arayüzde iş mantığı yok.
 - **Para:** Tutarlar kuruş cinsinden `int`. Float, `round()` ile para hesabı, `number_format` ile ayrıştırma yasak; para yardımcısını kullan. Farklı para birimlerini asla toplama veya karşılaştırma.
 - **Türetilen değerler saklanmaz:** Kalan tutar, kısmi ödenmiş, gecikmiş, alacak bakiyesi, teklifin süresinin dolması hesaplanır.
 - **Geçmiş korunur:** Dağıtımı olan borcun tutarı/para birimi değişmez; geçmiş dönem borcu otomatik iptal edilmez; borcu/ödemesi olan kayıt silinmez, arşivlenir.

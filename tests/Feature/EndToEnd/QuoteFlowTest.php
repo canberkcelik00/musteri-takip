@@ -6,9 +6,7 @@ use App\Actions\Quotes\SendQuote;
 use App\Enums\ChargeStatus;
 use App\Enums\QuoteStatus;
 use App\Enums\SettingKey;
-use App\Filament\Resources\Customers\Pages\ViewCustomer;
-use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
-use App\Filament\Resources\Customers\RelationManagers\QuotesRelationManager;
+use App\Livewire\Pages\Customers\Show;
 use App\Mail\QuoteMail;
 use App\Models\CatalogService;
 use App\Models\Charge;
@@ -18,13 +16,11 @@ use App\Models\Package;
 use App\Models\QuoteItem;
 use App\Models\User;
 use App\Support\Settings;
-use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
-    Filament::setCurrentPanel('panel');
     $this->travelTo('2027-03-01 10:00:00');
 });
 
@@ -75,12 +71,10 @@ it('takes a quote from the catalog to a customer card with its services and firs
         ->and($charges->every(fn (Charge $charge): bool => $charge->status === ChargeStatus::Open))->toBeTrue()
         ->and($charges->pluck('amount')->contains(150000))->toBeTrue();
 
-    Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+    Livewire::test(Show::class, ['customer' => $customer])
         ->assertSee('Linux Hosting 1000 MB')
         ->assertSee('Kurumsal Paket')
-        ->assertSee('Ücretsiz kurulum');
-
-    Livewire::test(QuotesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
+        ->assertSee('Ücretsiz kurulum')
         ->assertSee('TKL-2027-0001')
         ->assertSee('Kabul edildi');
 });

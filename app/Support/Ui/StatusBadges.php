@@ -57,7 +57,7 @@ final class StatusBadges
     }
 
     /**
-     * The tone a Filament-era color name stands for (usage levels still name theirs that way).
+     * The tone a color name (success, warning, danger) stands for (usage levels still name theirs that way).
      */
     public static function toneOfColor(?string $color): string
     {

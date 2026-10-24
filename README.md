@@ -64,11 +64,11 @@ docker compose exec app php artisan test      # testler
 
 Hostingin ilk kurulumu adım adım: [`docs/KURULUM.md`](docs/KURULUM.md). Ardından canlıya geçiş kontrol listesi: [`docs/CANLIYA_GECIS.md`](docs/CANLIYA_GECIS.md).
 
-Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. Sunucuda Composer olmadığı için canlı paket (`vendor` dev paketleri olmadan, derlenmiş tema, Filament dosyaları) depoda durur.
+Hosting, deponun `public_html`'e klonlanmış bir kopyasını (cPanel Git Sürüm Kontrolü) `main` dalında tutar. Sunucuda Composer olmadığı için canlı paket (`vendor` dev paketleri olmadan, derlenmiş tema) depoda durur.
 
 `main`'e her push'ta GitHub Actions (`.github/workflows/ci.yml`) testleri, Pint'i ve Larastan'ı çalıştırır. Hepsi geçerse yayın işi `composer install --no-dev` ve `npm run build` ile paketi hazırlar ve **yalnızca paket değiştiyse** `main`'e bir commit ekler:
 
-- Başlık neyin değiştiğini söyler: `Yayın paketi: Composer bağımlılıkları (vendor) güncellendi`, `… tema yeniden derlendi`, `… Filament dosyaları güncellendi`.
+- Başlık neyin değiştiğini söyler: `Yayın paketi: Composer bağımlılıkları (vendor) güncellendi`, `… tema yeniden derlendi`.
 - Gövdede kaynak commit yazar: `Kaynak: 1a2b3c4d G-4.3: …`.
 - Yalnızca PHP kodu, test ya da doküman değiştiyse commit eklenmez.
 - Geçmiş yeniden yazılmaz; çalışma sırasında `main` ilerlediyse paketi yeni çalışma değerlendirir.

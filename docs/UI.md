@@ -162,7 +162,7 @@ Faz 4C'den beri (T-130, T-132) Apple "Ayarlar" tarzı: gri gruplu zemin üstünd
 - **Zemin:** Renkli, yumuşak degrade (açık ve koyu temada ayrı); tüm yüzeyler bunun üstünde yarı saydam cam (`backdrop-filter`) olarak durur: kenar menü, üst çubuk, kartlar, tablo kartı, pencereler, açılır menüler.
 - **Pencereler** `body` sonunda tek katmanda (Livewire `WindowHost`) çizilir, çubuğun içinde değil; T-132'deki "pencere üst çubuğa hapsoldu" hatası bu yapıda oluşmaz.
 - **Performans:** Aynı anda en fazla ~6 görünür bulanık yüzey; kaydırılan içerik tek katman, satırlar bulanık değil. `prefers-reduced-transparency` ve kullanıcı menüsündeki "Cam: kapalı" seçeneği yüzeyleri düz opak renge düşürür.
-- **Kontrast:** Cam üstündeki metin için tokenlar zemin en kötü durumda (en az %70 opak beyaz/siyah) varsayılarak 4,5:1 ölçülür; `DesignTokensTest` yeni CSS'i okur.
+- **Kontrast:** Cam üstündeki metin için tokenlar zemin en kötü durumda (en az %70 opak beyaz/siyah) varsayılarak 4,5:1 ölçülür; `UiTokensTest` yeni CSS'i okur.
 - **Korunanlar:** Renk anlamları (durum renkleri, rozet biçimi, mavi birincil, yeşil anahtar), yazı ölçeği, yoğunluk, tık sayıları (§7) ve tüm yer kuralları aynen geçerlidir; yalnız yüzey malzemesi (düz → cam) değişir. Sabit renk yalnız `:root` token bloğunda yazılır. Cam tokenlarının kesin değerleri aşağıdaki tablodadır; kaynak `resources/css/ui/tokens.css` (`--mt-*`, açık `:root`, koyu `:root.dark`), `UiTokensTest` ölçer.
 
 | Token (cam arayüz) | Açık tema | Koyu tema |
@@ -174,7 +174,7 @@ Faz 4C'den beri (T-130, T-132) Apple "Ayarlar" tarzı: gri gruplu zemin üstünd
 | Metin / soluk / üçüncül | #1D1D1F / #3A3A3D / #505055 | #F5F5F7 / #D4D4D9 / #C0C0C6 |
 | Bağlantı, WhatsApp, tehlikeli metin | #00479B, #0B5E33, #920012 | #A9D3FF, #30D158, #FFB4AF |
 
-Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstündeki bileşik rengine karşı en az 4,5:1 ölçülür; bu yüzden açık temada metin ve bağlantı renkleri yukarıdaki Filament tablosundan koyudur. Menü karesi simgeleri grafik sayıldığından 3:1 yeterlidir.
+Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstündeki bileşik rengine karşı en az 4,5:1 ölçülür; bu yüzden açık temada metin ve bağlantı renkleri aşağıdaki skala tablosundan koyudur. Menü karesi simgeleri grafik sayıldığından 3:1 yeterlidir.
 
 - **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir. Koyu tema gerçek siyah zeminli, #1C1C1E kartlıdır.
 - **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur. Yeşil anahtar (açık durum) iOS yeşilidir; ödendi rozetinin yeşilinden ayrı bir iştir ve yalnız anahtarda kullanılır.
@@ -189,7 +189,7 @@ Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstünd
 - **Yoğunluk:** Orta: tablo satırı ~48 px (avatarlı ~52 px), formlarda rahat boşluk.
 - **Logo ve ad:** Sol üstte logo simgesi (#ff3800) ve "Müşteri Takip"; şimdilik yer tutucu simge, firma logosu gelince değiştirilir.
 - **Dar ekran:** `lg` altında kenar menü yerine altta iOS tarzı sekme çubuğu: Bugün · Müşteriler · Borçlar · Menü ("Menü" kayan menüyü açar).
-- **Tasarım tokenları:** Değerler aşağıdaki tabloda; tüm metin/zemin çiftleri iki temada da en az 4,5:1 (`DesignTokensTest`). Değerler kodda tek yerde tanımlı: gri ve primary skalası `AdminPanelProvider` içinde (Filament düğme metni gibi kontrast seçimlerini bu paletten hesaplar); diğer tüm tokenlar `resources/css/filament/panel/theme.css` başındaki token bloğunda `--mt-*` değişkenleri olarak. Bileşen stilleri yalnızca bu değişkenleri ve palet sınıflarını kullanır; sabit renk kodu yazılmaz.
+- **Tasarım tokenları:** Değerler aşağıdaki tabloda; tüm metin/zemin çiftleri iki temada da en az 4,5:1 (`UiTokensTest`). Değerler kodda tek yerde tanımlı: `resources/css/ui/tokens.css` içindeki `--mt-*` değişkenleri (Faz 10'da Filament kalktığı için gri ve primary skalası artık kodda yoktur; aşağıdaki skala tabloları tasarım referansıdır). E-posta teması (`resources/views/vendor/mail`) CSS değişkenlerini okuyamadığından bu tokenların renklerini kopyalar; `MailThemeTest` kopyadaki her rengin bir token rengi olduğunu doğrular. Bileşen stilleri yalnızca bu değişkenleri ve palet sınıflarını kullanır; sabit renk kodu yazılmaz.
 
 | Token | Açık tema | Koyu tema |
 | --- | --- | --- |
@@ -223,7 +223,7 @@ Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstünd
 | Gri skala (50–950) | #FFFFFF, #E5E5EA, #D1D1D6, #C7C7CC, #AEAEB2, #8E8E93, #6C6C70, #48484A, #38383A, #1C1C1E, #000000 | aynı skala |
 | Primary mavi skala (50–950) | #F0F7FF, #DCEBFC, #B9D8FA, #8BBDF5, #409CFF, #0071E3, #0066CC, #0057AD, #0A4A91, #0B3B73, #082B55 | aynı skala |
 
-Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 çizgi, 600 soluk metin, 800 koyu çizgi, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 500 düğme dolgusu, 600 üzerine gelme ve bağlantı, 400 koyu temadaki bağlantıdır. Durum paletleri (danger = Red, warning = Amber, success = Green) Filament'in hazır paletleridir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
+Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemini, 100 satır ayırıcı, 200 çizgi, 600 soluk metin, 800 koyu çizgi, 900 koyu panel ve 950 koyu sayfa zeminidir. Primary skalada 500 düğme dolgusu, 600 üzerine gelme ve bağlantı, 400 koyu temadaki bağlantıdır. Durum paletleri (danger = Red, warning = Amber, success = Green) Tailwind paletlerindendir; rozetlerin kesin tonları yukarıdaki rozet satırlarıdır.
 
 ## 7. Hedef tık sayıları (kabul ölçütü)
 

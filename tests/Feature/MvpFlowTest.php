@@ -1,33 +1,27 @@
 <?php
 
+use App\Actions\Today\SummarizeToday;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
-use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
-use App\Filament\Resources\Charges\Pages\ListCharges;
-use App\Filament\Resources\Customers\CustomerResource;
-use App\Filament\Resources\Customers\Pages\ListCustomers;
-use App\Filament\Resources\Customers\Pages\ViewCustomer;
-use App\Filament\Resources\Customers\RelationManagers\CancelledCustomerServicesRelationManager;
-use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
-use App\Filament\Support\RecordActionsSection;
-use App\Filament\Widgets\TodayStats;
-use App\Filament\Widgets\TodayTasks;
+use App\Livewire\Pages\Charges\Index as ChargesIndex;
+use App\Livewire\Pages\Customers\Show;
+use App\Livewire\Pages\Today;
+use App\Livewire\Windows\AssignService;
+use App\Livewire\Windows\CancelService;
+use App\Livewire\Windows\CreateCustomer;
+use App\Livewire\Windows\EditCatalogService;
+use App\Livewire\Windows\RecordPayment;
 use App\Models\CatalogService;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\PaymentAllocation;
 use App\Models\User;
-use Filament\Actions\Testing\TestAction;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Checkbox;
-use Filament\Schemas\Components\Text;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
-    Filament::setCurrentPanel('panel');
 });
 
 /**
@@ -48,55 +42,50 @@ function mvpChargeState(Charge $charge): array
 }
 
 /**
- * The first number of "Bugün" (total receivable).
+ * The first number of "Bugün" (total receivable) as the page shows it.
  */
 function mvpTotalReceivable(): string
 {
-    $widget = new TodayStats;
-    $stats = (new ReflectionMethod($widget, 'getStats'))->invoke($widget);
+    $totals = app(SummarizeToday::class)->handle()['total'];
 
-    return (string) $stats[0]->getValue();
+    return $totals === [] ? '—' : array_values($totals)[0]->format();
 }
 
 it('runs the main flow through the screens: customer, service, payment, renewal, cancellation', function () {
     $this->travelTo('2026-03-01 10:00:00');
 
     // 1. A catalog service is added from the catalog list.
-    Livewire::test(ListCatalogServices::class)
-        ->mountAction('create')
-        ->fillForm([
-            'type' => ServiceType::Hosting->value,
-            'name' => 'Linux Hosting',
-            'price' => '4.000',
-            'currency' => Currency::Try->value,
-        ])
-        ->callMountedAction()
-        ->assertHasNoFormErrors();
+    Livewire::test(EditCatalogService::class)
+        ->set('type', ServiceType::Hosting->value)
+        ->set('name', 'Linux Hosting')
+        ->set('price', '4.000')
+        ->set('currency', Currency::Try->value)
+        ->call('save')
+        ->assertHasNoErrors();
 
     $hosting = CatalogService::query()->sole();
 
     // 2. The customer is added with the first contact and the card opens.
-    Livewire::test(ListCustomers::class)
-        ->mountAction('createCustomer')
-        ->fillForm([
-            'short_name' => 'Logi',
-            'legal_title' => 'Logitech Bilgisayar Ürünleri Ltd. Şti.',
-            'contact' => ['name' => 'Murat Kaya', 'email' => 'murat.kaya@example.com'],
-        ])
-        ->callMountedAction()
-        ->assertHasNoFormErrors()
-        ->assertRedirect(CustomerResource::getUrl('view', ['record' => Customer::query()->sole()]));
+    Livewire::test(CreateCustomer::class)
+        ->set('short_name', 'Logi')
+        ->set('legal_title', 'Logitech Bilgisayar Ürünleri Ltd. Şti.')
+        ->set('contact_name', 'Murat Kaya')
+        ->set('contact_email', 'murat.kaya@example.com')
+        ->call('save')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('app.customers.show', Customer::query()->sole()));
 
     $customer = Customer::query()->sole();
 
     // 3. The service is assigned from the card: suggested price and date, first period's charge.
-    Livewire::test(ViewCustomer::class, ['record' => $customer->id])
-        ->mountAction(TestAction::make('assignService'))
-        ->fillForm(['sold' => "catalog_service:{$hosting->id}"])
-        ->assertSchemaStateSet(['price' => '4.000', 'currency' => Currency::Try, 'start_date' => '2026-03-01'])
-        ->fillForm(["items.{$hosting->id}.details.domain" => 'logi.com.tr'])
-        ->callMountedAction()
-        ->assertHasNoFormErrors();
+    Livewire::test(AssignService::class, ['customer' => $customer->id])
+        ->set('sold', "catalog_service:{$hosting->id}")
+        ->assertSet('price', '4.000')
+        ->assertSet('currency', Currency::Try->value)
+        ->assertSet('start_date', '2026-03-01')
+        ->set("items.{$hosting->id}.details.domain", 'logi.com.tr')
+        ->call('save')
+        ->assertHasNoErrors();
 
     $service = $customer->customerServices()->sole();
     $firstCharge = $customer->charges()->sole();
@@ -106,23 +95,22 @@ it('runs the main flow through the screens: customer, service, payment, renewal,
         ->and(mvpChargeState($firstCharge))->toBe(['amount' => 400000, 'status' => ChargeStatus::Open, 'allocated' => 0, 'due_date' => '2026-03-01'])
         ->and(mvpTotalReceivable())->toBe('4.000 TL');
 
-    // 4. 5.000 TL is paid from the topbar; the preview first shows the split.
-    $payment = topbarActions()
-        ->mountAction('recordPayment')
-        ->fillForm(['customer_id' => $customer->id, 'currency' => 'TRY', 'amount' => '5.000', 'show_allocations' => true])
-        ->assertSchemaStateSet(["allocations.{$firstCharge->id}" => '4.000']);
-
-    expect(mountedActionWindowText($payment))->toContain('4.000 TL borç kapatıldı, 1.000 TL alacak bakiyesine eklendi.');
-
-    $payment
-        ->callMountedAction()
-        ->assertNotified('4.000 TL borç kapatıldı, 1.000 TL alacak bakiyesine eklendi.');
+    // 4. 5.000 TL is paid from the top bar; the preview first shows the split.
+    Livewire::test(RecordPayment::class)
+        ->set('customer_id', (string) $customer->id)
+        ->set('currency', 'TRY')
+        ->set('amount', '5.000')
+        ->set('show_allocations', true)
+        ->assertSet("allocations.{$firstCharge->id}", '4.000')
+        ->assertSee('4.000 TL borç kapatıldı, 1.000 TL alacak bakiyesine eklendi.')
+        ->call('save')
+        ->assertDispatched('notify', message: '4.000 TL borç kapatıldı, 1.000 TL alacak bakiyesine eklendi.');
 
     expect(mvpChargeState($firstCharge))->toBe(['amount' => 400000, 'status' => ChargeStatus::Paid, 'allocated' => 400000, 'due_date' => '2026-03-01'])
         ->and($customer->creditBalances()['TRY']->amount)->toBe(100000)
         ->and(mvpTotalReceivable())->toBe('—');
 
-    Livewire::test(ViewCustomer::class, ['record' => $customer->id])->assertSee('1.000 TL');
+    Livewire::test(Show::class, ['customer' => $customer])->assertSee('1.000 TL');
 
     // 5. 30 days before the end the renewal charge appears and the credit drops onto it.
     $this->travelTo('2027-01-30 00:00:00');
@@ -134,12 +122,13 @@ it('runs the main flow through the screens: customer, service, payment, renewal,
         ->and($customer->creditBalances())->toBe([])
         ->and(mvpTotalReceivable())->toBe('3.000 TL');
 
-    Livewire::test(ListCharges::class)->assertCanSeeTableRecords([$renewalCharge]);
+    expect(Livewire::test(ChargesIndex::class)->viewData('charges')->pluck('id')->all())->toContain($renewalCharge->id);
 
-    // The row's "Ödeme al" pays 500 TL short of the remaining 3.000 TL.
-    Livewire::test(ListCharges::class)
-        ->callAction(TestAction::make('recordPayment')->table($renewalCharge), ['amount' => '2.500'])
-        ->assertNotified('2.500 TL borç kapatıldı.');
+    // The payment window pays 500 TL short of the remaining 3.000 TL.
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id])
+        ->set('amount', '2.500')
+        ->call('save')
+        ->assertDispatched('notify', message: '2.500 TL borç kapatıldı.');
 
     expect(mvpChargeState($renewalCharge)['allocated'])->toBe(350000)
         ->and($renewalCharge->fresh()->remainingAmount())->toBe(50000);
@@ -154,7 +143,7 @@ it('runs the main flow through the screens: customer, service, payment, renewal,
         ->and($renewalCharge->fresh()->isOverdue())->toBeTrue()
         ->and(mvpTotalReceivable())->toBe('500 TL');
 
-    Livewire::test(TodayTasks::class)->assertSee('Logi');
+    Livewire::test(Today::class)->assertSee('Logi');
 
     // 6. 30 days before the next end the charge of the not yet started period is created.
     $this->travelTo('2028-01-31 00:00:00');
@@ -169,18 +158,12 @@ it('runs the main flow through the screens: customer, service, payment, renewal,
     $paidBefore = [mvpChargeState($firstCharge), mvpChargeState($renewalCharge)];
     $allocationsBefore = PaymentAllocation::query()->orderBy('id')->get()->toArray();
 
-    $cancel = [
-        TestAction::make('editService')->table($service),
-        TestAction::make('cancelService')->schemaComponent(RecordActionsSection::DANGER_ACTIONS_KEY),
-    ];
-
-    Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->mountAction($cancel)
-        ->assertSchemaStateSet(['cancel_upcoming_charges' => true])
-        ->assertFormFieldExists('cancel_upcoming_charges', checkFieldUsing: fn (Checkbox $field): bool => $field->getLabel() === 'Yaklaşan dönemin borcunu da iptal et (4.000 TL)')
-        ->assertSchemaComponentExists('stays_overdue', checkComponentUsing: fn (Text $text): bool => $text->getContent() === '500 TL gecikmiş borç takipte kalacak.')
-        ->callMountedAction()
-        ->assertHasNoFormErrors();
+    Livewire::test(CancelService::class, ['service' => $service->id])
+        ->assertSet('cancel_upcoming_charges', true)
+        ->assertSee(__('customer_services.cancel_upcoming_charges', ['amount' => '4.000 TL']))
+        ->assertSee(__('customer_services.stays_overdue', ['amount' => '500 TL']))
+        ->call('save')
+        ->assertHasNoErrors();
 
     expect($service->refresh()->status)->toBe(CustomerServiceStatus::Cancelled)
         ->and($upcomingCharge->fresh()->status)->toBe(ChargeStatus::Cancelled)
@@ -192,8 +175,8 @@ it('runs the main flow through the screens: customer, service, payment, renewal,
         ->and(PaymentAllocation::query()->orderBy('id')->get()->toArray())->toBe($allocationsBefore)
         ->and(mvpTotalReceivable())->toBe('500 TL');
 
-    Livewire::test(CancelledCustomerServicesRelationManager::class, ['ownerRecord' => $customer, 'pageClass' => ViewCustomer::class])
-        ->assertCanSeeTableRecords([$service]);
+    Livewire::test(Show::class, ['customer' => $customer])
+        ->assertSee(__('customers.cancelled_services', ['count' => 1]));
 
     // Later scheduler runs create nothing for the cancelled service.
     foreach (['2028-03-01 09:00:00', '2029-01-31 09:00:00', '2029-03-01 09:00:00'] as $date) {

@@ -2,11 +2,9 @@
 
 namespace App\Support\Ui;
 
-use Illuminate\Support\Facades\Route;
-
 /**
  * The sidebar and bottom tab bar entries of the glass interface, resolved from `config('ui.navigation')`:
- * an item links to its `app.*` route once that exists and to the Filament panel route until then.
+ * an item links to its `app.*` route.
  */
 final class Navigation
 {
@@ -70,7 +68,7 @@ final class Navigation
      */
     private static function item(array $item, string $currentUrl): array
     {
-        $url = route(Route::has((string) $item['route']) ? (string) $item['route'] : (string) $item['fallback']);
+        $url = route((string) $item['route']);
 
         return [
             'label' => (string) $item['label'],

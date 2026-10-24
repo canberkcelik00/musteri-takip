@@ -165,12 +165,12 @@ it('has a Turkish footer and no English text of the framework', function () {
     expect($mail->render())->not->toMatch('/\bHello\b|\bRegards\b|\bwhoops\b/i');
 });
 
-it('takes the panel colors, loads nothing from outside and keeps badges on one line', function () {
+it('takes the interface colors, loads nothing from outside and keeps badges on one line', function () {
     Charge::factory()->create(['due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
 
     $html = digestMailFor()->render();
 
-    expect($html)->toContain('background-color: #0066cc')
+    expect($html)->toContain('background-color: #0071e3')
         ->and($html)->toContain('width="600"')
         ->and($html)->toContain('white-space: nowrap')
         ->and($html)->toContain('prefers-color-scheme: dark')
@@ -211,7 +211,7 @@ it('writes the remaining amount note in the muted text color, not the link color
 
     $html = digestMailFor()->render();
 
-    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #6c6c70;[^>]*>\s*Kalan 1\.500 TL/')
+    expect($html)->toMatch('/<span class="dg-note"[^>]*color: #55555b;[^>]*>\s*Kalan 1\.500 TL/')
         ->and($html)->toContain('.dg-note')
-        ->and($html)->toContain('color: #98989d !important');
+        ->and($html)->toContain('color: #8e8e93 !important');
 });

@@ -2,12 +2,10 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasLabel;
-
 /**
  * The stored status of a quote. "Expired" is not stored; see QuoteDisplayStatus.
  */
-enum QuoteStatus: string implements HasLabel
+enum QuoteStatus: string
 {
     case Draft = 'draft';
     case Sent = 'sent';

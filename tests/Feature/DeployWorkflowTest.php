@@ -56,12 +56,9 @@ it('installs production dependencies with Composer scripts and an autoloader tha
         ->and(deployStepRun('Build theme'))->toBe('npm run build');
 });
 
-it('checks that the package contains the dependencies, the theme and the Filament assets', function () {
+it('checks that the package contains the dependencies and the theme', function () {
     expect(deployStepRun('Verify package'))->toContain('vendor/autoload.php')
         ->toContain('public/build/manifest.json')
-        ->toContain('public/js/filament')
-        ->toContain('public/css/filament')
-        ->toContain('public/fonts/filament')
         ->and(deployStepIndex('Verify package'))->toBeLessThan(deployStepIndex('Commit package if it changed'));
 });
 
@@ -87,7 +84,6 @@ it('says in the commit message what changed and which commit it was built for', 
 
     expect($commit)->toContain('changes+=("Composer bağımlılıkları (vendor) güncellendi")')
         ->toContain('changes+=("tema yeniden derlendi")')
-        ->toContain('changes+=("Filament dosyaları güncellendi")')
         ->toContain('git commit -q -m "Yayın paketi: ${summary%, }" -m "Kaynak: ${GITHUB_SHA:0:8} ${source_subject}"')
         ->not->toContain('[skip ci]');
 });
@@ -95,7 +91,7 @@ it('says in the commit message what changed and which commit it was built for', 
 it('commits only the package and pushes without rewriting history', function () {
     $commit = deployStepRun('Commit package if it changed');
 
-    expect($commit)->toContain('git add --all --force -- vendor public/build public/js/filament public/css/filament public/fonts/filament')
+    expect($commit)->toContain('git add --all --force -- vendor public/build')
         ->toContain('fail "Paket dışında değişen dosyalar var')
         ->toContain('git push origin HEAD:refs/heads/main')
         ->not->toMatch('/push[^\n]*(--force|\s-f\b|\+HEAD)/')

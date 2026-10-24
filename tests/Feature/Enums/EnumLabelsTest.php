@@ -6,10 +6,9 @@ use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\QuoteDisplayStatus;
 use App\Enums\QuoteStatus;
-use Filament\Support\Contracts\HasLabel;
 
 it('has the values and Turkish labels in the data model', function (string $enum, array $labels) {
-    /** @var class-string<BackedEnum&HasLabel> $enum */
+    /** @var class-string<AllocationSource|ChargeStatus|Currency|CustomerServiceStatus|QuoteDisplayStatus|QuoteStatus> $enum */
     $actual = [];
 
     foreach ($enum::cases() as $case) {

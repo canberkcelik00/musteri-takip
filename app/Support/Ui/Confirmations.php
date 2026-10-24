@@ -25,7 +25,6 @@ use App\Models\PaymentMethod;
 use App\Models\Quote;
 use App\Models\Server;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Route;
 use InvalidArgumentException;
 
 /**
@@ -120,7 +119,7 @@ final class Confirmations
         return [
             'message' => __('archive.deleted'),
             'event' => 'customers-changed',
-            'redirect' => route(Route::has('app.customers.index') ? 'app.customers.index' : 'filament.panel.resources.customers.index'),
+            'redirect' => route('app.customers.index'),
         ];
     }
 

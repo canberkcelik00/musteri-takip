@@ -2,9 +2,7 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasLabel;
-
-enum ChargeStatus: string implements HasLabel
+enum ChargeStatus: string
 {
     case Open = 'open';
     case Paid = 'paid';

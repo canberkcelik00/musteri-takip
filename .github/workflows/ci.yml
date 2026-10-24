@@ -84,7 +84,7 @@ jobs:
         run: composer test
 
   # The hosting pulls main with cPanel Git, so the production package (vendor without dev
-  # packages, the theme, Filament's public assets) lives in main. This job commits it only
+  # packages, the built theme) lives in main. This job commits it only
   # when it actually changed; a push that changes neither composer.lock nor the design adds
   # no commit.
   deploy:
@@ -124,8 +124,7 @@ jobs:
       - name: Prepare environment
         run: cp .env.example .env
 
-      # Composer scripts stay on: filament:upgrade writes Filament's public assets. No
-      # --optimize-autoloader: its class map lists every app class, so vendor would change
+      # No --optimize-autoloader: its class map lists every app class, so vendor would change
       # with every new class.
       - name: Install production dependencies
         run: composer install --no-dev --no-interaction --prefer-dist --no-progress
@@ -145,9 +144,6 @@ jobs:
 
           [ -f vendor/autoload.php ] || fail "vendor/autoload.php yok."
           [ -f public/build/manifest.json ] || fail "public/build/manifest.json yok."
-          for dir in public/js/filament public/css/filament public/fonts/filament; do
-            [ -n "$(ls -A "$dir" 2>/dev/null)" ] || fail "$dir boş veya yok."
-          done
 
       - name: Commit package if it changed
         run: |
@@ -169,20 +165,19 @@ jobs:
           fi
 
           # Forced: a vendor package's own .gitignore must not drop its files from the package.
-          git add --all --force -- vendor public/build public/js/filament public/css/filament public/fonts/filament
+          git add --all --force -- vendor public/build
 
           if git diff --cached --quiet; then
             echo "Canlı paket değişmedi; commit gerekmiyor."
             exit 0
           fi
 
-          unexpected="$(git diff --cached --name-only | grep -Ev '^(vendor/|public/build/|public/(js|css|fonts)/filament/)' || true)"
+          unexpected="$(git diff --cached --name-only | grep -Ev '^(vendor/|public/build/)' || true)"
           [ -z "$unexpected" ] || fail "Paket dışında değişen dosyalar var: $unexpected"
 
           changes=()
           git diff --cached --quiet -- vendor || changes+=("Composer bağımlılıkları (vendor) güncellendi")
           git diff --cached --quiet -- public/build || changes+=("tema yeniden derlendi")
-          git diff --cached --quiet -- public/js/filament public/css/filament public/fonts/filament || changes+=("Filament dosyaları güncellendi")
           summary="$(printf '%s, ' "${changes[@]}")"
           source_subject="$(git log -1 --format=%s "$GITHUB_SHA")"
 

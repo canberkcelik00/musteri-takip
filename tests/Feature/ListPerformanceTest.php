@@ -2,18 +2,15 @@
 
 use App\Enums\Currency;
 use App\Enums\ServiceType;
-use App\Filament\Pages\Dashboard;
-use App\Filament\Resources\CatalogServices\Pages\ListCatalogServices;
-use App\Filament\Resources\Charges\Pages\ListCharges;
-use App\Filament\Resources\Customers\CustomerResource;
-use App\Filament\Resources\Customers\Pages\ListCustomers;
-use App\Filament\Resources\Customers\Pages\ViewCustomer;
-use App\Filament\Resources\Packages\Pages\ListPackages;
-use App\Filament\Resources\PaymentMethods\Pages\ManagePaymentMethods;
-use App\Filament\Resources\Payments\Pages\ListPayments;
-use App\Filament\Widgets\SchedulerHealth;
-use App\Filament\Widgets\TodayStats;
-use App\Filament\Widgets\TodayTasks;
+use App\Livewire\Pages\Catalog\Packages as CatalogPackages;
+use App\Livewire\Pages\Catalog\Services as CatalogServices;
+use App\Livewire\Pages\Charges\Index as ChargesIndex;
+use App\Livewire\Pages\Customers\Index as CustomersIndex;
+use App\Livewire\Pages\Customers\Show as CustomersShow;
+use App\Livewire\Pages\Payments\Index as PaymentsIndex;
+use App\Livewire\Pages\Settings\PaymentMethods;
+use App\Livewire\Pages\Today;
+use App\Livewire\Topbar\Search;
 use App\Models\CatalogService;
 use App\Models\Charge;
 use App\Models\Contact;
@@ -24,7 +21,6 @@ use App\Models\Payment;
 use App\Models\PaymentAllocation;
 use App\Models\PaymentMethod;
 use App\Models\User;
-use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
@@ -38,7 +34,6 @@ use Livewire\Livewire;
  */
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
-    Filament::setCurrentPanel('panel');
     $this->travelTo('2026-06-15 10:00:00');
 });
 
@@ -142,27 +137,24 @@ function perfMeasure(Closure $screen): array
  */
 function perfScreens(Customer $card): array
 {
-    $rows = fn (string $page, array $query = []): Closure => fn (): int => Livewire::withQueryParams($query)
+    $rows = fn (string $page, string $variable, array $query = []): Closure => fn (): int => Livewire::withQueryParams($query)
         ->test($page)
         ->assertOk()
-        ->instance()
-        ->getTableRecords()
+        ->viewData($variable)
         ->count();
 
     return [
-        'Bugün: sayılar' => [fn () => Livewire::test(TodayStats::class)->assertOk(), false],
-        'Bugün: yapılacaklar' => [fn () => Livewire::test(TodayTasks::class)->assertOk(), false],
-        'Bugün: zamanlayıcı uyarısı' => [fn () => Livewire::test(SchedulerHealth::class)->assertOk(), false],
-        'Bugün: tüm sayfa' => [fn () => test()->get(Dashboard::getUrl())->assertOk(), false],
-        'Müşteriler' => [$rows(ListCustomers::class), true],
-        'Müşteri kartı' => [fn () => Livewire::test(ViewCustomer::class, ['record' => $card->id])->assertOk(), false],
-        'Açık borçlar' => [$rows(ListCharges::class), true],
-        'Açık borçlar: gecikmiş' => [$rows(ListCharges::class, ['filters' => ['only_overdue' => ['isActive' => true]]]), true],
-        'Ödemeler' => [$rows(ListPayments::class), true],
-        'Katalog hizmetleri' => [$rows(ListCatalogServices::class), false],
-        'Paketler' => [$rows(ListPackages::class), false],
-        'Ödeme yöntemleri' => [$rows(ManagePaymentMethods::class), false],
-        'Ctrl+K arama' => [fn (): int => CustomerResource::getGlobalSearchResults('Firma')->count(), true],
+        'Bugün' => [fn () => Livewire::test(Today::class)->assertOk(), false],
+        'Bugün: tüm sayfa' => [fn () => test()->get(route('app.today'))->assertOk(), false],
+        'Müşteriler' => [$rows(CustomersIndex::class, 'customers'), true],
+        'Müşteri kartı' => [fn () => Livewire::test(CustomersShow::class, ['customer' => $card])->assertOk(), false],
+        'Açık borçlar' => [$rows(ChargesIndex::class, 'charges'), true],
+        'Açık borçlar: gecikmiş' => [$rows(ChargesIndex::class, 'charges', ['onlyOverdue' => true]), true],
+        'Ödemeler' => [$rows(PaymentsIndex::class, 'payments'), true],
+        'Katalog hizmetleri' => [$rows(CatalogServices::class, 'services'), false],
+        'Paketler' => [$rows(CatalogPackages::class, 'packages'), false],
+        'Ödeme yöntemleri' => [fn () => Livewire::test(PaymentMethods::class)->assertOk(), false],
+        'Ctrl+K arama' => [fn (): int => Livewire::test(Search::class)->set('query', 'Firma')->instance()->results()->count(), true],
     ];
 }
 

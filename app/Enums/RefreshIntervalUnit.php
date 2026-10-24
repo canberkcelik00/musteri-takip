@@ -2,13 +2,11 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasLabel;
-
 /**
  * The unit of the usage refresh interval on the settings page. Only minutes are stored
  * (SettingKey::UsageRefreshMinutes); the unit is derived when the form opens.
  */
-enum RefreshIntervalUnit: string implements HasLabel
+enum RefreshIntervalUnit: string
 {
     case Minute = 'minute';
     case Hour = 'hour';

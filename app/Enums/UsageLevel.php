@@ -2,16 +2,13 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasColor;
-use Filament\Support\Contracts\HasLabel;
-
 /**
  * How close a hosting resource is to its limit, from the one warning threshold (docs/UI.md
  * "Kullanım penceresi"): below the threshold there is no level, from the threshold up to the limit
  * it is nearly full, at or over the limit it is full. A resource without a limit has no level.
  * The level is derived on every call, never stored.
  */
-enum UsageLevel: string implements HasColor, HasLabel
+enum UsageLevel: string
 {
     case NearlyFull = 'nearly_full';
     case Full = 'full';

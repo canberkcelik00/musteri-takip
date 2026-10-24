@@ -2,9 +2,7 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasLabel;
-
-enum CustomerServiceStatus: string implements HasLabel
+enum CustomerServiceStatus: string
 {
     case Active = 'active';
     case Cancelled = 'cancelled';

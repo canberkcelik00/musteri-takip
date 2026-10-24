@@ -183,7 +183,7 @@ it('does not remember the release when a step fails and tries again on the next 
 
     $this->postJson('/deploy', headers: deployHeaders())->assertStatus(500);
 
-    expect($runner->calls)->toBe(['optimize:clear', 'filament:clear-cached-components', 'migrate'])
+    expect($runner->calls)->toBe(['optimize:clear', 'migrate'])
         ->and(deployedRelease())->toBeNull();
 
     Log::shouldHaveReceived('error')->once();

@@ -421,8 +421,9 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
 - [x] **G-10.7 Katalog ve Ayarlar** — Bağımlılık: G-10.3
 - [x] **G-10.8 Geçiş** — Bağımlılık: G-10.5, G-10.6, G-10.7
   - Yapılacak: yeni arayüz `/app` yerine site kökünden sunulur (yönlendirme gerekmez: `/panel` zaten kaldırılacak), e-posta bağlantıları `route('app.*')`. Bütünleşik testlerin yeni ekranlara taşınması Filament'in kaldırıldığı G-10.9'da yapılır (eski ekranları sınadıkları için).
-- [ ] **G-10.9 Filament'i kaldır** — Bağımlılık: G-10.8
+- [x] **G-10.9 Filament'i kaldır** — Bağımlılık: G-10.8
   - Yapılacak: paket, `app/Filament`, panel sağlayıcısı, görünümler, CSS/varlıklar, dağıtım ve CI adımları, `tests/Feature/Filament` → `tests/Feature/Ui`.
+  - Yapıldı: `filament/filament` ve bağımlılıkları kaldırıldı (`livewire/livewire` 4.4.6 ve diğer paketler aynı sürümde kaldı), `tests/Feature/Filament` silindi (karşılıkları `tests/Feature/Ui` altında), bütünleşik testler (MvpFlow, ListPerformance, QuoteFlow, ServerPull, AccountDomains, MailTheme, Deploy*) cam ekranlara taşındı.
 - [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.9
   - Kabul: Tüm ekranlar açık ve koyu temada, telefon genişliğinde ve cam performansı kullanıcıca onaylanır.
 

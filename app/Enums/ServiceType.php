@@ -2,9 +2,7 @@
 
 namespace App\Enums;
 
-use Filament\Support\Contracts\HasLabel;
-
-enum ServiceType: string implements HasLabel
+enum ServiceType: string
 {
     case Hosting = 'hosting';
     case Domain = 'domain';

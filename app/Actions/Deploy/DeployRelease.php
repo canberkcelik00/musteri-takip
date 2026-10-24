@@ -96,13 +96,9 @@ class DeployRelease
     }
 
     /**
-     * Filament's component cache is handled explicitly: `optimize` only knows it when it
-     * runs in the console, not when the deploy endpoint calls it. The combined
-     * `filament:optimize(-clear)` is not used because it also calls the Blade Icons
-     * commands, which are not registered in a web request, so the icon manifest is not
-     * cached here. The console `optimize` does write it, though, and `icons:clear` cannot
-     * run in a web request: the package's own class removes the stale manifest instead
-     * (it knows the file path, so no path is repeated here).
+     * The console `optimize` writes the Blade Icons manifest, but `icons:clear` cannot run in
+     * a web request: the package's own class removes the stale manifest instead (it knows the
+     * file path, so no path is repeated here).
      *
      * The application cache is not flushed: it lives in the database, whose `cache` table
      * does not exist before the first migration, and no release depends on it being empty.
@@ -111,13 +107,11 @@ class DeployRelease
     {
         $this->run('optimize:clear', ['--except' => 'cache']);
         $this->iconsManifest->delete();
-        $this->run('filament:clear-cached-components');
         $this->run('migrate', ['--force' => true]);
 
         $this->ensureAdminUser->handle();
 
         $this->run('optimize');
-        $this->run('filament:cache-components');
 
         if (function_exists('opcache_reset')) {
             opcache_reset();

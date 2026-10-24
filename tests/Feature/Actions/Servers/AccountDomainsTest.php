@@ -1,16 +1,14 @@
 <?php
 
 use App\Actions\Servers\RefreshAccountUsage;
-use App\Filament\Resources\Customers\Pages\ViewCustomer;
-use App\Filament\Resources\Customers\RelationManagers\CustomerServicesRelationManager;
+use App\Livewire\Pages\Customers\Show;
+use App\Livewire\Windows\ViewUsage;
 use App\Models\Customer;
 use App\Models\CustomerServiceItem;
 use App\Models\Server;
 use App\Models\User;
 use App\Support\Servers\RemoteAccount;
 use App\Support\Servers\ServerApiClient;
-use Filament\Actions\Testing\TestAction;
-use Filament\Facades\Filament;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -45,7 +43,6 @@ function whmAccountOf(string $user): RemoteAccount
 
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
-    Filament::setCurrentPanel('panel');
 });
 
 it('reads the main, addon and parked domains of a WHM account, lower case, without sub domains', function () {
@@ -114,34 +111,30 @@ it('says on the service row how many other domains the account has', function ()
     $service = UsageScenario::linkedService($server, 'logi', domain: 'logi.com.tr');
     $service->items()->firstOrFail()->forceFill(['remote_domains' => ['logi.com.tr', 'ikinci.com', 'logi.net']])->save();
 
-    $html = Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $service->customer, 'pageClass' => ViewCustomer::class])
-        ->instance()->getTable()->getColumn('name')
-        ->record($service)->getDescriptionBelow()->toHtml();
-
-    // The domain now carries its icon controls (G-4C.6); the visible text is still the same line.
-    expect(trim((string) preg_replace('/\s+/', ' ', strip_tags($html))))->toBe('logi.com.tr +2 alan adı')
-        ->and($html)->not->toContain('ikinci.com');
+    Livewire::test(Show::class, ['customer' => $service->customer])
+        ->assertSee('logi.com.tr')
+        ->assertSee('+'.__('customer_services.more_domains', ['count' => 2]))
+        ->assertDontSee('ikinci.com');
 });
 
 it('adds nothing to the service row without other domains', function () {
     $server = Server::factory()->whm()->create();
     $service = UsageScenario::linkedService($server, 'logi', domain: 'logi.com.tr');
 
-    Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $service->customer, 'pageClass' => ViewCustomer::class])
+    Livewire::test(Show::class, ['customer' => $service->customer])
         ->assertSee('logi.com.tr')
-        ->assertDontSee('alan adı');
+        ->assertDontSee(__('customer_services.more_domains', ['count' => 1]));
 });
 
-it('lists the other domains in the edit window and in the usage window', function () {
+it('lists the other domains in the usage window', function () {
     $server = Server::factory()->whm()->create();
     $service = UsageScenario::linkedService($server, 'logi', domain: 'logi.com.tr');
     $item = $service->items()->firstOrFail();
     $item->forceFill(['remote_domains' => ['logi.com.tr', 'ikinci.com', 'logi.net']])->save();
     UsageScenario::usage($server, 'logi');
 
-    Livewire::test(CustomerServicesRelationManager::class, ['ownerRecord' => $service->customer, 'pageClass' => ViewCustomer::class])
-        ->mountAction(TestAction::make('viewUsage')->arguments(['item' => $item->id]))
-        ->assertMountedActionModalSee('Hesaptaki diğer alan adları: ikinci.com, logi.net');
+    Livewire::test(ViewUsage::class, ['item' => $item->id])
+        ->assertSee('Hesaptaki diğer alan adları: ikinci.com, logi.net');
 });
 
 it('finds a customer by a domain of its hosting account, in any case', function () {

@@ -42,13 +42,13 @@ width: 100% !important;
 body,
 .wrapper,
 .body {
-background-color: #000000 !important;
+background-color: #1c1c1e !important;
 color: #f5f5f7 !important;
 }
 
 .inner-body {
 background-color: #1c1c1e !important;
-border-color: #38383a !important;
+border-color: #3a3a3c !important;
 }
 
 .header a,
@@ -63,26 +63,26 @@ color: #f5f5f7 !important;
 .dg-hint,
 .dg-note,
 .footer p {
-color: #98989d !important;
+color: #8e8e93 !important;
 }
 
 a,
 .dg-td a {
-color: #409cff !important;
+color: #7fb4ff !important;
 }
 
 .dg-table {
-border-color: #38383a !important;
+border-color: #3a3a3c !important;
 }
 
 .dg-th {
 background-color: #1c1c1e !important;
-border-color: #38383a !important;
-color: #98989d !important;
+border-color: #3a3a3c !important;
+color: #8e8e93 !important;
 }
 
 .dg-td {
-border-color: #38383a !important;
+border-color: #3a3a3c !important;
 }
 
 .button,

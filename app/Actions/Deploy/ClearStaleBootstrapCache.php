@@ -35,6 +35,7 @@ class ClearStaleBootstrapCache
         }
 
         $this->files->delete($this->files->glob($this->cacheDirectory.'/*.php'));
+        // Left behind by the releases that still shipped the Filament panel.
         $this->files->deleteDirectory($this->cacheDirectory.'/filament');
         $this->files->put($this->markerFile(), $release);
 
