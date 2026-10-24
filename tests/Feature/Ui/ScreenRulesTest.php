@@ -170,10 +170,15 @@ it('gives every x-trap an expression, since Alpine throws on an empty one', func
     expect(Blade::render('<x-ui.window title="Form">x</x-ui.window>'))->toContain('x-trap.noscroll="true"');
 });
 
-it('shows the top bar search results from client state, since Alpine does not re-read a server-baked expression', function () {
-    $html = Livewire::test(Search::class)->set('query', 'a')->html();
+it('keeps the top bar search state across renders, since Alpine re-creates a component whose x-data changes', function () {
+    $search = Livewire::test(Search::class);
+    $rootOf = fn (string $html): string => preg_match('/^<div[^>]*>/', $html, $match) === 1 ? preg_replace('/ wire:\S+="[^"]*"/', '', $match[0]) : '';
+    $empty = $search->html();
+    $filled = $search->set('query', 'a')->html();
 
-    expect($html)->toContain('x-show="open && filled"')->not->toContain('open && true')->not->toContain('x-cloak')
+    expect($rootOf($filled))->toBe($rootOf($empty))->toContain('open: false, filled: false');
+    expect($empty)->not->toContain('ui-search-results');
+    expect($filled)->toContain('x-show="open" x-cloak')
         ->toContain('x-on:input="filled = $el.value !== \'\'; open = true"');
 });
 
