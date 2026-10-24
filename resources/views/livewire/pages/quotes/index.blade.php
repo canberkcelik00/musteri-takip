@@ -18,12 +18,11 @@
     <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
             <h1 class="ui-title">{{ __('quotes.plural') }}</h1>
-            <p class="ui-subtitle">{{ __('quotes.count', ['count' => $quotes->total()]) }}</p>
         </div>
         <x-ui.button x-on:click="{!! Js::openWindow('create-quote') !!}">{{ __('quotes.new') }}</x-ui.button>
     </div>
 
-    <x-ui.table class="mt-5" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$quotes->isEmpty()">
+    <x-ui.table :count="__('quotes.count', ['count' => $quotes->total()])" class="mt-5" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$quotes->isEmpty()">
         <x-slot:toolbar>
             <div class="ui-toolbar-search">
                 <x-ui.input type="search" wire:model.live.debounce.300ms="search" :placeholder="__('ui.table.search')" :aria-label="__('ui.table.search')" />

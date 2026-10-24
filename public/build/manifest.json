@@ -27,28 +27,13 @@
     "file": "assets/instrument-sans-600-normal-B9e8oLYv.woff",
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
-  "resources/css/app.css": {
-    "file": "assets/app-Bum8_dD8.css",
-    "name": "app",
-    "names": [
-      "app.css"
-    ],
-    "src": "resources/css/app.css",
-    "isEntry": true
-  },
   "resources/css/ui.css": {
-    "file": "assets/ui-3wLWYaTF.css",
+    "file": "assets/ui-CvdOTp28.css",
     "name": "ui",
     "names": [
       "ui.css"
     ],
     "src": "resources/css/ui.css",
-    "isEntry": true
-  },
-  "resources/js/app.js": {
-    "file": "assets/app-BvRk9kiK.js",
-    "name": "app",
-    "src": "resources/js/app.js",
     "isEntry": true
   }
 }

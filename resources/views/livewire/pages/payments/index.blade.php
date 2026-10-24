@@ -6,7 +6,7 @@
     $columns = [
         ['key' => 'customer', 'label' => __('payments.customer')],
         ['key' => 'paid_on', 'label' => __('payments.paid_on')],
-        ['key' => 'amount', 'label' => __('payments.amount')],
+        ['key' => 'amount', 'label' => __('payments.amount'), 'end' => true],
         ['key' => 'method', 'label' => __('payments.payment_method'), 'from' => 'md'],
         ['key' => 'note', 'label' => __('payments.note'), 'from' => 'lg'],
     ];
@@ -15,9 +15,8 @@
 
 <div>
     <h1 class="ui-title">{{ __('payments.plural') }}</h1>
-    <p class="ui-subtitle">{{ __('payments.count', ['count' => $payments->total()]) }}</p>
 
-    <x-ui.table class="mt-5" :columns="$columns" :end="true" :empty="$payments->isEmpty()">
+    <x-ui.table class="mt-5" :count="__('payments.count', ['count' => $payments->total()])" :columns="$columns" :end="true" :empty="$payments->isEmpty()">
         <x-slot:toolbar>
             <div class="ui-toolbar-search">
                 <x-ui.input type="search" wire:model.live.debounce.300ms="search" :placeholder="__('ui.table.search')" :aria-label="__('ui.table.search')" />
@@ -34,7 +33,7 @@
                     </div>
                 </td>
                 <td style="white-space: nowrap">{{ Carbon::parse($payment->paid_on)->format('d.m.Y') }}</td>
-                <td>
+                <td class="is-end">
                     <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('view-payment', ['payment' => $payment->id]) !!}"><x-ui.money :amount="$payment->amount" :currency="$payment->currency" /></button>
                 </td>
                 <td class="ui-from-md">{{ $payment->paymentMethod?->name }}</td>

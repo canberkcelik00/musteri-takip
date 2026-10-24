@@ -98,11 +98,11 @@
 
         <div class="ui-date-panel ui-glass ui-glass-menu" x-ref="panel" x-show="open" x-cloak>
             <div class="ui-date-head">
-                <button type="button" class="ui-btn ui-btn-icon ui-btn-sm" x-on:click="shift(-1)" aria-label="{{ __('ui.date.previous') }}">
+                <button type="button" class="ui-date-nav" x-on:click="shift(-1)" aria-label="{{ __('ui.date.previous') }}">
                     <x-heroicon-m-chevron-left aria-hidden="true" />
                 </button>
                 <span x-text="months[month] + ' ' + year"></span>
-                <button type="button" class="ui-btn ui-btn-icon ui-btn-sm" x-on:click="shift(1)" aria-label="{{ __('ui.date.next') }}">
+                <button type="button" class="ui-date-nav" x-on:click="shift(1)" aria-label="{{ __('ui.date.next') }}">
                     <x-heroicon-m-chevron-right aria-hidden="true" />
                 </button>
             </div>

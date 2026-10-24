@@ -10,8 +10,7 @@
         <x-ui.money-input :label="__('customer_services.price')" wire:model="price" :suffix="$currencyLabel" />
         <x-ui.select :label="__('money.currency')" wire:model.live="currency" :options="$currencies" />
         <x-ui.date-input :label="__('customer_services.start_date')" wire:model="start_date" />
-        <div class="ui-field">
-            <span class="ui-label">&nbsp;</span>
+        <div class="ui-field is-bottom">
             <x-ui.toggle wire:model.live="is_free" :label="__('customer_services.is_free')" />
         </div>
 

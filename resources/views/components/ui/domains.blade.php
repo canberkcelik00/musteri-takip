@@ -9,25 +9,23 @@
     <span class="ui-domain" x-data="{ copied: false }">
         <span class="ui-domain-name">{{ $domain }}</span>
         @if (preg_match('/^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$/', $domain) === 1)
-            <a
+            <x-ui.tooltip :label="__('customer_services.open_site')"><a
                 href="https://{{ $domain }}"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="ui-icon-link"
-                title="{{ __('customer_services.open_site') }}"
                 aria-label="{{ __('customer_services.open_site') }}"
                 x-on:click.stop
-            ><x-heroicon-o-arrow-top-right-on-square aria-hidden="true" /></a>
+            ><x-heroicon-o-arrow-top-right-on-square aria-hidden="true" /></a></x-ui.tooltip>
         @endif
-        <button
+        <x-ui.tooltip :label="__('customer_services.copy_domain')"><button
             type="button"
             class="ui-icon-link"
-            title="{{ __('customer_services.copy_domain') }}"
             aria-label="{{ __('customer_services.copy_domain') }}"
             x-on:click.stop="navigator.clipboard.writeText(@js($domain)).then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
         >
             <x-heroicon-o-clipboard-document x-show="! copied" aria-hidden="true" />
             <x-heroicon-o-check x-show="copied" x-cloak aria-hidden="true" />
-        </button>
+        </button></x-ui.tooltip>
     </span>@if (! $loop->last), @endif
 @endforeach

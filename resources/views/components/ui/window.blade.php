@@ -23,7 +23,12 @@
         x-trap.noscroll
         @if ($submit) wire:submit="{{ $submit }}" @endif
     >
-        <div class="ui-window-header">{{ $title }}</div>
+        <div @class(['ui-window-header', 'has-close' => $submit])>
+            {{ $title }}
+            @if ($submit)
+                <x-ui.button size="sm" class="ui-window-close" x-on:click="$dispatch('close-window')">{{ __('actions.close') }}</x-ui.button>
+            @endif
+        </div>
         <div class="ui-window-body">
             @if (isset($errors) && $errors->has('form'))
                 <div class="ui-error-box" role="alert" style="margin-bottom: 12px">{{ $errors->first('form') }}</div>

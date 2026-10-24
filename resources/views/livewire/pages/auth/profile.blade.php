@@ -4,7 +4,7 @@
 
     <div class="mt-6 flex max-w-xl flex-col gap-5">
         <form wire:submit="saveProfile" class="ui-card ui-pane flex flex-col gap-4">
-            <h2 class="m-0 text-[17px] font-semibold">{{ __('ui.profile.account') }}</h2>
+            <div class="ui-card-head"><h2>{{ __('ui.profile.account') }}</h2></div>
             <x-ui.input :label="__('ui.profile.name')" wire:model="name" autocomplete="name" required />
             <x-ui.input type="email" :label="__('ui.profile.email')" wire:model="email" autocomplete="email" required />
             <div class="flex justify-end">
@@ -13,7 +13,7 @@
         </form>
 
         <form wire:submit="changePassword" class="ui-card ui-pane flex flex-col gap-4">
-            <h2 class="m-0 text-[17px] font-semibold">{{ __('ui.profile.password_section') }}</h2>
+            <div class="ui-card-head"><h2>{{ __('ui.profile.password_section') }}</h2></div>
             <x-ui.input type="password" :label="__('ui.profile.current_password')" wire:model="current_password" autocomplete="current-password" required />
             <x-ui.input type="password" :label="__('ui.profile.new_password')" wire:model="password" autocomplete="new-password" required />
             <x-ui.input type="password" :label="__('ui.profile.new_password_confirmation')" wire:model="password_confirmation" autocomplete="new-password" required />

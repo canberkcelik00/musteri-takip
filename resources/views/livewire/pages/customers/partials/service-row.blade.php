@@ -23,7 +23,7 @@
             <span class="ui-below-xl"><x-ui.badge :tone="$statusTone">{{ $statusLabel }}</x-ui.badge></span>
         @endif
         @if ($usageBadge)
-            <button type="button" class="ui-link-button ui-below-xl" style="display: block" x-on:click="{!! Js::openWindow('view-usage', ['item' => $usageBadge['item']]) !!}">
+            <button type="button" class="ui-link-button is-block" x-on:click="{!! Js::openWindow('view-usage', ['item' => $usageBadge['item']]) !!}">
                 <x-ui.badge :tone="$usageBadge['tone']">{{ $usageBadge['text'] }}</x-ui.badge>
             </button>
         @endif

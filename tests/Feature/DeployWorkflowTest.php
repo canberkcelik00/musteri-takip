@@ -115,5 +115,5 @@ it('keeps the package in git and the theme build independent of it', function ()
     expect($ignored)->not->toContain('/vendor')
         ->not->toContain('/public/build')
         ->toContain('.env')
-        ->and(file_get_contents(resource_path('css/app.css')))->toContain("@import 'tailwindcss' source(none);");
+        ->and(file_get_contents(resource_path('css/ui.css')))->toContain("@import 'tailwindcss' source(none);");
 });

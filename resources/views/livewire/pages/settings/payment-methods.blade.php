@@ -62,8 +62,8 @@
                 </td>
                 <x-slot:actions>
                     @if ($reorderable)
-                        <x-ui.button size="sm" wire:click="move({{ $method->id }}, -1)" :disabled="$loop->first" :aria-label="__('payment_methods.move_up')">↑</x-ui.button>
-                        <x-ui.button size="sm" wire:click="move({{ $method->id }}, 1)" :disabled="$loop->last" :aria-label="__('payment_methods.move_down')">↓</x-ui.button>
+                        <x-ui.button size="sm" wire:click="move({{ $method->id }}, -1)" :disabled="$loop->first">{{ __('actions.up') }}</x-ui.button>
+                        <x-ui.button size="sm" wire:click="move({{ $method->id }}, 1)" :disabled="$loop->last">{{ __('actions.down') }}</x-ui.button>
                     @endif
                 </x-slot:actions>
             </x-ui.row>

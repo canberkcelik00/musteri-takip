@@ -34,8 +34,8 @@
                     </div>
                     @if ($draft)
                         <div class="ui-actions-row" style="margin-top: 8px">
-                            <x-ui.button size="sm" wire:click="moveItem({{ $index }}, -1)" :disabled="$index === 0">↑</x-ui.button>
-                            <x-ui.button size="sm" wire:click="moveItem({{ $index }}, 1)" :disabled="$index === count($items) - 1">↓</x-ui.button>
+                            <x-ui.button size="sm" wire:click="moveItem({{ $index }}, -1)" :disabled="$index === 0">{{ __('actions.up') }}</x-ui.button>
+                            <x-ui.button size="sm" wire:click="moveItem({{ $index }}, 1)" :disabled="$index === count($items) - 1">{{ __('actions.down') }}</x-ui.button>
                             <x-ui.button size="sm" variant="danger" wire:click="removeItem({{ $index }})">{{ __('quotes.remove_item') }}</x-ui.button>
                         </div>
                     @endif

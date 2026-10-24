@@ -19,9 +19,8 @@
 
 <div>
     <h1 class="ui-title">{{ __('navigation.open_charges') }}</h1>
-    <p class="ui-subtitle">{{ __('charges.count', ['count' => $charges->total()]) }}</p>
 
-    <x-ui.table class="mt-5" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$charges->isEmpty()">
+    <x-ui.table class="mt-5" :count="__('charges.count', ['count' => $charges->total()])" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$charges->isEmpty()">
         <x-slot:toolbar>
             <div class="ui-toolbar-search">
                 <x-ui.input type="search" wire:model.live.debounce.300ms="search" :placeholder="__('ui.table.search')" :aria-label="__('ui.table.search')" />
@@ -30,7 +29,11 @@
             <x-ui.chip :on="$dueThisMonth" wire:click="toggle('dueThisMonth')">{{ __('charges.due_this_month') }}</x-ui.chip>
             <x-ui.chip :on="$dueSoon" wire:click="toggle('dueSoon')">{{ __('charges.due_soon_filter') }}</x-ui.chip>
             <x-ui.chip :on="$hideArchived" wire:click="toggle('hideArchived')">{{ __('charges.hide_archived') }}</x-ui.chip>
-            <div style="min-width: 150px"><x-ui.select wire:model.live="status" :options="$statuses" :aria-label="__('charges.status')" /></div>
+            @if ($status !== 'all')
+                <x-ui.filter-chip :label="__('charges.status_chip', ['value' => $statuses[$status] ?? $status])" wire:click="$set('status', 'all')" />
+            @else
+                <div style="min-width: 150px"><x-ui.select wire:model.live="status" :options="$statuses" :aria-label="__('charges.status')" /></div>
+            @endif
             <div style="min-width: 150px"><x-ui.select wire:model.live="currency" :options="$currencies" :aria-label="__('charges.currency')" /></div>
             <div style="min-width: 180px"><x-ui.select wire:model.live="customer" :options="['' => __('archive.filter_all')] + $customers" :searchable="true" :aria-label="__('charges.customer')" /></div>
         </x-slot:toolbar>

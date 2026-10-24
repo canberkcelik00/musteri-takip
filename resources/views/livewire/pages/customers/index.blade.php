@@ -6,7 +6,7 @@
 
     $columns = [
         ['key' => 'short_name', 'label' => __('customers.short_name'), 'sortable' => true],
-        ['key' => 'open_debt', 'label' => __('customers.open_debt')],
+        ['key' => 'open_debt', 'label' => __('customers.open_debt'), 'end' => true],
         ['key' => 'next_renewal_on', 'label' => __('customers.next_renewal'), 'sortable' => true, 'from' => 'md'],
         ['key' => 'active_services_count', 'label' => __('customers.active_services_count'), 'sortable' => true, 'from' => 'lg', 'end' => true],
         ['key' => 'archived_at', 'label' => __('archive.status'), 'from' => 'md'],
@@ -15,10 +15,14 @@
 @endphp
 
 <div>
-    <h1 class="ui-title">{{ __('customers.plural') }}</h1>
-    <p class="ui-subtitle">{{ __('customers.count', ['count' => $total]) }}</p>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+            <h1 class="ui-title">{{ __('customers.plural') }}</h1>
+        </div>
+        <x-ui.button x-on:click="$dispatch('open-window', { name: 'create-customer' })">{{ __('customers.create') }}</x-ui.button>
+    </div>
 
-    <x-ui.table
+    <x-ui.table :count="__('customers.count', ['count' => $total])"
         class="mt-5"
         :columns="$columns"
         :sort="$sort"
@@ -55,7 +59,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="is-end">
                     @forelse ($customer->openChargeTotals() as $money)
                         <div><x-ui.money :amount="$money->amount" :currency="$money->currency" :danger="(bool) $customer->has_overdue" /></div>
                     @empty

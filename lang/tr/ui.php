@@ -69,6 +69,7 @@ return [
     'table' => [
         'actions' => 'İşlemler',
         'search' => 'Ara',
+        'remove_filter' => 'Süzgeci kaldır',
         'no_results' => 'Sonuç bulunamadı',
         'no_results_hint' => 'Aramayı veya süzgeçleri değiştirin.',
         'pagination' => 'Sayfalama',

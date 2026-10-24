@@ -15,12 +15,11 @@
     <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
             <h1 class="ui-title">{{ __('packages.plural') }}</h1>
-            <p class="ui-subtitle">{{ __('packages.count', ['count' => $packages->total()]) }}</p>
         </div>
         <x-ui.button x-on:click="{!! Js::openWindow('edit-package') !!}">{{ __('packages.add') }}</x-ui.button>
     </div>
 
-    <x-ui.table class="mt-5" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$packages->isEmpty()">
+    <x-ui.table class="mt-5" :count="__('packages.count', ['count' => $packages->total()])" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$packages->isEmpty()">
         <x-slot:toolbar>
             <div class="ui-toolbar-search">
                 <x-ui.input type="search" wire:model.live.debounce.300ms="search" :placeholder="__('ui.table.search')" :aria-label="__('ui.table.search')" />
@@ -49,7 +48,8 @@
                 </td>
                 <x-slot:actions>
                     @unless ($package->isArchived())
-                        <x-ui.button size="sm" class="ui-from-md" x-on:click="{!! Js::openWindow('create-quote', ['sold' => 'package:'.$package->id]) !!}">{{ __('quotes.create') }}</x-ui.button>
+                        <x-ui.button size="sm" class="ui-from-md" x-on:click="{!! Js::openWindow('edit-package', ['package' => $package->id]) !!}">{{ __('actions.edit') }}</x-ui.button>
+                        <x-ui.button size="sm" x-on:click="{!! Js::openWindow('create-quote', ['sold' => 'package:'.$package->id]) !!}">{{ __('quotes.create') }}</x-ui.button>
                     @endunless
                 </x-slot:actions>
             </x-ui.row>

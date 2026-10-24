@@ -60,4 +60,5 @@ return [
     'open_empty_description' => 'Bu müşterinin ödenmemiş borcu bulunmuyor.',
     'empty_description' => 'Müşteriye hizmet eklendiğinde borçlar kendiliğinden oluşur.',
     'count' => ':count borç',
+    'status_chip' => 'Durum: :value',
 ];

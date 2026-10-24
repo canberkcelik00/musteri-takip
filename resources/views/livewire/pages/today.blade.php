@@ -64,7 +64,7 @@
         </div>
 
         @if ($isEmpty)
-            <p class="ui-empty ui-muted" style="margin: 0">{{ __('today.empty') }}</p>
+            <div class="ui-empty"><x-ui.empty-state :heading="__('today.empty')" /></div>
         @else
             <x-ui.table
                 :end="true"

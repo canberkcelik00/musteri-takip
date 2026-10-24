@@ -918,3 +918,69 @@
 .is-danger {
     color: var(--mt-danger-text);
 }
+
+.ui-toolbar-count {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--mt-text-muted);
+}
+
+.ui-chip.is-static {
+    padding-right: 4px;
+    cursor: default;
+}
+
+.ui-chip-x {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+}
+
+.ui-chip-x:hover {
+    background: var(--mt-item-hover);
+}
+
+.ui-chip-x svg {
+    width: 14px;
+    height: 14px;
+}
+
+.ui-date-nav {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: var(--mt-input-bg);
+    padding: 0;
+    color: var(--mt-text);
+    cursor: pointer;
+}
+
+.ui-date-nav:hover {
+    background: var(--mt-item-hover);
+}
+
+.ui-date-nav svg {
+    width: 16px;
+    height: 16px;
+}
+
+.ui-link-button.is-block {
+    display: block;
+    margin-top: 2px;
+}
+
+.ui-card > .ui-card-head {
+    padding: 0 0 8px;
+}

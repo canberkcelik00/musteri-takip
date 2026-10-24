@@ -537,3 +537,22 @@
     margin: 6px 4px;
     background: var(--mt-divider);
 }
+
+.ui-field.is-bottom {
+    justify-content: flex-end;
+}
+
+.ui-window-header {
+    position: relative;
+}
+
+.ui-window-header.has-close {
+    padding-right: 88px;
+    padding-left: 88px;
+}
+
+.ui-window-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+}

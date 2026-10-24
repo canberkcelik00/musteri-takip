@@ -47,7 +47,7 @@
                     <div class="ui-field is-full" wire:key="pull-account-{{ $position }}">
                         <div class="flex items-center justify-between gap-2">
                             <span class="ui-label">{{ __('servers.pull_account') }}: {{ $row['account'] }}</span>
-                            <x-ui.button size="sm" icon wire:click="removeRow({{ $position }})" :aria-label="__('actions.remove')"><x-heroicon-o-trash aria-hidden="true" /></x-ui.button>
+                            <x-ui.button size="sm" wire:click="removeRow({{ $position }})"><x-heroicon-o-trash aria-hidden="true" />{{ __('actions.take_out') }}</x-ui.button>
                         </div>
                         <x-ui.select
                             :label="__('servers.pull_customer_name')"

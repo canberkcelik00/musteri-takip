@@ -18,12 +18,11 @@
     <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
             <h1 class="ui-title">{{ __('servers.plural') }}</h1>
-            <p class="ui-subtitle">{{ __('servers.count', ['count' => $servers->count()]) }}</p>
         </div>
         <x-ui.button x-on:click="{!! Js::openWindow('edit-server') !!}">{{ __('servers.add') }}</x-ui.button>
     </div>
 
-    <x-ui.table class="mt-5" :columns="$columns" :end="true" :empty="$servers->isEmpty()">
+    <x-ui.table class="mt-5" :count="__('servers.count', ['count' => $servers->count()])" :columns="$columns" :end="true" :empty="$servers->isEmpty()">
         <x-slot:toolbar>
             <x-ui.segmented
                 wire:model.live="archive"
@@ -69,6 +68,7 @@
                 </td>
                 <x-slot:actions>
                     @unless ($server->isArchived())
+                        <x-ui.button size="sm" class="ui-from-md" x-on:click="{!! Js::openWindow('edit-server', ['server' => $server->id]) !!}">{{ __('actions.edit') }}</x-ui.button>
                         <x-ui.button size="sm" class="ui-from-md" x-on:click="{!! Js::openWindow('pull-from-server', ['server' => $server->id]) !!}">{{ __('servers.pull') }}</x-ui.button>
                     @endunless
                 </x-slot:actions>

@@ -184,7 +184,7 @@
                         :card="false"
                         :columns="[
                             ['key' => 'paid_on', 'label' => __('payments.paid_on')],
-                            ['key' => 'amount', 'label' => __('payments.amount')],
+                            ['key' => 'amount', 'label' => __('payments.amount'), 'end' => true],
                             ['key' => 'method', 'label' => __('payments.payment_method'), 'from' => 'md'],
                             ['key' => 'note', 'label' => __('payments.note'), 'from' => 'lg'],
                         ]"
@@ -192,7 +192,7 @@
                         @foreach ($customer->payments as $payment)
                             <x-ui.row wire:key="payment-{{ $payment->id }}">
                                 <td>{{ $fmt($payment->paid_on) }}</td>
-                                <td>
+                                <td class="is-end">
                                     <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('view-payment', ['payment' => $payment->id]) !!}"><x-ui.money :amount="$payment->amount" :currency="$payment->currency" /></button>
                                     @if ($payment->domains() !== [])
                                         <span class="ui-sub-line">{{ implode(', ', $payment->domains()) }}</span>
@@ -249,8 +249,8 @@
         {{-- Information column --}}
         <div class="ui-stack">
             <section class="ui-card ui-pane">
-                <div class="flex items-center justify-between gap-2" style="margin-bottom: 8px">
-                    <h2 class="m-0 text-[17px] font-semibold">{{ __('contacts.plural') }}</h2>
+                <div class="ui-card-head">
+                    <h2>{{ __('contacts.plural') }}</h2>
                     <x-ui.button size="sm" x-on:click="{!! Js::openWindow('contact', ['customer' => $customer->id]) !!}">{{ __('contacts.add') }}</x-ui.button>
                 </div>
 
@@ -268,13 +268,15 @@
                         @endif
                     </div>
                 @empty
-                    <x-ui.empty-state :heading="__('contacts.empty_heading')" :description="__('contacts.empty_description')" />
+                    <div class="ui-empty">
+                        <x-ui.empty-state :heading="__('contacts.empty_heading')" :description="__('contacts.empty_description')" />
+                    </div>
                 @endforelse
             </section>
 
             <section class="ui-card ui-pane">
-                <div class="flex items-center justify-between gap-2" style="margin-bottom: 8px">
-                    <h2 class="m-0 text-[17px] font-semibold">{{ __('customers.billing_section') }}</h2>
+                <div class="ui-card-head">
+                    <h2>{{ __('customers.billing_section') }}</h2>
                     <button type="button" class="ui-link-button" style="color: var(--mt-link)" x-on:click="{!! Js::openWindow('edit-customer', ['customer' => $customer->id]) !!}">{{ __('customers.edit') }}</button>
                 </div>
                 <dl class="ui-kv">
@@ -286,7 +288,7 @@
             </section>
 
             <section class="ui-card ui-pane">
-                <h2 class="m-0 text-[17px] font-semibold" style="margin-bottom: 8px !important">{{ __('customers.notes_section') }}</h2>
+                <div class="ui-card-head"><h2>{{ __('customers.notes_section') }}</h2></div>
                 <p style="margin: 0; white-space: pre-line; overflow-wrap: anywhere">{{ filled($customer->notes) ? $customer->notes : __('money.empty') }}</p>
             </section>
         </div>
