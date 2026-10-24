@@ -8,7 +8,7 @@
     for a table that sits inside a card that already has the surface. `count` is the filtered record count, drawn at the
     right end of the toolbar.
 --}}
-<div {{ $attributes->class(['ui-card' => $card, 'ui-pane' => $card]) }} @if ($card) style="padding: 0" @endif>
+<div {{ $attributes->class(['ui-card' => $card, 'ui-pane' => $card, 'is-flush' => $card]) }}>
     @isset($toolbar)
         <div class="ui-toolbar">
             {{ $toolbar }}

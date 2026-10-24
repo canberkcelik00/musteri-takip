@@ -11,13 +11,15 @@
                 this.glass = localStorage.getItem('mt-glass') === 'off' ? 'off' : 'on';
             } catch (e) {}
 
+            window.mtApplyAppearance();
+
             this.$watch('theme', (value) => {
-                document.documentElement.classList.toggle('dark', value === 'dark');
                 try { localStorage.setItem('mt-theme', value); } catch (e) {}
+                window.mtApplyAppearance();
             });
             this.$watch('glass', (value) => {
-                document.documentElement.classList.toggle('no-glass', value === 'off');
                 try { localStorage.setItem('mt-glass', value); } catch (e) {}
+                window.mtApplyAppearance();
             });
         },
     }"

@@ -431,7 +431,9 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
   - Kabul: müşteri kartı sayfasında en çok 2 bulanık yüzey; kartta sorgu sayısı hizmet sayısından bağımsız.
 - [x] **G-10.13 UI.md uyumu** — Bağımlılık: G-10.12
   - Yapılacak: tutarlar sağa hizalı, pencerede "Kapat", Müşteriler'de "Yeni müşteri", simgeli düğmelere metin, katalog/sunucu satır işlemleri, boş durum/kart başlığı/ipucu tek biçim, varsayılan filtre çipi; UI.md §6 mevcut cam görünüme göre güncellenir.
-- [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.13
+- [x] **G-10.14 Görsel düzeltmeler ve Inter** — Bağımlılık: G-10.13
+  - Yapıldı: kart başlığı dolgusu (`is-flush`), satır sonu düğme + "›" tek satır, arama alanı (büyüteç, temizle, yumuşak odak halkası), tema/cam tercihinin `wire:navigate` sonrası korunması, Inter Variable yazı tipi (T-148).
+- [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.14
   - Kabul: Tüm ekranlar açık ve koyu temada, telefon genişliğinde ve cam performansı kullanıcıca onaylanır.
 
 **Faz 10 bittiğinde:** Panel cam tasarımıyla, Filament'siz, aynı akışlarla çalışıyor.

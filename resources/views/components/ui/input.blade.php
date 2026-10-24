@@ -17,6 +17,8 @@
     <div @class(['ui-input-suffix' => $suffix])>
         @if ($type === 'textarea')
             <textarea id="{{ $id }}" {{ $attributes->class(['ui-input', 'ui-textarea']) }}></textarea>
+        @elseif ($type === 'search')
+            <x-ui.search-field :id="$id" :attributes="$attributes" />
         @else
             <input id="{{ $id }}" type="{{ $type }}" {{ $attributes->class(['ui-input']) }}>
         @endif

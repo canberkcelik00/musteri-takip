@@ -112,7 +112,15 @@
     }
 }
 
+.ui-row-end-inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
 .ui-chevron {
+    flex: none;
     width: 14px;
     height: 14px;
     color: var(--mt-text-tertiary);
@@ -981,6 +989,6 @@
     margin-top: 2px;
 }
 
-.ui-card > .ui-card-head {
+.ui-card:not(.is-flush) > .ui-card-head {
     padding: 0 0 8px;
 }

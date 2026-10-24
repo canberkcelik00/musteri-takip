@@ -80,6 +80,7 @@ return [
         'label' => 'Müşteri ara',
         'placeholder' => 'Müşteri veya alan adı ara (Ctrl+K)',
         'empty' => 'Eşleşen müşteri yok',
+        'clear' => 'Aramayı temizle',
     ],
     'date' => [
         'months' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],

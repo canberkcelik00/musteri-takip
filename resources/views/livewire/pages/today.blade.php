@@ -55,7 +55,7 @@
     </div>
 
     {{-- Yapılacaklar --}}
-    <section class="ui-card ui-pane" style="padding: 0; margin-top: 22px">
+    <section class="ui-card ui-pane is-flush" style="margin-top: 22px">
         <div class="ui-card-head">
             <h2>{{ __('today.tasks_heading') }}</h2>
             @unless ($isEmpty)

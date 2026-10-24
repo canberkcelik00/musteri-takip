@@ -208,6 +208,11 @@ html.no-glass .ui-glass-menu {
     padding: 18px;
 }
 
+/* A card whose children (head, table) bring their own padding. */
+.ui-card.is-flush {
+    padding: 0;
+}
+
 .ui-brand {
     display: flex;
     align-items: center;

@@ -62,7 +62,7 @@
         {{-- Work column --}}
         <div class="ui-stack">
             {{-- Services --}}
-            <section class="ui-card ui-pane" style="padding: 0">
+            <section class="ui-card ui-pane is-flush">
                 <div class="ui-card-head">
                     <h2>{{ __('customer_services.plural') }}</h2>
                     <span class="ui-muted">{{ __('customer_services.active_count', ['count' => $activeServices->count()]) }}</span>
@@ -86,7 +86,7 @@
             </section>
 
             @if ($cancelledServices->isNotEmpty())
-                <details class="ui-card ui-pane ui-details" style="padding: 0">
+                <details class="ui-card ui-pane ui-details is-flush">
                     <summary>{{ __('customers.cancelled_services', ['count' => $cancelledServices->count()]) }}</summary>
                     <x-ui.table :columns="$serviceColumns" :end="true" :card="false">
                         @foreach ($cancelledServices as $service)
@@ -97,7 +97,7 @@
             @endif
 
             {{-- Open charges --}}
-            <section class="ui-card ui-pane" style="padding: 0">
+            <section class="ui-card ui-pane is-flush">
                 <div class="ui-card-head">
                     <h2>{{ __('charges.open_heading') }}</h2>
                     <a href="{{ Links::customerCharges($customer) }}">{{ __('charges.view_all') }}</a>
@@ -164,7 +164,7 @@
             </section>
 
             {{-- Recent payments --}}
-            <section class="ui-card ui-pane" style="padding: 0">
+            <section class="ui-card ui-pane is-flush">
                 <div class="ui-card-head">
                     <h2>{{ __('payments.recent_heading') }}</h2>
                     <a href="{{ Links::customerPayments($customer) }}">{{ __('payments.view_all') }}</a>
@@ -211,7 +211,7 @@
 
             {{-- Quotes --}}
             @if ($customer->quotes->isNotEmpty())
-                <section class="ui-card ui-pane" style="padding: 0">
+                <section class="ui-card ui-pane is-flush">
                     <div class="ui-card-head"><h2>{{ __('quotes.card_heading') }}</h2></div>
                     <x-ui.table
                         :card="false"

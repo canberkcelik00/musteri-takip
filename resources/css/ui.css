@@ -6,6 +6,7 @@
 @source '../views/livewire';
 @source '../views/ui';
 
+@import './ui/fonts.css';
 @import './ui/tokens.css';
 @import './ui/base.css';
 @import './ui/controls.css';

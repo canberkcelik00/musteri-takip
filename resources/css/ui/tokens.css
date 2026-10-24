@@ -80,7 +80,7 @@
     --mt-avatar-8: #475569;
 
     --mt-ease: cubic-bezier(0.32, 0.72, 0, 1);
-    --mt-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    --mt-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
 }
 
 :root.dark {

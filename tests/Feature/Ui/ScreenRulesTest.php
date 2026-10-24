@@ -15,6 +15,7 @@ use App\Models\Server;
 use App\Models\User;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\ViewErrorBag;
 use Livewire\Livewire;
 
 // UI.md compliance of the glass screens (G-10.13).
@@ -120,4 +121,43 @@ it('has no inline heading, spacing or entity patches left in the views', functio
     }
 
     expect($offenders)->toBe([]);
+});
+
+// Visual fixes after the first eye check (G-10.14).
+
+it('has no card left that zeroes its padding inline', function () {
+    $offenders = [];
+
+    foreach (File::allFiles(resource_path('views')) as $file) {
+        if (preg_match('/ui-card[^>]*style="padding: 0/', $file->getContents())) {
+            $offenders[] = $file->getRelativePathname();
+        }
+    }
+
+    expect($offenders)->toBe([]);
+    expect(Blade::render('<x-ui.table :columns="[]">x</x-ui.table>'))->toContain('is-flush');
+});
+
+it('keeps the row actions and the chevron on one line', function () {
+    $html = Blade::render('<x-ui.row href="/x"><td>a</td><x-slot:actions><button>Ödeme al</button></x-slot:actions></x-ui.row>');
+
+    expect($html)->toMatch('/ui-row-end-inner[^>]*>\s*<button>Ödeme al<\/button>\s*<svg[^>]*ui-chevron/');
+});
+
+it('draws a search field with a magnifier and a named clear button', function () {
+    view()->share('errors', new ViewErrorBag);
+
+    $html = Blade::render('<x-ui.input type="search" wire:model.live="search" />');
+
+    expect($html)->toContain('ui-search-icon')->toContain('ui-search-clear')
+        ->toContain('aria-label="'.__('ui.search.clear').'"')->toContain('ui-input-search');
+
+    expect(Blade::render('<x-ui.input type="text" wire:model="name" />'))
+        ->not->toContain('ui-search-icon')->not->toContain('ui-search-clear');
+});
+
+it('re-applies the saved theme and glass choice after every wire:navigate', function () {
+    $html = $this->get(route('app.today'))->assertOk()->getContent();
+
+    expect($html)->toContain('mtApplyAppearance')->toContain('livewire:navigating')->toContain('livewire:navigated');
 });

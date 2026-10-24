@@ -11,7 +11,7 @@
 --}}
 <div
     class="ui-search"
-    x-data="{ expanded: false, open: false }"
+    x-data="{ expanded: false, open: false, filled: @js($filled) }"
     x-bind:class="{ 'is-expanded': expanded }"
     x-on:keydown.window.ctrl.k.prevent="expanded = true; open = true; $nextTick(() => $refs.field.focus())"
     x-on:keydown.window.meta.k.prevent="expanded = true; open = true; $nextTick(() => $refs.field.focus())"
@@ -20,18 +20,30 @@
 >
     <x-ui.button class="ui-search-open" x-on:click="expanded = true; open = true; $nextTick(() => $refs.field.focus())">{{ __('navigation.search_open') }}</x-ui.button>
 
-    <div class="ui-search-field">
+    <div class="ui-search-field ui-search-input">
+        <x-heroicon-m-magnifying-glass class="ui-search-icon" aria-hidden="true" />
         <input
             type="search"
-            class="ui-input"
+            class="ui-input ui-input-search"
             x-ref="field"
             wire:model.live.debounce.250ms="query"
+            x-on:input="filled = $el.value !== ''"
             x-on:focus="open = true"
             x-on:keydown.arrow-down.prevent="$focus.within($refs.results).first()"
             placeholder="{{ __('ui.search.placeholder') }}"
             aria-label="{{ __('ui.search.label') }}"
             autocomplete="off"
         >
+        <button
+            type="button"
+            class="ui-search-clear"
+            x-show="filled"
+            x-cloak
+            aria-label="{{ __('ui.search.clear') }}"
+            x-on:click="$refs.field.value = ''; $refs.field.dispatchEvent(new Event('input', { bubbles: true })); $refs.field.focus()"
+        >
+            <x-heroicon-s-x-circle aria-hidden="true" />
+        </button>
 
         <div class="ui-search-results ui-glass ui-glass-menu" x-ref="results" x-show="open && @js($filled)" x-cloak>
             @forelse ($results as $customer)

@@ -7,10 +7,18 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>{{ isset($title) ? $title.' · ' : '' }}{{ __('ui.brand_name') }}</title>
 <script>
-    try {
-        var root = document.documentElement;
-        root.classList.toggle('dark', localStorage.getItem('mt-theme') === 'dark');
-        root.classList.toggle('no-glass', localStorage.getItem('mt-glass') === 'off');
-    } catch (e) {}
+    window.mtApplyAppearance = function () {
+        try {
+            var root = document.documentElement;
+            root.classList.toggle('dark', localStorage.getItem('mt-theme') === 'dark');
+            root.classList.toggle('no-glass', localStorage.getItem('mt-glass') === 'off');
+        } catch (e) {}
+    };
+    window.mtApplyAppearance();
+    // wire:navigate swaps the page without a reload: re-apply right after the swap (no flash) and once navigated.
+    document.addEventListener('livewire:navigating', function (event) {
+        event.detail.onSwap(window.mtApplyAppearance);
+    });
+    document.addEventListener('livewire:navigated', window.mtApplyAppearance);
 </script>
 @vite('resources/css/ui.css')

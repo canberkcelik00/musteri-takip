@@ -15,10 +15,12 @@
     {{ $slot }}
     @if ($href || isset($actions))
         <td class="ui-row-end is-end">
-            {{ $actions ?? '' }}
-            @if ($href)
-                <x-heroicon-m-chevron-right class="ui-chevron" aria-hidden="true" />
-            @endif
+            <div class="ui-row-end-inner">
+                {{ $actions ?? '' }}
+                @if ($href)
+                    <x-heroicon-m-chevron-right class="ui-chevron" aria-hidden="true" />
+                @endif
+            </div>
         </td>
     @endif
 </tr>
