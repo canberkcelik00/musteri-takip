@@ -56,8 +56,21 @@
                 if (this.open) {
                     this.query = '';
                     this.active = Math.max(0, this.filtered.findIndex((option) => option.value === String(this.value ?? '')));
-                    this.$nextTick(() => this.$refs.search?.focus());
+                    this.$nextTick(() => { this.place(); this.$refs.search?.focus({ preventScroll: true }); });
                 }
+            },
+            place() {
+                const panel = this.$refs.panel;
+                const rect = this.$refs.trigger.getBoundingClientRect();
+                const flip = window.innerHeight - rect.bottom < Math.min(panel.scrollHeight, 280) + 12 && rect.top > window.innerHeight - rect.bottom;
+
+                panel.style.left = rect.left + 'px';
+                panel.style.width = rect.width + 'px';
+                panel.style.top = flip ? 'auto' : rect.bottom + 6 + 'px';
+                panel.style.bottom = flip ? window.innerHeight - rect.top + 6 + 'px' : 'auto';
+            },
+            dismissOnScroll(event) {
+                if (this.open && ! this.$refs.panel.contains(event.target)) { this.open = false; }
             },
             move(step) {
                 if (! this.open) { this.toggle(); return; }
@@ -76,6 +89,8 @@
         x-on:keydown.arrow-down.prevent="move(1)"
         x-on:keydown.arrow-up.prevent="move(-1)"
         x-on:click.outside="open = false"
+        x-on:resize.window="open && place()"
+        x-on:scroll.window.capture="dismissOnScroll($event)"
         {{ $attributes->whereStartsWith('wire:model') }}
     >
         <button type="button" class="ui-select-trigger" @disabled($disabled) x-ref="trigger" x-on:click="toggle()" aria-haspopup="listbox" x-bind:aria-expanded="open">
@@ -84,7 +99,7 @@
             <x-heroicon-m-chevron-up-down aria-hidden="true" />
         </button>
 
-        <div class="ui-select-panel ui-glass ui-glass-menu" x-show="open" x-cloak role="listbox">
+        <div class="ui-select-panel ui-glass ui-glass-menu" x-ref="panel" x-show="open" x-cloak role="listbox">
             @if ($searchable)
                 <input
                     type="text"

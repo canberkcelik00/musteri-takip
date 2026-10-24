@@ -104,7 +104,12 @@
 
 .ui-row-end {
     width: 1%;
-    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .ui-row-end {
+        white-space: nowrap;
+    }
 }
 
 .ui-chevron {
@@ -187,8 +192,12 @@
     position: relative;
 }
 
-.ui-tooltip::after {
+.ui-tooltip:hover::after,
+.ui-tooltip:focus-visible::after {
     content: attr(data-tip);
+}
+
+.ui-tooltip::after {
     position: absolute;
     bottom: calc(100% + 6px);
     left: 50%;
@@ -306,11 +315,14 @@
 
     .ui-search.is-expanded {
         position: absolute;
-        inset: 0 14px;
+        inset: 0;
         display: flex;
         max-width: none;
         align-items: center;
         gap: 8px;
+        border-radius: 18px;
+        background: var(--mt-glass-bg-menu);
+        padding: 0 14px;
     }
 
     .ui-search.is-expanded .ui-search-open {
@@ -393,10 +405,8 @@
 }
 
 .ui-date-panel {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    z-index: 60;
+    position: fixed;
+    z-index: 110;
     width: 272px;
     border-radius: 12px;
     padding: 10px;

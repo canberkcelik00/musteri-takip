@@ -52,8 +52,8 @@
 
         @unless ($customer->isArchived())
             <div class="ui-strip-actions">
-                <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }</x-ui.button>
-                <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }</x-ui.button>
+                <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
+                <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
             </div>
         @endunless
     </section>
@@ -72,7 +72,7 @@
                     <div class="ui-empty">
                         <x-ui.empty-state :heading="__('customer_services.empty_heading')" :description="__('customer_services.empty_description')">
                             @unless ($customer->isArchived())
-                                <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }</x-ui.button>
+                                <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
                             @endunless
                         </x-ui.empty-state>
                     </div>
@@ -150,7 +150,7 @@
                                     @endif
                                 </td>
                                 <x-slot:actions>
-                                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'currency' => $charge->currency->value, 'fixed' => true]) !!}">{{ __('payments.record') }</x-ui.button>
+                                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'currency' => $charge->currency->value, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
                                     @if ($whatsAppLinks[$charge->id] ?? null)
                                         <x-ui.tooltip :label="__('reminders.whatsapp.label')" class="ui-from-md">
                                             <a href="{{ $whatsAppLinks[$charge->id] }}" target="_blank" rel="noopener noreferrer" class="ui-btn ui-btn-icon ui-btn-sm ui-whatsapp" aria-label="{{ __('reminders.whatsapp.label') }}">@include('livewire.pages.customers.partials.whatsapp-icon')</a>
@@ -174,7 +174,7 @@
                     <div class="ui-empty">
                         <x-ui.empty-state :heading="__('payments.recent_empty_heading')" :description="__('payments.recent_empty_description')">
                             @unless ($customer->isArchived())
-                                <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }</x-ui.button>
+                                <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
                             @endunless
                         </x-ui.empty-state>
                     </div>
@@ -251,7 +251,7 @@
             <section class="ui-card ui-glass">
                 <div class="flex items-center justify-between gap-2" style="margin-bottom: 8px">
                     <h2 class="m-0 text-[17px] font-semibold">{{ __('contacts.plural') }}</h2>
-                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('contact', ['customer' => $customer->id]) !!}">{{ __('contacts.add') }</x-ui.button>
+                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('contact', ['customer' => $customer->id]) !!}">{{ __('contacts.add') }}</x-ui.button>
                 </div>
 
                 @forelse ($customer->contacts as $contact)
@@ -275,7 +275,7 @@
             <section class="ui-card ui-glass">
                 <div class="flex items-center justify-between gap-2" style="margin-bottom: 8px">
                     <h2 class="m-0 text-[17px] font-semibold">{{ __('customers.billing_section') }}</h2>
-                    <button type="button" class="ui-link-button" style="color: var(--mt-link)" x-on:click="{!! Js::openWindow('edit-customer', ['customer' => $customer->id]) !!}">{{ __('customers.edit') }</button>
+                    <button type="button" class="ui-link-button" style="color: var(--mt-link)" x-on:click="{!! Js::openWindow('edit-customer', ['customer' => $customer->id]) !!}">{{ __('customers.edit') }}</button>
                 </div>
                 <dl class="ui-kv">
                     @foreach (['legal_title', 'tax_office', 'tax_number', 'billing_address'] as $field)
@@ -294,12 +294,12 @@
 
     <div class="ui-danger-row">
         @if ($customer->isArchived())
-            <x-ui.button x-on:click="{!! Js::openWindow('confirm', ['action' => 'unarchive-customer', 'id' => $customer->id]) !!}">{{ __('archive.unarchive') }</x-ui.button>
+            <x-ui.button x-on:click="{!! Js::openWindow('confirm', ['action' => 'unarchive-customer', 'id' => $customer->id]) !!}">{{ __('archive.unarchive') }}</x-ui.button>
         @else
-            <x-ui.button x-on:click="{!! Js::openWindow('confirm', ['action' => 'archive-customer', 'id' => $customer->id]) !!}">{{ __('archive.archive') }</x-ui.button>
+            <x-ui.button x-on:click="{!! Js::openWindow('confirm', ['action' => 'archive-customer', 'id' => $customer->id]) !!}">{{ __('archive.archive') }}</x-ui.button>
         @endif
         @unless ($inUse)
-            <x-ui.button variant="danger" x-on:click="{!! Js::openWindow('confirm', ['action' => 'delete-customer', 'id' => $customer->id]) !!}">{{ __('customers.delete') }</x-ui.button>
+            <x-ui.button variant="danger" x-on:click="{!! Js::openWindow('confirm', ['action' => 'delete-customer', 'id' => $customer->id]) !!}">{{ __('customers.delete') }}</x-ui.button>
         @endunless
     </div>
 </div>

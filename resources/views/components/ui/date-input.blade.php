@@ -56,6 +56,18 @@
                 this.month = date.getMonth();
             },
             pick(day) { this.value = this.iso(this.year, this.month, day); this.open = false; },
+            place() {
+                const panel = this.$refs.panel;
+                const rect = this.$refs.input.getBoundingClientRect();
+                const flip = window.innerHeight - rect.bottom < panel.offsetHeight + 12 && rect.top > window.innerHeight - rect.bottom;
+
+                panel.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 8)) + 'px';
+                panel.style.top = flip ? 'auto' : rect.bottom + 6 + 'px';
+                panel.style.bottom = flip ? window.innerHeight - rect.top + 6 + 'px' : 'auto';
+            },
+            dismissOnScroll(event) {
+                if (this.open && ! this.$refs.panel.contains(event.target)) { this.open = false; }
+            },
             today(day) { const now = new Date(); return this.year === now.getFullYear() && this.month === now.getMonth() && day === now.getDate(); },
             init() {
                 this.$watch('value', (iso) => { this.text = this.format(iso); this.show(iso); });
@@ -66,11 +78,15 @@
         x-modelable="value"
         x-on:keydown.escape.stop="open = false"
         x-on:click.outside="open = false"
+        x-on:resize.window="open && place()"
+        x-on:scroll.window.capture="dismissOnScroll($event)"
+        x-effect="open && $nextTick(() => place())"
         {{ $attributes->whereStartsWith('wire:model') }}
     >
         <input
             type="text"
             class="ui-input"
+            x-ref="input"
             inputmode="numeric"
             placeholder="gg.aa.yyyy"
             autocomplete="off"
@@ -80,7 +96,7 @@
             x-on:blur="text = format(value)"
         >
 
-        <div class="ui-date-panel ui-glass ui-glass-menu" x-show="open" x-cloak>
+        <div class="ui-date-panel ui-glass ui-glass-menu" x-ref="panel" x-show="open" x-cloak>
             <div class="ui-date-head">
                 <button type="button" class="ui-btn ui-btn-icon ui-btn-sm" x-on:click="shift(-1)" aria-label="{{ __('ui.date.previous') }}">
                     <x-heroicon-m-chevron-left aria-hidden="true" />

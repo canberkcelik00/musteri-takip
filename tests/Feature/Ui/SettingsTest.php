@@ -147,3 +147,7 @@ it('needs a signed-in user for the settings page', function () {
 
     $this->get(route('app.settings'))->assertRedirect();
 });
+
+it('draws the general settings form on a glass card', function () {
+    $this->get(route('app.settings'))->assertOk()->assertSee('ui-card ui-glass', false);
+});

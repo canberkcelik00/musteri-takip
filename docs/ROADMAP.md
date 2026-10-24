@@ -424,7 +424,14 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
 - [x] **G-10.9 Filament'i kaldır** — Bağımlılık: G-10.8
   - Yapılacak: paket, `app/Filament`, panel sağlayıcısı, görünümler, CSS/varlıklar, dağıtım ve CI adımları, `tests/Feature/Filament` → `tests/Feature/Ui`.
   - Yapıldı: `filament/filament` ve bağımlılıkları kaldırıldı (`livewire/livewire` 4.4.6 ve diğer paketler aynı sürümde kaldı), `tests/Feature/Filament` silindi (karşılıkları `tests/Feature/Ui` altında), bütünleşik testler (MvpFlow, ListPerformance, QuoteFlow, ServerPull, AccountDomains, MailTheme, Deploy*) cam ekranlara taşındı.
-- [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.9
+- [x] **G-10.11 Kritik görsel hatalar** — Bağımlılık: G-10.9
+  - Yapılacak: müşteri kartındaki bozuk `{{ … }` düğme metinleri ve bunu yakalayan tarama testi; Genel ayarlar kartı; dar ekranda açılan aramanın zemini; pencere içindeki seçim/tarih panellerinin kırpılması (T-145); Bugün ve WhatsApp ipucundan yatay kayma; azaltılmış saydamlık kuralı; kilitli alan görünümü.
+- [ ] **G-10.12 Performans** — Bağımlılık: G-10.11
+  - Yapılacak: bulanıklığı yalnız içerik altından kayan yüzeylere indirmek (`.ui-pane`, iç içe cam yok, üst çubuk `::before`), müşteri kartı/Settings/Açık borçlar toplamı/Bugün sorguları, `wire:navigate`.
+  - Kabul: müşteri kartı sayfasında en çok 2 bulanık yüzey; kartta sorgu sayısı hizmet sayısından bağımsız.
+- [ ] **G-10.13 UI.md uyumu** — Bağımlılık: G-10.12
+  - Yapılacak: tutarlar sağa hizalı, pencerede "Kapat", Müşteriler'de "Yeni müşteri", simgeli düğmelere metin, katalog/sunucu satır işlemleri, boş durum/kart başlığı/ipucu tek biçim, varsayılan filtre çipi; UI.md §6 mevcut cam görünüme göre güncellenir.
+- [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.13
   - Kabul: Tüm ekranlar açık ve koyu temada, telefon genişliğinde ve cam performansı kullanıcıca onaylanır.
 
 **Faz 10 bittiğinde:** Panel cam tasarımıyla, Filament'siz, aynı akışlarla çalışıyor.

@@ -128,7 +128,7 @@ it('defines every token a rule uses, and the dark block only overrides', functio
     }
 });
 
-it('sets backdrop-filter in the .ui-glass rule only', function () {
+it('sets backdrop-filter in the .ui-glass rule and the window layer only', function () {
     $found = false;
 
     foreach (uiStylesheets() as $name => $css) {
@@ -144,7 +144,7 @@ it('sets backdrop-filter in the .ui-glass rule only', function () {
             }
 
             $found = true;
-            expect(trim($selector))->toBe('.ui-glass', "ui/{$name}.css blurs in [".trim($selector).'].');
+            expect(trim($selector))->toBeIn(['.ui-glass', '.ui-window::before'], "ui/{$name}.css blurs in [".trim($selector).'].');
         }
     }
 
@@ -157,4 +157,35 @@ it('falls back to flat surfaces without glass and with reduced transparency', fu
     expect($base)
         ->toContain('html.no-glass .ui-glass')
         ->toContain('@media (prefers-reduced-transparency: reduce)');
+});
+
+it('keeps the window blur off the window itself so fixed panels are not clipped by it', function () {
+    $controls = uiStylesheets()['controls'];
+
+    expect($controls)->toContain('.ui-window::before');
+
+    preg_match('/\.ui-window\s*\{([^{}]*)\}/', $controls, $window);
+
+    expect($window[1])->not->toContain('backdrop-filter');
+});
+
+it('flattens every glass fill with reduced transparency and without glass', function () {
+    $base = uiStylesheets()['base'];
+
+    foreach (['.ui-glass', '.ui-glass-strong', '.ui-glass-menu'] as $fill) {
+        expect($base)->toContain("html {$fill}")->toContain("html.no-glass {$fill}");
+    }
+
+    expect($base)->toContain('html.no-glass .ui-window::before');
+});
+
+it('draws disabled fields dimmed', function () {
+    $controls = uiStylesheets()['controls'];
+
+    expect($controls)
+        ->toContain('.ui-input:disabled')
+        ->toContain('.ui-input[readonly]')
+        ->toContain('.ui-select-trigger:disabled')
+        ->toContain('.ui-toggle:disabled')
+        ->toContain('cursor: not-allowed');
 });

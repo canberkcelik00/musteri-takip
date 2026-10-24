@@ -366,3 +366,13 @@ it('runs the same number of queries for a customer with a few rows as with many'
 
     expect($count($large))->toBe($count($small));
 });
+
+it('renders the header buttons as text, never as raw template code', function () {
+    $html = uiCard(Customer::factory()->create())->html();
+
+    expect($html)
+        ->toContain(__('payments.record'))
+        ->toContain(__('customer_services.assign'))
+        ->not->toContain('{{')
+        ->not->toContain("__('");
+});

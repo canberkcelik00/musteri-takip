@@ -1,7 +1,7 @@
 <div>
     <h1 class="ui-title">{{ __('settings.title') }}</h1>
 
-    <form wire:submit="save" class="ui-card mt-5">
+    <form wire:submit="save" class="ui-card ui-glass mt-5">
         <div class="ui-form">
             <x-ui.input type="number" :label="__('settings.renewal_lead_days')" :hint="__('settings.renewal_lead_days_help')" wire:model="renewal_lead_days" min="1" max="365" required />
             <x-ui.input type="number" :label="__('settings.usage_warning_percent')" :hint="__('settings.usage_warning_percent_help')" suffix="%" wire:model="usage_warning_percent" min="1" max="100" required />

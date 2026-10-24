@@ -16,7 +16,7 @@
     x-on:mousedown.self="$dispatch('close-window')"
 >
     <{{ $tag }}
-        class="ui-window ui-glass ui-glass-menu"
+        class="ui-window ui-glass-menu"
         role="dialog"
         aria-modal="true"
         aria-label="{{ $title }}"

@@ -5,6 +5,7 @@ use App\Livewire\WindowHost;
 use App\Models\User;
 use App\Support\Ui\Navigation;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 use Livewire\Livewire;
@@ -241,4 +242,18 @@ it('shows the empty state instead of the table when the table is empty', functio
     $html = Blade::render('<x-ui.table :columns="[]" :empty="true"><x-slot:emptyState>Boş</x-slot:emptyState></x-ui.table>');
 
     expect($html)->toContain('Boş')->not->toContain('<table');
+});
+
+it('has no Blade echo without its closing braces in any view', function () {
+    $broken = [];
+
+    foreach (File::allFiles(resource_path('views')) as $file) {
+        foreach (preg_split('/\R/', $file->getContents()) as $number => $line) {
+            if (preg_match('/\{\{(?!--)(?:(?!\}\}).)*$/', $line) === 1) {
+                $broken[] = $file->getRelativePathname().':'.($number + 1);
+            }
+        }
+    }
+
+    expect($broken)->toBe([]);
 });

@@ -76,14 +76,28 @@ a:hover {
 }
 
 /* "Cam: kapalı" and reduced transparency: the same surfaces, flat and opaque. */
-html.no-glass .ui-glass {
+html.no-glass .ui-window::before {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html.no-glass .ui-glass,
+html.no-glass .ui-glass-strong,
+html.no-glass .ui-glass-menu {
     background: var(--mt-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
 }
 
 @media (prefers-reduced-transparency: reduce) {
-    .ui-glass {
+    .ui-window::before {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    html .ui-glass,
+    html .ui-glass-strong,
+    html .ui-glass-menu {
         background: var(--mt-surface);
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
