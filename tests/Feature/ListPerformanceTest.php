@@ -2,6 +2,7 @@
 
 use App\Enums\Currency;
 use App\Enums\ServiceType;
+use App\Enums\SettingKey;
 use App\Livewire\Pages\Catalog\Packages as CatalogPackages;
 use App\Livewire\Pages\Catalog\Services as CatalogServices;
 use App\Livewire\Pages\Charges\Index as ChargesIndex;
@@ -20,9 +21,12 @@ use App\Models\Package;
 use App\Models\Payment;
 use App\Models\PaymentAllocation;
 use App\Models\PaymentMethod;
+use App\Models\Server;
 use App\Models\User;
+use App\Support\Settings;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use Tests\Fixtures\UsageScenario;
 
 /**
  * G-5.7's speed check: every list and "Bugün" must run the same number of queries with a few
@@ -190,4 +194,57 @@ it('runs the same number of queries for a few hundred customers as for a handful
     }
 
     expect($problems)->toBe([]);
+});
+
+it('reads the usage badges of a customer card with the same queries for one linked account as for many', function () {
+    $customer = Customer::factory()->create();
+    $linked = function (string $kind, int $count) use ($customer): void {
+        $server = $kind === 'whm' ? Server::factory()->whm()->create() : Server::factory()->cpanel()->create();
+
+        for ($i = 0; $i < $count; $i++) {
+            $domain = "alan{$count}{$i}{$kind}.com";
+            // A WHM account is keyed by its cPanel user; every domain of a cPanel connection shares the connection's user.
+            $username = $kind === 'whm' ? "hesap{$count}{$i}" : $server->username;
+            UsageScenario::linkedService($server, $kind === 'whm' ? $username : $domain, ['customer_id' => $customer->id], $domain);
+            if ($kind === 'whm' || $i === 0) {
+                UsageScenario::usage($server, $username);
+            }
+
+            UsageScenario::mailbox($server, $username, "info@{$domain}", 900, 1000);
+        }
+    };
+
+    $queries = [];
+
+    foreach (['whm', 'cpanel'] as $kind) {
+        $linked($kind, 1);
+        $queries[$kind][1] = perfMeasure(fn () => Livewire::test(CustomersShow::class, ['customer' => $customer])->assertOk())['queries'];
+        $linked($kind, 6);
+        $queries[$kind][6] = perfMeasure(fn () => Livewire::test(CustomersShow::class, ['customer' => $customer])->assertOk())['queries'];
+    }
+
+    expect($queries['whm'][6])->toBe($queries['whm'][1])
+        ->and($queries['cpanel'][6])->toBe($queries['cpanel'][1]);
+});
+
+it('reads every setting with one query per request', function () {
+    $settings = app(Settings::class);
+    $settings->renewalLeadDays();
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $settings->renewalLeadDays();
+    $settings->usageWarningPercent();
+    $settings->digestTime();
+    DB::disableQueryLog();
+
+    expect(DB::getQueryLog())->toBe([]);
+
+    $settings->set(SettingKey::RenewalLeadDays, '45');
+
+    expect($settings->renewalLeadDays())->toBe(45);
+
+    $settings->set(SettingKey::RenewalLeadDays, null);
+
+    expect($settings->renewalLeadDays())->toBe((int) SettingKey::RenewalLeadDays->default());
 });

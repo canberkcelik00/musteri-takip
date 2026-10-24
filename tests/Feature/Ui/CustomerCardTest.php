@@ -349,6 +349,9 @@ it('runs the same number of queries for a customer with a few rows as with many'
         return count(DB::getQueryLog());
     };
 
+    // Settings are read once per request and then kept: warm them so the first measurement is not the dearer one.
+    uiCard(Customer::factory()->create());
+
     $small = Customer::factory()->create();
     uiCardService($small, [], 'a.com');
     Charge::factory()->for($small)->create(['due_date' => '2026-07-01']);
@@ -375,4 +378,16 @@ it('renders the header buttons as text, never as raw template code', function ()
         ->toContain(__('customer_services.assign'))
         ->not->toContain('{{')
         ->not->toContain("__('");
+});
+
+it('draws the card surfaces as panes and leaves the blur to the bars and menus', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer);
+    uiCardService($customer, [], 'ikinci.com');
+
+    $html = test()->get(route('app.customers.show', $customer))->assertOk()->getContent();
+
+    expect($html)->not->toContain('ui-card ui-glass')->not->toContain('ui-strip ui-glass')
+        ->and(preg_match_all('/(?<![\w-])ui-glass(?![\w-])/', $html))->toBeLessThanOrEqual(6)
+        ->and(substr_count($html, 'ui-pane'))->toBeGreaterThan(5);
 });

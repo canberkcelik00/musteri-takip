@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\Charges;
 
+use App\Actions\Charges\SumRemainingByCurrency;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Livewire\Concerns\WithTable;
@@ -90,7 +91,7 @@ class Index extends Component
      */
     private function filtered(): Builder
     {
-        $query = Charge::query()->with('customer')->withSum('allocations', 'amount');
+        $query = Charge::query()->with('customer');
 
         if (in_array($this->status, array_column(ChargeStatus::cases(), 'value'), true)) {
             $query->where('status', $this->status);
@@ -137,7 +138,7 @@ class Index extends Component
      */
     private function charges(): LengthAwarePaginator
     {
-        $query = $this->filtered();
+        $query = $this->filtered()->withSum('allocations', 'amount');
         $sort = $this->requestedSort();
 
         $query->orderBy('due_date', $sort !== null ? $sort[1] : 'asc')->orderBy('id');
@@ -153,11 +154,7 @@ class Index extends Component
      */
     private function totals(): array
     {
-        return Money::sumByCurrency(
-            $this->filtered()->where('status', ChargeStatus::Open)->get()
-                ->filter(fn (Charge $charge): bool => $charge->remainingAmount() > 0)
-                ->map(fn (Charge $charge): Money => new Money($charge->remainingAmount(), $charge->currency)),
-        );
+        return app(SumRemainingByCurrency::class)->handle($this->filtered()->where('status', ChargeStatus::Open));
     }
 
     public function render(): View

@@ -26,26 +26,26 @@
 
     {{-- The four numbers, each a link to its filtered list. --}}
     <div class="ui-stats">
-        <a class="ui-stat ui-glass" href="{{ $stats['total']['url'] }}">
+        <a class="ui-stat ui-pane" href="{{ $stats['total']['url'] }}">
             <span class="ui-stat-label">{{ __('today.total_debt') }}</span>
             <span class="ui-stat-value">{{ $stats['total']['first']?->format() ?? Money::formatTotals([]) }}</span>
             @if ($stats['total']['others'] !== [])
                 <span class="ui-stat-sub">+ {{ Money::formatTotals($stats['total']['others']) }}</span>
             @endif
         </a>
-        <a class="ui-stat ui-glass" href="{{ $stats['overdue']['url'] }}">
+        <a class="ui-stat ui-pane" href="{{ $stats['overdue']['url'] }}">
             <span class="ui-stat-label">{{ __('today.overdue') }}</span>
             <span class="ui-stat-value ui-stat-danger">{{ Money::formatTotals($stats['overdue']['totals']) }}</span>
             <span class="ui-stat-sub">{{ __('today.charge_count', ['count' => $stats['overdue']['count']]) }}</span>
         </a>
-        <a class="ui-stat ui-glass" href="{{ $stats['month']['url'] }}">
+        <a class="ui-stat ui-pane" href="{{ $stats['month']['url'] }}">
             <span class="ui-stat-label">{{ __('today.due_this_month') }}</span>
             <span class="ui-stat-value">{{ Money::formatTotals($stats['month']['totals']) }}</span>
             @if ($stats['month']['count'] > 0)
                 <span class="ui-stat-sub">{{ __('today.charge_count', ['count' => $stats['month']['count']]) }}</span>
             @endif
         </a>
-        <a class="ui-stat ui-glass" href="{{ $stats['renewals']['url'] }}">
+        <a class="ui-stat ui-pane" href="{{ $stats['renewals']['url'] }}">
             <span class="ui-stat-label">{{ __('today.renewals', ['days' => $stats['renewals']['days']]) }}</span>
             <span class="ui-stat-value">{{ __('today.service_count', ['count' => $stats['renewals']['count']]) }}</span>
             @if ($stats['renewals']['nearest'] !== null)
@@ -55,7 +55,7 @@
     </div>
 
     {{-- Yapılacaklar --}}
-    <section class="ui-card ui-glass" style="padding: 0; margin-top: 22px">
+    <section class="ui-card ui-pane" style="padding: 0; margin-top: 22px">
         <div class="ui-card-head">
             <h2>{{ __('today.tasks_heading') }}</h2>
             @unless ($isEmpty)
@@ -68,7 +68,7 @@
         @else
             <x-ui.table
                 :end="true"
-                style="box-shadow: none; border: 0; background: transparent"
+                :card="false"
                 :columns="[
                     ['key' => 'customer', 'label' => __('today.col_customer')],
                     ['key' => 'subject', 'label' => __('today.col_subject'), 'from' => 'md'],

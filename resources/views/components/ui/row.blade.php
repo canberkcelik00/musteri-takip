@@ -9,7 +9,7 @@
     @if ($href)
         data-href="{{ $href }}"
         x-data
-        x-on:click="if (! $event.target.closest('a, button, input, select, textarea, label')) { window.location.href = $el.dataset.href }"
+        x-on:click="if (! $event.target.closest('a, button, input, select, textarea, label')) { window.Livewire ? Livewire.navigate($el.dataset.href) : window.location.href = $el.dataset.href }"
     @endif
 >
     {{ $slot }}

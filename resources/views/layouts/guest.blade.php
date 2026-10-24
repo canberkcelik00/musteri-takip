@@ -5,7 +5,7 @@
 </head>
 <body>
     <main class="ui-guest">
-        <div class="ui-guest-card ui-glass ui-glass-strong">
+        <div class="ui-guest-card ui-pane ui-glass-strong">
             <x-ui.brand />
             {{ $slot }}
         </div>

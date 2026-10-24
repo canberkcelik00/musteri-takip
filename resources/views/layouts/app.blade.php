@@ -15,7 +15,7 @@
         <div class="ui-scrim" x-show="menu" x-cloak x-on:click="menu = false"></div>
 
         <div class="ui-main">
-            <header class="ui-topbar ui-glass">
+            <header class="ui-topbar ui-pane">
                 @livewire(\App\Livewire\Topbar\Search::class)
                 <div class="flex-1"></div>
                 <div class="ui-topbar-actions">
@@ -32,7 +32,7 @@
 
         <nav class="ui-tabbar ui-glass" aria-label="{{ __('ui.nav.tab_bar') }}">
             @foreach ($tabs as $tab)
-                <a href="{{ $tab['url'] }}" class="ui-tab" @if ($tab['active']) aria-current="page" @endif>
+                <a href="{{ $tab['url'] }}" wire:navigate class="ui-tab" @if ($tab['active']) aria-current="page" @endif>
                     <x-dynamic-component :component="'heroicon-o-'.$tab['icon']" aria-hidden="true" />
                     <span>{{ __($tab['tab']) }}</span>
                 </a>

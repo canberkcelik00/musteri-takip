@@ -149,5 +149,5 @@ it('needs a signed-in user for the settings page', function () {
 });
 
 it('draws the general settings form on a glass card', function () {
-    $this->get(route('app.settings'))->assertOk()->assertSee('ui-card ui-glass', false);
+    $this->get(route('app.settings'))->assertOk()->assertSee('ui-card ui-pane', false);
 });

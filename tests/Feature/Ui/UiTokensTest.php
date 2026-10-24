@@ -3,7 +3,7 @@
 /*
  * The glass interface's design tokens (G-10.1, docs/UI.md §6): text stays readable on every glass fill as it
  * composites over the lightest and the darkest background blob, literal colors live only in the token blocks, and
- * `backdrop-filter` is set in `.ui-glass` alone.
+ * `backdrop-filter` is set in `.ui-glass`, `.ui-topbar::before` and `.ui-window::before` alone.
  */
 
 const UI_BLOBS = ['mt-bg-base', 'mt-bg-a', 'mt-bg-b', 'mt-bg-c', 'mt-bg-d'];
@@ -128,7 +128,7 @@ it('defines every token a rule uses, and the dark block only overrides', functio
     }
 });
 
-it('sets backdrop-filter in the .ui-glass rule and the window layer only', function () {
+it('sets backdrop-filter in the .ui-glass rule, the top bar layer and the window layer only', function () {
     $found = false;
 
     foreach (uiStylesheets() as $name => $css) {
@@ -144,7 +144,7 @@ it('sets backdrop-filter in the .ui-glass rule and the window layer only', funct
             }
 
             $found = true;
-            expect(trim($selector))->toBeIn(['.ui-glass', '.ui-window::before'], "ui/{$name}.css blurs in [".trim($selector).'].');
+            expect(trim($selector))->toBeIn(['.ui-glass', '.ui-topbar::before', '.ui-window::before'], "ui/{$name}.css blurs in [".trim($selector).'].');
         }
     }
 
@@ -172,11 +172,21 @@ it('keeps the window blur off the window itself so fixed panels are not clipped 
 it('flattens every glass fill with reduced transparency and without glass', function () {
     $base = uiStylesheets()['base'];
 
-    foreach (['.ui-glass', '.ui-glass-strong', '.ui-glass-menu'] as $fill) {
+    foreach (['.ui-glass', '.ui-pane', '.ui-glass-strong', '.ui-glass-menu'] as $fill) {
         expect($base)->toContain("html {$fill}")->toContain("html.no-glass {$fill}");
     }
 
-    expect($base)->toContain('html.no-glass .ui-window::before');
+    expect($base)->toContain('html.no-glass .ui-window::before')->toContain('html.no-glass .ui-topbar::before');
+});
+
+it('gives the cards a pane with the glass look but no blur of its own', function () {
+    $base = uiStylesheets()['base'];
+
+    preg_match('/\.ui-glass,\s*\.ui-pane\s*\{([^{}]*)\}/', $base, $shared);
+    preg_match('/\.ui-pane\s*\{([^{}]*)\}/', $base, $pane);
+
+    expect($shared[1])->toContain('var(--mt-glass-bg)')->toContain('var(--mt-glass-border)')->not->toContain('backdrop-filter')
+        ->and($pane[1])->not->toContain('backdrop-filter');
 });
 
 it('draws disabled fields dimmed', function () {

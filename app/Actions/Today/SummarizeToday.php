@@ -2,6 +2,7 @@
 
 namespace App\Actions\Today;
 
+use App\Actions\Charges\SumRemainingByCurrency;
 use App\Enums\ChargeStatus;
 use App\Models\Charge;
 use App\Models\Customer;
@@ -27,14 +28,10 @@ class SummarizeToday
      */
     public function handle(): array
     {
-        $openCharges = Charge::query()
-            ->where('status', ChargeStatus::Open)
-            ->unarchivedCustomer()
-            ->withSum('allocations', 'amount')
-            ->get();
-
-        $overdueCharges = Charge::query()->overdue()->unarchivedCustomer()->withSum('allocations', 'amount')->get();
-        $dueThisMonthCharges = Charge::query()->dueThisMonth()->unarchivedCustomer()->withSum('allocations', 'amount')->get();
+        $sum = app(SumRemainingByCurrency::class);
+        $open = fn (): Builder => Charge::query()->where('status', ChargeStatus::Open)->unarchivedCustomer();
+        $overdue = fn (): Builder => Charge::query()->overdue()->unarchivedCustomer();
+        $dueThisMonth = fn (): Builder => Charge::query()->dueThisMonth()->unarchivedCustomer();
 
         $renewingServices = CustomerService::query()
             ->endingSoon()
@@ -42,17 +39,11 @@ class SummarizeToday
         $nearestRenewal = (clone $renewingServices)->min('end_date');
 
         return [
-            'total' => Money::sumByCurrency($openCharges->map(
-                fn (Charge $charge): Money => new Money($charge->remainingAmount(), $charge->currency),
-            )),
-            'overdue' => Money::sumByCurrency($overdueCharges->map(
-                fn (Charge $charge): Money => new Money($charge->remainingAmount(), $charge->currency),
-            )),
-            'overdue_count' => $overdueCharges->count(),
-            'due_this_month' => Money::sumByCurrency($dueThisMonthCharges->map(
-                fn (Charge $charge): Money => new Money($charge->remainingAmount(), $charge->currency),
-            )),
-            'due_this_month_count' => $dueThisMonthCharges->count(),
+            'total' => $sum->handle($open()),
+            'overdue' => $sum->handle($overdue()),
+            'overdue_count' => $overdue()->count(),
+            'due_this_month' => $sum->handle($dueThisMonth()),
+            'due_this_month_count' => $dueThisMonth()->count(),
             'renewal_customers_count' => Customer::query()->renewalSoon()->count(),
             'renewal_services_count' => $renewingServices->count(),
             'nearest_renewal' => $nearestRenewal === null ? null : Carbon::parse($nearestRenewal),

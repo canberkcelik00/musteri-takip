@@ -11,6 +11,7 @@ use App\Models\Server;
 use App\Support\Servers\LinkedAccounts;
 use App\Support\Servers\ResourceLabel;
 use App\Support\Settings;
+use Illuminate\Support\Collection;
 
 /**
  * Reads the stored usage of the account a linked item belongs to and prepares it for the
@@ -29,15 +30,51 @@ class BuildUsageReport
 
     public function handle(CustomerServiceItem $item): ?UsageReport
     {
-        $server = $item->server;
+        return $this->handleMany(new Collection([$item]))[$item->getKey()] ?? null;
+    }
 
-        if (! $server instanceof Server || $item->remote_key === null) {
-            return null;
+    /**
+     * The reports of several items with the stored usage, the mailboxes and the shared-domain counts read once for
+     * all of them (a customer card lists many hosting items; one query per item made it slow).
+     *
+     * @param  Collection<int, CustomerServiceItem>  $items  with `server` loaded
+     * @return array<int, UsageReport> keyed by item id; an item without a linked account has none
+     */
+    public function handleMany(Collection $items): array
+    {
+        $linked = $items->filter(fn (CustomerServiceItem $item): bool => $item->server instanceof Server && $item->remote_key !== null);
+
+        if ($linked->isEmpty()) {
+            return [];
         }
 
-        $username = LinkedAccounts::usernameOf($item);
-        $usage = AccountUsage::query()->where(['server_id' => $server->getKey(), 'remote_username' => $username])->first();
+        $serverIds = $linked->pluck('server_id')->unique()->all();
+        $usernames = $linked->map(fn (CustomerServiceItem $item): string => LinkedAccounts::usernameOf($item))->unique()->all();
+        $keyOf = fn (AccountUsage|Mailbox $row): string => LinkedAccounts::keyOf($row->server_id, $row->remote_username);
+
+        $usages = AccountUsage::query()->whereIn('server_id', $serverIds)->whereIn('remote_username', $usernames)->get()->keyBy($keyOf);
+        $mailboxes = Mailbox::query()->whereIn('server_id', $serverIds)->whereIn('remote_username', $usernames)->get()->groupBy($keyOf);
+        $shared = $linked->contains(fn (CustomerServiceItem $item): bool => $item->server?->type === ServerType::Cpanel) ? $this->sharedDomainCounts() : [];
         $threshold = $this->settings->usageWarningPercent();
+        $reports = [];
+
+        foreach ($linked as $item) {
+            $server = $item->server;
+            assert($server instanceof Server);
+            $username = LinkedAccounts::usernameOf($item);
+            $key = LinkedAccounts::keyOf($server->getKey(), $username);
+
+            $reports[$item->getKey()] = $this->build($item, $server, $username, $usages->get($key), $mailboxes->get($key, new Collection), $shared[$key] ?? 0, $threshold);
+        }
+
+        return $reports;
+    }
+
+    /**
+     * @param  Collection<int, Mailbox>  $accountMailboxes  every mailbox of the item's account
+     */
+    private function build(CustomerServiceItem $item, Server $server, string $username, ?AccountUsage $usage, Collection $accountMailboxes, int $sharedDomains, int $threshold): UsageReport
+    {
         $isCpanel = $server->type === ServerType::Cpanel;
         $domain = (string) ($item->details['domain'] ?? $item->remote_key);
 
@@ -60,13 +97,13 @@ class BuildUsageReport
             title: $domain,
             serverName: $server->name,
             username: $username,
-            sharedDomains: $isCpanel ? $this->sharedDomains($server, $username) : 0,
+            sharedDomains: $isCpanel ? $sharedDomains : 0,
             refreshedAt: $usage?->refreshed_at,
             failedAt: $usage?->failed_at,
             failureReason: $usage?->failure_reason,
             gauges: $gauges->all(),
             counters: $meters->reject(fn (UsageMeter $meter): bool => in_array($meter->id, self::GAUGE_IDS, true))->values()->all(),
-            mailboxes: $this->mailboxes($server, $username, $isCpanel ? (string) $item->remote_key : null, $threshold),
+            mailboxes: $this->mailboxes($accountMailboxes, $isCpanel ? (string) $item->remote_key : null, $threshold),
             databases: collect($usage->databases ?? [])
                 ->map(fn (array $database): UsageMeter => new UsageMeter($database['name'], $database['name'], $database['bytes'], null, true, null))
                 ->all(),
@@ -75,31 +112,29 @@ class BuildUsageReport
     }
 
     /**
-     * Domains of the cPanel connection's linked, active services that share its account.
+     * Domains of the cPanel connection's linked, active services that share each account, keyed by account.
+     *
+     * @return array<string, int>
      */
-    private function sharedDomains(Server $server, string $username): int
+    private function sharedDomainCounts(): array
     {
-        $key = LinkedAccounts::keyOf($server->getKey(), $username);
-
         return LinkedAccounts::items()
-            ->filter(fn (CustomerServiceItem $item): bool => LinkedAccounts::keyOf($item->server_id, LinkedAccounts::usernameOf($item)) === $key)
-            ->map(fn (CustomerServiceItem $item): string => (string) $item->remote_key)
-            ->unique()
-            ->count();
+            ->groupBy(fn (CustomerServiceItem $item): string => LinkedAccounts::keyOf($item->server_id, LinkedAccounts::usernameOf($item)))
+            ->map(fn ($items): int => $items->map(fn (CustomerServiceItem $item): string => (string) $item->remote_key)->unique()->count())
+            ->all();
     }
 
     /**
      * The account's mailboxes, fullest first (those without a quota last); on a cPanel
      * connection only those of the item's own domain.
      *
+     * @param  Collection<int, Mailbox>  $accountMailboxes
      * @return list<UsageMailbox>
      */
-    private function mailboxes(Server $server, string $username, ?string $domain, int $threshold): array
+    private function mailboxes(Collection $accountMailboxes, ?string $domain, int $threshold): array
     {
-        return Mailbox::query()
-            ->where(['server_id' => $server->getKey(), 'remote_username' => $username])
-            ->when($domain !== null, fn ($query) => $query->where('domain', $domain))
-            ->get()
+        return $accountMailboxes
+            ->when($domain !== null, fn (Collection $mailboxes): Collection => $mailboxes->where('domain', $domain))
             ->map(fn (Mailbox $mailbox): UsageMailbox => new UsageMailbox(
                 $mailbox->address,
                 new UsageMeter($mailbox->address, $mailbox->address, $mailbox->used_bytes, $mailbox->quota_bytes, true, UsageLevel::of($mailbox->used_bytes, $mailbox->quota_bytes, $threshold)),

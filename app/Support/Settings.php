@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\Log;
 /**
  * Key–value application settings with defaults.
  *
- * Values are read from the database on every call (no cache), so a changed
- * setting takes effect immediately. Typed readers fall back to the default
- * and log a warning when the stored value is invalid.
+ * All values are read from the database in one query the first time they are needed and
+ * kept for the life of this instance, which the container scopes to one request or command
+ * run (AppServiceProvider); `set()` keeps it current, so a changed setting takes effect
+ * immediately. Typed readers fall back to the default and log a warning when the stored
+ * value is invalid.
  */
 class Settings
 {
@@ -25,13 +27,20 @@ class Settings
     public const COMPANY_DETAIL_KEYS = ['name', 'address', 'phone', 'email', 'tax_office', 'tax_number', 'iban', 'logo_path'];
 
     /**
+     * Every stored value by key, or null before the first read.
+     *
+     * @var array<string, string>|null
+     */
+    private ?array $stored = null;
+
+    /**
      * Get the stored value, or the default when nothing is stored.
      */
     public function get(SettingKey $key): ?string
     {
-        $value = Setting::query()->where('key', $key->value)->value('value');
+        $this->stored ??= Setting::query()->pluck('value', 'key')->all();
 
-        return $value ?? $key->default();
+        return $this->stored[$key->value] ?? $key->default();
     }
 
     /**
@@ -41,11 +50,16 @@ class Settings
     {
         if ($value === null) {
             Setting::query()->where('key', $key->value)->delete();
+            unset($this->stored[$key->value]);
 
             return;
         }
 
         Setting::query()->updateOrCreate(['key' => $key->value], ['value' => $value]);
+
+        if ($this->stored !== null) {
+            $this->stored[$key->value] = $value;
+        }
     }
 
     /**

@@ -101,17 +101,13 @@ class Show extends Component
     private function usageBadges(Collection $services): array
     {
         $badges = [];
-        $builder = app(BuildUsageReport::class);
+        $reports = app(BuildUsageReport::class)->handleMany($services->flatMap(fn (CustomerService $service): Collection => $service->items));
 
         foreach ($services as $service) {
             $worst = null;
 
             foreach ($service->items as $item) {
-                if ($item->server_id === null || $item->remote_key === null) {
-                    continue;
-                }
-
-                $badge = $builder->handle($item)?->badge();
+                $badge = ($reports[$item->id] ?? null)?->badge();
 
                 if ($badge !== null && ($worst === null || $badge['level']->severity() > $worst['level']->severity())) {
                     $worst = ['item' => $item->id, 'text' => $badge['text'], 'level' => $badge['level']];

@@ -257,3 +257,21 @@ it('has no Blade echo without its closing braces in any view', function () {
 
     expect($broken)->toBe([]);
 });
+
+it('navigates between the main screens without a full page load', function () {
+    $html = $this->actingAs(User::factory()->create())->get(route('app.today'))->assertOk()->getContent();
+
+    expect(substr_count($html, 'wire:navigate'))->toBeGreaterThanOrEqual(count(Navigation::tabs(route('app.today'))) + 3);
+    expect(Blade::render('<x-ui.row href="/app/customers/1"><td>A</td></x-ui.row>'))->toContain('Livewire.navigate');
+});
+
+it('draws a table without its own card when it sits inside one', function () {
+    $columns = [['key' => 'name', 'label' => 'Ad']];
+
+    expect(Blade::render('<x-ui.table :columns="$columns"><tr><td>x</td></tr></x-ui.table>', ['columns' => $columns]))
+        ->toContain('ui-card ui-pane')->not->toContain('ui-glass');
+
+    $bare = Blade::render('<x-ui.table :columns="$columns" :card="false"><tr><td>x</td></tr></x-ui.table>', ['columns' => $columns]);
+
+    expect($bare)->not->toContain('ui-card')->not->toContain('ui-pane')->toContain('<table');
+});
