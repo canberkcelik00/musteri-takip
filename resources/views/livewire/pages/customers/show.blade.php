@@ -224,7 +224,7 @@
                         @foreach ($customer->quotes as $quote)
                             @php($quoteTone = StatusBadges::quoteTone($quote))
                             <x-ui.row wire:key="quote-{{ $quote->id }}">
-                                <td><a class="ui-cell-title" href="{{ Links::quotes() }}">{{ $quote->number }}</a></td>
+                                <td><button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('quote', ['quote' => $quote->id]) !!}">{{ $quote->number }}</button></td>
                                 <td class="is-end">
                                     @forelse ($quote->totals() as $money)
                                         <div><x-ui.money :amount="$money->amount" :currency="$money->currency" /></div>

@@ -417,7 +417,7 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
 - [x] **G-10.3 Müşteri kartı ve pencereleri** — Bağımlılık: G-10.2
 - [x] **G-10.4 Açık borçlar ve Ödemeler** — Bağımlılık: G-10.3
 - [x] **G-10.5 Bugün** — Bağımlılık: G-10.4
-- [ ] **G-10.6 Teklifler** — Bağımlılık: G-10.3
+- [x] **G-10.6 Teklifler** — Bağımlılık: G-10.3
 - [ ] **G-10.7 Katalog ve Ayarlar** — Bağımlılık: G-10.3
 - [ ] **G-10.8 Geçiş** — Bağımlılık: G-10.5, G-10.6, G-10.7
   - Yapılacak: `/` ve `/panel/*` yeni rotalara yönlendirilir, e-posta bağlantıları `route('app.*')`, bütünleşik testler yeni ekranlara.

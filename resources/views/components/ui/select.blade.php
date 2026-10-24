@@ -1,4 +1,4 @@
-@props(['options' => [], 'label' => null, 'placeholder' => null, 'searchable' => false])
+@props(['options' => [], 'label' => null, 'placeholder' => null, 'searchable' => false, 'disabled' => false])
 
 {{--
     A select that is never the system's own (docs/UI.md §6 "Seçim kutusu"): an Alpine listbox with a search field
@@ -78,7 +78,7 @@
         x-on:click.outside="open = false"
         {{ $attributes->whereStartsWith('wire:model') }}
     >
-        <button type="button" class="ui-select-trigger" x-ref="trigger" x-on:click="toggle()" aria-haspopup="listbox" x-bind:aria-expanded="open">
+        <button type="button" class="ui-select-trigger" @disabled($disabled) x-ref="trigger" x-on:click="toggle()" aria-haspopup="listbox" x-bind:aria-expanded="open">
             <span x-show="selected" x-text="selected?.label"></span>
             <span x-show="! selected" class="ui-select-placeholder">{{ $placeholder ?? __('ui.select.placeholder') }}</span>
             <x-heroicon-m-chevron-up-down aria-hidden="true" />

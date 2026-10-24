@@ -1,18 +1,22 @@
 <?php
 
+use App\Livewire\Windows\AcceptQuote;
 use App\Livewire\Windows\AssignService;
 use App\Livewire\Windows\CancelCharge;
 use App\Livewire\Windows\CancelService;
 use App\Livewire\Windows\Confirm;
 use App\Livewire\Windows\Contact;
 use App\Livewire\Windows\CreateCustomer;
+use App\Livewire\Windows\CreateQuote;
 use App\Livewire\Windows\EditCharge;
 use App\Livewire\Windows\EditCustomer;
 use App\Livewire\Windows\EditService;
 use App\Livewire\Windows\MarkFree;
+use App\Livewire\Windows\OpenQuote;
 use App\Livewire\Windows\ReactivateService;
 use App\Livewire\Windows\RecordPayment;
 use App\Livewire\Windows\RemoveFree;
+use App\Livewire\Windows\SendQuote;
 use App\Livewire\Windows\SendReminder;
 use App\Livewire\Windows\SplitCharge;
 use App\Livewire\Windows\ViewPayment;
@@ -42,6 +46,10 @@ return [
         'send-reminder' => SendReminder::class,
         'view-payment' => ViewPayment::class,
         'view-usage' => ViewUsage::class,
+        'quote' => OpenQuote::class,
+        'create-quote' => CreateQuote::class,
+        'send-quote' => SendQuote::class,
+        'accept-quote' => AcceptQuote::class,
         'confirm' => Confirm::class,
     ],
 

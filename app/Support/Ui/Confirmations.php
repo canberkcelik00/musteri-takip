@@ -8,10 +8,13 @@ use App\Actions\Customers\DeleteCustomer;
 use App\Actions\CustomerServices\ConfirmFreeContinuation;
 use App\Actions\CustomerServices\DeleteCustomerService;
 use App\Actions\Payments\DeletePayment;
+use App\Actions\Quotes\DeleteQuote;
+use App\Actions\Quotes\RejectQuote;
 use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\Payment;
+use App\Models\Quote;
 use Illuminate\Support\Facades\Route;
 use InvalidArgumentException;
 
@@ -25,7 +28,7 @@ final class Confirmations
     /**
      * @return array{heading: string, description: string, label: string, danger: bool}
      */
-    public static function describe(string $action): array
+    public static function describe(string $action, int $id = 0): array
     {
         return match ($action) {
             'archive-customer' => ['heading' => __('archive.archive_heading'), 'description' => __('archive.archive_description'), 'label' => __('archive.archive'), 'danger' => false],
@@ -34,6 +37,8 @@ final class Confirmations
             'delete-payment' => ['heading' => __('payments.delete_heading'), 'description' => __('payments.delete_description'), 'label' => __('payments.delete'), 'danger' => true],
             'delete-contact' => ['heading' => __('contacts.delete_heading'), 'description' => '', 'label' => __('contacts.delete'), 'danger' => true],
             'confirm-free-continuation' => ['heading' => __('customer_services.confirm_free_continuation'), 'description' => '', 'label' => __('customer_services.confirm_free_continuation'), 'danger' => false],
+            'reject-quote' => ['heading' => __('quotes.reject_heading'), 'description' => __('quotes.reject_description', ['number' => Quote::query()->find($id)?->number]), 'label' => __('quotes.reject'), 'danger' => false],
+            'delete-quote' => ['heading' => __('quotes.delete_heading'), 'description' => __('quotes.delete_description'), 'label' => __('quotes.delete'), 'danger' => true],
             'delete-service' => ['heading' => __('customer_services.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('customer_services.delete'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
@@ -53,6 +58,8 @@ final class Confirmations
             'delete-payment' => self::deletePayment($id),
             'delete-contact' => self::deleteContact($id),
             'delete-service' => self::deleteService($id),
+            'reject-quote' => self::rejectQuote($id),
+            'delete-quote' => self::deleteQuote($id),
             'confirm-free-continuation' => self::confirmFreeContinuation($id),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
@@ -114,6 +121,26 @@ final class Confirmations
         app(DeleteContact::class)->handle(Contact::query()->findOrFail($id));
 
         return ['message' => __('contacts.deleted'), 'event' => 'contacts-changed', 'redirect' => null];
+    }
+
+    /**
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function rejectQuote(int $id): array
+    {
+        app(RejectQuote::class)->handle(Quote::query()->findOrFail($id));
+
+        return ['message' => __('quotes.rejected'), 'event' => 'quotes-changed', 'redirect' => null];
+    }
+
+    /**
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function deleteQuote(int $id): array
+    {
+        app(DeleteQuote::class)->handle(Quote::query()->findOrFail($id));
+
+        return ['message' => __('quotes.deleted'), 'event' => 'quotes-changed', 'redirect' => null];
     }
 
     /**

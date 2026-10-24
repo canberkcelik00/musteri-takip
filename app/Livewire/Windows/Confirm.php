@@ -3,6 +3,7 @@
 namespace App\Livewire\Windows;
 
 use App\Exceptions\CustomerHasActiveServices;
+use App\Exceptions\InvalidQuote;
 use App\Exceptions\LastActivePaymentMethod;
 use App\Exceptions\PrimaryContactCannotBeDeleted;
 use App\Exceptions\RecordInUse;
@@ -25,7 +26,7 @@ class Confirm extends Component
 
     public function mount(string $action, int $id): void
     {
-        Confirmations::describe($action);
+        Confirmations::describe($action, $id);
 
         $this->action = $action;
         $this->id = $id;
@@ -35,7 +36,7 @@ class Confirm extends Component
     {
         try {
             $result = Confirmations::run($this->action, $this->id);
-        } catch (RecordInUse|CustomerHasActiveServices|PrimaryContactCannotBeDeleted|LastActivePaymentMethod $exception) {
+        } catch (RecordInUse|CustomerHasActiveServices|PrimaryContactCannotBeDeleted|LastActivePaymentMethod|InvalidQuote $exception) {
             $this->addError('form', $exception->getMessage());
 
             return;
@@ -52,6 +53,6 @@ class Confirm extends Component
 
     public function render(): View
     {
-        return view('livewire.windows.confirm', ['text' => Confirmations::describe($this->action)]);
+        return view('livewire.windows.confirm', ['text' => Confirmations::describe($this->action, $this->id)]);
     }
 }

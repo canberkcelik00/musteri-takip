@@ -113,4 +113,6 @@ return [
         'total' => 'Toplam',
         'notes' => 'Notlar',
     ],
+    'count' => ':count teklif',
+    'remove_item' => 'Kaldır',
 ];
