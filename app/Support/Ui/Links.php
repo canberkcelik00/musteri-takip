@@ -38,6 +38,11 @@ final class Links
             : route('filament.panel.resources.payments.index', ['filters' => ['customer' => ['value' => $customer->id]]]);
     }
 
+    public static function servers(): string
+    {
+        return route(Route::has('app.servers') ? 'app.servers' : 'filament.panel.resources.servers.index');
+    }
+
     public static function quotes(): string
     {
         return route(Route::has('app.quotes.index') ? 'app.quotes.index' : 'filament.panel.resources.quotes.index');

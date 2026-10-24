@@ -43,7 +43,7 @@ class Confirm extends Component
 
         $this->dispatch($result['event']);
         $this->dispatch('close-window');
-        $this->dispatch('notify', message: $result['message']);
+        $this->dispatch('notify', message: $result['message'], tone: $result['tone'] ?? 'success');
 
         if ($result['redirect'] !== null) {
             $this->redirect($result['redirect']);

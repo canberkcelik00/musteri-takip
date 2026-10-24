@@ -5,6 +5,7 @@ namespace App\Support\Ui;
 use App\Actions\Contacts\DeleteContact;
 use App\Actions\Customers\ArchiveCustomer;
 use App\Actions\Customers\DeleteCustomer;
+use App\Actions\CustomerServices\ConfirmFreeContinuation;
 use App\Actions\CustomerServices\DeleteCustomerService;
 use App\Actions\Payments\DeletePayment;
 use App\Models\Contact;
@@ -32,6 +33,7 @@ final class Confirmations
             'delete-customer' => ['heading' => __('customers.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('customers.delete'), 'danger' => true],
             'delete-payment' => ['heading' => __('payments.delete_heading'), 'description' => __('payments.delete_description'), 'label' => __('payments.delete'), 'danger' => true],
             'delete-contact' => ['heading' => __('contacts.delete_heading'), 'description' => '', 'label' => __('contacts.delete'), 'danger' => true],
+            'confirm-free-continuation' => ['heading' => __('customer_services.confirm_free_continuation'), 'description' => '', 'label' => __('customer_services.confirm_free_continuation'), 'danger' => false],
             'delete-service' => ['heading' => __('customer_services.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('customer_services.delete'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
@@ -40,7 +42,7 @@ final class Confirmations
     /**
      * Run the confirmed action.
      *
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     public static function run(string $action, int $id): array
     {
@@ -51,12 +53,13 @@ final class Confirmations
             'delete-payment' => self::deletePayment($id),
             'delete-contact' => self::deleteContact($id),
             'delete-service' => self::deleteService($id),
+            'confirm-free-continuation' => self::confirmFreeContinuation($id),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
 
     /**
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     private static function archiveCustomer(int $id): array
     {
@@ -66,7 +69,7 @@ final class Confirmations
     }
 
     /**
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     private static function unarchiveCustomer(int $id): array
     {
@@ -76,7 +79,7 @@ final class Confirmations
     }
 
     /**
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     private static function deleteCustomer(int $id): array
     {
@@ -90,7 +93,7 @@ final class Confirmations
     }
 
     /**
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     private static function deletePayment(int $id): array
     {
@@ -104,7 +107,7 @@ final class Confirmations
     }
 
     /**
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     private static function deleteContact(int $id): array
     {
@@ -114,7 +117,19 @@ final class Confirmations
     }
 
     /**
-     * @return array{message: string, event: string, redirect: ?string}
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function confirmFreeContinuation(int $id): array
+    {
+        if (! app(ConfirmFreeContinuation::class)->handle(CustomerService::query()->findOrFail($id))) {
+            return ['message' => __('customer_services.free_action_not_applied'), 'event' => 'customer-services-changed', 'redirect' => null, 'tone' => 'danger'];
+        }
+
+        return ['message' => __('customer_services.free_continuation_confirmed'), 'event' => 'customer-services-changed', 'redirect' => null];
+    }
+
+    /**
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
      */
     private static function deleteService(int $id): array
     {
