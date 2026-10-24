@@ -156,6 +156,19 @@ it('draws a search field with a magnifier and a named clear button', function ()
         ->not->toContain('ui-search-icon')->not->toContain('ui-search-clear');
 });
 
+it('gives every x-trap an expression, since Alpine throws on an empty one', function () {
+    $offenders = [];
+
+    foreach (File::allFiles(resource_path('views')) as $file) {
+        if (preg_match('/\bx-trap[\w.]*(?!=)(?=[\s>])/', $file->getContents()) === 1) {
+            $offenders[] = $file->getRelativePathname();
+        }
+    }
+
+    expect($offenders)->toBe([]);
+    expect(Blade::render('<x-ui.window title="Form">x</x-ui.window>'))->toContain('x-trap.noscroll="true"');
+});
+
 it('re-applies the saved theme and glass choice after every wire:navigate', function () {
     $html = $this->get(route('app.today'))->assertOk()->getContent();
 

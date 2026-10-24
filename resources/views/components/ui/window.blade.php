@@ -20,7 +20,7 @@
         role="dialog"
         aria-modal="true"
         aria-label="{{ $title }}"
-        x-trap.noscroll
+        x-trap.noscroll="true"
         @if ($submit) wire:submit="{{ $submit }}" @endif
     >
         <div @class(['ui-window-header', 'has-close' => $submit])>
