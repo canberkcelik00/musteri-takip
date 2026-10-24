@@ -1,0 +1,136 @@
+/*
+ * Design tokens of the glass interface (docs/UI.md §6). Literal colors exist only in the two blocks
+ * below; every rule elsewhere takes a token. Opaque pairs are contrast-checked by UiTokensTest, the
+ * glass fills are checked as they composite over the lightest/darkest background blobs.
+ */
+:root {
+    --mt-bg-base: #cfd8ff;
+    --mt-bg-a: #7fb4ff;
+    --mt-bg-b: #ff9fcf;
+    --mt-bg-c: #ffd37a;
+    --mt-bg-d: #8be0c3;
+
+    --mt-glass-bg: rgba(255, 255, 255, 0.42);
+    --mt-glass-bg-strong: rgba(255, 255, 255, 0.5);
+    --mt-glass-bg-menu: rgba(255, 255, 255, 0.78);
+    --mt-glass-border: rgba(255, 255, 255, 0.65);
+    --mt-glass-highlight: rgba(255, 255, 255, 0.7);
+    --mt-glass-shadow: rgba(31, 38, 135, 0.16);
+    --mt-glass-blur: 28px;
+    --mt-surface: #f5f5f9;
+    --mt-scrim: rgba(20, 24, 60, 0.28);
+
+    --mt-text: #1d1d1f;
+    --mt-text-muted: #3a3a3d;
+    --mt-text-tertiary: #505055;
+    --mt-divider: rgba(60, 60, 67, 0.14);
+    --mt-input-bg: rgba(120, 120, 128, 0.14);
+    --mt-item-hover: rgba(255, 255, 255, 0.55);
+    --mt-item-active: rgba(255, 255, 255, 0.82);
+    --mt-row-hover: rgba(255, 255, 255, 0.5);
+    --mt-button-bg: rgba(255, 255, 255, 0.7);
+    --mt-button-border: rgba(255, 255, 255, 0.9);
+    --mt-segment-active-bg: #ffffff;
+    --mt-knob: #ffffff;
+    --mt-toggle-off: rgba(120, 120, 128, 0.32);
+    --mt-brand: #ff3800;
+
+    --mt-primary: #0071e3;
+    --mt-primary-shadow: rgba(0, 113, 227, 0.4);
+    --mt-on-primary: #ffffff;
+    --mt-link: #00479b;
+    --mt-focus-ring: rgba(0, 113, 227, 0.4);
+    --mt-green: #34c759;
+    --mt-whatsapp: #0b5e33;
+    --mt-danger-text: #920012;
+    --mt-danger-bg: rgba(255, 59, 48, 0.12);
+    --mt-danger-hover-bg: rgba(255, 59, 48, 0.2);
+    --mt-tooltip-bg: #3a3a3c;
+    --mt-tooltip-text: #ffffff;
+
+    --mt-badge-red-bg: #fdecea;
+    --mt-badge-red-text: #b3261e;
+    --mt-badge-red-dot: #ff3b30;
+    --mt-badge-amber-bg: #fff3db;
+    --mt-badge-amber-text: #8a5300;
+    --mt-badge-amber-dot: #ff9f0a;
+    --mt-badge-green-bg: #e3f6e8;
+    --mt-badge-green-text: #1b6e32;
+    --mt-badge-green-dot: #34c759;
+    --mt-badge-gray-bg: #ebebf0;
+    --mt-badge-gray-text: #55555b;
+    --mt-badge-gray-dot: #8e8e93;
+
+    --mt-nav-blue: #0a74e0;
+    --mt-nav-indigo: #5e5ce6;
+    --mt-nav-orange: #d9730d;
+    --mt-nav-purple: #af52de;
+    --mt-nav-green: #2e9d4b;
+    --mt-nav-teal: #2a8fa3;
+    --mt-nav-gray: #7c7c82;
+    --mt-on-nav: #ffffff;
+
+    --mt-avatar-1: #5e5ce6;
+    --mt-avatar-2: #0a74e0;
+    --mt-avatar-3: #177f43;
+    --mt-avatar-4: #c2410c;
+    --mt-avatar-5: #a21caf;
+    --mt-avatar-6: #0f766e;
+    --mt-avatar-7: #6d28d9;
+    --mt-avatar-8: #475569;
+
+    --mt-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --mt-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+}
+
+:root.dark {
+    --mt-bg-base: #0a0b14;
+    --mt-bg-a: #1c3a78;
+    --mt-bg-b: #5a2a58;
+    --mt-bg-c: #5a4216;
+    --mt-bg-d: #124d3e;
+
+    --mt-glass-bg: rgba(28, 28, 30, 0.5);
+    --mt-glass-bg-strong: rgba(36, 36, 40, 0.58);
+    --mt-glass-bg-menu: rgba(44, 44, 46, 0.86);
+    --mt-glass-border: rgba(255, 255, 255, 0.14);
+    --mt-glass-highlight: rgba(255, 255, 255, 0.12);
+    --mt-glass-shadow: rgba(0, 0, 0, 0.5);
+    --mt-surface: #1c1c1e;
+    --mt-scrim: rgba(0, 0, 0, 0.5);
+
+    --mt-text: #f5f5f7;
+    --mt-text-muted: #d4d4d9;
+    --mt-text-tertiary: #c0c0c6;
+    --mt-divider: rgba(255, 255, 255, 0.14);
+    --mt-input-bg: rgba(255, 255, 255, 0.12);
+    --mt-item-hover: rgba(255, 255, 255, 0.1);
+    --mt-item-active: rgba(255, 255, 255, 0.18);
+    --mt-row-hover: rgba(255, 255, 255, 0.07);
+    --mt-button-bg: rgba(255, 255, 255, 0.14);
+    --mt-button-border: rgba(255, 255, 255, 0.2);
+    --mt-segment-active-bg: #636366;
+    --mt-toggle-off: rgba(120, 120, 128, 0.5);
+
+    --mt-primary: #0a72e0;
+    --mt-primary-shadow: rgba(10, 114, 224, 0.45);
+    --mt-link: #a9d3ff;
+    --mt-focus-ring: rgba(64, 156, 255, 0.5);
+    --mt-green: #30d158;
+    --mt-whatsapp: #30d158;
+    --mt-danger-text: #ffb4af;
+    --mt-danger-bg: rgba(255, 69, 58, 0.18);
+    --mt-danger-hover-bg: rgba(255, 69, 58, 0.28);
+    --mt-tooltip-bg: #48484a;
+
+    --mt-badge-red-bg: #4a2a29;
+    --mt-badge-red-text: #ffa39d;
+    --mt-badge-red-dot: #ff453a;
+    --mt-badge-amber-bg: #4a3a1e;
+    --mt-badge-amber-text: #ffc25c;
+    --mt-badge-green-bg: #1f4a2b;
+    --mt-badge-green-text: #6fdc8c;
+    --mt-badge-green-dot: #30d158;
+    --mt-badge-gray-bg: #3a3a3c;
+    --mt-badge-gray-text: #c7c7cc;
+}

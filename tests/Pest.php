@@ -61,6 +61,94 @@ function actionOffered(mixed $component, array|TestAction $path): bool
     return true;
 }
 
+/**
+ * The stylesheets of the glass interface (Faz 10), in the order ui.css imports them.
+ *
+ * @return array<string, string> file name => CSS without comments
+ */
+function uiStylesheets(): array
+{
+    $sheets = [];
+
+    foreach (['tokens', 'base', 'controls'] as $name) {
+        $sheets[$name] = (string) preg_replace('#/\*.*?\*/#s', '', (string) file_get_contents(resource_path("css/ui/{$name}.css")));
+    }
+
+    return $sheets;
+}
+
+/**
+ * The body of the token rule with the given selector (`:root` or `:root.dark`) in ui/tokens.css.
+ */
+function uiTokenBlock(string $selector): string
+{
+    $found = preg_match('/^'.preg_quote($selector, '/').'\s*\{(.*?)^\}/ms', uiStylesheets()['tokens'], $matches);
+
+    expect($found)->toBe(1, "Token block {$selector} is missing from ui/tokens.css.");
+
+    return $matches[1];
+}
+
+/**
+ * The tokens of a theme: the dark theme is the light block overridden by the dark one.
+ *
+ * @return array<string, string> name (without the leading dashes) => value
+ */
+function uiTokens(string $theme): array
+{
+    $tokens = [];
+
+    foreach ($theme === 'dark' ? [':root', ':root.dark'] : [':root'] as $selector) {
+        preg_match_all('/--(mt-[a-z0-9-]+)\s*:\s*([^;]+);/', uiTokenBlock($selector), $matches, PREG_SET_ORDER);
+
+        foreach ($matches as [, $name, $value]) {
+            $tokens[$name] = trim($value);
+        }
+    }
+
+    return $tokens;
+}
+
+/**
+ * A `#rrggbb` or `rgba(r, g, b, a)` token value as [r, g, b, alpha].
+ *
+ * @return array{float, float, float, float}
+ */
+function uiColor(string $value): array
+{
+    if (preg_match('/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i', $value, $m) === 1) {
+        return [(float) hexdec($m[1]), (float) hexdec($m[2]), (float) hexdec($m[3]), 1.0];
+    }
+
+    $found = preg_match('/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/', $value, $m);
+
+    expect($found)->toBe(1, "Cannot read the color [{$value}].");
+
+    return [(float) $m[1], (float) $m[2], (float) $m[3], (float) ($m[4] ?? 1)];
+}
+
+/**
+ * Paint `$top` (any alpha) over the opaque `$bottom`; the result is an opaque `#rrggbb`.
+ *
+ * @param  array{float, float, float, float}  $top
+ * @param  array{float, float, float, float}  $bottom
+ * @return array{float, float, float, float}
+ */
+function uiOver(array $top, array $bottom): array
+{
+    $mix = fn (float $above, float $below): float => $above * $top[3] + $below * (1 - $top[3]);
+
+    return [$mix($top[0], $bottom[0]), $mix($top[1], $bottom[1]), $mix($top[2], $bottom[2]), 1.0];
+}
+
+/**
+ * @param  array{float, float, float, float}  $color
+ */
+function uiHex(array $color): string
+{
+    return sprintf('#%02x%02x%02x', (int) round($color[0]), (int) round($color[1]), (int) round($color[2]));
+}
+
 function designThemeCss(): string
 {
     return (string) file_get_contents(resource_path('css/filament/panel/theme.css'));

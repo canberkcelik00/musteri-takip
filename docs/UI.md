@@ -163,7 +163,18 @@ Faz 4C'den beri (T-130, T-132) Apple "Ayarlar" tarzı: gri gruplu zemin üstünd
 - **Pencereler** `body` sonunda tek katmanda (Livewire `WindowHost`) çizilir, çubuğun içinde değil; T-132'deki "pencere üst çubuğa hapsoldu" hatası bu yapıda oluşmaz.
 - **Performans:** Aynı anda en fazla ~6 görünür bulanık yüzey; kaydırılan içerik tek katman, satırlar bulanık değil. `prefers-reduced-transparency` ve kullanıcı menüsündeki "Cam: kapalı" seçeneği yüzeyleri düz opak renge düşürür.
 - **Kontrast:** Cam üstündeki metin için tokenlar zemin en kötü durumda (en az %70 opak beyaz/siyah) varsayılarak 4,5:1 ölçülür; `DesignTokensTest` yeni CSS'i okur.
-- **Korunanlar:** Renk anlamları (durum renkleri, rozet biçimi, mavi birincil, yeşil anahtar), yazı ölçeği, yoğunluk, tık sayıları (§7) ve tüm yer kuralları aynen geçerlidir; yalnız yüzey malzemesi (düz → cam) değişir. Sabit renk yalnız `:root` token bloğunda yazılır. Cam tokenlarının kesin değerleri G-10.1'de CSS ile birlikte aşağıdaki tabloya işlenir.
+- **Korunanlar:** Renk anlamları (durum renkleri, rozet biçimi, mavi birincil, yeşil anahtar), yazı ölçeği, yoğunluk, tık sayıları (§7) ve tüm yer kuralları aynen geçerlidir; yalnız yüzey malzemesi (düz → cam) değişir. Sabit renk yalnız `:root` token bloğunda yazılır. Cam tokenlarının kesin değerleri aşağıdaki tablodadır; kaynak `resources/css/ui/tokens.css` (`--mt-*`, açık `:root`, koyu `:root.dark`), `UiTokensTest` ölçer.
+
+| Token (cam arayüz) | Açık tema | Koyu tema |
+| --- | --- | --- |
+| Zemin tabanı ve lekeler (a mavi, b pembe, c sarı, d yeşil) | #CFD8FF; #7FB4FF, #FF9FCF, #FFD37A, #8BE0C3 | #0A0B14; #1C3A78, #5A2A58, #5A4216, #124D3E |
+| Cam dolgu: normal / güçlü / menü ve pencere | beyaz %42 / %50 / %78 | #1C1C1E %50 / #242428 %58 / #2C2C2E %86 |
+| Cam kenarlık, bulanıklık | beyaz %65, 28 px | beyaz %14, 28 px |
+| Düz yüzey (Cam: kapalı, azaltılmış saydamlık) | #F5F5F9 | #1C1C1E |
+| Metin / soluk / üçüncül | #1D1D1F / #3A3A3D / #505055 | #F5F5F7 / #D4D4D9 / #C0C0C6 |
+| Bağlantı, WhatsApp, tehlikeli metin | #00479B, #0B5E33, #920012 | #A9D3FF, #30D158, #FFB4AF |
+
+Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstündeki bileşik rengine karşı en az 4,5:1 ölçülür; bu yüzden açık temada metin ve bağlantı renkleri yukarıdaki Filament tablosundan koyudur. Menü karesi simgeleri grafik sayıldığından 3:1 yeterlidir.
 
 - **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir. Koyu tema gerçek siyah zeminli, #1C1C1E kartlıdır.
 - **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur. Yeşil anahtar (açık durum) iOS yeşilidir; ödendi rozetinin yeşilinden ayrı bir iştir ve yalnız anahtarda kullanılır.

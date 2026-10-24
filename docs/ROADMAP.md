@@ -410,7 +410,7 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz yeniden yazmak (kullanıcı kararı, T-135). İş mantığı (`app/Actions`, modeller, zamanlayıcı, e-postalar) değişmez; ekranlar aynı sütun, süzgeç, işlem ve pencere içeriğiyle taşınır. Yeni arayüz `/app` altında kurulur, Filament `/panel`'de taşınma bitene kadar çalışır; her görev ayrı commit ve yayınlanabilir. Her görev sonunda `npm run build`, test, lint ve analiz tam yeşil.
 
 - [x] **G-10.0 Kararlar ve belgeler** — UI.md §6 cam dili, DECISIONS T-135, CLAUDE.md sürüm satırı, bu faz.
-- [ ] **G-10.1 Temel** — Bağımlılık: G-10.0
+- [x] **G-10.1 Temel** — Bağımlılık: G-10.0
   - Yapılacak: `livewire/livewire` + `blade-ui-kit/blade-heroicons` açık bağımlılık, `routes/app.php`, `layouts/app` ve `layouts/guest`, cam tema CSS ve tokenlar, bileşen kiti (`x-ui.*`), `WindowHost`, giriş/çıkış/profil.
   - Kabul: `/app` girişsiz erişilemez, giriş/çıkış/profil çalışır; bileşenler ve cam tokenları testli (kontrast, sabit renk yalnız token bloğunda).
 - [ ] **G-10.2 Tablo altyapısı, Müşteriler listesi, global arama, üst çubuk** — Bağımlılık: G-10.1

@@ -1,0 +1,10 @@
+/* Glass interface (Faz 10, docs/UI.md §6). Explicit sources only, same reason as app.css. */
+@import 'tailwindcss' source(none);
+
+@source '../views/layouts';
+@source '../views/components/ui';
+@source '../views/livewire';
+
+@import './ui/tokens.css';
+@import './ui/base.css';
+@import './ui/controls.css';
