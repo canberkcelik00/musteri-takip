@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\Windows\CreateCustomer;
+use App\Livewire\Windows\RecordPayment;
+
 return [
 
     /*
@@ -8,7 +11,8 @@ return [
     | An unknown name opens nothing.
     */
     'windows' => [
-        //
+        'record-payment' => RecordPayment::class,
+        'create-customer' => CreateCustomer::class,
     ],
 
     /*

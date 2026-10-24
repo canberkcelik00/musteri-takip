@@ -70,7 +70,7 @@ function uiStylesheets(): array
 {
     $sheets = [];
 
-    foreach (['tokens', 'base', 'controls'] as $name) {
+    foreach (['tokens', 'base', 'controls', 'tables'] as $name) {
         $sheets[$name] = (string) preg_replace('#/\*.*?\*/#s', '', (string) file_get_contents(resource_path("css/ui/{$name}.css")));
     }
 

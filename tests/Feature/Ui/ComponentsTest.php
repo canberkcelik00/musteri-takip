@@ -150,7 +150,7 @@ it('links sidebar items to the glass interface when the screen exists and to the
     $entries = Navigation::entries(route('app.today'));
 
     expect($entries[0])->toMatchArray(['url' => route('app.today'), 'active' => true])
-        ->and($entries[1])->toMatchArray(['url' => route('filament.panel.resources.customers.index'), 'active' => false]);
+        ->and($entries[1])->toMatchArray(['url' => route('app.customers.index'), 'active' => false]);
 });
 
 it('marks the current item and opens the catalog group only when it holds the current page', function () {
@@ -179,4 +179,66 @@ it('renders the sidebar with the menu squares and a "Menü" tab', function () {
         ->assertSee('ui-nav-purple', false)
         ->assertSee(__('ui.nav.tab_menu'))
         ->assertSee(__('ui.user_menu.logout'));
+});
+
+it('draws a money input as a decimal field with a currency suffix', function () {
+    view()->share('errors', new ViewErrorBag);
+
+    $html = Blade::render('<x-ui.money-input label="Tutar" wire:model="amount" suffix="TL" />');
+
+    expect($html)->toContain('inputmode="decimal"')->toContain('placeholder="0,00"')->toContain('wire:model="amount"')->toContain('ui-input-suffix')->toContain('>TL<');
+});
+
+it('draws a date input that shows dd.mm.yyyy and binds with wire:model', function () {
+    view()->share('errors', new ViewErrorBag);
+
+    $html = Blade::render('<x-ui.date-input label="Tarih" wire:model="paid_on" />');
+
+    expect($html)->toContain('gg.aa.yyyy')->toContain('x-modelable="value"')->toContain('wire:model="paid_on"')->toContain('Ocak')->toContain('Pz');
+});
+
+it('draws a textarea for an input of type textarea', function () {
+    view()->share('errors', new ViewErrorBag);
+
+    expect(Blade::render('<x-ui.input type="textarea" label="Not" wire:model="note" />'))->toContain('<textarea')->toContain('ui-textarea');
+});
+
+it('wraps an icon button in a tooltip pill', function () {
+    expect(Blade::render('<x-ui.tooltip label="Kopyala"><button aria-label="Kopyala">x</button></x-ui.tooltip>'))
+        ->toContain('data-tip="Kopyala"')->toContain('ui-tooltip');
+});
+
+it('makes a row with a link open it and end in a chevron, and a row without one plain', function () {
+    expect(Blade::render('<x-ui.row href="/app/customers/1"><td>A</td></x-ui.row>'))
+        ->toContain('data-href="/app/customers/1"')->toContain('ui-chevron');
+
+    expect(Blade::render('<x-ui.row><td>A</td></x-ui.row>'))->not->toContain('data-href')->not->toContain('ui-chevron');
+});
+
+it('draws a chip pressed only while its filter is on', function () {
+    expect(Blade::render('<x-ui.chip :on="true">Açık</x-ui.chip>'))->toContain('aria-pressed="true"')->toContain('is-on');
+    expect(Blade::render('<x-ui.chip>Kapalı</x-ui.chip>'))->toContain('aria-pressed="false"')->not->toContain('is-on');
+});
+
+it('draws a table with sortable heads, the sorted one marked, and hides columns by breakpoint', function () {
+    $columns = [
+        ['key' => 'name', 'label' => 'Ad', 'sortable' => true],
+        ['key' => 'date', 'label' => 'Tarih', 'from' => 'md'],
+        ['key' => 'count', 'label' => 'Adet', 'from' => 'lg', 'end' => true],
+    ];
+
+    $html = Blade::render('<x-ui.table :columns="$columns" sort="name" direction="desc"><tr><td>x</td></tr></x-ui.table>', ['columns' => $columns]);
+
+    expect($html)
+        ->toContain("wire:click=\"sortBy('name')\"")
+        ->toContain('aria-sort="descending"')
+        ->toContain('ui-from-md')
+        ->toContain('ui-from-lg is-end')
+        ->toContain('<table class="ui-table">');
+});
+
+it('shows the empty state instead of the table when the table is empty', function () {
+    $html = Blade::render('<x-ui.table :columns="[]" :empty="true"><x-slot:emptyState>Boş</x-slot:emptyState></x-ui.table>');
+
+    expect($html)->toContain('Boş')->not->toContain('<table');
 });

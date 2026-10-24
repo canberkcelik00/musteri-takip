@@ -1,0 +1,452 @@
+/*
+ * Table card, rows, pager, filter chips, the top bar search and the date picker (docs/UI.md §5, §6).
+ * Colors are tokens only.
+ */
+
+.ui-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 6px;
+}
+
+.ui-toolbar-search {
+    width: 300px;
+    max-width: 100%;
+}
+
+.ui-chip {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--mt-input-bg);
+    padding: 0 14px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--mt-text);
+    cursor: pointer;
+}
+
+.ui-chip.is-on {
+    background: var(--mt-primary);
+    color: var(--mt-on-primary);
+}
+
+.ui-table-wrap {
+    overflow-x: auto;
+}
+
+.ui-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.ui-table th {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mt-text-muted);
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--mt-divider);
+}
+
+.ui-table th.is-end,
+.ui-table td.is-end {
+    text-align: right;
+}
+
+.ui-table td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--mt-divider);
+}
+
+.ui-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.ui-table tfoot td {
+    font-weight: 600;
+    border-top: 1px solid var(--mt-divider);
+    border-bottom: 0;
+}
+
+.ui-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.ui-sort svg {
+    width: 12px;
+    height: 12px;
+}
+
+.ui-row:hover {
+    background: var(--mt-row-hover);
+}
+
+.ui-row[data-href] {
+    cursor: pointer;
+}
+
+.ui-row-end {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.ui-chevron {
+    width: 14px;
+    height: 14px;
+    color: var(--mt-text-tertiary);
+}
+
+.ui-cell-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.ui-cell-title {
+    font-weight: 600;
+    color: var(--mt-text);
+    overflow-wrap: anywhere;
+}
+
+.ui-cell-sub {
+    font-size: 12px;
+    color: var(--mt-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.ui-muted {
+    color: var(--mt-text-muted);
+}
+
+.ui-empty {
+    padding: 40px 16px;
+    text-align: center;
+}
+
+.ui-empty h2 {
+    margin: 0 0 4px;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.ui-empty p {
+    margin: 0 0 14px;
+    color: var(--mt-text-muted);
+}
+
+.ui-pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    padding: 12px 16px 16px;
+}
+
+.ui-pager-item {
+    min-width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--mt-text);
+    cursor: pointer;
+}
+
+.ui-pager-item[aria-current='page'] {
+    background: var(--mt-primary);
+    color: var(--mt-on-primary);
+}
+
+.ui-pager-item:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.ui-tooltip {
+    position: relative;
+}
+
+.ui-tooltip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    z-index: 70;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: var(--mt-tooltip-bg);
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--mt-tooltip-text);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+}
+
+.ui-tooltip:hover::after,
+.ui-tooltip:focus-visible::after {
+    opacity: 1;
+}
+
+/* Responsive columns: hidden below the named breakpoint. */
+@media (max-width: 767px) {
+    .ui-from-md {
+        display: none;
+    }
+}
+
+@media (max-width: 1023px) {
+    .ui-from-lg {
+        display: none;
+    }
+}
+
+@media (max-width: 1279px) {
+    .ui-from-xl {
+        display: none;
+    }
+}
+
+/* ---- Top bar search ---- */
+
+.ui-search {
+    position: relative;
+    flex: 1;
+    max-width: 340px;
+}
+
+.ui-search-open,
+.ui-search-close {
+    display: none;
+}
+
+.ui-search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: 0;
+    z-index: 60;
+    max-height: 70dvh;
+    overflow-y: auto;
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.ui-search-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    padding: 6px 8px;
+}
+
+.ui-search-result:hover,
+.ui-search-result:focus-within {
+    background: var(--mt-item-hover);
+}
+
+.ui-search-result a {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    color: var(--mt-text);
+    text-decoration: none;
+}
+
+.ui-kbd {
+    border-radius: 6px;
+    background: var(--mt-input-bg);
+    padding: 1px 6px;
+    font-size: 11px;
+    color: var(--mt-text-muted);
+}
+
+.ui-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 639px) {
+    .ui-search {
+        flex: none;
+    }
+
+    .ui-search-open {
+        display: inline-flex;
+    }
+
+    .ui-search-field {
+        display: none;
+    }
+
+    .ui-search.is-expanded {
+        position: absolute;
+        inset: 0 14px;
+        display: flex;
+        max-width: none;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui-search.is-expanded .ui-search-open {
+        display: none;
+    }
+
+    .ui-search.is-expanded .ui-search-field {
+        display: block;
+        flex: 1;
+    }
+
+    .ui-search.is-expanded .ui-search-close {
+        display: inline-flex;
+    }
+
+    .ui-topbar-new {
+        display: none;
+    }
+}
+
+/* ---- Form layout inside windows ---- */
+
+.ui-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ui-form > .is-full {
+    grid-column: 1 / -1;
+}
+
+.ui-form-section {
+    margin: 4px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+@media (max-width: 639px) {
+    .ui-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.ui-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.ui-input-suffix {
+    position: relative;
+}
+
+.ui-input-suffix > span {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--mt-text-muted);
+    pointer-events: none;
+}
+
+.ui-input-suffix > .ui-input {
+    padding-right: 52px;
+}
+
+.ui-note {
+    border-radius: 10px;
+    background: var(--mt-input-bg);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--mt-text-muted);
+}
+
+/* ---- Date picker ---- */
+
+.ui-date {
+    position: relative;
+}
+
+.ui-date-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 60;
+    width: 272px;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.ui-date-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    font-weight: 600;
+}
+
+.ui-date-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+.ui-date-dow {
+    font-size: 11px;
+    color: var(--mt-text-muted);
+}
+
+.ui-date-day {
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--mt-text);
+    cursor: pointer;
+}
+
+.ui-date-day:hover {
+    background: var(--mt-item-hover);
+}
+
+.ui-date-day.is-selected {
+    background: var(--mt-primary);
+    color: var(--mt-on-primary);
+}
+
+.ui-date-day.is-today {
+    font-weight: 700;
+    color: var(--mt-link);
+}
+
+.ui-date-day.is-selected.is-today {
+    color: var(--mt-on-primary);
+}

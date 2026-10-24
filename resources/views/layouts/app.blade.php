@@ -16,8 +16,12 @@
 
         <div class="ui-main">
             <header class="ui-topbar ui-glass">
+                @livewire(\App\Livewire\Topbar\Search::class)
                 <div class="flex-1"></div>
-                {{ $topbar ?? '' }}
+                <div class="ui-topbar-actions">
+                    <x-ui.button variant="primary" x-on:click="$dispatch('open-window', { name: 'record-payment' })">{{ __('payments.record') }}</x-ui.button>
+                    <x-ui.button class="ui-topbar-new" x-on:click="$dispatch('open-window', { name: 'create-customer' })">{{ __('navigation.new_customer') }}</x-ui.button>
+                </div>
                 @include('layouts.partials.user-menu')
             </header>
 

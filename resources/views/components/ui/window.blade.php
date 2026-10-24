@@ -1,21 +1,37 @@
-@props(['title'])
+@props(['title', 'submit' => null, 'submitLabel' => null, 'size' => null])
 
 {{--
     A centered glass window over a dimmed layer. Rendered inside WindowHost (end of body), so no bar can trap it.
-    Esc or a click on the layer closes it; the footer slot holds "Vazgeç" on the left and the one primary button
-    on the right (docs/UI.md §5).
+    Esc or a click on the layer closes it. With `submit` (a Livewire action) the window is a form and its footer is
+    "Vazgeç" on the left and the one primary button on the right (docs/UI.md §5); a `footer` slot replaces that.
 --}}
+@php
+    $tag = $submit ? 'form' : 'div';
+@endphp
+
 <div
     class="ui-window-layer"
     x-data
     x-on:keydown.escape.window="$dispatch('close-window')"
     x-on:mousedown.self="$dispatch('close-window')"
 >
-    <div class="ui-window ui-glass ui-glass-menu" role="dialog" aria-modal="true" aria-label="{{ $title }}" x-trap.noscroll>
+    <{{ $tag }}
+        class="ui-window ui-glass ui-glass-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label="{{ $title }}"
+        x-trap.noscroll
+        @if ($submit) wire:submit="{{ $submit }}" @endif
+    >
         <div class="ui-window-header">{{ $title }}</div>
         <div class="ui-window-body">{{ $slot }}</div>
-        @isset($footer)
+        @if (isset($footer))
             <div class="ui-window-footer">{{ $footer }}</div>
-        @endisset
-    </div>
+        @elseif ($submit)
+            <div class="ui-window-footer">
+                <x-ui.button x-on:click="$dispatch('close-window')">{{ __('actions.discard') }}</x-ui.button>
+                <x-ui.button type="submit" variant="primary">{{ $submitLabel ?? __('actions.save') }}</x-ui.button>
+            </div>
+        @endif
+    </{{ $tag }}>
 </div>

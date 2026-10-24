@@ -66,6 +66,29 @@ return [
     'window' => [
         'close' => 'Kapat',
     ],
+    'table' => [
+        'actions' => 'İşlemler',
+        'search' => 'Ara',
+        'no_results' => 'Sonuç bulunamadı',
+        'no_results_hint' => 'Aramayı veya süzgeçleri değiştirin.',
+        'pagination' => 'Sayfalama',
+        'previous' => 'Önceki',
+        'next' => 'Sonraki',
+    ],
+    'search' => [
+        'label' => 'Müşteri ara',
+        'placeholder' => 'Müşteri veya alan adı ara (Ctrl+K)',
+        'empty' => 'Eşleşen müşteri yok',
+    ],
+    'date' => [
+        'months' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+        'days' => ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'],
+        'previous' => 'Önceki ay',
+        'next' => 'Sonraki ay',
+    ],
+    'payment' => [
+        'choose_customer' => 'Dağıtımı görmek için önce müşteriyi seçin.',
+    ],
     'select' => [
         'placeholder' => 'Seç',
         'search' => 'Ara',
