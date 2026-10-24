@@ -155,7 +155,7 @@ it('links sidebar items to the glass interface when the screen exists and to the
 
 it('marks the current item and opens the catalog group only when it holds the current page', function () {
     $closed = collect(Navigation::entries(route('app.today')))->firstWhere('group', 'ui.nav.catalog');
-    $open = collect(Navigation::entries(route('filament.panel.resources.packages.index')))->firstWhere('group', 'ui.nav.catalog');
+    $open = collect(Navigation::entries(route('app.catalog.packages')))->firstWhere('group', 'ui.nav.catalog');
 
     expect($closed['open'])->toBeFalse()
         ->and($open['open'])->toBeTrue()

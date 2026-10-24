@@ -3,6 +3,9 @@
 return [
     'singular' => 'Sunucu',
     'plural' => 'Sunucular',
+    'count' => ':count sunucu',
+    'saved' => 'Sunucu kaydedildi.',
+    'created' => 'Sunucu eklendi.',
     'type' => 'Tür',
     'name' => 'Ad',
     'hostname' => 'Sunucu adresi',

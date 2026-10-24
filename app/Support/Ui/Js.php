@@ -33,7 +33,7 @@ final class Js
 
     private static function identifier(string $value): string
     {
-        if (preg_match('/^[A-Za-z0-9_.-]+$/', $value) !== 1) {
+        if (preg_match('/^[A-Za-z0-9_.:-]+$/', $value) !== 1) {
             throw new InvalidArgumentException("Cannot put [{$value}] into a window expression.");
         }
 

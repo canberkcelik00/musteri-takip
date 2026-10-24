@@ -8,11 +8,16 @@ use App\Livewire\Windows\Confirm;
 use App\Livewire\Windows\Contact;
 use App\Livewire\Windows\CreateCustomer;
 use App\Livewire\Windows\CreateQuote;
+use App\Livewire\Windows\EditCatalogService;
 use App\Livewire\Windows\EditCharge;
 use App\Livewire\Windows\EditCustomer;
+use App\Livewire\Windows\EditPackage;
+use App\Livewire\Windows\EditPaymentMethod;
+use App\Livewire\Windows\EditServer;
 use App\Livewire\Windows\EditService;
 use App\Livewire\Windows\MarkFree;
 use App\Livewire\Windows\OpenQuote;
+use App\Livewire\Windows\PullFromServer;
 use App\Livewire\Windows\ReactivateService;
 use App\Livewire\Windows\RecordPayment;
 use App\Livewire\Windows\RemoveFree;
@@ -20,6 +25,7 @@ use App\Livewire\Windows\SendQuote;
 use App\Livewire\Windows\SendReminder;
 use App\Livewire\Windows\SplitCharge;
 use App\Livewire\Windows\ViewPayment;
+use App\Livewire\Windows\ViewServerUsage;
 use App\Livewire\Windows\ViewUsage;
 
 return [
@@ -50,6 +56,12 @@ return [
         'create-quote' => CreateQuote::class,
         'send-quote' => SendQuote::class,
         'accept-quote' => AcceptQuote::class,
+        'edit-catalog-service' => EditCatalogService::class,
+        'edit-package' => EditPackage::class,
+        'edit-payment-method' => EditPaymentMethod::class,
+        'edit-server' => EditServer::class,
+        'pull-from-server' => PullFromServer::class,
+        'view-server-usage' => ViewServerUsage::class,
         'confirm' => Confirm::class,
     ],
 

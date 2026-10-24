@@ -13,6 +13,8 @@ return [
     'filter_all' => 'Tümü',
     'filter_archived' => 'Arşivlenenler',
     'filter_not_archived' => 'Arşivlenmeyenler',
+    'delete' => 'Sil',
+    'delete_heading' => 'Kayıt silinsin mi?',
     'delete_description' => 'Kayıt kalıcı olarak silinir ve geri alınamaz. Geçmişini korumak için arşivleyebilirsiniz.',
     'deleted' => 'Kayıt silindi.',
     'in_use' => [

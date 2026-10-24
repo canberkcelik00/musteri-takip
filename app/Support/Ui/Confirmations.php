@@ -2,19 +2,29 @@
 
 namespace App\Support\Ui;
 
+use App\Actions\CatalogServices\DeleteCatalogService;
 use App\Actions\Contacts\DeleteContact;
 use App\Actions\Customers\ArchiveCustomer;
 use App\Actions\Customers\DeleteCustomer;
 use App\Actions\CustomerServices\ConfirmFreeContinuation;
 use App\Actions\CustomerServices\DeleteCustomerService;
+use App\Actions\Packages\DeletePackage;
+use App\Actions\PaymentMethods\ArchivePaymentMethod;
+use App\Actions\PaymentMethods\DeletePaymentMethod;
 use App\Actions\Payments\DeletePayment;
 use App\Actions\Quotes\DeleteQuote;
 use App\Actions\Quotes\RejectQuote;
+use App\Actions\Servers\DeleteServer;
+use App\Models\CatalogService;
 use App\Models\Contact;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Models\Package;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Quote;
+use App\Models\Server;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
 use InvalidArgumentException;
 
@@ -40,6 +50,9 @@ final class Confirmations
             'reject-quote' => ['heading' => __('quotes.reject_heading'), 'description' => __('quotes.reject_description', ['number' => Quote::query()->find($id)?->number]), 'label' => __('quotes.reject'), 'danger' => false],
             'delete-quote' => ['heading' => __('quotes.delete_heading'), 'description' => __('quotes.delete_description'), 'label' => __('quotes.delete'), 'danger' => true],
             'delete-service' => ['heading' => __('customer_services.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('customer_services.delete'), 'danger' => true],
+            'archive-catalog-service', 'archive-package', 'archive-payment-method', 'archive-server' => ['heading' => __('archive.archive_heading'), 'description' => __('archive.archive_description'), 'label' => __('archive.archive'), 'danger' => false],
+            'unarchive-catalog-service', 'unarchive-package', 'unarchive-payment-method', 'unarchive-server' => ['heading' => __('archive.unarchive'), 'description' => '', 'label' => __('archive.unarchive'), 'danger' => false],
+            'delete-catalog-service', 'delete-package', 'delete-payment-method', 'delete-server' => ['heading' => __('archive.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('archive.delete'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -61,6 +74,18 @@ final class Confirmations
             'reject-quote' => self::rejectQuote($id),
             'delete-quote' => self::deleteQuote($id),
             'confirm-free-continuation' => self::confirmFreeContinuation($id),
+            'archive-catalog-service' => self::archive(CatalogService::query()->findOrFail($id), 'catalog-changed'),
+            'unarchive-catalog-service' => self::unarchive(CatalogService::query()->findOrFail($id), 'catalog-changed'),
+            'delete-catalog-service' => self::delete(DeleteCatalogService::class, CatalogService::query()->findOrFail($id), 'catalog-changed'),
+            'archive-package' => self::archive(Package::query()->findOrFail($id), 'catalog-changed'),
+            'unarchive-package' => self::unarchive(Package::query()->findOrFail($id), 'catalog-changed'),
+            'delete-package' => self::delete(DeletePackage::class, Package::query()->findOrFail($id), 'catalog-changed'),
+            'archive-payment-method' => self::archivePaymentMethod($id),
+            'unarchive-payment-method' => self::unarchive(PaymentMethod::query()->findOrFail($id), 'payment-methods-changed'),
+            'delete-payment-method' => self::delete(DeletePaymentMethod::class, PaymentMethod::query()->findOrFail($id), 'payment-methods-changed'),
+            'archive-server' => self::archive(Server::query()->findOrFail($id), 'servers-changed'),
+            'unarchive-server' => self::unarchive(Server::query()->findOrFail($id), 'servers-changed'),
+            'delete-server' => self::delete(DeleteServer::class, Server::query()->findOrFail($id), 'servers-changed'),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -163,5 +188,52 @@ final class Confirmations
         app(DeleteCustomerService::class)->handle(CustomerService::query()->findOrFail($id));
 
         return ['message' => __('archive.deleted'), 'event' => 'customer-services-changed', 'redirect' => null];
+    }
+
+    /**
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function archive(Model $record, string $event): array
+    {
+        assert(method_exists($record, 'archive'));
+
+        $record->archive();
+
+        return ['message' => __('archive.archived'), 'event' => $event, 'redirect' => null];
+    }
+
+    /**
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function unarchive(Model $record, string $event): array
+    {
+        assert(method_exists($record, 'unarchive'));
+
+        $record->unarchive();
+
+        return ['message' => __('archive.unarchived'), 'event' => $event, 'redirect' => null];
+    }
+
+    /**
+     * @param  class-string  $action
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function delete(string $action, Model $record, string $event): array
+    {
+        app($action)->handle($record);
+
+        return ['message' => __('archive.deleted'), 'event' => $event, 'redirect' => null];
+    }
+
+    /**
+     * The last active method is never archived.
+     *
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function archivePaymentMethod(int $id): array
+    {
+        app(ArchivePaymentMethod::class)->handle(PaymentMethod::query()->findOrFail($id));
+
+        return ['message' => __('archive.archived'), 'event' => 'payment-methods-changed', 'redirect' => null];
     }
 }

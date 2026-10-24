@@ -903,3 +903,8 @@
     padding: 12px 16px 16px;
     font-size: 13px;
 }
+
+.ui-link-button.is-danger,
+.is-danger {
+    color: var(--mt-danger-text);
+}
