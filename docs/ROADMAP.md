@@ -405,6 +405,29 @@ Hedef: Katalogdaki her hizmet ve paketten teklif hazırlamak, PDF ekiyle e-posta
 
 **Faz 6 bittiğinde:** Fiyat verilen kişiye teklif sistemden gider ve kabul edilince müşteri ve hizmet elle girilmeden oluşur.
 
+## Faz 10 – Filament'ten çıkış, cam arayüz
+
+Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz yeniden yazmak (kullanıcı kararı, T-135). İş mantığı (`app/Actions`, modeller, zamanlayıcı, e-postalar) değişmez; ekranlar aynı sütun, süzgeç, işlem ve pencere içeriğiyle taşınır. Yeni arayüz `/app` altında kurulur, Filament `/panel`'de taşınma bitene kadar çalışır; her görev ayrı commit ve yayınlanabilir. Her görev sonunda `npm run build`, test, lint ve analiz tam yeşil.
+
+- [x] **G-10.0 Kararlar ve belgeler** — UI.md §6 cam dili, DECISIONS T-135, CLAUDE.md sürüm satırı, bu faz.
+- [ ] **G-10.1 Temel** — Bağımlılık: G-10.0
+  - Yapılacak: `livewire/livewire` + `blade-ui-kit/blade-heroicons` açık bağımlılık, `routes/app.php`, `layouts/app` ve `layouts/guest`, cam tema CSS ve tokenlar, bileşen kiti (`x-ui.*`), `WindowHost`, giriş/çıkış/profil.
+  - Kabul: `/app` girişsiz erişilemez, giriş/çıkış/profil çalışır; bileşenler ve cam tokenları testli (kontrast, sabit renk yalnız token bloğunda).
+- [ ] **G-10.2 Tablo altyapısı, Müşteriler listesi, global arama, üst çubuk** — Bağımlılık: G-10.1
+- [ ] **G-10.3 Müşteri kartı ve pencereleri** — Bağımlılık: G-10.2
+- [ ] **G-10.4 Açık borçlar ve Ödemeler** — Bağımlılık: G-10.3
+- [ ] **G-10.5 Bugün** — Bağımlılık: G-10.4
+- [ ] **G-10.6 Teklifler** — Bağımlılık: G-10.3
+- [ ] **G-10.7 Katalog ve Ayarlar** — Bağımlılık: G-10.3
+- [ ] **G-10.8 Geçiş** — Bağımlılık: G-10.5, G-10.6, G-10.7
+  - Yapılacak: `/` ve `/panel/*` yeni rotalara yönlendirilir, e-posta bağlantıları `route('app.*')`, bütünleşik testler yeni ekranlara.
+- [ ] **G-10.9 Filament'i kaldır** — Bağımlılık: G-10.8
+  - Yapılacak: paket, `app/Filament`, panel sağlayıcısı, görünümler, CSS/varlıklar, dağıtım ve CI adımları, `tests/Feature/Filament` → `tests/Feature/Ui`.
+- [ ] **G-10.10 Gözle kontrol (kullanıcı)** — Bağımlılık: G-10.9
+  - Kabul: Tüm ekranlar açık ve koyu temada, telefon genişliğinde ve cam performansı kullanıcıca onaylanır.
+
+**Faz 10 bittiğinde:** Panel cam tasarımıyla, Filament'siz, aynı akışlarla çalışıyor.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

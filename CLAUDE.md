@@ -15,11 +15,11 @@ Bu dosyalar arasında çelişki görürsen kendin çözme; dur ve kullanıcıya 
 ## Sürümler (sabit)
 
 - Laravel 13, PHP 8.3 (`composer.json` platform 8.3; 8.4'e özgü özellik kullanma)
-- Filament 5
+- Filament 5 (Faz 10'da kaldırılacak, T-135); yeni arayüz Livewire 4 + Alpine + Tailwind 4, `/app` altında
 - MySQL 8.0
 - Pest, Pint, Larastan
 
-Laravel ve Filament API'leri için hafızana güvenme: Laravel Boost'un dokümantasyon araçlarıyla kurulu sürümün dokümantasyonuna bak. Laravel 13 ve Filament 5 görece yeni; eski sürüm kalıplarını (ör. Filament 3/4 sözdizimi) kullanma.
+Laravel, Livewire ve Filament API'leri için hafızana güvenme: Laravel Boost'un dokümantasyon araçlarıyla kurulu sürümün dokümantasyonuna bak. Laravel 13 ve Filament 5 görece yeni; eski sürüm kalıplarını (ör. Filament 3/4 sözdizimi) kullanma.
 
 ## Ortam ve komutlar
 
