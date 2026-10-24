@@ -38,14 +38,13 @@
             type="button"
             class="ui-search-clear"
             x-show="filled"
-            x-cloak
             aria-label="{{ __('ui.search.clear') }}"
             x-on:click="$refs.field.value = ''; $refs.field.dispatchEvent(new Event('input', { bubbles: true })); $refs.field.focus()"
         >
             <x-heroicon-s-x-circle aria-hidden="true" />
         </button>
 
-        <div class="ui-search-results ui-glass ui-glass-menu" x-ref="results" x-show="open && filled" x-cloak>
+        <div class="ui-search-results ui-glass ui-glass-menu" x-ref="results" x-show="open && filled">
             @forelse ($results as $customer)
                 <div
                     class="ui-search-result"

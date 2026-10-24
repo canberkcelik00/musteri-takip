@@ -17,7 +17,6 @@
         type="button"
         class="ui-search-clear"
         x-show="filled"
-        x-cloak
         aria-label="{{ __('ui.search.clear') }}"
         x-on:click="$refs.field.value = ''; $refs.field.dispatchEvent(new Event('input', { bubbles: true })); $refs.field.focus()"
     >
