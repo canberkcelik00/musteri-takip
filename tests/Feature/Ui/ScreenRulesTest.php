@@ -173,7 +173,8 @@ it('gives every x-trap an expression, since Alpine throws on an empty one', func
 it('shows the top bar search results from client state, since Alpine does not re-read a server-baked expression', function () {
     $html = Livewire::test(Search::class)->set('query', 'a')->html();
 
-    expect($html)->toContain('x-show="open && filled"')->not->toContain('open && true');
+    expect($html)->toContain('x-show="open && filled"')->not->toContain('open && true')
+        ->toContain('x-on:input="filled = $el.value !== \'\'; open = true"');
 });
 
 it('re-applies the saved theme and glass choice after every wire:navigate', function () {

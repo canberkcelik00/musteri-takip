@@ -27,7 +27,7 @@
             class="ui-input ui-input-search"
             x-ref="field"
             wire:model.live.debounce.250ms="query"
-            x-on:input="filled = $el.value !== ''"
+            x-on:input="filled = $el.value !== ''; open = true"
             x-on:focus="open = true"
             x-on:keydown.arrow-down.prevent="$focus.within($refs.results).first()"
             placeholder="{{ __('ui.search.placeholder') }}"
