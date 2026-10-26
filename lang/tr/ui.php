@@ -2,7 +2,6 @@
 
 return [
     'brand_name' => 'Müşteri Takip',
-    'brand_mark' => 'MT',
     'nav' => [
         'main' => 'Ana menü',
         'open_menu' => 'Menüyü aç',

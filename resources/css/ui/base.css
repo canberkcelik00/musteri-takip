@@ -228,25 +228,48 @@ html.no-glass .ui-glass-menu {
 .ui-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 10px 14px;
-    font-size: var(--mt-text-lg);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    justify-content: center;
+    gap: 14px;
+    padding: 10px 10px 22px;
     color: var(--mt-text);
 }
 
-.ui-brand-mark {
-    display: inline-flex;
-    width: 30px;
-    height: 30px;
-    align-items: center;
+.ui-brand-cube {
+    display: flex;
     justify-content: center;
-    border-radius: var(--mt-radius-sm);
-    background: var(--mt-brand);
-    color: var(--mt-on-nav);
-    font-size: var(--mt-text-xs);
-    font-weight: 700;
+}
+
+.ui-brand-cube svg {
+    height: 44px;
+    width: auto;
+}
+
+/* The wordmark image is 141×52; it is drawn as a mask so it takes the text color. */
+.ui-brand-word {
+    display: block;
+    height: 36px;
+    aspect-ratio: 141 / 52;
+    background: currentColor;
+    mask: url("/images/idea-wordmark.png") no-repeat center / contain;
+}
+
+/* In the menu the cube stands in the items' icon column and the wordmark on their label line. */
+.ui-sidebar .ui-brand {
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 8px 10px 18px;
+}
+
+.ui-sidebar .ui-brand-cube {
+    width: 26px;
+}
+
+.ui-sidebar .ui-brand-cube svg {
+    height: 32px;
+}
+
+.ui-sidebar .ui-brand-word {
+    height: 26px;
 }
 
 .ui-nav-group {

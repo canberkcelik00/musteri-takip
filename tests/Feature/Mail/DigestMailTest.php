@@ -165,7 +165,7 @@ it('has a Turkish footer and no English text of the framework', function () {
     expect($mail->render())->not->toMatch('/\bHello\b|\bRegards\b|\bwhoops\b/i');
 });
 
-it('takes the interface colors, loads nothing from outside and keeps badges on one line', function () {
+it('takes the interface colors, loads only the app\'s own logo and keeps badges on one line', function () {
     Charge::factory()->create(['due_date' => '2026-09-01', 'created_at' => '2026-08-01 10:00:00']);
 
     $html = digestMailFor()->render();
@@ -175,7 +175,8 @@ it('takes the interface colors, loads nothing from outside and keeps badges on o
         ->and($html)->toContain('white-space: nowrap')
         ->and($html)->toContain('prefers-color-scheme: dark')
         ->and($html)->toContain('max-width: 480px')
-        ->and($html)->not->toMatch('/<img|<link|@import|url\(/i')
+        ->and($html)->toContain('src="'.asset('images/cube.png').'"')
+        ->and($html)->not->toMatch('/<link|@import|url\(/i')
         ->and($html)->not->toMatch('/(src|href)="https?:\/\/(?!localhost)/i');
 });
 
