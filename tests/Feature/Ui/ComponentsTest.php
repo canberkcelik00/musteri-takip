@@ -154,6 +154,13 @@ it('links sidebar items to the glass interface when the screen exists and to the
         ->and($entries[1])->toMatchArray(['url' => route('app.customers.index'), 'active' => false]);
 });
 
+it('does not mark the today item active on other pages', function () {
+    $entries = Navigation::entries(route('app.customers.index'));
+
+    expect($entries[0]['active'])->toBeFalse()
+        ->and($entries[1]['active'])->toBeTrue();
+});
+
 it('marks the current item and opens the catalog group only when it holds the current page', function () {
     $closed = collect(Navigation::entries(route('app.today')))->firstWhere('group', 'ui.nav.catalog');
     $open = collect(Navigation::entries(route('app.catalog.packages')))->firstWhere('group', 'ui.nav.catalog');

@@ -75,7 +75,7 @@ final class Navigation
             'icon' => (string) $item['icon'],
             'color' => (string) $item['color'],
             'url' => $url,
-            'active' => $currentUrl === $url || str_starts_with($currentUrl, $url.'/'),
+            'active' => $currentUrl === $url || (! in_array(parse_url($url, PHP_URL_PATH), [null, '', '/'], true) && str_starts_with($currentUrl, $url.'/')),
             'tab' => isset($item['tab']) ? (string) $item['tab'] : null,
         ];
     }
