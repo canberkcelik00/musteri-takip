@@ -87,3 +87,30 @@ it('uses the shared page header and link button instead of hand-written markup',
 
     expect($offenders)->toBe([]);
 });
+
+it('draws a card on the tag it is given, flush or padded', function () {
+    $section = Blade::render('<x-ui.card tag="section" flush class="ui-mt-5">x</x-ui.card>');
+    $form = Blade::render('<x-ui.card tag="form" wire:submit="save">x</x-ui.card>');
+
+    expect($section)->toContain('<section')->toContain('ui-card')->toContain('ui-pane')->toContain('is-flush')->toContain('ui-mt-5')
+        ->and($form)->toContain('<form')->toContain('wire:submit="save"')->not->toContain('is-flush')
+        ->and(Blade::render('<x-ui.card>x</x-ui.card>'))->toContain('<div');
+});
+
+it('renders the search field with its slot and an extra wrapper class', function () {
+    $html = Blade::render('<x-ui.search-field wrapper-class="ui-search-field" placeholder="Ara"><p>sonuç</p></x-ui.search-field>');
+
+    expect($html)->toContain('class="ui-search-input ui-search-field"')->toContain('<p>sonuç</p>')->toContain('x-ref="field"');
+});
+
+it('keeps the glass card pair in the card and table components, not in the screens', function () {
+    $offenders = [];
+
+    foreach (File::allFiles(resource_path('views/livewire')) as $file) {
+        if (str_contains((string) file_get_contents($file->getPathname()), 'ui-card ui-pane')) {
+            $offenders[] = $file->getRelativePathname();
+        }
+    }
+
+    expect($offenders)->toBe([]);
+});

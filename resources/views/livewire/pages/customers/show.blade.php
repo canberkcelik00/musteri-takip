@@ -62,7 +62,7 @@
         {{-- Work column --}}
         <div class="ui-stack">
             {{-- Services --}}
-            <section class="ui-card ui-pane is-flush">
+            <x-ui.card tag="section" flush>
                 <div class="ui-card-head">
                     <h2>{{ __('customer_services.plural') }}</h2>
                     <span class="ui-muted">{{ __('customer_services.active_count', ['count' => $activeServices->count()]) }}</span>
@@ -81,21 +81,21 @@
                         @endforeach
                     </x-ui.table>
                 @endif
-            </section>
+            </x-ui.card>
 
             @if ($cancelledServices->isNotEmpty())
-                <details class="ui-card ui-pane ui-details is-flush">
+                <x-ui.card tag="details" flush class="ui-details">
                     <summary>{{ __('customers.cancelled_services', ['count' => $cancelledServices->count()]) }}</summary>
                     <x-ui.table :columns="$serviceColumns" :end="true" :card="false">
                         @foreach ($cancelledServices as $service)
                             @include('livewire.pages.customers.partials.service-row', ['service' => $service, 'usageBadge' => null, 'leadDays' => $leadDays])
                         @endforeach
                     </x-ui.table>
-                </details>
+                </x-ui.card>
             @endif
 
             {{-- Open charges --}}
-            <section class="ui-card ui-pane is-flush">
+            <x-ui.card tag="section" flush>
                 <div class="ui-card-head">
                     <h2>{{ __('charges.open_heading') }}</h2>
                     <a href="{{ Links::customerCharges($customer) }}">{{ __('charges.view_all') }}</a>
@@ -157,10 +157,10 @@
                         @endforeach
                     </x-ui.table>
                 @endif
-            </section>
+            </x-ui.card>
 
             {{-- Recent payments --}}
-            <section class="ui-card ui-pane is-flush">
+            <x-ui.card tag="section" flush>
                 <div class="ui-card-head">
                     <h2>{{ __('payments.recent_heading') }}</h2>
                     <a href="{{ Links::customerPayments($customer) }}">{{ __('payments.view_all') }}</a>
@@ -201,11 +201,11 @@
                         @endforeach
                     </x-ui.table>
                 @endif
-            </section>
+            </x-ui.card>
 
             {{-- Quotes --}}
             @if ($customer->quotes->isNotEmpty())
-                <section class="ui-card ui-pane is-flush">
+                <x-ui.card tag="section" flush>
                     <div class="ui-card-head"><h2>{{ __('quotes.card_heading') }}</h2></div>
                     <x-ui.table
                         :card="false"
@@ -236,13 +236,13 @@
                             </x-ui.row>
                         @endforeach
                     </x-ui.table>
-                </section>
+                </x-ui.card>
             @endif
         </div>
 
         {{-- Information column --}}
         <div class="ui-stack">
-            <section class="ui-card ui-pane">
+            <x-ui.card tag="section">
                 <div class="ui-card-head">
                     <h2>{{ __('contacts.plural') }}</h2>
                     <x-ui.button size="sm" x-on:click="{!! Js::openWindow('contact', ['customer' => $customer->id]) !!}">{{ __('contacts.add') }}</x-ui.button>
@@ -264,9 +264,9 @@
                 @empty
                     <x-ui.empty-state :heading="__('contacts.empty_heading')" :description="__('contacts.empty_description')" />
                 @endforelse
-            </section>
+            </x-ui.card>
 
-            <section class="ui-card ui-pane">
+            <x-ui.card tag="section">
                 <div class="ui-card-head">
                     <h2>{{ __('customers.billing_section') }}</h2>
                     <x-ui.link-button class="ui-link-accent" x-on:click="{!! Js::openWindow('edit-customer', ['customer' => $customer->id]) !!}">{{ __('customers.edit') }}</x-ui.link-button>
@@ -277,12 +277,12 @@
                         <dd>{{ filled($customer->{$field}) ? $customer->{$field} : __('money.empty') }}</dd>
                     @endforeach
                 </dl>
-            </section>
+            </x-ui.card>
 
-            <section class="ui-card ui-pane">
+            <x-ui.card tag="section">
                 <div class="ui-card-head"><h2>{{ __('customers.notes_section') }}</h2></div>
                 <p class="ui-m-0 ui-pre-line">{{ filled($customer->notes) ? $customer->notes : __('money.empty') }}</p>
-            </section>
+            </x-ui.card>
         </div>
     </div>
 

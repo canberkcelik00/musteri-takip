@@ -12,40 +12,25 @@
 --}}
 <div
     class="ui-search"
-    x-data="{ expanded: false, open: false, filled: false }"
+    x-data="{ expanded: false, open: false }"
     x-bind:class="{ 'is-expanded': expanded }"
-    x-on:keydown.window.ctrl.k.prevent="expanded = true; open = true; $nextTick(() => $refs.field.focus())"
-    x-on:keydown.window.meta.k.prevent="expanded = true; open = true; $nextTick(() => $refs.field.focus())"
+    x-on:keydown.window.ctrl.k.prevent="expanded = true; open = true; $nextTick(() => $root.querySelector('input[type=search]').focus())"
+    x-on:keydown.window.meta.k.prevent="expanded = true; open = true; $nextTick(() => $root.querySelector('input[type=search]').focus())"
     x-on:keydown.escape="open = false; expanded = false"
     x-on:click.outside="open = false"
 >
-    <x-ui.button class="ui-search-open" x-on:click="expanded = true; open = true; $nextTick(() => $refs.field.focus())">{{ __('navigation.search_open') }}</x-ui.button>
+    <x-ui.button class="ui-search-open" x-on:click="expanded = true; open = true; $nextTick(() => $root.querySelector('input[type=search]').focus())">{{ __('navigation.search_open') }}</x-ui.button>
 
-    <div class="ui-search-field ui-search-input">
-        <x-heroicon-m-magnifying-glass class="ui-search-icon" aria-hidden="true" />
-        <input
-            type="search"
-            class="ui-input ui-input-search"
-            x-ref="field"
-            wire:model.live.debounce.250ms="query"
-            x-on:input="filled = $el.value !== ''; open = true"
-            x-on:focus="open = true"
-            x-on:keydown.arrow-down.prevent="$refs.results && $focus.within($refs.results).first()"
-            placeholder="{{ __('ui.search.placeholder') }}"
-            aria-label="{{ __('ui.search.label') }}"
-            autocomplete="off"
-        >
-        <button
-            type="button"
-            class="ui-search-clear"
-            x-show="filled"
-            x-cloak
-            aria-label="{{ __('ui.search.clear') }}"
-            x-on:click="$refs.field.value = ''; $refs.field.dispatchEvent(new Event('input', { bubbles: true })); $refs.field.focus()"
-        >
-            <x-heroicon-s-x-circle aria-hidden="true" />
-        </button>
-
+    <x-ui.search-field
+        wrapper-class="ui-search-field"
+        wire:model.live.debounce.250ms="query"
+        x-on:input="open = true"
+        x-on:focus="open = true"
+        x-on:keydown.arrow-down.prevent="$refs.results && $focus.within($refs.results).first()"
+        placeholder="{{ __('ui.search.placeholder') }}"
+        aria-label="{{ __('ui.search.label') }}"
+        autocomplete="off"
+    >
         @if ($filled)
             <div class="ui-search-results ui-glass ui-glass-menu" x-ref="results" x-show="open" x-cloak>
                 @forelse ($results as $customer)
@@ -83,7 +68,7 @@
                 @endforelse
             </div>
         @endif
-    </div>
+    </x-ui.search-field>
 
     <x-ui.button class="ui-search-close" x-on:click="expanded = false; open = false">{{ __('navigation.search_close') }}</x-ui.button>
 </div>

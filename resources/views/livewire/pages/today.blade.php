@@ -54,7 +54,7 @@
     </div>
 
     {{-- Yapılacaklar --}}
-    <section class="ui-card ui-pane is-flush ui-mt-5">
+    <x-ui.card tag="section" flush class="ui-mt-5">
         <div class="ui-card-head">
             <h2>{{ __('today.tasks_heading') }}</h2>
             @unless ($isEmpty)
@@ -146,5 +146,5 @@
                 </div>
             @endif
         @endif
-    </section>
+    </x-ui.card>
 </div>

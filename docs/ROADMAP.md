@@ -463,7 +463,7 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
   - Kabul: `AccessibilityTest` tablo testleri.
 - [x] **G-11.7 Ortak bileşenler** — Bağımlılık: G-11.4
   - Yapılacak: `page-header`, `card`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti; satır içi `style` ve ham `<table>`/arama girişi temizliği.
-  - Yapıldı: `page-header`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti, satır içi `style` ve `view-payment` ham tablo temizliği (T-155). `card` bileşeni ve üst arama girişinin `search-field`e geçişi gerekçesiyle yapılmadı (T-155).
+  - Yapıldı: `page-header`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti, satır içi `style` ve `view-payment` ham tablo temizliği (T-155). `card` bileşeni ve üst arama girişinin `search-field`e geçişi sonradan tamamlandı (T-156).
   - Kabul: `SharedComponentsTest`.
 
 ## Faz 7 ve sonrası

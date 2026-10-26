@@ -1,7 +1,7 @@
 <div>
     <x-ui.page-header :title="__('settings.title')" />
 
-    <form wire:submit="save" class="ui-card ui-pane mt-5">
+    <x-ui.card tag="form" wire:submit="save" class="mt-5">
         <div class="ui-form">
             <x-ui.input type="number" :label="__('settings.renewal_lead_days')" :hint="__('settings.renewal_lead_days_help')" wire:model="renewal_lead_days" min="1" max="365" required />
             <x-ui.input type="number" :label="__('settings.usage_warning_percent')" :hint="__('settings.usage_warning_percent_help')" suffix="%" wire:model="usage_warning_percent" min="1" max="100" required />
@@ -62,5 +62,5 @@
             <x-ui.button wire:click="sendTestEmail" type="button">{{ __('settings.send_test_email') }}</x-ui.button>
             <x-ui.button type="submit" variant="primary">{{ __('settings.save') }}</x-ui.button>
         </div>
-    </form>
+    </x-ui.card>
 </div>

@@ -176,10 +176,10 @@ it('keeps the top bar search state across renders, since Alpine re-creates a com
     $empty = $search->html();
     $filled = $search->set('query', 'ab')->html();
 
-    expect($rootOf($filled))->toBe($rootOf($empty))->toContain('open: false, filled: false');
+    expect($rootOf($filled))->toBe($rootOf($empty))->toContain('open: false');
     expect($empty)->not->toContain('ui-search-results');
     expect($filled)->toContain('x-show="open" x-cloak')
-        ->toContain('x-on:input="filled = $el.value !== \'\'; open = true"');
+        ->toContain('x-on:input="open = true"');
 });
 
 it('re-applies the saved theme and glass choice after every wire:navigate', function () {
