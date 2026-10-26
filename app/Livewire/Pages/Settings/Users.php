@@ -2,12 +2,10 @@
 
 namespace App\Livewire\Pages\Settings;
 
-use App\Actions\Users\ChangeUserRole;
 use App\Actions\Users\DeactivateUser;
 use App\Actions\Users\ReactivateUser;
 use App\Actions\Users\ResendInvitation;
 use App\Enums\Permission;
-use App\Enums\Role;
 use App\Exceptions\InvalidInvitation;
 use App\Exceptions\InvalidUserChange;
 use App\Exceptions\InvitationNotSent;
@@ -21,9 +19,8 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
- * The users (docs/UI.md §5 Ayarlar > Kullanıcılar): name, e-mail, role and state, with the row actions — change the
- * role, send the invitation again, deactivate or reactivate. A user is never deleted (T-158). The invitation form is
- * a window.
+ * The users (docs/UI.md §5 Ayarlar > Kullanıcılar): name, e-mail, role and state, with the row actions — edit (a
+ * window: name, role, delete), send the invitation again, deactivate or reactivate. The invitation form is a window.
  */
 #[Layout('layouts.app')]
 class Users extends Component
@@ -37,14 +34,6 @@ class Users extends Component
     public function refresh(): void
     {
         // Livewire re-renders the component after any listener.
-    }
-
-    public function changeRole(int $id, ChangeUserRole $changeRole): void
-    {
-        $user = User::query()->findOrFail($id);
-        $role = $this->roleOf($user) === Role::Admin ? Role::Developer : Role::Admin;
-
-        $this->attempt(fn () => $changeRole->handle($this->actor(), $user, $role), __('users.role_changed'));
     }
 
     public function resend(int $id, ResendInvitation $resendInvitation): void
@@ -79,11 +68,6 @@ class Users extends Component
         }
 
         $this->dispatch('notify', message: $message);
-    }
-
-    private function roleOf(User $user): ?Role
-    {
-        return Role::tryFrom((string) $user->roles->first()?->getAttribute('name'));
     }
 
     protected function requiredPermission(): ?Permission

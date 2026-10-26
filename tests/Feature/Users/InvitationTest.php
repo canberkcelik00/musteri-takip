@@ -5,6 +5,7 @@ use App\Actions\Users\SyncRolesAndPermissions;
 use App\Enums\Role;
 use App\Livewire\Pages\Auth\AcceptInvitation;
 use App\Livewire\Pages\Settings\Users;
+use App\Livewire\Windows\EditUser;
 use App\Livewire\Windows\InviteUser;
 use App\Mail\InvitationMail;
 use App\Models\User;
@@ -218,14 +219,11 @@ it('sends the invitation again from the list', function () {
     Mail::assertSent(InvitationMail::class, fn (InvitationMail $mail): bool => $mail->hasTo('yeni@example.com'));
 });
 
-it('changes the role and the state of a user from the list', function () {
+it('changes the state of a user from the list', function () {
     $admin = User::factory()->admin()->create();
     $developer = User::factory()->developer()->create();
 
     $page = Livewire::actingAs($admin)->test(Users::class);
-
-    $page->call('changeRole', $developer->id);
-    expect($developer->fresh()->hasRole('admin'))->toBeTrue();
 
     $page->call('deactivate', $developer->id);
     expect($developer->fresh()->isActive())->toBeFalse();
@@ -239,9 +237,12 @@ it('lets an administrator neither deactivate nor demote themself', function () {
 
     Livewire::actingAs($admin)->test(Users::class)
         ->call('deactivate', $admin->id)
-        ->assertDispatched('notify', fn (string $event, array $params): bool => $params['message'] === __('users.own_account'))
-        ->call('changeRole', $admin->id)
-        ->assertDispatched('notify', fn (string $event, array $params): bool => $params['tone'] === 'danger');
+        ->assertDispatched('notify', fn (string $event, array $params): bool => $params['message'] === __('users.own_account'));
+
+    Livewire::actingAs($admin)->test(EditUser::class, ['user' => $admin->id])
+        ->set('role', 'developer')
+        ->call('save')
+        ->assertHasErrors('form');
 
     expect($admin->fresh()->isActive())->toBeTrue()->and($admin->fresh()->hasRole('admin'))->toBeTrue();
 });
@@ -250,9 +251,11 @@ it('keeps the last active administrator', function () {
     $actor = User::factory()->admin()->deactivated()->create();
     $last = User::factory()->admin()->create();
 
-    $page = Livewire::actingAs($actor)->test(Users::class);
-    $page->call('deactivate', $last->id);
-    $page->call('changeRole', $last->id);
+    Livewire::actingAs($actor)->test(Users::class)->call('deactivate', $last->id);
+    Livewire::actingAs($actor)->test(EditUser::class, ['user' => $last->id])
+        ->set('role', 'developer')
+        ->call('save')
+        ->assertHasErrors('form');
 
     expect($last->fresh()->isActive())->toBeTrue()->and($last->fresh()->hasRole('admin'))->toBeTrue();
 });

@@ -15,6 +15,7 @@ use App\Actions\Payments\DeletePayment;
 use App\Actions\Quotes\DeleteQuote;
 use App\Actions\Quotes\RejectQuote;
 use App\Actions\Servers\DeleteServer;
+use App\Actions\Users\DeleteUser;
 use App\Enums\Permission;
 use App\Models\CatalogService;
 use App\Models\Contact;
@@ -25,7 +26,9 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Quote;
 use App\Models\Server;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
 
 /**
@@ -53,6 +56,7 @@ final class Confirmations
             'archive-catalog-service', 'archive-package', 'archive-payment-method', 'archive-server' => ['heading' => __('archive.archive_heading'), 'description' => __('archive.archive_description'), 'label' => __('archive.archive'), 'danger' => false],
             'unarchive-catalog-service', 'unarchive-package', 'unarchive-payment-method', 'unarchive-server' => ['heading' => __('archive.unarchive'), 'description' => '', 'label' => __('archive.unarchive'), 'danger' => false],
             'delete-catalog-service', 'delete-package', 'delete-payment-method', 'delete-server' => ['heading' => __('archive.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('archive.delete'), 'danger' => true],
+            'delete-user' => ['heading' => __('users.delete_heading'), 'description' => __('users.delete_description'), 'label' => __('users.delete'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -71,6 +75,7 @@ final class Confirmations
             'archive-package', 'unarchive-package', 'delete-package' => Permission::CatalogManage,
             'archive-payment-method', 'unarchive-payment-method', 'delete-payment-method',
             'archive-server', 'unarchive-server', 'delete-server' => Permission::SettingsManage,
+            'delete-user' => Permission::UsersManage,
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -104,6 +109,7 @@ final class Confirmations
             'archive-server' => self::archive(Server::query()->findOrFail($id), 'servers-changed'),
             'unarchive-server' => self::unarchive(Server::query()->findOrFail($id), 'servers-changed'),
             'delete-server' => self::delete(DeleteServer::class, Server::query()->findOrFail($id), 'servers-changed'),
+            'delete-user' => self::deleteUser($id),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -241,6 +247,21 @@ final class Confirmations
         app($action)->handle($record);
 
         return ['message' => __('archive.deleted'), 'event' => $event, 'redirect' => null];
+    }
+
+    /**
+     * A user is deleted only when nothing carries their name (see DeleteUser).
+     *
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function deleteUser(int $id): array
+    {
+        $actor = Auth::user();
+        assert($actor instanceof User);
+
+        app(DeleteUser::class)->handle($actor, User::query()->findOrFail($id));
+
+        return ['message' => __('users.deleted'), 'event' => 'users-changed', 'redirect' => null];
     }
 
     /**

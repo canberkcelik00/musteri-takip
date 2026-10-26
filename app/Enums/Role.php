@@ -13,6 +13,15 @@ enum Role: string
     }
 
     /**
+     * The shown name of a role by its stored name: a built-in role is translated, a role the administrator made is
+     * shown as typed.
+     */
+    public static function labelFor(string $name): string
+    {
+        return self::tryFrom($name)?->getLabel() ?? $name;
+    }
+
+    /**
      * The permissions the role holds. Widening a role's rights later means editing this list
      * only; the next deploy syncs it.
      *

@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Spatie\Permission\Models\Role as RoleModel;
 
 /**
  * Invites a person: name, e-mail and role. The account is created without a password and the invitation link goes by
@@ -29,8 +30,10 @@ class InviteUser extends Component
     {
         $this->validate();
 
+        $role = RoleModel::query()->where('name', $this->role)->firstOrFail();
+
         try {
-            $inviteUser->handle($this->name, $this->email, Role::from($this->role));
+            $inviteUser->handle($this->name, $this->email, $role);
         } catch (InvitationNotSent $exception) {
             $this->dispatch('users-changed');
             $this->dispatch('close-window');
@@ -52,7 +55,7 @@ class InviteUser extends Component
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique(User::class, 'email')],
-            'role' => ['required', Rule::enum(Role::class)],
+            'role' => ['required', Rule::exists('roles', 'name')],
         ];
     }
 
@@ -71,7 +74,7 @@ class InviteUser extends Component
     public function render(): View
     {
         return view('livewire.windows.invite-user', [
-            'roles' => collect(Role::cases())->mapWithKeys(fn (Role $role): array => [$role->value => $role->getLabel()])->all(),
+            'roles' => RoleModel::query()->orderBy('id')->pluck('name')->mapWithKeys(fn (string $name): array => [$name => Role::labelFor($name)])->all(),
         ]);
     }
 }

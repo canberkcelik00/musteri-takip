@@ -285,7 +285,7 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | --- | --- | --- | --- |
 | password | string | Hayır | Faz 12: davet kabul edilene kadar boş; boş şifreyle giriş yapılamaz |
 | invited_at | timestamp | Hayır | Son davetin gönderildiği an; imzalı bağlantı bununla eşleşmezse geçersizdir |
-| deactivated_at | timestamp | Hayır | Dolu = pasif; kullanıcı silinmez |
+| deactivated_at | timestamp | Hayır | Dolu = pasif; para kaydında adı geçen kullanıcı silinmez (G-12.6), pasifleştirilir |
 
 **Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`); rol-izin eşlemesi kodda tanımlıdır ve `SyncRolesAndPermissions` ile (idempotent) veritabanına yazılır.
 

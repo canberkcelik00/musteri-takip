@@ -277,8 +277,9 @@ Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. Roller sabittir (`Yöneti
 
 - **Yazılımcı parayı hiç görmez:** borç, ödeme, teklif, fiyat ve bakiye hiçbir ekranda, listede veya aramada görünmez. Yetki yalnız arayüzde gizlenerek değil, rota, ekran ve işlem düzeyinde sunucuda zorlanır.
 - **Davetle hesap:** Yönetici ad, e-posta ve rol girer; kişiye 72 saat geçerli imzalı bir bağlantı e-postayla gider (senkron), şifresini kendisi belirler. Yeniden gönderilen davet öncekini geçersiz kılar. Şifresi belirlenmemiş kullanıcı giriş yapamaz.
-- **Silme yok, pasifleştirme var:** Kullanıcı silinmez (para kayıtları ona bağlıdır); pasifleştirilir. Pasif kullanıcı giriş yapamaz, açık oturumu kapanır.
-- **Yönetici güvencesi:** Yönetici kendini pasifleştiremez ya da rolünü düşüremez; son etkin yönetici pasifleştirilemez.
+- **Silme ve pasifleştirme:** Para kaydında adı geçen (ödeme kaydeden, borç iptal eden/düzenleyen, teklif kabul eden) kullanıcı silinmez; pasifleştirilir. Hiç işlem yapmamış kullanıcı silinebilir. Pasif kullanıcı giriş yapamaz, açık oturumu kapanır.
+- **Düzenleme:** Yönetici kullanıcının adını ve rolünü değiştirir; e-posta adresi değişmez.
+- **Yönetici güvencesi:** Yönetici kendini pasifleştiremez, silemez ya da rolünü düşüremez; son etkin yönetici pasifleştirilemez, silinemez ya da rolü düşürülemez.
 - **Kim yaptı:** Ödemeyi kaydeden, borcu iptal eden/düzenleyen ve teklifi kabul eden kullanıcı saklanır ve kayıtta görünür. Zamanlanmış işlerin oluşturduğu kayıtlarda boştur ("Sistem").
 - **Mevcut hesap:** `.env`'den oluşan ilk hesap (T-28) yönetici olur.
 

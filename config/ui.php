@@ -15,6 +15,7 @@ use App\Livewire\Windows\EditPackage;
 use App\Livewire\Windows\EditPaymentMethod;
 use App\Livewire\Windows\EditServer;
 use App\Livewire\Windows\EditService;
+use App\Livewire\Windows\EditUser;
 use App\Livewire\Windows\InviteUser;
 use App\Livewire\Windows\MarkFree;
 use App\Livewire\Windows\OpenQuote;
@@ -64,6 +65,7 @@ return [
         'pull-from-server' => 'settings.manage',
         'view-server-usage' => 'settings.manage',
         'invite-user' => 'users.manage',
+        'edit-user' => 'users.manage',
     ],
 
     /*
@@ -99,6 +101,7 @@ return [
         'pull-from-server' => PullFromServer::class,
         'view-server-usage' => ViewServerUsage::class,
         'invite-user' => InviteUser::class,
+        'edit-user' => EditUser::class,
         'confirm' => Confirm::class,
     ],
 

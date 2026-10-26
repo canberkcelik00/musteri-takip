@@ -18,4 +18,9 @@ class InvalidUserChange extends DomainException
     {
         return new self(__('users.last_administrator'));
     }
+
+    public static function hasRecords(): self
+    {
+        return new self(__('users.has_records'));
+    }
 }

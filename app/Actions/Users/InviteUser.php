@@ -2,9 +2,9 @@
 
 namespace App\Actions\Users;
 
-use App\Enums\Role;
 use App\Exceptions\InvitationNotSent;
 use App\Models\User;
+use Spatie\Permission\Models\Role as RoleModel;
 
 class InviteUser
 {
@@ -15,11 +15,11 @@ class InviteUser
      *
      * @throws InvitationNotSent
      */
-    public function handle(string $name, string $email, Role $role): User
+    public function handle(string $name, string $email, RoleModel $role): User
     {
         $user = User::query()->create(['name' => $name, 'email' => $email]);
         $user->forceFill(['invited_at' => now()])->save();
-        $user->assignRole($role->value);
+        $user->assignRole($role);
 
         $this->sendInvitation->handle($user);
 

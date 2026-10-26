@@ -18,13 +18,13 @@
     <x-ui.table class="mt-5" :columns="$columns" :end="true" :empty="$users->isEmpty()">
         @foreach ($users as $user)
             @php
-                $role = Role::tryFrom((string) $user->roles->first()?->name);
+                $roleName = (string) $user->roles->first()?->name;
                 $isSelf = $user->id === $currentId;
             @endphp
             <x-ui.row wire:key="user-{{ $user->id }}">
-                <td><span class="ui-cell-title">{{ $user->name }}</span></td>
+                <td><x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-user', ['user' => $user->id]) !!}">{{ $user->name }}</x-ui.link-button></td>
                 <td class="ui-from-md">{{ $user->email }}</td>
-                <td>{{ $role?->getLabel() }}</td>
+                <td>{{ $roleName === '' ? '—' : Role::labelFor($roleName) }}</td>
                 <td class="ui-from-md">
                     @if (! $user->isActive())
                         <x-ui.badge>{{ __('users.status_deactivated') }}</x-ui.badge>
@@ -38,10 +38,8 @@
                     @if ($user->isInvitationPending())
                         <x-ui.button size="sm" wire:click="resend({{ $user->id }})">{{ __('users.resend') }}</x-ui.button>
                     @endif
+                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('edit-user', ['user' => $user->id]) !!}">{{ __('actions.edit') }}</x-ui.button>
                     @unless ($isSelf)
-                        <x-ui.button size="sm" wire:click="changeRole({{ $user->id }})">
-                            {{ $role === Role::Admin ? __('users.make_developer') : __('users.make_admin') }}
-                        </x-ui.button>
                         @if ($user->isActive())
                             <x-ui.button size="sm" wire:click="deactivate({{ $user->id }})">{{ __('users.deactivate') }}</x-ui.button>
                         @else
