@@ -92,3 +92,39 @@ it('reads the customer filter options once and again only after a customer chang
     'açık borçlar' => [ChargesIndex::class],
     'ödemeler' => [PaymentsIndex::class],
 ]);
+
+// Design tokens and the split stylesheets (G-11.4).
+
+it('declares the radius, space and type scales as tokens', function () {
+    $tokens = uiTokens('light');
+
+    foreach (['radius-sm', 'radius-md', 'radius-lg', 'radius-xl', 'radius-pill', 'space-1', 'space-4', 'space-6', 'text-xs', 'text-base', 'text-display'] as $name) {
+        expect($tokens)->toHaveKey('mt-'.$name);
+    }
+});
+
+it('takes radii and font sizes from the tokens instead of literals', function () {
+    $offenders = [];
+
+    foreach (glob(resource_path('css/ui/*.css')) as $file) {
+        $css = file_get_contents($file);
+
+        if (basename($file) !== 'tokens.css' && preg_match('/(border-radius|font-size):\s*\d/', $css) === 1) {
+            $offenders[] = basename($file);
+        }
+    }
+
+    expect($offenders)->toBe([]);
+});
+
+it('keeps the table sheet to tables and the feature sheets imported', function () {
+    $entry = file_get_contents(resource_path('css/ui.css'));
+
+    foreach (['date', 'customer', 'usage', 'today'] as $sheet) {
+        expect($entry)->toContain("./ui/{$sheet}.css")
+            ->and(file_get_contents(resource_path("css/ui/{$sheet}.css")))->not->toBe('');
+    }
+
+    expect(file_get_contents(resource_path('css/ui/tables.css')))->not->toContain('.ui-date-day')
+        ->not->toContain('.ui-gauges')->not->toContain('.ui-stat-value')->not->toContain('.ui-strip');
+});

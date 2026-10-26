@@ -81,6 +81,27 @@
 
     --mt-ease: cubic-bezier(0.32, 0.72, 0, 1);
     --mt-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
+
+    --mt-radius-sm: 8px;
+    --mt-radius-md: 12px;
+    --mt-radius-lg: 16px;
+    --mt-radius-xl: 22px;
+    --mt-radius-pill: 999px;
+
+    --mt-space-1: 4px;
+    --mt-space-2: 8px;
+    --mt-space-3: 12px;
+    --mt-space-4: 16px;
+    --mt-space-5: 22px;
+    --mt-space-6: 28px;
+
+    --mt-text-xs: 12px;
+    --mt-text-sm: 13px;
+    --mt-text-base: 14px;
+    --mt-text-md: 15px;
+    --mt-text-lg: 17px;
+    --mt-text-xl: 26px;
+    --mt-text-display: 34px;
 }
 
 :root.dark {

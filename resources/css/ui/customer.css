@@ -1,0 +1,289 @@
+/* ---- Customer card (docs/UI.md §5 "Müşteri kartı") ---- */
+
+.ui-card-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--mt-space-5);
+    margin-top: var(--mt-space-5);
+}
+
+@media (min-width: 1024px) {
+    .ui-card-grid {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+}
+
+.ui-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mt-space-5);
+    min-width: 0;
+}
+
+.ui-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px var(--mt-space-4) var(--mt-space-1);
+}
+
+.ui-card-head h2 {
+    margin: 0;
+    font-size: var(--mt-text-lg);
+    font-weight: 600;
+}
+
+.ui-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px var(--mt-space-6);
+    border-radius: var(--mt-radius-lg);
+    padding: 18px;
+}
+
+.ui-strip-title {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 280px;
+    align-items: center;
+    gap: 14px;
+}
+
+.ui-strip-title .ui-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: var(--mt-text-lg);
+}
+
+.ui-crumbs {
+    font-size: var(--mt-text-sm);
+    color: var(--mt-text-muted);
+}
+
+.ui-strip h1 {
+    margin: 0;
+    font-size: var(--mt-text-xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+}
+
+.ui-amounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px var(--mt-space-6);
+    margin: 0;
+}
+
+.ui-amount dt {
+    font-size: var(--mt-text-xs);
+    color: var(--mt-text-muted);
+}
+
+.ui-amount dd {
+    margin: 0;
+    font-size: var(--mt-text-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.ui-strip-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mt-space-2);
+}
+
+.ui-link-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: var(--mt-text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.ui-link-button:hover {
+    color: var(--mt-link);
+}
+
+.ui-sub-line {
+    display: block;
+    font-size: var(--mt-text-xs);
+    color: var(--mt-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.ui-domain {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.ui-icon-link {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--mt-link);
+    cursor: pointer;
+}
+
+.ui-icon-link svg {
+    width: 14px;
+    height: 14px;
+}
+
+.ui-whatsapp {
+    color: var(--mt-whatsapp);
+}
+
+.ui-whatsapp svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ui-below-xl {
+    display: block;
+    margin-top: 2px;
+}
+
+@media (min-width: 1280px) {
+    .ui-below-xl {
+        display: none;
+    }
+}
+
+.ui-details > summary {
+    padding: 14px var(--mt-space-4);
+    font-size: var(--mt-text-lg);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ui-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--mt-divider);
+    overflow-wrap: anywhere;
+}
+
+.ui-contact:last-child {
+    border-bottom: 0;
+}
+
+.ui-contact a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ui-contact a svg {
+    width: 14px;
+    height: 14px;
+}
+
+.ui-kv {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px 14px;
+    margin: 0;
+    font-size: var(--mt-text-base);
+}
+
+.ui-kv dt {
+    color: var(--mt-text-muted);
+}
+
+.ui-kv dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.ui-danger-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: var(--mt-space-5);
+}
+
+.ui-actions-section {
+    margin-top: 6px;
+    border-radius: var(--mt-radius-md);
+    background: var(--mt-input-bg);
+    padding: var(--mt-space-3);
+}
+
+.ui-actions-section h3 {
+    margin: 0 0 8px;
+    font-size: var(--mt-text-sm);
+    font-weight: 600;
+    color: var(--mt-text-muted);
+}
+
+.ui-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mt-space-2);
+}
+
+.ui-actions-row + .ui-actions-row {
+    margin-top: var(--mt-space-2);
+}
+
+.ui-error-box {
+    border-radius: var(--mt-radius-sm);
+    background: var(--mt-danger-bg);
+    padding: 10px var(--mt-space-3);
+    font-size: var(--mt-text-sm);
+    color: var(--mt-danger-text);
+}
+
+.ui-radio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.ui-radio label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ui-dl-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--mt-space-3) var(--mt-space-4);
+    margin: 0;
+}
+
+.ui-dl-form dt {
+    font-size: var(--mt-text-xs);
+    color: var(--mt-text-muted);
+}
+
+.ui-dl-form dd {
+    margin: 2px 0 0;
+    overflow-wrap: anywhere;
+}
+
+
+.ui-link-button.is-block {
+    display: block;
+    margin-top: 2px;
+}
+
+.ui-card:not(.is-flush) > .ui-card-head {
+    padding: 0 0 var(--mt-space-2);
+}

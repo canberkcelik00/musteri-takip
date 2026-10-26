@@ -1,0 +1,86 @@
+/* ---- Date picker ---- */
+
+.ui-date {
+    position: relative;
+}
+
+.ui-date-panel {
+    position: fixed;
+    z-index: 110;
+    width: 272px;
+    border-radius: var(--mt-radius-md);
+    padding: 10px;
+}
+
+.ui-date-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    font-weight: 600;
+}
+
+.ui-date-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+.ui-date-dow {
+    font-size: var(--mt-text-xs);
+    color: var(--mt-text-muted);
+}
+
+.ui-date-day {
+    height: 32px;
+    border: 0;
+    border-radius: var(--mt-radius-sm);
+    background: transparent;
+    font: inherit;
+    font-size: var(--mt-text-sm);
+    color: var(--mt-text);
+    cursor: pointer;
+}
+
+.ui-date-day:hover {
+    background: var(--mt-item-hover);
+}
+
+.ui-date-day.is-selected {
+    background: var(--mt-primary);
+    color: var(--mt-on-primary);
+}
+
+.ui-date-day.is-today {
+    font-weight: 700;
+    color: var(--mt-link);
+}
+
+.ui-date-day.is-selected.is-today {
+    color: var(--mt-on-primary);
+}
+
+
+.ui-date-nav {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--mt-radius-pill);
+    background: var(--mt-input-bg);
+    padding: 0;
+    color: var(--mt-text);
+    cursor: pointer;
+}
+
+.ui-date-nav:hover {
+    background: var(--mt-item-hover);
+}
+
+.ui-date-nav svg {
+    width: 16px;
+    height: 16px;
+}

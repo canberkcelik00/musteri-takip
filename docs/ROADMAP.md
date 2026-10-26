@@ -451,8 +451,9 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
 - [x] **G-11.3 Sorgu hafifletme** — Bağımlılık: G-11.1
   - Yapıldı: Açık borçlar ve Ödemeler müşteri filtre listesi sayfa ömrü boyunca bir kez okunur, `customers-changed` olayında yenilenir; üst arama en az 2 karakterde çalışır, yalnız gösterilen müşteri sütunlarını ve alan adı için gereken ilişki sütunlarını okur. `simplePaginate` uygulanmadı: her listede kayıt sayacı (`total()`) var (UI.md).
   - Kabul: `PerformanceTest` (2 karakter altında sorgu yok, dar sütunlar, filtre listesi güncellemede yeniden sorgulanmaz); `ListPerformanceTest` sorgu sayısı sabit kalır.
-- [ ] **G-11.4 Tasarım tokenları** — Bağımlılık: G-11.1
-  - Yapılacak: köşe ve boşluk tokenları, yazı ölçeği; sabit değerlerin tokena çevrilmesi; `tables.css`'in müşteri kartı/kullanım/Bugün/tarih seçici bölümlerinin ayrı dosyalara bölünmesi.
+- [x] **G-11.4 Tasarım tokenları** — Bağımlılık: G-11.1
+  - Yapıldı: köşe (`--mt-radius-*`), boşluk (`--mt-space-*`) ve yazı (`--mt-text-*`) tokenları eklendi, sabit köşe ve yazı boyutları tokena çevrildi (T-152); `tables.css` `date.css`, `customer.css`, `usage.css`, `today.css` olarak bölündü. Kabul: `PerformanceTest` (tokenlar tanımlı, kuralda sabit köşe/yazı boyutu yok, bölünmüş dosyalar içe aktarılır); `UiTokensTest` yeşil.
+  - Kapsam: köşe ve boşluk tokenları, yazı ölçeği; sabit değerlerin tokena çevrilmesi; `tables.css`'in müşteri kartı/kullanım/Bugün/tarih seçici bölümlerinin ayrı dosyalara bölünmesi.
 - [ ] **G-11.5 Erişilebilirlik** — Bağımlılık: G-11.4
   - Yapılacak: 3:1 odak halkası, görünür input kenarı, `prefers-reduced-motion`, devre dışı kontrol kontrastı, hata simgesi, dokunma hedefleri, tooltip taşması.
 - [ ] **G-11.6 Tablo hiyerarşisi** — Bağımlılık: G-11.4
