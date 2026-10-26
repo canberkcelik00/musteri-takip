@@ -2,6 +2,7 @@
 
 use App\Actions\Today\ListTodayTasks;
 use App\Models\Server;
+use App\Models\User;
 use Tests\Fixtures\UsageScenario;
 
 it('lists hosting quota warnings, fullest first, with the total', function () {
@@ -13,7 +14,7 @@ it('lists hosting quota warnings, fullest first, with the total', function () {
         UsageScenario::resource('mysql_databases', 1, 10),
     ]);
 
-    $tasks = app(ListTodayTasks::class)->handle();
+    $tasks = app(ListTodayTasks::class)->handle(User::factory()->admin()->create());
 
     expect($tasks['quota']['total'])->toBe(2)
         ->and($tasks['quota']['items']->map(fn ($alert): string => $alert->subject)->all())->toBe(['E-posta hesabı', 'Disk'])
@@ -29,14 +30,14 @@ it('caps the quota section at the limit while the total counts everything', func
         UsageScenario::mailbox($server, 'logi', "kutu{$number}@logi.com.tr", 95, 100);
     }
 
-    $tasks = app(ListTodayTasks::class)->handle(3);
+    $tasks = app(ListTodayTasks::class)->handle(User::factory()->admin()->create(), 3);
 
     expect($tasks['quota']['items'])->toHaveCount(3)
         ->and($tasks['quota']['total'])->toBe(4);
 });
 
 it('has an empty quota section without warnings', function () {
-    $tasks = app(ListTodayTasks::class)->handle();
+    $tasks = app(ListTodayTasks::class)->handle(User::factory()->admin()->create());
 
     expect($tasks['quota'])->toMatchArray(['total' => 0])
         ->and($tasks['quota']['items'])->toBeEmpty();

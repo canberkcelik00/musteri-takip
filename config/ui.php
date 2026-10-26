@@ -118,7 +118,7 @@ return [
     | of narrow screens.
     */
     'navigation' => [
-        ['label' => 'ui.nav.today', 'icon' => 'calendar-days', 'color' => 'blue', 'route' => 'app.today', 'permission' => 'money.view', 'tab' => 'ui.nav.tab_today'],
+        ['label' => 'ui.nav.today', 'icon' => 'calendar-days', 'color' => 'blue', 'route' => 'app.today', 'tab' => 'ui.nav.tab_today'],
         ['label' => 'ui.nav.customers', 'icon' => 'users', 'color' => 'indigo', 'route' => 'app.customers.index', 'tab' => 'ui.nav.tab_customers'],
         ['label' => 'ui.nav.tasks', 'icon' => 'clipboard-document-check', 'color' => 'pink', 'route' => 'app.tasks.index', 'permission' => 'tasks.manage', 'tab' => 'ui.nav.tab_tasks'],
         ['label' => 'ui.nav.quotes', 'icon' => 'document-text', 'color' => 'orange', 'route' => 'app.quotes.index', 'permission' => 'money.view'],

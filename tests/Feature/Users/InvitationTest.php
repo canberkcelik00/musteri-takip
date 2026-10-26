@@ -177,7 +177,7 @@ it('does not accept the invitation through the page action once it is used', fun
     expect(auth()->check())->toBeFalse();
 });
 
-it('does not let the invited user sign in before choosing a password, and a developer lands on the customers', function () {
+it('does not let the invited user sign in before choosing a password, and a developer lands on the home page', function () {
     $user = invitedUser();
     app(SyncRolesAndPermissions::class)->handle();
     $user->assignRole(Role::Developer->value);
@@ -188,7 +188,7 @@ it('does not let the invited user sign in before choosing a password, and a deve
         ->set('password_confirmation', 'gizli-sifre-1')
         ->call('accept');
 
-    $this->get(route('app.today'))->assertRedirect(route('app.customers.index'));
+    $this->get(route('app.today'))->assertOk();
 });
 
 it('lists the users with their state for an administrator', function () {

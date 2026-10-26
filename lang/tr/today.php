@@ -22,6 +22,7 @@ return [
     'section_overdue' => 'Gecikmiş borçlar',
     'section_due_soon' => '7 gün içinde vadesi gelenler',
     'section_free_decisions' => 'Ücretsiz devam kararı bekleyenler',
+    'section_my_tasks' => 'Bana atanan işler',
     'section_quota' => 'Hosting kotası',
     'quota_resource' => ':resource %:percent',
     'quota_mailbox' => ':address kotası %:percent',

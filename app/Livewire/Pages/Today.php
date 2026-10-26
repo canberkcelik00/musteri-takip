@@ -5,6 +5,7 @@ namespace App\Livewire\Pages;
 use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Actions\Scheduler\CheckSchedulerHealth;
 use App\Actions\Servers\UsageAlert;
+use App\Actions\Tasks\CompleteTask;
 use App\Actions\Today\ListTodayTasks;
 use App\Actions\Today\SummarizeToday;
 use App\Enums\Permission;
@@ -12,6 +13,7 @@ use App\Enums\SchedulerStatus;
 use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Charge;
 use App\Models\Customer;
+use App\Models\Task;
 use App\Support\Money;
 use App\Support\Ui\Links;
 use Illuminate\Contracts\View\View;
@@ -22,9 +24,10 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
- * "Bugün", the opening page (docs/UI.md §5): the scheduler warning (only when there is a problem), the four numbers —
- * each linking to the filtered list it is drawn from — and the "Yapılacaklar" table in priority order. It only reads
- * (SummarizeToday, ListTodayTasks, CheckSchedulerHealth); every row button opens a window or a link.
+ * "Bugün", the opening page for everyone (docs/UI.md §5): the scheduler warning (only when there is a problem, for
+ * who may change settings), the four numbers — each linking to the filtered list it is drawn from; money only — and
+ * the "Yapılacaklar" table in priority order. It only reads (SummarizeToday, ListTodayTasks, CheckSchedulerHealth);
+ * every row button opens a window or a link, except "Bitti" on the user's own task.
  */
 #[Layout('layouts.app')]
 class Today extends Component
@@ -42,48 +45,79 @@ class Today extends Component
     #[On('payments-changed')]
     #[On('charges-changed')]
     #[On('customer-services-changed')]
+    #[On('tasks-changed')]
     public function refresh(): void
     {
         // Livewire re-renders the component after any listener.
     }
 
-    protected function requiredPermission(): ?Permission
+    /**
+     * "Bitti" on one of the user's own tasks; another person's task cannot be finished from here.
+     */
+    public function completeTask(int $id, CompleteTask $completeTask): void
     {
-        return Permission::MoneyView;
+        $user = $this->actor();
+
+        abort_unless($user->can(Permission::TasksManage->value), 403);
+
+        $completeTask->handle($user, Task::query()->assignedTo($user)->findOrFail($id));
+
+        $this->dispatch('tasks-changed');
+        $this->dispatch('notify', message: __('tasks.completed'));
     }
 
+    /**
+     * "Bugün" opens for everyone; each section and number is drawn only for a user who may see it.
+     */
     public function render(): View
     {
-        $summary = app(SummarizeToday::class)->handle();
-        $tasks = app(ListTodayTasks::class)->handle();
+        $user = $this->actor();
+        $canSeeMoney = $user->can(Permission::MoneyView->value);
+
+        $tasks = app(ListTodayTasks::class)->handle($user);
         $whatsApp = app(BuildWhatsAppReminder::class);
 
         $charges = (new EloquentCollection([...$tasks['overdue']['items'], ...$tasks['due_soon']['items']]))
             ->load(['customer.primaryContact', 'customerService.items']);
 
-        $totals = $summary['total'];
-        $firstTotal = array_shift($totals);
+        $summary = $canSeeMoney ? app(SummarizeToday::class)->handle() : null;
 
         return view('livewire.pages.today', [
             'dateText' => now()->locale(app()->getLocale())->translatedFormat(__('admin.today_date_format')),
-            'health' => $this->health(),
-            'stats' => [
-                'total' => ['first' => $firstTotal, 'others' => $totals, 'url' => route('app.charges.index', ['hideArchived' => 1])],
-                'overdue' => ['totals' => $summary['overdue'], 'count' => $summary['overdue_count'], 'url' => route('app.charges.index', ['onlyOverdue' => 1, 'hideArchived' => 1])],
-                'month' => ['totals' => $summary['due_this_month'], 'count' => $summary['due_this_month_count'], 'url' => route('app.charges.index', ['dueThisMonth' => 1, 'hideArchived' => 1])],
-                'renewals' => ['days' => $summary['renewal_lead_days'], 'count' => $summary['renewal_services_count'], 'nearest' => $summary['nearest_renewal'], 'url' => route('app.customers.index', ['renewalSoon' => 1])],
-            ],
+            'health' => $user->can(Permission::SettingsManage->value) ? $this->health() : ['message' => null, 'failed' => [], 'failedCount' => 0, 'more' => 0],
+            'canSeeMoney' => $canSeeMoney,
+            'stats' => $summary !== null ? $this->stats($summary) : null,
             'rows' => $this->rows($tasks, $whatsApp),
-            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['quota']['total'],
-            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['quota']['total'] === 0,
+            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'],
+            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0,
             'more' => array_values(array_filter([
                 ['label' => __('today.section_overdue'), 'url' => route('app.charges.index', ['onlyOverdue' => 1, 'hideArchived' => 1]), 'count' => $tasks['overdue']['total'], 'hidden' => $tasks['overdue']['total'] > count($tasks['overdue']['items'])],
                 ['label' => __('today.section_due_soon'), 'url' => route('app.charges.index', ['dueSoon' => 1, 'hideArchived' => 1]), 'count' => $tasks['due_soon']['total'], 'hidden' => $tasks['due_soon']['total'] > count($tasks['due_soon']['items'])],
                 ['label' => __('today.section_free_decisions'), 'url' => route('app.customers.index', ['awaitingFreeDecision' => 1]), 'count' => $tasks['free_decisions']['total'], 'hidden' => $tasks['free_decisions']['row_total'] > count($tasks['free_decisions']['items'])],
+                ['label' => __('today.section_my_tasks'), 'url' => route('app.tasks.index'), 'count' => $tasks['my_tasks']['total'], 'hidden' => $tasks['my_tasks']['total'] > count($tasks['my_tasks']['items'])],
             ], fn (array $section): bool => $section['hidden'])),
             'quotaMore' => $tasks['quota']['total'] - count($tasks['quota']['items']),
             'charges' => $charges->keyBy('id'),
         ])->title(__('navigation.today'));
+    }
+
+    /**
+     * The four numbers, each with the address of the list it is drawn from.
+     *
+     * @param  array<string, mixed>  $summary
+     * @return array<string, array<string, mixed>>
+     */
+    private function stats(array $summary): array
+    {
+        $totals = $summary['total'];
+        $firstTotal = array_shift($totals);
+
+        return [
+            'total' => ['first' => $firstTotal, 'others' => $totals, 'url' => route('app.charges.index', ['hideArchived' => 1])],
+            'overdue' => ['totals' => $summary['overdue'], 'count' => $summary['overdue_count'], 'url' => route('app.charges.index', ['onlyOverdue' => 1, 'hideArchived' => 1])],
+            'month' => ['totals' => $summary['due_this_month'], 'count' => $summary['due_this_month_count'], 'url' => route('app.charges.index', ['dueThisMonth' => 1, 'hideArchived' => 1])],
+            'renewals' => ['days' => $summary['renewal_lead_days'], 'count' => $summary['renewal_services_count'], 'nearest' => $summary['nearest_renewal'], 'url' => route('app.customers.index', ['renewalSoon' => 1])],
+        ];
     }
 
     /**
@@ -153,6 +187,19 @@ class Today extends Component
             ];
         }
 
+        foreach ($tasks['my_tasks']['items'] as $task) {
+            $rows[] = [
+                'type' => 'task',
+                'task' => $task,
+                'customer' => $task->customer,
+                'subject' => $task->title,
+                'date' => $task->due_date?->format('d.m.Y') ?? __('money.empty'),
+                'status' => $this->taskStatusLabel($task),
+                'tone' => $task->isOverdue() ? 'red' : ($task->isDueToday() ? 'amber' : null),
+                'amount' => __('money.empty'),
+            ];
+        }
+
         $customers = Customer::query()
             ->whereIn('id', $tasks['quota']['items']->reject(fn (UsageAlert $alert): bool => $alert->isServer())->map(fn (UsageAlert $alert): int => $alert->owners[0]['customer_id']))
             ->get()
@@ -191,6 +238,18 @@ class Today extends Component
         }
 
         return $rows;
+    }
+
+    /**
+     * "N gün gecikti" / "Bugün" / plain "Açık" (the same day count the task list uses).
+     */
+    private function taskStatusLabel(Task $task): string
+    {
+        return match (true) {
+            $task->isOverdue() => __('tasks.overdue_days', ['count' => (int) $task->due_date->diffInDays(today(), true)]),
+            $task->isDueToday() => __('tasks.due_today'),
+            default => __('tasks.status_open'),
+        };
     }
 
     /**

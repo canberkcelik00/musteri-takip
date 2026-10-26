@@ -4,8 +4,11 @@ namespace App\Actions\Today;
 
 use App\Actions\Servers\ListUsageAlerts;
 use App\Actions\Servers\UsageAlert;
+use App\Enums\Permission;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use App\Models\Task;
+use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -14,8 +17,10 @@ use Illuminate\Support\Collection as SupportCollection;
 /**
  * The "Yapılacaklar" sections of the "Bugün" page (docs/UI.md §5), in priority order: overdue
  * charges (oldest due date first), charges due within 7 days, then free services awaiting a
- * continuation decision, then hosting quota warnings (Faz 9). Each section is capped at $limit rows; `total` is the full count of
- * the underlying list so a "Tümünü gör" link can show how many more there are.
+ * continuation decision, then the user's own open tasks (Faz 13), then hosting quota warnings (Faz 9).
+ * A section the user may not see (money.view, tasks.manage, services.view) comes back empty and runs no query.
+ * Each section is capped at $limit rows; `total` is the full count of the underlying list so a "Tümünü gör"
+ * link can show how many more there are.
  */
 class ListTodayTasks
 {
@@ -26,16 +31,45 @@ class ListTodayTasks
      *     overdue: array{items: Collection<int, Charge>, total: int},
      *     due_soon: array{items: Collection<int, Charge>, total: int},
      *     free_decisions: array{items: Collection<int, CustomerService>, total: int, row_total: int},
+     *     my_tasks: array{items: Collection<int, Task>, total: int},
      *     quota: array{items: SupportCollection<int, UsageAlert>, total: int},
      * }
      */
-    public function handle(int $limit = 10): array
+    public function handle(User $user, int $limit = 10): array
     {
+        $money = $user->can(Permission::MoneyView->value);
+
         return [
-            'overdue' => $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['overdue', 'unarchivedCustomer']), $limit),
-            'due_soon' => $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['dueSoon', 'unarchivedCustomer']), $limit),
-            'free_decisions' => $this->freeDecisionSection($limit),
-            'quota' => $this->quotaSection($limit),
+            'overdue' => $money
+                ? $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['overdue', 'unarchivedCustomer']), $limit)
+                : ['items' => new Collection, 'total' => 0],
+            'due_soon' => $money
+                ? $this->chargeSection(fn (Builder $query): Builder => $query->scopes(['dueSoon', 'unarchivedCustomer']), $limit)
+                : ['items' => new Collection, 'total' => 0],
+            'free_decisions' => $money
+                ? $this->freeDecisionSection($limit)
+                : ['items' => new Collection, 'total' => 0, 'row_total' => 0],
+            'my_tasks' => $user->can(Permission::TasksManage->value)
+                ? $this->taskSection($user, $limit)
+                : ['items' => new Collection, 'total' => 0],
+            'quota' => $user->can(Permission::ServicesView->value)
+                ? $this->quotaSection($limit)
+                : ['items' => new SupportCollection, 'total' => 0],
+        ];
+    }
+
+    /**
+     * The user's open tasks in the task list's order (overdue and dated first, undated last).
+     *
+     * @return array{items: Collection<int, Task>, total: int}
+     */
+    private function taskSection(User $user, int $limit): array
+    {
+        $query = fn (): Builder => Task::query()->open()->assignedTo($user);
+
+        return [
+            'items' => $query()->orderForList()->with('customer')->limit($limit)->get(),
+            'total' => $query()->count(),
         ];
     }
 

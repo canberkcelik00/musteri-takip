@@ -63,8 +63,8 @@ it('forbids a developer the quote PDF', function () {
     $this->actingAs(developer())->get(route('app.quotes.pdf', $quote))->assertForbidden();
 });
 
-it('sends a developer from the home page to the customers', function () {
-    $this->actingAs(developer())->get(route('app.today'))->assertRedirect(route('app.customers.index'));
+it('opens the home page for a developer without redirecting', function () {
+    $this->actingAs(developer())->get(route('app.today'))->assertOk();
     $this->actingAs(administrator())->get(route('app.today'))->assertOk();
 });
 
@@ -160,8 +160,8 @@ it('leaves the money items out of a developer menu and tab bar', function () {
         ->pluck('label')
         ->all();
 
-    expect($labels)->toBe(['ui.nav.customers', 'ui.nav.tasks'])
-        ->and(collect(Navigation::tabs())->pluck('tab')->all())->toBe(['ui.nav.tab_customers', 'ui.nav.tab_tasks']);
+    expect($labels)->toBe(['ui.nav.today', 'ui.nav.customers', 'ui.nav.tasks'])
+        ->and(collect(Navigation::tabs())->pluck('tab')->all())->toBe(['ui.nav.tab_today', 'ui.nav.tab_customers', 'ui.nav.tab_tasks']);
 });
 
 it('shows an administrator the whole menu', function () {

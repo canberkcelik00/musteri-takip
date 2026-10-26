@@ -1,11 +1,17 @@
 <?php
 
 use App\Actions\Today\ListTodayTasks;
+use App\Enums\Permission;
 use App\Enums\SettingKey;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Models\Task;
+use App\Models\User;
 use App\Support\Settings;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role as RoleModel;
+use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
     $this->travelTo('2026-06-15 10:00:00');
@@ -14,7 +20,7 @@ beforeEach(function () {
 
 function listTodayTasks(int $limit = 10): array
 {
-    return app(ListTodayTasks::class)->handle($limit);
+    return app(ListTodayTasks::class)->handle(User::factory()->admin()->create(), $limit);
 }
 
 it('lists overdue charges oldest due date first', function () {
@@ -114,4 +120,43 @@ it('caps each section at the given limit while total counts everything', functio
 
     expect($tasks['overdue']['items'])->toHaveCount(2)
         ->and($tasks['overdue']['total'])->toBe(3);
+});
+
+it('lists the user\'s own open tasks, overdue first, with the total', function () {
+    $me = User::factory()->developer()->create();
+    $undated = Task::factory()->create(['assigned_to' => $me->id, 'due_date' => null]);
+    $late = Task::factory()->create(['assigned_to' => $me->id, 'due_date' => '2026-06-10']);
+    Task::factory()->completed()->create(['assigned_to' => $me->id]);
+    Task::factory()->create(['assigned_to' => User::factory()->developer()->create()->id]);
+
+    $tasks = app(ListTodayTasks::class)->handle($me);
+
+    expect($tasks['my_tasks']['items']->pluck('id')->all())->toBe([$late->id, $undated->id])
+        ->and($tasks['my_tasks']['total'])->toBe(2);
+});
+
+it('runs no money query and returns no money section for a user without money.view', function () {
+    Charge::factory()->create(['due_date' => '2026-06-01']);
+    CustomerService::factory()->free()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+
+    $queries = [];
+    DB::listen(function ($query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+
+    $tasks = app(ListTodayTasks::class)->handle(User::factory()->developer()->create());
+
+    expect($tasks['overdue']['total'])->toBe(0)
+        ->and($tasks['due_soon']['total'])->toBe(0)
+        ->and($tasks['free_decisions']['total'])->toBe(0)
+        ->and(collect($queries)->filter(fn (string $sql): bool => str_contains($sql, '`charges`')))->toBeEmpty();
+});
+
+it('leaves the task section empty for a user without tasks.manage', function () {
+    $me = User::factory()->admin()->create();
+    Task::factory()->create(['assigned_to' => $me->id]);
+    RoleModel::findByName('admin')->revokePermissionTo(Permission::TasksManage->value);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    expect(app(ListTodayTasks::class)->handle($me->fresh())['my_tasks']['total'])->toBe(0);
 });

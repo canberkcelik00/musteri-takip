@@ -510,7 +510,7 @@ Karar (kullanıcı, U-26): yazılımcılara günlük iş vermek için basit İş
 - [x] **G-13.3 Müşteri kartında İşler** — Bağımlılık: G-13.2
   - Yapılacak: Kartta "İşler" bölümü, "İş ekle" (müşteri dolu), "Tümü ve bitenler" bağlantısı.
   - Kabul: Bölüm yazılımcıya görünür, izinsiz rolde görünmez; biten iş görünmez; sorgu artışı tek sorgu (testli).
-- [ ] **G-13.4 Herkes için Bugün** — Bağımlılık: G-13.2
+- [x] **G-13.4 Herkes için Bugün** — Bağımlılık: G-13.2
   - Yapılacak: `money-home` yönlendirmesi ve Bugün menü iznini kaldırma; `Today` ve `ListTodayTasks` izne göre bölüm üretir; "Bana atanan işler" bölümü; Tutar sütunu ve sayı kartları yalnız `money.view`.
   - Kabul: Yazılımcı `/` adresinde 200 alır, sayfada hiçbir tutar/sayı kartı/borç yok ve para tablolarına sorgu çalışmaz; kendi işlerini ve kota satırlarını görür; yönetici eskisi gibi hepsini görür; "Bitti" satırı düşürür (testli).
 - [ ] **K-13.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-13.4, K-12.1

@@ -27,7 +27,7 @@ Route::name('app.')->group(function (): void {
     Route::livewire('/invitation/{user}', AcceptInvitation::class)->middleware(['guest', 'signed'])->name('invitation');
 
     Route::middleware(['auth', 'active'])->group(function (): void {
-        Route::livewire('/', Today::class)->middleware('money-home')->name('today');
+        Route::livewire('/', Today::class)->name('today');
         Route::livewire('/profile', Profile::class)->name('profile');
         Route::livewire('/customers', CustomersIndex::class)->name('customers.index');
         Route::livewire('/customers/{customer}', CustomersShow::class)->name('customers.show');

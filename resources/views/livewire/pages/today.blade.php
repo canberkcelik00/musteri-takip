@@ -3,6 +3,17 @@
     use App\Support\Ui\Js;
     use App\Support\Ui\Links;
     use Illuminate\Support\Carbon;
+
+    $columns = [
+        ['key' => 'customer', 'label' => __('today.col_customer')],
+        ['key' => 'subject', 'label' => __('today.col_subject'), 'from' => 'md'],
+        ['key' => 'date', 'label' => __('today.col_due'), 'from' => 'md'],
+        ['key' => 'status', 'label' => __('today.col_status'), 'from' => 'md'],
+    ];
+
+    if ($canSeeMoney) {
+        $columns[] = ['key' => 'amount', 'label' => __('today.col_amount'), 'end' => true];
+    }
 @endphp
 
 <div>
@@ -23,7 +34,8 @@
         </div>
     @endif
 
-    {{-- The four numbers, each a link to its filtered list. --}}
+    {{-- The four numbers, each a link to its filtered list; money only. --}}
+    @if ($canSeeMoney)
     <div class="ui-stats">
         <a class="ui-stat ui-pane" href="{{ $stats['total']['url'] }}">
             <span class="ui-stat-label">{{ __('today.total_debt') }}</span>
@@ -52,6 +64,7 @@
             @endif
         </a>
     </div>
+    @endif
 
     {{-- Yapılacaklar --}}
     <x-ui.card tag="section" flush class="ui-mt-5">
@@ -68,19 +81,15 @@
             <x-ui.table
                 :end="true"
                 :card="false"
-                :columns="[
-                    ['key' => 'customer', 'label' => __('today.col_customer')],
-                    ['key' => 'subject', 'label' => __('today.col_subject'), 'from' => 'md'],
-                    ['key' => 'date', 'label' => __('today.col_due'), 'from' => 'md'],
-                    ['key' => 'status', 'label' => __('today.col_status'), 'from' => 'md'],
-                    ['key' => 'amount', 'label' => __('today.col_amount'), 'end' => true],
-                ]"
+                :columns="$columns"
             >
                 @foreach ($rows as $row)
                     <x-ui.row wire:key="task-{{ $loop->index }}">
                         <td>
                             @if ($row['type'] === 'server_quota')
                                 <a class="ui-cell-title" href="{{ Links::servers() }}">{{ __('usage.server_owner', ['name' => $row['server_name']]) }}</a>
+                            @elseif ($row['customer'] === null)
+                                <span class="ui-cell-title">{{ __('tasks.no_customer') }}</span>
                             @else
                                 <div class="ui-cell-identity">
                                     <x-ui.avatar :name="$row['customer']->short_name" :id="$row['customer']->id" />
@@ -111,7 +120,9 @@
                                 {{ $row['status'] }}
                             @endif
                         </td>
-                        <td class="is-end">{{ $row['amount'] }}</td>
+                        @if ($canSeeMoney)
+                            <td class="is-end">{{ $row['amount'] }}</td>
+                        @endif
                         <x-slot:actions>
                             @if ($row['type'] === 'server_quota')
                                 <x-ui.button size="sm" :href="Links::servers()">{{ __('today.go_to_server') }}</x-ui.button>
@@ -126,8 +137,10 @@
                                 @endunless
                             @elseif ($row['type'] === 'quota')
                                 <x-ui.button size="sm" x-on:click="{!! Js::openWindow('view-usage', ['item' => $row['item_id']]) !!}">{{ __('usage.view') }}</x-ui.button>
+                            @elseif ($row['type'] === 'task')
+                                <x-ui.button size="sm" wire:click="completeTask({{ $row['task']->id }})">{{ __('tasks.complete') }}</x-ui.button>
                             @else
-                                <x-ui.button size="sm" x-on:click="{!! Js::openWindow('confirm', ['action' => 'confirm-free-continuation', 'id' => $row['service']->id]) !!}">{{ __('customer_services.confirm_free_continuation') }}</x-ui.button>
+                                <x-ui.button size="sm" x-on:click="{!! Js::openWindow('confirm',['action' => 'confirm-free-continuation', 'id' => $row['service']->id]) !!}">{{ __('customer_services.confirm_free_continuation') }}</x-ui.button>
                                 <x-ui.button size="sm" x-on:click="{!! Js::openWindow('remove-free', ['service' => $row['service']->id]) !!}">{{ __('customer_services.remove_free') }}</x-ui.button>
                             @endif
                         </x-slot:actions>

@@ -16,9 +16,11 @@ use App\Models\PaymentAllocation;
 use App\Models\Server;
 use App\Models\ServerUsage;
 use App\Models\Setting;
+use App\Models\Task;
 use App\Models\User;
 use App\Support\Settings;
 use App\Support\Ui\Links;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\Fixtures\UsageScenario;
 
@@ -350,4 +352,98 @@ it('refreshes after a payment, a charge or a service changed in a window', funct
 
     $today->dispatch('charges-changed')->assertSee('Yeni gecikmiş');
     $today->dispatch('payments-changed')->dispatch('customer-services-changed')->assertHasNoErrors();
+});
+
+describe('for a developer', function () {
+    beforeEach(function () {
+        $this->developer = User::factory()->developer()->create();
+        $this->actingAs($this->developer);
+    });
+
+    it('opens the home page without a redirect and without any money', function () {
+        $charge = Charge::factory()->create(['amount' => 150000, 'due_date' => '2026-06-01', 'description' => 'Gizli borc']);
+        CustomerService::factory()->free()->create(['start_date' => '2025-06-20', 'end_date' => '2026-06-20']);
+
+        $html = $this->get('/')->assertOk()->assertSee(__('today.tasks_heading'))->getContent();
+
+        expect($html)
+            ->not->toContain('ui-stats')
+            ->not->toContain('Gizli borc')
+            ->not->toContain('1.500')
+            ->not->toContain(__('today.col_amount'))
+            ->not->toContain(__('today.total_debt'))
+            ->not->toContain('record-payment');
+    });
+
+    it('lists my own open tasks with their state and no one else\'s', function () {
+        Task::factory()->create(['title' => 'Logi form maili', 'assigned_to' => $this->developer->id, 'due_date' => '2026-06-12']);
+        Task::factory()->dueToday()->create(['title' => 'Bugunluk is', 'assigned_to' => $this->developer->id]);
+        Task::factory()->create(['title' => 'Baskasinin isi', 'assigned_to' => User::factory()->developer()->create()->id]);
+
+        Livewire::test(Today::class)
+            ->assertSee('Logi form maili')
+            ->assertSee(__('tasks.overdue_days', ['count' => 3]))
+            ->assertSee('Bugunluk is')
+            ->assertSee(__('tasks.due_today'))
+            ->assertDontSee('Baskasinin isi')
+            ->assertSee(__('today.tasks_count', ['count' => 2]));
+    });
+
+    it('shows the quota warnings and the empty state otherwise', function () {
+        Livewire::test(Today::class)->assertSee(__('today.empty'));
+
+        $server = Server::factory()->whm()->create();
+        UsageScenario::linkedService($server, 'logi');
+        UsageScenario::usage($server, 'logi', [UsageScenario::resource('disk_usage', 92, 100, true)]);
+
+        Livewire::test(Today::class)->assertDontSee(__('today.empty'))->assertSee('Disk %92');
+    });
+
+    it('drops a task from the list when it is finished', function () {
+        $task = Task::factory()->create(['title' => 'Bitecek is', 'assigned_to' => $this->developer->id]);
+
+        Livewire::test(Today::class)
+            ->assertSee('Bitecek is')
+            ->call('completeTask', $task->id)
+            ->assertDontSee('Bitecek is')
+            ->assertSee(__('today.empty'));
+
+        expect($task->fresh()->completed_by)->toBe($this->developer->id);
+    });
+
+    it('cannot finish someone else\'s task from the page', function () {
+        $task = Task::factory()->create(['assigned_to' => User::factory()->developer()->create()->id]);
+
+        Livewire::test(Today::class)->call('completeTask', $task->id)->assertNotFound();
+
+        expect($task->fresh()->completed_at)->toBeNull();
+    });
+
+    it('hides the scheduler warning from a user who may not change settings', function () {
+        fakePendingRelease(true);
+
+        Livewire::test(Today::class)->assertDontSee(__('scheduler.pending_release'));
+    });
+});
+
+it('shows an administrator the tasks assigned to them beside the money rows', function () {
+    $admin = auth()->user();
+    Task::factory()->create(['title' => 'Yonetici isi', 'assigned_to' => $admin->id]);
+    Charge::factory()->create(['due_date' => '2026-06-01', 'description' => 'Gecikmis borc']);
+
+    $html = Livewire::test(Today::class)->assertSee('Yonetici isi')->assertSee('Gecikmis borc')->html();
+
+    expect(strpos($html, 'Gecikmis borc'))->toBeLessThan(strpos($html, 'Yonetici isi'));
+});
+
+it('does not summarize money for a user without money.view', function () {
+    $queries = [];
+    DB::listen(function ($query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+
+    $this->actingAs(User::factory()->developer()->create());
+    Livewire::test(Today::class)->assertOk();
+
+    expect(collect($queries)->filter(fn (string $sql): bool => str_contains($sql, '`charges`')))->toBeEmpty();
 });
