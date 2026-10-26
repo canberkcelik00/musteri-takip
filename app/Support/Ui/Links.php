@@ -23,6 +23,14 @@ final class Links
     }
 
     /**
+     * Everyone's tasks of one customer, done ones included (the card's "Tümü ve bitenler").
+     */
+    public static function customerTasks(Customer $customer): string
+    {
+        return route('app.tasks.index', ['customer' => $customer->id, 'who' => 'all', 'status' => 'all']);
+    }
+
+    /**
      * The payment list limited to one customer (the card's "Tüm ödemeler").
      */
     public static function customerPayments(Customer $customer): string

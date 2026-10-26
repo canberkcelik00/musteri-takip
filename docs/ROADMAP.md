@@ -507,7 +507,7 @@ Karar (kullanıcı, U-26): yazılımcılara günlük iş vermek için basit İş
 - [x] **G-13.2 İşler ekranı ve iş penceresi** — Bağımlılık: G-13.1
   - Yapılacak: `/tasks` sayfası (`can:tasks.manage`), menü ve sekme çubuğu öğesi, `EditTask` penceresi, `delete-task` onayı, `--mt-nav-pink` tokenı.
   - Kabul: İzinsiz rol 403; varsayılan süzgeç yalnız bana atanan açık işleri gösterir; Herkes/Bitti/müşteri/arama süzgeçleri; sıralama; "Bitti" listeden düşürür; pencere izni her istekte denetlenir; sorgu sayısı sabit (testli).
-- [ ] **G-13.3 Müşteri kartında İşler** — Bağımlılık: G-13.2
+- [x] **G-13.3 Müşteri kartında İşler** — Bağımlılık: G-13.2
   - Yapılacak: Kartta "İşler" bölümü, "İş ekle" (müşteri dolu), "Tümü ve bitenler" bağlantısı.
   - Kabul: Bölüm yazılımcıya görünür, izinsiz rolde görünmez; biten iş görünmez; sorgu artışı tek sorgu (testli).
 - [ ] **G-13.4 Herkes için Bugün** — Bağımlılık: G-13.2

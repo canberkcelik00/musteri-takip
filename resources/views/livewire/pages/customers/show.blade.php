@@ -227,7 +227,7 @@
                         ]"
                     >
                         @foreach ($customer->quotes as $quote)
-                            @php($quoteTone = StatusBadges::quoteTone($quote))
+                            @php $quoteTone = StatusBadges::quoteTone($quote); @endphp
                             <x-ui.row wire:key="quote-{{ $quote->id }}">
                                 <td><x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('quote', ['quote' => $quote->id]) !!}">{{ $quote->number }}</x-ui.link-button></td>
                                 <td class="is-end">
@@ -254,6 +254,47 @@
 
         {{-- Information column --}}
         <div class="ui-stack">
+            @can('tasks.manage')
+                <x-ui.card tag="section">
+                    <div class="ui-card-head">
+                        <h2>{{ __('tasks.plural') }}</h2>
+                        @unless ($customer->isArchived())
+                            <x-ui.button size="sm" x-on:click="{!! Js::openWindow('edit-task', ['customer' => $customer->id]) !!}">{{ __('tasks.add') }}</x-ui.button>
+                        @endunless
+                    </div>
+
+                    @forelse ($openTasks as $task)
+                        @php
+                            $dueBadge = match (true) {
+                                $task->isOverdue() => ['red', __('tasks.overdue_days', ['count' => (int) $task->due_date->diffInDays(today(), true)])],
+                                $task->isDueToday() => ['amber', __('tasks.due_today')],
+                                default => null,
+                            };
+                        @endphp
+                        <div class="ui-contact" wire:key="task-{{ $task->id }}">
+                            <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-task', ['task' => $task->id]) !!}">{{ $task->title }}</x-ui.link-button>
+                            <span class="ui-muted">
+                                {{ $task->assignee->name }}
+                                @unless ($task->assignee->isActive())
+                                    {{ __('tasks.inactive_suffix') }}
+                                @endunless
+                                @if ($task->due_date)
+                                    · {{ $fmt($task->due_date) }}
+                                @endif
+                            </span>
+                            @if ($dueBadge)
+                                <span><x-ui.badge :tone="$dueBadge[0]">{{ $dueBadge[1] }}</x-ui.badge></span>
+                            @endif
+                            <span><x-ui.button size="sm" wire:click="completeTask({{ $task->id }})">{{ __('tasks.complete') }}</x-ui.button></span>
+                        </div>
+                    @empty
+                        <p class="ui-muted ui-m-0">{{ __('tasks.card_empty') }}</p>
+                    @endforelse
+
+                    <p class="ui-m-0 mt-3"><a href="{{ Links::customerTasks($customer) }}">{{ __('tasks.view_all') }}</a></p>
+                </x-ui.card>
+            @endcan
+
             <x-ui.card tag="section">
                 <div class="ui-card-head">
                     <h2>{{ __('contacts.plural') }}</h2>

@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\Customers;
 
 use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Actions\Servers\BuildUsageReport;
+use App\Actions\Tasks\CompleteTask;
 use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\Permission;
@@ -43,9 +44,25 @@ class Show extends Component
     #[On('customers-changed')]
     #[On('contacts-changed')]
     #[On('quotes-changed')]
+    #[On('tasks-changed')]
     public function refresh(): void
     {
         $this->customer->refresh();
+    }
+
+    /**
+     * "Bitti" on one of the card's tasks; only a task of this customer can be finished from here.
+     */
+    public function completeTask(int $id, CompleteTask $completeTask): void
+    {
+        $user = Auth::user();
+
+        abort_unless($user?->can(Permission::TasksManage->value) === true, 403);
+
+        $completeTask->handle($user, $this->customer->tasks()->findOrFail($id));
+
+        $this->dispatch('tasks-changed');
+        $this->dispatch('notify', message: __('tasks.completed'));
     }
 
     public function render(): View
@@ -53,6 +70,7 @@ class Show extends Component
         $customer = $this->customer;
 
         $canSeeMoney = Auth::user()?->can(Permission::MoneyView->value) === true;
+        $canSeeTasks = Auth::user()?->can(Permission::TasksManage->value) === true;
 
         $customer->load([
             'contacts' => fn ($contacts) => $contacts->orderByDesc('is_primary')->orderBy('name'),
@@ -102,6 +120,7 @@ class Show extends Component
             'creditBalance' => $canSeeMoney ? $customer->creditBalances() : [],
             'inUse' => $customer->isInUse(),
             'canSeeMoney' => $canSeeMoney,
+            'openTasks' => $canSeeTasks ? $customer->tasks()->open()->orderForList()->with('assignee')->limit(5)->get() : new Collection,
         ])->title($customer->short_name);
     }
 

@@ -45,6 +45,9 @@ return [
     'actions_section' => 'İş işlemleri',
     'created_by' => ':name tarafından oluşturuldu (:date)',
     'completed_by' => ':name tarafından bitirildi (:date)',
+    'add' => 'İş ekle',
+    'view_all' => 'Tümü ve bitenler',
+    'card_empty' => 'Bu müşterinin açık işi yok.',
     'empty_heading' => 'İş yok',
     'empty_description' => 'Yeni bir iş ekleyerek başlayın.',
 ];

@@ -3,6 +3,7 @@
 use App\Actions\Payments\RecordPayment;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
+use App\Enums\Permission;
 use App\Enums\ServiceType;
 use App\Livewire\Pages\Customers\Show;
 use App\Models\CatalogService;
@@ -13,9 +14,11 @@ use App\Models\CustomerService;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Quote;
+use App\Models\Task;
 use App\Models\User;
 use App\Support\Ui\Links;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Role as RoleModel;
 
 beforeEach(function () {
     $this->actingAs(User::factory()->admin()->create());
@@ -366,6 +369,95 @@ it('runs the same number of queries for a customer with a few rows as with many'
         Contact::factory()->for($large)->create();
     }
     Contact::factory()->for($large)->primary()->create();
+
+    expect($count($large))->toBe($count($small));
+});
+
+it('lists the open tasks of the customer, oldest due date first, at most five, never the done ones', function () {
+    $customer = Customer::factory()->create();
+    $dev = User::factory()->developer()->create(['name' => 'Ayse Yazilimci']);
+    Task::factory()->for($customer)->create(['title' => 'Tarihsiz is', 'assigned_to' => $dev->id]);
+    Task::factory()->for($customer)->overdue()->create(['title' => 'Gecikmis is', 'assigned_to' => $dev->id]);
+    Task::factory()->for($customer)->completed()->create(['title' => 'Biten is']);
+    Task::factory()->create(['title' => 'Baska musterinin isi']);
+    Task::factory()->for($customer)->count(5)->create(['due_date' => '2026-09-01']);
+
+    uiCard($customer)
+        ->assertSee(__('tasks.plural'))
+        ->assertSee('Gecikmis is')
+        ->assertSee('Ayse Yazilimci')
+        ->assertSee(__('tasks.overdue_days', ['count' => 3]))
+        ->assertDontSee('Tarihsiz is')
+        ->assertDontSee('Biten is')
+        ->assertDontSee('Baska musterinin isi')
+        ->assertSee(e(Links::customerTasks($customer)), false);
+});
+
+it('opens the task window with the customer filled and offers "İş ekle" only for an unarchived customer', function () {
+    $customer = Customer::factory()->create();
+
+    expect(uiCard($customer)->html())->toContain("name: 'edit-task', params: { customer: {$customer->id} }");
+
+    $customer->archive();
+
+    uiCard($customer->fresh())->assertDontSee(__('tasks.add'));
+});
+
+it('finishes a task from the card and refreshes after the task window changes one', function () {
+    $customer = Customer::factory()->create();
+    $task = Task::factory()->for($customer)->create(['title' => 'Mail sorunu']);
+
+    $card = uiCard($customer)->assertSee('Mail sorunu');
+
+    $card->call('completeTask', $task->id)->assertDispatched('notify')->assertDontSee('Mail sorunu');
+    expect($task->fresh()->isCompleted())->toBeTrue();
+
+    Task::factory()->for($customer)->create(['title' => 'Yeni is']);
+    $card->dispatch('tasks-changed')->assertSee('Yeni is');
+});
+
+it('does not finish a task of another customer from this card', function () {
+    $foreign = Task::factory()->create();
+
+    uiCard(Customer::factory()->create())->call('completeTask', $foreign->id)->assertNotFound();
+    expect($foreign->fresh()->isCompleted())->toBeFalse();
+});
+
+it('hides the tasks section from a role without the tasks permission', function () {
+    $customer = Customer::factory()->create();
+    $task = Task::factory()->for($customer)->create(['title' => 'Gizli is']);
+    $this->actingAs(User::factory()->developer()->create());
+    RoleModel::findByName('developer')->revokePermissionTo(Permission::TasksManage->value);
+
+    uiCard($customer)->assertDontSee('Gizli is')->assertDontSee(__('tasks.add'))->call('completeTask', $task->id)->assertForbidden();
+
+    expect($task->fresh()->isCompleted())->toBeFalse();
+});
+
+it('shows a developer the tasks section without any money', function () {
+    $customer = Customer::factory()->create();
+    Task::factory()->for($customer)->create(['title' => 'Yazilimci isi']);
+    $this->actingAs(User::factory()->developer()->create());
+
+    uiCard($customer)->assertSee('Yazilimci isi');
+});
+
+it('adds a constant number of queries for the tasks, however many there are', function () {
+    $count = function (Customer $customer): int {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        uiCard($customer);
+
+        return count(DB::getQueryLog());
+    };
+
+    uiCard(Customer::factory()->create());
+
+    $small = Customer::factory()->create();
+    Task::factory()->for($small)->create();
+
+    $large = Customer::factory()->create();
+    Task::factory()->for($large)->count(8)->create();
 
     expect($count($large))->toBe($count($small));
 });
