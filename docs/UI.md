@@ -6,7 +6,7 @@ Bu sekme, panelin nasıl daha kolay kullanılacağına dair kuralları toplar: n
 
 ## 1. Kullanıcı ve görevler
 
-Tek kullanıcı var: işletme sahibi. Panel bir veri ambarı değil, iş listesidir; açıldığında "bugün ne yapmalıyım" sorusunu cevaplamalı.
+İki rol var (Faz 12, T-157): **yönetici** (işletme sahibi, her şeyi görür ve yapar) ve **yazılımcı** (en çok 2-3 kişi; parayı hiç görmez). Aşağıdaki görev tablosu yöneticinin görevleridir; yazılımcı yalnızca müşteri bulma ve müşteri kartına bakma işlerini kullanır. Panel bir veri ambarı değil, iş listesidir; açıldığında "bugün ne yapmalıyım" sorusunu cevaplamalı.
 
 | Görev | Sıklık | Hedef erişim |
 | --- | --- | --- |
@@ -49,7 +49,9 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | 3 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
 | 4 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
 | 5 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
-| 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (en altta; Faz 8) |
+| 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar (en altta; Faz 12, yalnız yönetici) |
+
+**Yazılımcının menüsü (Faz 12, T-157):** Yalnız **Müşteriler** görünür. Bugün, Teklifler, Tahsilat, Katalog ve Ayarlar menüde yoktur; adresle açılırsa 403 verir (`/` adresi yazılımcıyı Müşteriler'e yönlendirir). Alt sekme çubuğu: Müşteriler · Menü. Üst çubukta "Ödeme al" gösterilmez; "Yeni müşteri" kalır. Müşteri kartında tutar, borç, ödeme ve teklif içeren hiçbir alan görünmez; hizmetler ad, alan adı, sunucu ve bitiş tarihiyle fiyatsız listelenir. Müşteri listesinde açık borç/bakiye sütunu gizlidir.
 
 **Dar ekranda (`lg` altında):** Kenar menünün yerine altta sekme çubuğu durur: Bugün · Müşteriler · Açık borçlar · Menü ("Menü" tam menüyü kayan panelde açar). Aktif sekme vurgulu mavidir (T-130).
 

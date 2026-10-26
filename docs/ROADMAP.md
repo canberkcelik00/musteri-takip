@@ -466,6 +466,29 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
   - Yapıldı: `page-header`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti, satır içi `style` ve `view-payment` ham tablo temizliği (T-155). `card` bileşeni ve üst arama girişinin `search-field`e geçişi sonradan tamamlandı (T-156).
   - Kabul: `SharedComponentsTest`.
 
+## Faz 12 – Kullanıcılar ve yetkiler
+
+Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç görmez; `spatie/laravel-permission`; e-posta daveti; para kayıtlarında "kim" saklanır; yazılımcının parasız alanlardaki yetkisi şimdilik varsayılanla başlar (PRD "Kullanıcılar ve yetkiler"). Her görev ayrı oturumda yapılır.
+
+- [x] **G-12.1 Dokümanlar** — Bağımlılık: G-11.7
+  - Yapıldı: PRD'ye "Kullanıcılar ve yetkiler", UI.md §1/§3'e rol ve yazılımcı menüsü, DATA_MODEL'e kullanıcı/izin tabloları ve "kim" sütunları, DECISIONS'a T-29'un geçersizliği ve T-157–T-159.
+- [ ] **G-12.2 Rol altyapısı** — Bağımlılık: G-12.1
+  - Yapılacak: `spatie/laravel-permission` (Laravel 13 uyumu önce doğrulanır); `Role`/`Permission` enum'ları; `users` migration'ı (`invited_at`, `deactivated_at`, boş şifre); idempotent `SyncRolesAndPermissions` (`DeployRelease` ve `app:create-admin` çağırır); `EnsureAdminUser` ilk hesaba Admin rolü verir; pasif/şifresiz kullanıcı girişi reddedilir, pasifleştirilenin oturumu kapanır.
+  - Kabul: Eşleme iki kez çalışınca kayıt artmaz; mevcut admin Admin rolü alır; pasif ve şifresiz kullanıcı giriş yapamaz (testli).
+- [ ] **G-12.3 Para gizleme** — Bağımlılık: G-12.2
+  - Yapılacak: Para rotalarına `can:` middleware'i; her sayfa `mount()` ve her pencere `mount` ile eylemde yetki denetler (`AuthorizesPermission` trait'i); menü, sekme çubuğu ve "Ödeme al" izne göre süzülür; müşteri kartı ve listesi para alanlarını göstermez ve okumaz; yazılımcı `/` adresinde Müşteriler'e gider; üst aramada para sonucu yok.
+  - Kabul: Yazılımcı her para rotasında 403 alır; pencere çağrıları yasaktır; müşteri kartı ve listesinde tutar görünmez (testli).
+- [ ] **G-12.4 Kullanıcılar ekranı ve davet** — Bağımlılık: G-12.2
+  - Yapılacak: Ayarlar > Kullanıcılar (`users.manage`); `InviteUser` penceresi; `InviteUser`, `ResendInvitation`, `ChangeUserRole`, `DeactivateUser`, `ReactivateUser`, `AcceptInvitation` Action'ları; 72 saatlik imzalı davet bağlantısı ve `InvitationMail` (senkron).
+  - Kabul: Davetle kullanıcı ve e-posta oluşur; bağlantıyla şifre belirlenip giriş yapılır; 72 saat sonra, ikinci kullanımda, yeniden gönderimden sonra eski bağlantıda ve pasif kullanıcıda bağlantı geçersiz; yönetici kendini pasifleştiremez, son yönetici pasifleştirilemez (testli).
+- [ ] **G-12.5 Para kayıtlarında "kim"** — Bağımlılık: G-12.2
+  - Yapılacak: `payments.recorded_by`, `charges.cancelled_by`/`updated_by`, `quotes.accepted_by` migration'ı; ilgili Action'lar açık `User $actor` parametresi alır (T-159); `ViewPayment`, iptal edilmiş borç satırı ve teklif kartında "… tarafından".
+  - Kabul: Ödeme, borç iptali/düzenlemesi ve teklif kabulü işlemi yapanı kaydeder; zamanlanmış işin borcunda alan boştur (testli).
+- [ ] **K-12.1 Canlı doğrulama ve davet (kullanıcı)** — Bağımlılık: G-12.4
+  - Yapılacak: Canlıda SMTP'yi "Test e-postası gönder" ile doğrula; yayından sonra ekibi davet et; yazılımcı yetkilerinin genişletilip genişletilmeyeceğine karar ver.
+
+**Faz 12 bittiğinde:** Yönetici ekibi davet edebiliyor; yazılımcılar müşteri bilgisiyle çalışıyor ve hiçbir yerde para görmüyor.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

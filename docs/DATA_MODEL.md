@@ -241,6 +241,8 @@ Kısıt: `catalog_service_id` ve `package_id` alanlarından tam olarak biri dolu
 | cancel_reason | text | Hayır | İptalde zorunlu |
 | is_renewal | boolean | Evet | Varsayılan false; yalnız yenileme borcunda (G-3.4) true. Müşteri hatırlatması yalnız bunlara gider (G-5B.1) |
 | reminder_sent_at | datetime | Hayır | Müşteriye yenileme hatırlatmasının gönderildiği an; dolu borca bir daha hatırlatma gitmez (G-5B.1) |
+| cancelled_by | FK users | Hayır | Faz 12: borcu iptal eden; boş = sistem / önceki kayıt |
+| updated_by | FK users | Hayır | Faz 12: borcu son düzenleyen veya bölen; boş = sistem / önceki kayıt |
 
 Kısıtlar: `customer_service_id` + `period_start` benzersizdir; aynı dönem için ikinci borç üretilemez. "Kısmi ödendi" ve "gecikmiş" saklanmaz; dağıtımlardan ve `due_date`'ten hesaplanır. Dağıtımı olan borçta tutar ve para birimi değiştirilemez.
 
@@ -254,6 +256,7 @@ Kısıtlar: `customer_service_id` + `period_start` benzersizdir; aynı dönem i�
 | paid_on | date | Evet | Varsayılan bugün |
 | payment_method_id | FK payment_methods | Evet | Varsayılan son kullanılan |
 | note | text | Hayır | |
+| recorded_by | FK users | Hayır | Faz 12: ödemeyi kaydeden; boş = önceki kayıt |
 
 **payment_allocations**
 
@@ -273,6 +276,20 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | name | string | Evet | Örn. "Havale/EFT" |
 | sort_order | integer | Evet | |
 | archived_at | timestamp | Hayır | |
+
+## Kullanıcılar ve yetkiler (Faz 12)
+
+**users** (mevcut tabloya eklenenler)
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| password | string | Hayır | Faz 12: davet kabul edilene kadar boş; boş şifreyle giriş yapılamaz |
+| invited_at | timestamp | Hayır | Son davetin gönderildiği an; imzalı bağlantı bununla eşleşmezse geçersizdir |
+| deactivated_at | timestamp | Hayır | Dolu = pasif; kullanıcı silinmez |
+
+**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`); rol-izin eşlemesi kodda tanımlıdır ve `SyncRolesAndPermissions` ile (idempotent) veritabanına yazılır.
+
+**quotes** tablosuna `accepted_by` (FK users, nullable) eklenir: teklifi kabul eden; boş = sistem / önceki kayıt.
 
 ## Ayarlar
 

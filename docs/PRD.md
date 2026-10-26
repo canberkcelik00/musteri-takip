@@ -259,6 +259,29 @@ Her satırda ilgili kayda bağlantı vardır.
 
 **WhatsApp ile hatırlatma (G-5B.4):** Müşterilere en kolay ulaşılan yol çoğu zaman WhatsApp'tır. Açık her borç için (yenileme borcu olması ya da gecikmiş olması aranmaz) Bugün'deki borç satırında ve müşteri kartının Açık borçlar satırında "WhatsApp" bağlantısı bulunur; tıklanınca birincil kişinin sohbeti hazır yazılmış borç mesajıyla yeni sekmede açılır. Sistem mesajı kendisi göndermez ve gönderildiğini bilmez, bu yüzden hiçbir kayıt tutulmaz; kullanıcı mesajı okuyup WhatsApp'ta kendisi gönderir. Mesaj kişinin adını, hizmetin alan adını ve borç açıklamasını, kalan tutarı, vadeyi (gecikmişse "geçmiştir", değilse "son günü"), varsa firma adı ve IBAN'ı içerir. Birincil kişinin telefonu yoksa ya da geçerli bir numaraya çevrilemiyorsa, borç açık değilse ve müşteri arşivliyse bağlantı çıkmaz. IBAN, Genel ayarlardaki firma bilgilerinde tutulur (TR ile başlayan 26 karakter).
 
+## Kullanıcılar ve yetkiler (Faz 12)
+
+Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. Roller sabittir (`Yönetici`, `Yazılımcı`); kişi başına özel izin kutusu yoktur. Rol-izin eşlemesi kodda durur ve dağıtımda uygulanır.
+
+| Alan | Yönetici | Yazılımcı |
+| --- | --- | --- |
+| Müşteri ve ilgili kişi ekleme/düzenleme, notlar | Evet | Evet |
+| Müşteri kartında hizmetleri görme (ad, alan adı, sunucu, bitiş tarihi) | Evet | Evet, fiyatsız |
+| Hizmet atama, düzenleme, iptal, yeniden etkinleştirme | Evet | Hayır (fiyat ve borç içerir; ileride genişletilebilir) |
+| Bugün, Açık borçlar, Ödemeler, ödeme alma, borç işlemleri | Evet | Hayır |
+| Teklifler, katalog, paketler | Evet | Hayır |
+| Genel ayarlar, ödeme yöntemleri, sunucular | Evet | Hayır |
+| Kullanıcılar (davet, rol, pasifleştirme) | Evet | Hayır |
+
+**Kurallar**
+
+- **Yazılımcı parayı hiç görmez:** borç, ödeme, teklif, fiyat ve bakiye hiçbir ekranda, listede veya aramada görünmez. Yetki yalnız arayüzde gizlenerek değil, rota, ekran ve işlem düzeyinde sunucuda zorlanır.
+- **Davetle hesap:** Yönetici ad, e-posta ve rol girer; kişiye 72 saat geçerli imzalı bir bağlantı e-postayla gider (senkron), şifresini kendisi belirler. Yeniden gönderilen davet öncekini geçersiz kılar. Şifresi belirlenmemiş kullanıcı giriş yapamaz.
+- **Silme yok, pasifleştirme var:** Kullanıcı silinmez (para kayıtları ona bağlıdır); pasifleştirilir. Pasif kullanıcı giriş yapamaz, açık oturumu kapanır.
+- **Yönetici güvencesi:** Yönetici kendini pasifleştiremez ya da rolünü düşüremez; son etkin yönetici pasifleştirilemez.
+- **Kim yaptı:** Ödemeyi kaydeden, borcu iptal eden/düzenleyen ve teklifi kabul eden kullanıcı saklanır ve kayıtta görünür. Zamanlanmış işlerin oluşturduğu kayıtlarda boştur ("Sistem").
+- **Mevcut hesap:** `.env`'den oluşan ilk hesap (T-28) yönetici olur.
+
 ## Veri modeli
 
 Sistem 13 tablodan oluşur; bu bölüm tabloları ve aralarındaki ilişkiyi gösterir, alan detayları ayrı sekmededir. Parantez içindeki adlar kodda kullanılacak adlardır.
