@@ -14,11 +14,14 @@ use App\Models\CustomerService;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Quote;
+use App\Models\Server;
+use App\Models\ServerUsage;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\Ui\Links;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as RoleModel;
+use Tests\Fixtures\UsageScenario;
 
 beforeEach(function () {
     $this->actingAs(User::factory()->admin()->create());
@@ -482,4 +485,103 @@ it('draws the card surfaces as panes and leaves the blur to the bars and menus',
     expect($html)->not->toContain('ui-card ui-glass')->not->toContain('ui-strip ui-glass')
         ->and(preg_match_all('/(?<![\w-])ui-glass(?![\w-])/', $html))->toBeLessThanOrEqual(6)
         ->and(substr_count($html, 'ui-pane'))->toBeGreaterThan(5);
+});
+
+describe('service summary', function () {
+    $gb = 1024 * 1024 * 1024;
+
+    it('always shows the usage of a linked account, healthy or not, and opens the usage window from it', function () use ($gb) {
+        $customer = Customer::factory()->create();
+        $server = Server::factory()->whm()->create();
+        $service = UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id]);
+        UsageScenario::usage($server, 'logi', [
+            UsageScenario::resource('disk_usage', 2 * $gb, 5 * $gb, true),
+            UsageScenario::resource('bandwidth', 10 * $gb, null, true),
+            UsageScenario::resource('email_accounts', 4, 10),
+            UsageScenario::resource('mysql_databases', 2, 5),
+            UsageScenario::resource('ftp_accounts', 1, 5),
+        ]);
+        $item = $service->items()->firstOrFail();
+
+        $html = uiCard($customer)
+            ->assertSee(__('usage.resource.disk_usage').' 2 GB / 5 GB')
+            ->assertSee(__('usage.resource.bandwidth').' 10 GB · '.__('servers.unlimited'))
+            ->assertSee(__('usage.resource.email_accounts').' 4 / 10')
+            ->assertSee(__('usage.resource.mysql_databases').' 2 / 5')
+            ->assertDontSee(__('usage.resource.ftp_accounts'))
+            ->html();
+
+        expect($html)->toContain("name: 'view-usage', params: { item: {$item->id} }")
+            ->and($html)->not->toContain('ui-badge-amber');
+    });
+
+    it('adds the threshold badge to the usage line', function () {
+        $customer = Customer::factory()->create();
+        $server = Server::factory()->whm()->create();
+        UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id]);
+        UsageScenario::usage($server, 'logi');
+
+        uiCard($customer)->assertSee(__('usage.badge_resource', ['resource' => __('usage.resource.disk_usage'), 'percent' => 94]));
+    });
+
+    it('says the usage was not read yet and shows the time of old data after a failed refresh', function () use ($gb) {
+        $customer = Customer::factory()->create();
+        $server = Server::factory()->whm()->create();
+        UsageScenario::linkedService($server, 'yeni', ['customer_id' => $customer->id]);
+
+        uiCard($customer)->assertSee(__('usage.summary_none'));
+
+        UsageScenario::usage($server, 'yeni', [UsageScenario::resource('disk_usage', $gb, 5 * $gb, true)], [
+            'refreshed_at' => '2026-06-15 08:30:00',
+            'failed_at' => '2026-06-15 09:30:00',
+        ]);
+
+        uiCard($customer)->assertSee(__('usage.card_stale', ['at' => '15.06.2026 08:30']));
+    });
+
+    it('marks a suspended WHM account and leaves a running one alone', function () {
+        $customer = Customer::factory()->create();
+        $server = Server::factory()->whm()->create();
+        ServerUsage::factory()->create(['server_id' => $server->id]);
+        UsageScenario::linkedService($server, 'askida', ['customer_id' => $customer->id]);
+        UsageScenario::usage($server, 'askida');
+
+        uiCard($customer)->assertSee(__('usage.account_suspended'));
+
+        $other = Customer::factory()->create();
+        UsageScenario::linkedService($server, 'logi', ['customer_id' => $other->id]);
+        UsageScenario::usage($server, 'logi');
+
+        uiCard($other)->assertDontSee(__('usage.account_suspended'));
+    });
+
+    it('shows the other details of a service and never its license key', function () {
+        $customer = Customer::factory()->create();
+        $service = CustomerService::factory()
+            ->for($customer)
+            ->forCatalogService(CatalogService::factory()->create(['type' => ServiceType::License]))
+            ->create(['name' => 'Yazılım']);
+        $service->items()->first()->forceFill(['details' => ['quantity' => 3], 'license_key' => 'SECRET-KEY-123'])->save();
+
+        uiCard($customer)
+            ->assertSee(__('enums.service_type_details.license.customer.quantity').': 3')
+            ->assertDontSee(__('usage.summary_none'))
+            ->assertDontSee('SECRET-KEY-123');
+    });
+
+    it('shows the server detail of an unlinked hosting service but no usage line', function () {
+        $customer = Customer::factory()->create();
+        uiCardService($customer, [], 'logi.com.tr')->items()->first()->update(['details' => ['domain' => 'logi.com.tr', 'server' => 'Eski Sunucu']]);
+
+        uiCard($customer)->assertSee('Eski Sunucu')->assertDontSee(__('usage.summary_none'));
+    });
+
+    it('shows no usage line for a cancelled service', function () use ($gb) {
+        $customer = Customer::factory()->create();
+        $server = Server::factory()->whm()->create();
+        UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id, 'status' => CustomerServiceStatus::Cancelled]);
+        UsageScenario::usage($server, 'logi', [UsageScenario::resource('disk_usage', $gb, 5 * $gb, true)]);
+
+        uiCard($customer)->assertDontSee(__('usage.resource.disk_usage').' 1 GB')->assertDontSee(__('usage.summary_none'));
+    });
 });

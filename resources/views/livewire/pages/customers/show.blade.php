@@ -87,7 +87,7 @@
                 @else
                     <x-ui.table :columns="$serviceColumns" :card="false">
                         @foreach ($activeServices as $service)
-                            @include('livewire.pages.customers.partials.service-row', ['service' => $service, 'usageBadge' => $usageBadges[$service->id] ?? null, 'leadDays' => $leadDays])
+                            @include('livewire.pages.customers.partials.service-row', ['service' => $service, 'summary' => $summaries[$service->id] ?? [], 'leadDays' => $leadDays])
                         @endforeach
                     </x-ui.table>
                 @endif
@@ -98,7 +98,7 @@
                     <summary>{{ __('customers.cancelled_services', ['count' => $cancelledServices->count()]) }}</summary>
                     <x-ui.table :columns="$serviceColumns" :end="true" :card="false">
                         @foreach ($cancelledServices as $service)
-                            @include('livewire.pages.customers.partials.service-row', ['service' => $service, 'usageBadge' => null, 'leadDays' => $leadDays])
+                            @include('livewire.pages.customers.partials.service-row', ['service' => $service, 'summary' => $summaries[$service->id] ?? [], 'leadDays' => $leadDays])
                         @endforeach
                     </x-ui.table>
                 </x-ui.card>

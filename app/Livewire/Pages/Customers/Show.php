@@ -3,7 +3,7 @@
 namespace App\Livewire\Pages\Customers;
 
 use App\Actions\Reminders\BuildWhatsAppReminder;
-use App\Actions\Servers\BuildUsageReport;
+use App\Actions\Servers\BuildServiceCardSummaries;
 use App\Actions\Tasks\CompleteTask;
 use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
@@ -11,7 +11,6 @@ use App\Enums\Permission;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Support\Settings;
-use App\Support\Ui\StatusBadges;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -114,7 +113,7 @@ class Show extends Component
             'activeServices' => $services->where('status', CustomerServiceStatus::Active)->values(),
             'cancelledServices' => $services->where('status', CustomerServiceStatus::Cancelled)->values(),
             'whatsAppLinks' => $customer->charges->mapWithKeys(fn ($charge): array => [$charge->id => $whatsApp->handle($charge)]),
-            'usageBadges' => $this->usageBadges($services->where('status', CustomerServiceStatus::Active)),
+            'summaries' => app(BuildServiceCardSummaries::class)->handle($services),
             'leadDays' => app(Settings::class)->renewalLeadDays(),
             'openDebt' => $canSeeMoney ? $customer->openChargeTotals() : [],
             'creditBalance' => $canSeeMoney ? $customer->creditBalances() : [],
@@ -122,40 +121,5 @@ class Show extends Component
             'canSeeMoney' => $canSeeMoney,
             'openTasks' => $canSeeTasks ? $customer->tasks()->open()->orderForList()->with('assignee')->limit(5)->get() : new Collection,
         ])->title($customer->short_name);
-    }
-
-    /**
-     * The worst problem of each service's linked accounts as one badge ("Disk %94"), keyed by service id; a
-     * service whose accounts are all below the threshold has none.
-     *
-     * @param  Collection<int, CustomerService>  $services
-     * @return array<int, array{item: int, text: string, tone: string}>
-     */
-    private function usageBadges(Collection $services): array
-    {
-        $badges = [];
-        $reports = app(BuildUsageReport::class)->handleMany($services->flatMap(fn (CustomerService $service): Collection => $service->items));
-
-        foreach ($services as $service) {
-            $worst = null;
-
-            foreach ($service->items as $item) {
-                $badge = ($reports[$item->id] ?? null)?->badge();
-
-                if ($badge !== null && ($worst === null || $badge['level']->severity() > $worst['level']->severity())) {
-                    $worst = ['item' => $item->id, 'text' => $badge['text'], 'level' => $badge['level']];
-                }
-            }
-
-            if ($worst !== null) {
-                $badges[$service->id] = [
-                    'item' => $worst['item'],
-                    'text' => $worst['text'],
-                    'tone' => StatusBadges::toneOfColor($worst['level']->getColor()),
-                ];
-            }
-        }
-
-        return $badges;
     }
 }

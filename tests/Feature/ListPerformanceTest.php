@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Models\PaymentAllocation;
 use App\Models\PaymentMethod;
 use App\Models\Server;
+use App\Models\ServerUsage;
 use App\Models\User;
 use App\Support\Settings;
 use Illuminate\Support\Facades\DB;
@@ -200,6 +201,10 @@ it('reads the usage badges of a customer card with the same queries for one link
     $customer = Customer::factory()->create();
     $linked = function (string $kind, int $count) use ($customer): void {
         $server = $kind === 'whm' ? Server::factory()->whm()->create() : Server::factory()->cpanel()->create();
+
+        if ($kind === 'whm') {
+            ServerUsage::factory()->create(['server_id' => $server->id]);
+        }
 
         for ($i = 0; $i < $count; $i++) {
             $domain = "alan{$count}{$i}{$kind}.com";

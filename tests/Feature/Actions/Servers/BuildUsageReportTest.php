@@ -45,3 +45,23 @@ it('has no report for an item that is not linked to a server account', function 
 
     expect(app(BuildUsageReport::class)->handle($service->items()->firstOrFail()))->toBeNull();
 });
+
+it('writes the card summary in a fixed order, skips what the server did not report and marks old data', function () {
+    $gb = 1024 * 1024 * 1024;
+    $server = Server::factory()->whm()->create();
+    $service = UsageScenario::linkedService($server, 'logi');
+    UsageScenario::usage($server, 'logi', [
+        UsageScenario::resource('mysql_databases', 2, null),
+        UsageScenario::resource('email_accounts', 4, 10),
+        UsageScenario::resource('disk_usage', 2 * $gb, 5 * $gb, true),
+        UsageScenario::resource('ftp_accounts', 1, 5),
+    ]);
+
+    $report = app(BuildUsageReport::class)->handle($service->items()->firstOrFail()->load('server'));
+
+    expect($report?->cardSummary())->toBe(implode(' · ', [
+        __('usage.resource.disk_usage').' 2 GB / 5 GB',
+        __('usage.resource.email_accounts').' 4 / 10',
+        __('usage.resource.mysql_databases').' 2 · '.__('servers.unlimited'),
+    ]));
+});
