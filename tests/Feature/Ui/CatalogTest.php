@@ -11,7 +11,7 @@ use App\Models\Package;
 use App\Models\User;
 use Livewire\Livewire;
 
-beforeEach(fn () => $this->actingAs(User::factory()->create()));
+beforeEach(fn () => $this->actingAs(User::factory()->admin()->create()));
 
 it('lists catalog services and filters them by type and archive state', function () {
     CatalogService::factory()->ofType(ServiceType::Hosting)->create(['name' => 'Linux Hosting']);

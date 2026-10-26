@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Windows;
 
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Customer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,8 @@ use Livewire\Component;
  */
 class EditCustomer extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public int $customerId = 0;
 

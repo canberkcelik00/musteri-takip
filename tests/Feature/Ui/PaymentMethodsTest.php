@@ -7,7 +7,7 @@ use App\Models\PaymentMethod;
 use App\Models\User;
 use Livewire\Livewire;
 
-beforeEach(fn () => $this->actingAs(User::factory()->create()));
+beforeEach(fn () => $this->actingAs(User::factory()->admin()->create()));
 
 /**
  * Three active methods in a fixed order; the methods the migration seeds are removed first.

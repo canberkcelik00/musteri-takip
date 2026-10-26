@@ -4,11 +4,13 @@ namespace App\Livewire\Pages\Customers;
 
 use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
+use App\Enums\Permission;
 use App\Livewire\Concerns\WithTable;
 use App\Models\Customer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -113,11 +115,19 @@ class Index extends Component
 
         if ($sort !== null) {
             $query->orderBy($sort[0], $sort[1]);
-        } else {
+        } elseif ($this->canSeeMoney()) {
             $query->orderByDesc('has_overdue');
         }
 
         return $query->orderBy('short_name')->orderBy('id')->paginate($this->perPage());
+    }
+
+    /**
+     * A user without the money permission gets no debt column, and the debt is not even read.
+     */
+    private function canSeeMoney(): bool
+    {
+        return Auth::user()?->can(Permission::MoneyView->value) === true;
     }
 
     /**
@@ -132,9 +142,15 @@ class Index extends Component
     {
         $activeServices = fn (Builder $services): Builder => $services->where('status', CustomerServiceStatus::Active);
 
-        return $query
+        $query
             ->withCount(['customerServices as active_services_count' => $activeServices])
-            ->withMin(['customerServices as next_renewal_on' => $activeServices], 'end_date')
+            ->withMin(['customerServices as next_renewal_on' => $activeServices], 'end_date');
+
+        if (! $this->canSeeMoney()) {
+            return $query;
+        }
+
+        return $query
             ->withExists(['charges as has_overdue' => fn (Builder $charges): Builder => $charges->scopes(['overdue'])])
             ->with(['charges' => fn ($charges) => $charges
                 ->where('status', ChargeStatus::Open)

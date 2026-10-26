@@ -3,6 +3,7 @@
 namespace App\Livewire\Windows;
 
 use App\Actions\CustomerServices\CancelCustomerService;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\PreviewsCancellation;
 use App\Models\CustomerService;
 use Illuminate\Contracts\View\View;
@@ -14,6 +15,7 @@ use Livewire\Component;
  */
 class CancelService extends Component
 {
+    use AuthorizesPermission;
     use PreviewsCancellation;
 
     #[Locked]

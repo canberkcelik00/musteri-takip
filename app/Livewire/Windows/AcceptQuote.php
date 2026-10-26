@@ -6,6 +6,7 @@ use App\Actions\Quotes\AcceptQuote as AcceptQuoteAction;
 use App\Enums\QuoteStatus;
 use App\Exceptions\InvalidCustomerService;
 use App\Exceptions\InvalidQuote;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Quote;
 use Illuminate\Contracts\View\View;
@@ -19,6 +20,7 @@ use Livewire\Component;
  */
 class AcceptQuote extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

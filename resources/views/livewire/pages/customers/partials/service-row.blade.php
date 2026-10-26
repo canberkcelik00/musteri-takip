@@ -13,7 +13,11 @@
 
 <x-ui.row wire:key="service-{{ $service->id }}">
     <td>
-        <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-service', ['service' => $service->id]) !!}">{{ $service->name }}</x-ui.link-button>
+        @can('services.manage')
+            <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-service', ['service' => $service->id]) !!}">{{ $service->name }}</x-ui.link-button>
+        @else
+            <span class="ui-cell-title">{{ $service->name }}</span>
+        @endcan
         @if ($domains !== [])
             <span class="ui-sub-line">
                 <x-ui.domains :domains="$domains" />@if ($others > 0) +{{ __('customer_services.more_domains', ['count' => $others]) }}@endif
@@ -29,19 +33,21 @@
         @endif
     </td>
     <td class="ui-from-md">{{ Carbon::parse($service->end_date)->format('d.m.Y') }}</td>
-    <td class="is-end">
-        @if ($service->is_free)
-            {{ __('customer_services.free') }}
-        @else
-            <x-ui.money :amount="$service->price" :currency="$service->currency" />
-        @endif
-    </td>
+    @can('money.view')
+        <td class="is-end">
+            @if ($service->is_free)
+                {{ __('customer_services.free') }}
+            @else
+                <x-ui.money :amount="$service->price" :currency="$service->currency" />
+            @endif
+        </td>
+    @endcan
     <td class="ui-from-xl">
         @if ($statusTone)
             <x-ui.badge :tone="$statusTone">{{ $statusLabel }}</x-ui.badge>
         @endif
     </td>
-    @if ($cancelled)
+    @if ($cancelled && auth()->user()?->can('services.manage'))
         <x-slot:actions>
             <x-ui.button size="sm" class="ui-from-md" x-on:click="{!! Js::openWindow('reactivate-service', ['service' => $service->id]) !!}">{{ __('customer_services.reactivate') }}</x-ui.button>
         </x-slot:actions>

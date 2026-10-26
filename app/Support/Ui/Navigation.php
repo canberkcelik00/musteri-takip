@@ -2,6 +2,8 @@
 
 namespace App\Support\Ui;
 
+use Illuminate\Support\Facades\Auth;
+
 /**
  * The sidebar and bottom tab bar entries of the glass interface, resolved from `config('ui.navigation')`:
  * an item links to its `app.*` route.
@@ -23,7 +25,15 @@ final class Navigation
             if (isset($entry['group'])) {
                 /** @var list<array<string, mixed>> $children */
                 $children = $entry['items'];
-                $items = array_map(fn (array $item): array => self::item($item, $currentUrl), $children);
+                $items = array_map(
+                    fn (array $item): array => self::item($item, $currentUrl),
+                    array_values(array_filter($children, self::allowed(...))),
+                );
+
+                if ($items === []) {
+                    continue;
+                }
+
                 $active = collect($items)->contains('active', true);
 
                 $entries[] = [
@@ -36,7 +46,9 @@ final class Navigation
                 continue;
             }
 
-            $entries[] = self::item($entry, $currentUrl);
+            if (self::allowed($entry)) {
+                $entries[] = self::item($entry, $currentUrl);
+            }
         }
 
         return $entries;
@@ -60,6 +72,16 @@ final class Navigation
         }
 
         return $tabs;
+    }
+
+    /**
+     * Whether the signed-in user may see the item: it names no permission, or the user holds it.
+     *
+     * @param  array<string, mixed>  $item
+     */
+    private static function allowed(array $item): bool
+    {
+        return ! isset($item['permission']) || (Auth::user()?->can((string) $item['permission']) ?? false);
     }
 
     /**

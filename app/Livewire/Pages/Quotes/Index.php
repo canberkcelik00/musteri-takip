@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Pages\Quotes;
 
+use App\Enums\Permission;
 use App\Enums\QuoteDisplayStatus;
 use App\Enums\QuoteStatus;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\WithTable;
 use App\Models\Quote;
 use Illuminate\Contracts\View\View;
@@ -24,6 +26,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Index extends Component
 {
+    use AuthorizesPermission;
     use WithTable;
 
     public const string STATUS_ALL = 'all';
@@ -102,6 +105,11 @@ class Index extends Component
             QuoteDisplayStatus::Rejected => $query->where('status', QuoteStatus::Rejected),
             null => null,
         };
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::MoneyView;
     }
 
     public function render(): View

@@ -8,6 +8,7 @@ use App\Actions\Payments\SuggestPaymentDefaults;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Exceptions\InvalidPaymentAllocation;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
@@ -26,6 +27,8 @@ use Livewire\Component;
  */
 class RecordPayment extends Component
 {
+    use AuthorizesPermission;
+
     public const string PAYMENTS_CHANGED_EVENT = 'payments-changed';
 
     public string $customer_id = '';

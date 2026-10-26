@@ -50,7 +50,7 @@ it('paints the page gradient on a fixed layer without a blur', function () {
 });
 
 it('searches nothing below two characters and keeps the result box closed', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     Customer::factory()->create(['short_name' => 'Logi']);
 
     DB::enableQueryLog();
@@ -64,7 +64,7 @@ it('searches nothing below two characters and keeps the result box closed', func
 });
 
 it('loads only the columns and relations the search result row shows', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     $customer = Customer::factory()->create(['short_name' => 'Logi', 'notes' => 'private note']);
     CustomerService::factory()->for($customer)->forCatalogService(CatalogService::factory()->create(['type' => ServiceType::Hosting]))->create();
 
@@ -75,7 +75,7 @@ it('loads only the columns and relations the search result row shows', function 
 });
 
 it('reads the customer filter options once and again only after a customer changes', function (string $page) {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     Customer::factory()->create(['short_name' => 'Birinci']);
 
     $component = Livewire::test($page)->assertSee('Birinci');

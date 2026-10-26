@@ -22,19 +22,19 @@ Route::name('app.')->group(function (): void {
     Route::livewire('/login', Login::class)->middleware('guest')->name('login');
 
     Route::middleware(['auth', 'active'])->group(function (): void {
-        Route::livewire('/', Today::class)->name('today');
+        Route::livewire('/', Today::class)->middleware('money-home')->name('today');
         Route::livewire('/profile', Profile::class)->name('profile');
         Route::livewire('/customers', CustomersIndex::class)->name('customers.index');
         Route::livewire('/customers/{customer}', CustomersShow::class)->name('customers.show');
-        Route::livewire('/charges', ChargesIndex::class)->name('charges.index');
-        Route::livewire('/payments', PaymentsIndex::class)->name('payments.index');
-        Route::livewire('/quotes', QuotesIndex::class)->name('quotes.index');
-        Route::get('/quotes/{quote}/pdf', QuotePdfController::class)->name('quotes.pdf');
-        Route::livewire('/catalog/services', CatalogServices::class)->name('catalog.services');
-        Route::livewire('/catalog/packages', CatalogPackages::class)->name('catalog.packages');
-        Route::livewire('/settings', SettingsGeneral::class)->name('settings');
-        Route::livewire('/settings/payment-methods', SettingsPaymentMethods::class)->name('payment-methods');
-        Route::livewire('/settings/servers', SettingsServers::class)->name('servers');
+        Route::livewire('/charges', ChargesIndex::class)->middleware('can:money.view')->name('charges.index');
+        Route::livewire('/payments', PaymentsIndex::class)->middleware('can:money.view')->name('payments.index');
+        Route::livewire('/quotes', QuotesIndex::class)->middleware('can:money.view')->name('quotes.index');
+        Route::get('/quotes/{quote}/pdf', QuotePdfController::class)->middleware('can:money.view')->name('quotes.pdf');
+        Route::livewire('/catalog/services', CatalogServices::class)->middleware('can:catalog.manage')->name('catalog.services');
+        Route::livewire('/catalog/packages', CatalogPackages::class)->middleware('can:catalog.manage')->name('catalog.packages');
+        Route::livewire('/settings', SettingsGeneral::class)->middleware('can:settings.manage')->name('settings');
+        Route::livewire('/settings/payment-methods', SettingsPaymentMethods::class)->middleware('can:settings.manage')->name('payment-methods');
+        Route::livewire('/settings/servers', SettingsServers::class)->middleware('can:settings.manage')->name('servers');
         Route::post('/logout', LogoutController::class)->name('logout');
     });
 });

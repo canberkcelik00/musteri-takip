@@ -56,12 +56,14 @@
                                 @endif
                             </span>
                         </a>
-                        @unless ($customer->isArchived())
-                            <x-ui.button
-                                size="sm"
-                                x-on:click="open = false; expanded = false; $dispatch('open-window', { name: 'record-payment', params: { customer: {{ $customer->id }} } })"
-                            >{{ __('payments.record') }}</x-ui.button>
-                        @endunless
+                        @can('money.manage')
+                            @unless ($customer->isArchived())
+                                <x-ui.button
+                                    size="sm"
+                                    x-on:click="open = false; expanded = false; $dispatch('open-window', { name: 'record-payment', params: { customer: {{ $customer->id }} } })"
+                                >{{ __('payments.record') }}</x-ui.button>
+                            @endunless
+                        @endcan
                     </div>
                 @empty
                     <div class="ui-option-empty">{{ __('ui.search.empty') }}</div>

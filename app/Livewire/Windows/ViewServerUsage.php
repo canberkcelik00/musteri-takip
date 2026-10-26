@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Servers\BuildServerUsageReport;
 use App\Actions\Servers\RefreshServerTotals;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Server;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
@@ -16,6 +17,8 @@ use Livewire\Component;
  */
 class ViewServerUsage extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public int $serverId = 0;
 

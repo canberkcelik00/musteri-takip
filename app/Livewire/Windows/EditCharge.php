@@ -6,6 +6,7 @@ use App\Actions\Charges\UpdateCharge;
 use App\Actions\Reminders\SendRenewalReminder;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Charge;
 use App\Support\Money;
@@ -21,6 +22,7 @@ use Livewire\Component;
  */
 class EditCharge extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     public const string CHARGES_CHANGED_EVENT = 'charges-changed';

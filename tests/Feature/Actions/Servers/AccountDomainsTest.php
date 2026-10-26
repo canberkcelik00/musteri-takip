@@ -42,7 +42,7 @@ function whmAccountOf(string $user): RemoteAccount
 }
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
 });
 
 it('reads the main, addon and parked domains of a WHM account, lower case, without sub domains', function () {

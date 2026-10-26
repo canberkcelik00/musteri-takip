@@ -8,6 +8,7 @@ use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Exceptions\InvalidCustomerService;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
@@ -25,6 +26,7 @@ use Livewire\Component;
  */
 class EditService extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

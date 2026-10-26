@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Enums\Currency;
 use App\Enums\ServiceType;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\CatalogService;
 use App\Support\Money;
 use App\Support\Ui\MoneyAmountRule;
@@ -19,6 +20,8 @@ use Livewire\Component;
  */
 class EditCatalogService extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public ?int $serviceId = null;
 

@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Contacts\CreateContact;
 use App\Actions\Contacts\MakeContactPrimary;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Contact as ContactModel;
 use App\Models\Customer;
 use Illuminate\Contracts\View\View;
@@ -17,6 +18,8 @@ use Livewire\Component;
  */
 class Contact extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public int $customerId = 0;
 

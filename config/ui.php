@@ -31,6 +31,40 @@ use App\Livewire\Windows\ViewUsage;
 return [
 
     /*
+    | The permission each window needs (window name => `Permission` enum value), checked by the WindowHost before
+    | it opens a window and by the window itself on every request (AuthorizesPermission). `confirm` decides per action
+    | (see Confirmations::permission); `view-usage` shows no money, so it needs only the services permission.
+    */
+    'window_permissions' => [
+        'record-payment' => 'money.manage',
+        'edit-charge' => 'money.manage',
+        'split-charge' => 'money.manage',
+        'cancel-charge' => 'money.manage',
+        'send-reminder' => 'money.manage',
+        'view-payment' => 'money.view',
+        'create-customer' => 'customers.manage',
+        'edit-customer' => 'customers.manage',
+        'contact' => 'customers.manage',
+        'assign-service' => 'services.manage',
+        'edit-service' => 'services.manage',
+        'mark-free' => 'services.manage',
+        'remove-free' => 'services.manage',
+        'cancel-service' => 'services.manage',
+        'reactivate-service' => 'services.manage',
+        'view-usage' => 'services.view',
+        'quote' => 'quotes.manage',
+        'create-quote' => 'quotes.manage',
+        'send-quote' => 'quotes.manage',
+        'accept-quote' => 'quotes.manage',
+        'edit-catalog-service' => 'catalog.manage',
+        'edit-package' => 'catalog.manage',
+        'edit-payment-method' => 'settings.manage',
+        'edit-server' => 'settings.manage',
+        'pull-from-server' => 'settings.manage',
+        'view-server-usage' => 'settings.manage',
+    ],
+
+    /*
     | Windows the WindowHost can open (name => Livewire component class). A window is opened by the
     | `open-window` event: `$dispatch('open-window', { name: 'record-payment', params: { ... } })`.
     | An unknown name opens nothing.
@@ -66,35 +100,36 @@ return [
     ],
 
     /*
-    | The sidebar. An item points at its `app.*` route. `color` is a menu square color
+    | The sidebar. An item points at its `app.*` route and may name the `permission` the user needs to see it.
+    | `color` is a menu square color
     | (`--mt-nav-*`), `icon` a heroicon name (outline set), `tab` (a label) puts the item in the bottom tab bar
     | of narrow screens.
     */
     'navigation' => [
-        ['label' => 'ui.nav.today', 'icon' => 'calendar-days', 'color' => 'blue', 'route' => 'app.today', 'tab' => 'ui.nav.tab_today'],
+        ['label' => 'ui.nav.today', 'icon' => 'calendar-days', 'color' => 'blue', 'route' => 'app.today', 'permission' => 'money.view', 'tab' => 'ui.nav.tab_today'],
         ['label' => 'ui.nav.customers', 'icon' => 'users', 'color' => 'indigo', 'route' => 'app.customers.index', 'tab' => 'ui.nav.tab_customers'],
-        ['label' => 'ui.nav.quotes', 'icon' => 'document-text', 'color' => 'orange', 'route' => 'app.quotes.index'],
+        ['label' => 'ui.nav.quotes', 'icon' => 'document-text', 'color' => 'orange', 'route' => 'app.quotes.index', 'permission' => 'money.view'],
         [
             'group' => 'ui.nav.collections',
             'items' => [
-                ['label' => 'ui.nav.open_charges', 'icon' => 'receipt-percent', 'color' => 'purple', 'route' => 'app.charges.index', 'tab' => 'ui.nav.tab_charges'],
-                ['label' => 'ui.nav.payments', 'icon' => 'banknotes', 'color' => 'green', 'route' => 'app.payments.index'],
+                ['label' => 'ui.nav.open_charges', 'icon' => 'receipt-percent', 'color' => 'purple', 'route' => 'app.charges.index', 'permission' => 'money.view', 'tab' => 'ui.nav.tab_charges'],
+                ['label' => 'ui.nav.payments', 'icon' => 'banknotes', 'color' => 'green', 'route' => 'app.payments.index', 'permission' => 'money.view'],
             ],
         ],
         [
             'group' => 'ui.nav.catalog',
             'collapsed' => true,
             'items' => [
-                ['label' => 'ui.nav.services', 'icon' => 'squares-2x2', 'color' => 'teal', 'route' => 'app.catalog.services'],
-                ['label' => 'ui.nav.packages', 'icon' => 'cube', 'color' => 'teal', 'route' => 'app.catalog.packages'],
+                ['label' => 'ui.nav.services', 'icon' => 'squares-2x2', 'color' => 'teal', 'route' => 'app.catalog.services', 'permission' => 'catalog.manage'],
+                ['label' => 'ui.nav.packages', 'icon' => 'cube', 'color' => 'teal', 'route' => 'app.catalog.packages', 'permission' => 'catalog.manage'],
             ],
         ],
         [
             'group' => 'ui.nav.settings',
             'items' => [
-                ['label' => 'ui.nav.general', 'icon' => 'cog-6-tooth', 'color' => 'gray', 'route' => 'app.settings'],
-                ['label' => 'ui.nav.payment_methods', 'icon' => 'credit-card', 'color' => 'gray', 'route' => 'app.payment-methods'],
-                ['label' => 'ui.nav.servers', 'icon' => 'server', 'color' => 'gray', 'route' => 'app.servers'],
+                ['label' => 'ui.nav.general', 'icon' => 'cog-6-tooth', 'color' => 'gray', 'route' => 'app.settings', 'permission' => 'settings.manage'],
+                ['label' => 'ui.nav.payment_methods', 'icon' => 'credit-card', 'color' => 'gray', 'route' => 'app.payment-methods', 'permission' => 'settings.manage'],
+                ['label' => 'ui.nav.servers', 'icon' => 'server', 'color' => 'gray', 'route' => 'app.servers', 'permission' => 'settings.manage'],
             ],
         ],
     ],

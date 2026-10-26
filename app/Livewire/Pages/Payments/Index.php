@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Pages\Payments;
 
+use App\Enums\Permission;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\WithTable;
 use App\Models\Customer;
 use App\Models\Payment;
@@ -23,6 +25,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Index extends Component
 {
+    use AuthorizesPermission;
     use WithTable;
 
     #[Url(except: '')]
@@ -85,6 +88,11 @@ class Index extends Component
     public function forgetCustomerOptions(): void
     {
         unset($this->customerOptions);
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::MoneyView;
     }
 
     public function render(): View

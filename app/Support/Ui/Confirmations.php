@@ -15,6 +15,7 @@ use App\Actions\Payments\DeletePayment;
 use App\Actions\Quotes\DeleteQuote;
 use App\Actions\Quotes\RejectQuote;
 use App\Actions\Servers\DeleteServer;
+use App\Enums\Permission;
 use App\Models\CatalogService;
 use App\Models\Contact;
 use App\Models\Customer;
@@ -52,6 +53,24 @@ final class Confirmations
             'archive-catalog-service', 'archive-package', 'archive-payment-method', 'archive-server' => ['heading' => __('archive.archive_heading'), 'description' => __('archive.archive_description'), 'label' => __('archive.archive'), 'danger' => false],
             'unarchive-catalog-service', 'unarchive-package', 'unarchive-payment-method', 'unarchive-server' => ['heading' => __('archive.unarchive'), 'description' => '', 'label' => __('archive.unarchive'), 'danger' => false],
             'delete-catalog-service', 'delete-package', 'delete-payment-method', 'delete-server' => ['heading' => __('archive.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('archive.delete'), 'danger' => true],
+            default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
+        };
+    }
+
+    /**
+     * The permission a user needs to be asked, and to confirm, the action.
+     */
+    public static function permission(string $action): Permission
+    {
+        return match ($action) {
+            'archive-customer', 'unarchive-customer', 'delete-customer', 'delete-contact' => Permission::CustomersManage,
+            'delete-payment' => Permission::MoneyManage,
+            'delete-service', 'confirm-free-continuation' => Permission::ServicesManage,
+            'reject-quote', 'delete-quote' => Permission::QuotesManage,
+            'archive-catalog-service', 'unarchive-catalog-service', 'delete-catalog-service',
+            'archive-package', 'unarchive-package', 'delete-package' => Permission::CatalogManage,
+            'archive-payment-method', 'unarchive-payment-method', 'delete-payment-method',
+            'archive-server', 'unarchive-server', 'delete-server' => Permission::SettingsManage,
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }

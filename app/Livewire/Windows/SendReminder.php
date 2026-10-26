@@ -5,6 +5,7 @@ namespace App\Livewire\Windows;
 use App\Actions\Reminders\SendRenewalReminder;
 use App\Actions\Reminders\SendRenewalReminders;
 use App\Exceptions\ReminderNotSent;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Charge;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,8 @@ use Throwable;
  */
 class SendReminder extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public int $chargeId = 0;
 

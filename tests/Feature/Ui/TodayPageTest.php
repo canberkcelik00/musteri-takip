@@ -23,7 +23,7 @@ use Livewire\Livewire;
 use Tests\Fixtures\UsageScenario;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     $this->travelTo('2026-06-15 10:00:00');
     app(Settings::class)->set(SettingKey::RenewalLeadDays, '30');
     fakePendingRelease(false);

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
 });
 
 /**
@@ -249,6 +249,7 @@ it('runs the same number of queries for a few customers as for many', function (
         CustomerService::factory()->for($customer)->create();
     }
 
+    $count(); // The first request also reads the permissions, which are cached afterwards.
     $few = $count();
 
     foreach (range(1, 20) as $i) {

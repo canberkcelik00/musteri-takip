@@ -15,6 +15,10 @@
         ['key' => 'price', 'label' => __('customer_services.price'), 'end' => true],
         ['key' => 'status', 'label' => __('customer_services.status'), 'from' => 'xl'],
     ];
+
+    if (! $canSeeMoney) {
+        $serviceColumns = array_values(array_filter($serviceColumns, fn (array $column): bool => $column['key'] !== 'price'));
+    }
 @endphp
 
 <div>
@@ -37,23 +41,29 @@
             </div>
         </div>
 
-        <dl class="ui-amounts">
-            @foreach ([['label' => __('customers.open_debt'), 'totals' => $openDebt], ['label' => __('customers.credit_balance'), 'totals' => $creditBalance]] as $amount)
-                <div class="ui-amount">
-                    <dt>{{ $amount['label'] }}</dt>
-                    @forelse ($amount['totals'] as $money)
-                        <dd><x-ui.money :amount="$money->amount" :currency="$money->currency" /></dd>
-                    @empty
-                        <dd>{{ __('money.empty') }}</dd>
-                    @endforelse
-                </div>
-            @endforeach
-        </dl>
+        @if ($canSeeMoney)
+            <dl class="ui-amounts">
+                @foreach ([['label' => __('customers.open_debt'), 'totals' => $openDebt], ['label' => __('customers.credit_balance'), 'totals' => $creditBalance]] as $amount)
+                    <div class="ui-amount">
+                        <dt>{{ $amount['label'] }}</dt>
+                        @forelse ($amount['totals'] as $money)
+                            <dd><x-ui.money :amount="$money->amount" :currency="$money->currency" /></dd>
+                        @empty
+                            <dd>{{ __('money.empty') }}</dd>
+                        @endforelse
+                    </div>
+                @endforeach
+            </dl>
+        @endif
 
         @unless ($customer->isArchived())
             <div class="ui-strip-actions">
-                <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
-                <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
+                @can('money.manage')
+                    <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
+                @endcan
+                @can('services.manage')
+                    <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
+                @endcan
             </div>
         @endunless
     </section>
@@ -70,9 +80,9 @@
 
                 @if ($activeServices->isEmpty())
                     <x-ui.empty-state :heading="__('customer_services.empty_heading')" :description="__('customer_services.empty_description')">
-                            @unless ($customer->isArchived())
+                            @if (! $customer->isArchived() && auth()->user()?->can('services.manage'))
                                 <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
-                            @endunless
+                            @endif
                         </x-ui.empty-state>
                 @else
                     <x-ui.table :columns="$serviceColumns" :card="false">
@@ -94,6 +104,7 @@
                 </x-ui.card>
             @endif
 
+            @if ($canSeeMoney)
             {{-- Open charges --}}
             <x-ui.card tag="section" flush>
                 <div class="ui-card-head">
@@ -237,6 +248,7 @@
                         @endforeach
                     </x-ui.table>
                 </x-ui.card>
+            @endif
             @endif
         </div>
 

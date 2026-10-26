@@ -17,7 +17,7 @@ it('does not show the glass interface to a guest', function () {
 it('shows the login page to a guest and sends a signed-in user home', function () {
     $this->get('/login')->assertOk()->assertSee(__('ui.login.submit'));
 
-    $this->actingAs(User::factory()->create())->get('/login')->assertRedirect(route('app.today'));
+    $this->actingAs(User::factory()->admin()->create())->get('/login')->assertRedirect(route('app.today'));
 });
 
 it('signs in with the right credentials', function () {
@@ -91,7 +91,7 @@ it('locks the sign-in after too many failed attempts, even for the right passwor
 });
 
 it('signs out and sends the user to the login page', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->post(route('app.logout'))
         ->assertRedirect(route('app.login'));
 

@@ -5,7 +5,9 @@ namespace App\Livewire\Pages\Settings;
 use App\Actions\Settings\SendTestEmail;
 use App\Actions\Settings\UpdateSettings;
 use App\Enums\DigestFrequency;
+use App\Enums\Permission;
 use App\Enums\RefreshIntervalUnit;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Support\Settings;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
@@ -23,6 +25,7 @@ use Throwable;
 #[Layout('layouts.app')]
 class General extends Component
 {
+    use AuthorizesPermission;
     use WithFileUploads;
 
     public string $renewal_lead_days = '';
@@ -163,6 +166,11 @@ class General extends Component
         }
 
         $this->dispatch('notify', message: $message);
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::SettingsManage;
     }
 
     public function render(): View

@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Quotes\CreateQuote as CreateQuoteAction;
 use App\Exceptions\InvalidQuote;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Customer;
 use App\Support\Ui\Links;
@@ -21,6 +22,7 @@ use Livewire\Component;
  */
 class CreateQuote extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     /** The `catalog_service:ID` or `package:ID` the window was opened for; empty when the user picks it. */

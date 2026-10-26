@@ -4,7 +4,9 @@ namespace App\Livewire\Pages\Settings;
 
 use App\Actions\Servers\BuildResellerSummary;
 use App\Actions\Servers\ListUsageAlerts;
+use App\Enums\Permission;
 use App\Enums\UsageLevel;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\AccountUsage;
 use App\Models\Server;
 use Illuminate\Contracts\View\View;
@@ -22,6 +24,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Servers extends Component
 {
+    use AuthorizesPermission;
+
     public const string ARCHIVE_ACTIVE = 'active';
 
     public const string ARCHIVE_ARCHIVED = 'archived';
@@ -112,6 +116,11 @@ class Servers extends Component
         }
 
         return $counts;
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::SettingsManage;
     }
 
     public function render(): View

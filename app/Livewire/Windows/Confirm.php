@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Windows;
 
+use App\Enums\Permission;
 use App\Exceptions\CustomerHasActiveServices;
 use App\Exceptions\InvalidQuote;
 use App\Exceptions\LastActivePaymentMethod;
 use App\Exceptions\PrimaryContactCannotBeDeleted;
 use App\Exceptions\RecordInUse;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Support\Ui\Confirmations;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
@@ -18,6 +20,8 @@ use Livewire\Component;
  */
 class Confirm extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public string $action = '';
 
@@ -26,6 +30,8 @@ class Confirm extends Component
 
     public function mount(string $action, int $id): void
     {
+        $this->authorizePermission(Confirmations::permission($action));
+
         Confirmations::describe($action, $id);
 
         $this->action = $action;
@@ -49,6 +55,11 @@ class Confirm extends Component
         if ($result['redirect'] !== null) {
             $this->redirect($result['redirect']);
         }
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return $this->action === '' ? null : Confirmations::permission($this->action);
     }
 
     public function render(): View

@@ -132,7 +132,7 @@ it('does not let the browser set which window is open', function () {
 })->throws('Cannot update locked property');
 
 it('draws the windows after the top bar, outside every bar, and a notification area', function () {
-    $html = $this->actingAs(User::factory()->create())->get(route('app.today'))->assertOk()->getContent();
+    $html = $this->actingAs(User::factory()->admin()->create())->get(route('app.today'))->assertOk()->getContent();
 
     $header = substr($html, strpos($html, '<header'), strpos($html, '</header>') - strpos($html, '<header'));
 
@@ -148,6 +148,8 @@ it('applies the saved theme before the first paint', function () {
 });
 
 it('links sidebar items to the glass interface when the screen exists and to the panel until then', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
     $entries = Navigation::entries(route('app.today'));
 
     expect($entries[0])->toMatchArray(['url' => route('app.today'), 'active' => true])
@@ -155,6 +157,8 @@ it('links sidebar items to the glass interface when the screen exists and to the
 });
 
 it('does not mark the today item active on other pages', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
     $entries = Navigation::entries(route('app.customers.index'));
 
     expect($entries[0]['active'])->toBeFalse()
@@ -162,6 +166,8 @@ it('does not mark the today item active on other pages', function () {
 });
 
 it('marks the current item and opens the catalog group only when it holds the current page', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
     $closed = collect(Navigation::entries(route('app.today')))->firstWhere('group', 'ui.nav.catalog');
     $open = collect(Navigation::entries(route('app.catalog.packages')))->firstWhere('group', 'ui.nav.catalog');
 
@@ -171,6 +177,8 @@ it('marks the current item and opens the catalog group only when it holds the cu
 });
 
 it('keeps the settings and collections groups open and the bottom tabs to the three daily screens', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
     $entries = collect(Navigation::entries(route('app.today')));
 
     expect($entries->firstWhere('group', 'ui.nav.collections')['open'])->toBeTrue()
@@ -180,7 +188,7 @@ it('keeps the settings and collections groups open and the bottom tabs to the th
 });
 
 it('renders the sidebar with the menu squares and a "Menü" tab', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get(route('app.today'))
         ->assertOk()
         ->assertSee('ui-nav-blue', false)
@@ -266,7 +274,7 @@ it('has no Blade echo without its closing braces in any view', function () {
 });
 
 it('navigates between the main screens without a full page load', function () {
-    $html = $this->actingAs(User::factory()->create())->get(route('app.today'))->assertOk()->getContent();
+    $html = $this->actingAs(User::factory()->admin()->create())->get(route('app.today'))->assertOk()->getContent();
 
     expect(substr_count($html, 'wire:navigate'))->toBeGreaterThanOrEqual(count(Navigation::tabs(route('app.today'))) + 3);
     expect(Blade::render('<x-ui.row href="/app/customers/1"><td>A</td></x-ui.row>'))->toContain('Livewire.navigate');

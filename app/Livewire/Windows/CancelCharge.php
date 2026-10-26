@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Charges\CancelCharge as CancelChargeAction;
 use App\Exceptions\InvalidCharge;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Charge;
 use Illuminate\Contracts\View\View;
@@ -15,6 +16,7 @@ use Livewire\Component;
  */
 class CancelCharge extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

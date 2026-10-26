@@ -8,6 +8,7 @@ use App\Actions\Servers\ServerPullPreview;
 use App\Actions\Servers\ServerPullResult;
 use App\Enums\Currency;
 use App\Enums\ServerType;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Server;
 use App\Support\Ui\MoneyAmountRule;
 use Illuminate\Contracts\View\View;
@@ -25,6 +26,8 @@ use Livewire\Component;
  */
 class PullFromServer extends Component
 {
+    use AuthorizesPermission;
+
     /** The "Diğer…" option of the customer name list: the name is typed by hand. */
     public const string OTHER = '__other';
 

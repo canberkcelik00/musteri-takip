@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Windows;
 
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\PaymentMethod;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
@@ -13,6 +14,8 @@ use Livewire\Component;
  */
 class EditPaymentMethod extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public ?int $methodId = null;
 

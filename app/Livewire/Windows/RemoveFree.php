@@ -5,6 +5,7 @@ namespace App\Livewire\Windows;
 use App\Actions\CustomerServices\RemoveCustomerServiceFreeFlag;
 use App\Enums\CustomerServiceStatus;
 use App\Exceptions\InvalidCustomerService;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\CustomerService;
 use App\Support\Money;
@@ -20,6 +21,7 @@ use Livewire\Component;
  */
 class RemoveFree extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

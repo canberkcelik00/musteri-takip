@@ -19,7 +19,9 @@
                 @livewire(\App\Livewire\Topbar\Search::class)
                 <div class="flex-1"></div>
                 <div class="ui-topbar-actions">
-                    <x-ui.button variant="primary" x-on:click="$dispatch('open-window', { name: 'record-payment' })">{{ __('payments.record') }}</x-ui.button>
+                    @can('money.manage')
+                        <x-ui.button variant="primary" x-on:click="$dispatch('open-window', { name: 'record-payment' })">{{ __('payments.record') }}</x-ui.button>
+                    @endcan
                     <x-ui.button class="ui-topbar-new" x-on:click="$dispatch('open-window', { name: 'create-customer' })">{{ __('navigation.new_customer') }}</x-ui.button>
                 </div>
                 @include('layouts.partials.user-menu')

@@ -18,7 +18,7 @@ use App\Support\Ui\Links;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     $this->travelTo('2026-06-15 10:00:00');
 });
 

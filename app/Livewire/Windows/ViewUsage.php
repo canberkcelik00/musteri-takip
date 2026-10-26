@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Servers\BuildUsageReport;
 use App\Actions\Servers\RefreshAccountUsage;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\CustomerServiceItem;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
@@ -16,6 +17,8 @@ use Livewire\Component;
  */
 class ViewUsage extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public int $itemId = 0;
 

@@ -5,6 +5,7 @@ namespace App\Livewire\Windows;
 use App\Actions\Servers\TestServerConnection;
 use App\Enums\ServerType;
 use App\Enums\ServiceType;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\CatalogService;
 use App\Models\Server;
 use Illuminate\Contracts\View\View;
@@ -19,6 +20,8 @@ use Livewire\Component;
  */
 class EditServer extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public ?int $serverId = null;
 

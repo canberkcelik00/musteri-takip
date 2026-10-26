@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Pages\Catalog;
 
+use App\Enums\Permission;
 use App\Enums\ServiceType;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\WithTable;
 use App\Models\CatalogService;
 use Illuminate\Contracts\View\View;
@@ -19,6 +21,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Services extends Component
 {
+    use AuthorizesPermission;
     use WithTable;
 
     public const string ARCHIVE_ACTIVE = 'active';
@@ -94,6 +97,11 @@ class Services extends Component
         }
 
         return $query->orderBy('name')->orderBy('id')->paginate($this->perPage());
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::CatalogManage;
     }
 
     public function render(): View

@@ -475,7 +475,7 @@ Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç g
 - [x] **G-12.2 Rol altyapısı** — Bağımlılık: G-12.1
   - Yapılacak: `spatie/laravel-permission` (Laravel 13 uyumu önce doğrulanır); `Role`/`Permission` enum'ları; `users` migration'ı (`invited_at`, `deactivated_at`, boş şifre); idempotent `SyncRolesAndPermissions` (`DeployRelease` ve `app:create-admin` çağırır); `EnsureAdminUser` ilk hesaba Admin rolü verir; pasif/şifresiz kullanıcı girişi reddedilir, pasifleştirilenin oturumu kapanır.
   - Kabul: Eşleme iki kez çalışınca kayıt artmaz; mevcut admin Admin rolü alır; pasif ve şifresiz kullanıcı giriş yapamaz (testli).
-- [ ] **G-12.3 Para gizleme** — Bağımlılık: G-12.2
+- [x] **G-12.3 Para gizleme** — Bağımlılık: G-12.2
   - Yapılacak: Para rotalarına `can:` middleware'i; her sayfa `mount()` ve her pencere `mount` ile eylemde yetki denetler (`AuthorizesPermission` trait'i); menü, sekme çubuğu ve "Ödeme al" izne göre süzülür; müşteri kartı ve listesi para alanlarını göstermez ve okumaz; yazılımcı `/` adresinde Müşteriler'e gider; üst aramada para sonucu yok.
   - Kabul: Yazılımcı her para rotasında 403 alır; pencere çağrıları yasaktır; müşteri kartı ve listesinde tutar görünmez (testli).
 - [ ] **G-12.4 Kullanıcılar ekranı ve davet** — Bağımlılık: G-12.2

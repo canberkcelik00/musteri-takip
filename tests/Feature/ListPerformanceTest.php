@@ -37,7 +37,7 @@ use Tests\Fixtures\UsageScenario;
  * small one is not.
  */
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     $this->travelTo('2026-06-15 10:00:00');
 });
 

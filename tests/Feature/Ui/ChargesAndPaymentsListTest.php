@@ -12,7 +12,7 @@ use App\Models\User;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
     $this->travelTo('2026-06-15 10:00:00');
 });
 
@@ -260,6 +260,7 @@ describe('charge list', function () {
         };
 
         Charge::factory()->count(3)->create(['due_date' => '2026-07-10']);
+        $count(); // The first request also reads the permissions, which are cached afterwards.
         $few = $count();
         Charge::factory()->count(20)->create(['due_date' => '2026-06-01', 'currency' => Currency::Usd]);
 

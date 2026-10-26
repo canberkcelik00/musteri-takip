@@ -3,6 +3,7 @@
 namespace App\Livewire\Windows;
 
 use App\Enums\Currency;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\CatalogService;
 use App\Models\Package;
 use App\Support\Money;
@@ -21,6 +22,8 @@ use Livewire\Component;
  */
 class EditPackage extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public ?int $packageId = null;
 

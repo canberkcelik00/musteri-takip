@@ -6,6 +6,7 @@ use App\Actions\CustomerServices\AssignCustomerService;
 use App\Enums\Currency;
 use App\Enums\ServiceType;
 use App\Exceptions\InvalidCustomerService;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\CatalogService;
 use App\Models\Customer;
@@ -25,6 +26,7 @@ use Livewire\Component;
  */
 class AssignService extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     public const string SERVICES_CHANGED_EVENT = 'customer-services-changed';

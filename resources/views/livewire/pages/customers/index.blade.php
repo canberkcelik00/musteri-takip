@@ -6,11 +6,14 @@
 
     $columns = [
         ['key' => 'short_name', 'label' => __('customers.short_name'), 'sortable' => true],
-        ['key' => 'open_debt', 'label' => __('customers.open_debt'), 'end' => true],
         ['key' => 'next_renewal_on', 'label' => __('customers.next_renewal'), 'sortable' => true, 'from' => 'md'],
         ['key' => 'active_services_count', 'label' => __('customers.active_services_count'), 'sortable' => true, 'from' => 'lg', 'end' => true],
         ['key' => 'archived_at', 'label' => __('archive.status'), 'from' => 'md'],
     ];
+    if (auth()->user()?->can('money.view')) {
+        array_splice($columns, 1, 0, [['key' => 'open_debt', 'label' => __('customers.open_debt'), 'end' => true]]);
+    }
+
     $filtered = trim($search) !== '' || $archive !== Index::ARCHIVE_ACTIVE || $renewalSoon || $awaitingFreeDecision;
 @endphp
 
@@ -56,13 +59,15 @@
                         </div>
                     </div>
                 </td>
-                <td class="is-end">
-                    @forelse ($customer->openChargeTotals() as $money)
+                @can('money.view')
+                    <td class="is-end">
+                        @forelse ($customer->openChargeTotals() as $money)
                         <div><x-ui.money :amount="$money->amount" :currency="$money->currency" :danger="(bool) $customer->has_overdue" /></div>
                     @empty
                         <span class="ui-muted">{{ __('money.empty') }}</span>
                     @endforelse
-                </td>
+                    </td>
+                @endcan
                 <td class="ui-from-md">
                     @if ($customer->next_renewal_on)
                         {{ Carbon::parse($customer->next_renewal_on)->format('d.m.Y') }}
@@ -77,13 +82,13 @@
                     @endif
                 </td>
                 <x-slot:actions>
-                    @unless ($customer->isArchived())
+                    @if (auth()->user()?->can('money.manage') && ! $customer->isArchived())
                         <x-ui.button
                             size="sm"
                             class="ui-from-md"
                             x-on:click="$dispatch('open-window', { name: 'record-payment', params: { customer: {{ $customer->id }} } })"
                         >{{ __('payments.record') }}</x-ui.button>
-                    @endunless
+                    @endif
                 </x-slot:actions>
             </x-ui.row>
         @endforeach

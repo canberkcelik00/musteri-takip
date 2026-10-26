@@ -7,7 +7,9 @@ use App\Actions\Scheduler\CheckSchedulerHealth;
 use App\Actions\Servers\UsageAlert;
 use App\Actions\Today\ListTodayTasks;
 use App\Actions\Today\SummarizeToday;
+use App\Enums\Permission;
 use App\Enums\SchedulerStatus;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Support\Money;
@@ -27,6 +29,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Today extends Component
 {
+    use AuthorizesPermission;
+
     /**
      * At most this many failing services are named; the rest are counted.
      */
@@ -41,6 +45,11 @@ class Today extends Component
     public function refresh(): void
     {
         // Livewire re-renders the component after any listener.
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::MoneyView;
     }
 
     public function render(): View

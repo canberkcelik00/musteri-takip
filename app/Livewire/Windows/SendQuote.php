@@ -5,6 +5,7 @@ namespace App\Livewire\Windows;
 use App\Actions\Quotes\SendQuote as SendQuoteAction;
 use App\Enums\QuoteStatus;
 use App\Exceptions\InvalidQuote;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Quote;
 use Illuminate\Contracts\View\View;
@@ -20,6 +21,7 @@ use Throwable;
  */
 class SendQuote extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

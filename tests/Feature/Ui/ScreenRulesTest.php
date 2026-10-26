@@ -21,7 +21,7 @@ use Livewire\Livewire;
 
 // UI.md compliance of the glass screens (G-10.13).
 
-beforeEach(fn () => $this->actingAs(User::factory()->create()));
+beforeEach(fn () => $this->actingAs(User::factory()->admin()->create()));
 
 it('puts a text "Kapat" at the top right of every form window but not of the read-only ones', function () {
     $form = Blade::render('<x-ui.window title="Form" submit="save">x</x-ui.window>');

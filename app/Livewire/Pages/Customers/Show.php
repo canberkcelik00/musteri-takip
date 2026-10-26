@@ -6,12 +6,14 @@ use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Actions\Servers\BuildUsageReport;
 use App\Enums\ChargeStatus;
 use App\Enums\CustomerServiceStatus;
+use App\Enums\Permission;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Support\Settings;
 use App\Support\Ui\StatusBadges;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -50,22 +52,33 @@ class Show extends Component
     {
         $customer = $this->customer;
 
+        $canSeeMoney = Auth::user()?->can(Permission::MoneyView->value) === true;
+
         $customer->load([
             'contacts' => fn ($contacts) => $contacts->orderByDesc('is_primary')->orderBy('name'),
             'customerServices' => fn ($services) => $services->with('items.server')->orderBy('end_date')->orderBy('id'),
-            'charges' => fn ($charges) => $charges
-                ->where('status', ChargeStatus::Open)
-                ->withSum('allocations', 'amount')
-                ->with('customerService.items')
-                ->orderBy('due_date')
-                ->orderBy('id'),
-            'payments' => fn ($payments) => $payments
-                ->with(['paymentMethod', 'allocations.charge.customerService.items'])
-                ->orderByDesc('paid_on')
-                ->orderByDesc('id')
-                ->limit(5),
-            'quotes' => fn ($quotes) => $quotes->with('items')->orderByDesc('created_at')->orderByDesc('id'),
         ]);
+
+        if ($canSeeMoney) {
+            $customer->load([
+                'charges' => fn ($charges) => $charges
+                    ->where('status', ChargeStatus::Open)
+                    ->withSum('allocations', 'amount')
+                    ->with('customerService.items')
+                    ->orderBy('due_date')
+                    ->orderBy('id'),
+                'payments' => fn ($payments) => $payments
+                    ->with(['paymentMethod', 'allocations.charge.customerService.items'])
+                    ->orderByDesc('paid_on')
+                    ->orderByDesc('id')
+                    ->limit(5),
+                'quotes' => fn ($quotes) => $quotes->with('items')->orderByDesc('created_at')->orderByDesc('id'),
+            ]);
+        } else {
+            foreach (['charges', 'payments', 'quotes'] as $relation) {
+                $customer->setRelation($relation, new Collection);
+            }
+        }
 
         $primary = $customer->contacts->firstWhere('is_primary', true);
         $whatsApp = app(BuildWhatsAppReminder::class);
@@ -85,9 +98,10 @@ class Show extends Component
             'whatsAppLinks' => $customer->charges->mapWithKeys(fn ($charge): array => [$charge->id => $whatsApp->handle($charge)]),
             'usageBadges' => $this->usageBadges($services->where('status', CustomerServiceStatus::Active)),
             'leadDays' => app(Settings::class)->renewalLeadDays(),
-            'openDebt' => $customer->openChargeTotals(),
-            'creditBalance' => $customer->creditBalances(),
+            'openDebt' => $canSeeMoney ? $customer->openChargeTotals() : [],
+            'creditBalance' => $canSeeMoney ? $customer->creditBalances() : [],
             'inUse' => $customer->isInUse(),
+            'canSeeMoney' => $canSeeMoney,
         ])->title($customer->short_name);
     }
 

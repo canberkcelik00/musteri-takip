@@ -3,6 +3,7 @@
 namespace App\Livewire\Windows;
 
 use App\Actions\Customers\CreateCustomer as CreateCustomerAction;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Support\Ui\Links;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,8 @@ use Livewire\Component;
  */
 class CreateCustomer extends Component
 {
+    use AuthorizesPermission;
+
     public string $short_name = '';
 
     public string $legal_title = '';

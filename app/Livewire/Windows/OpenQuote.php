@@ -6,6 +6,7 @@ use App\Actions\Quotes\UpdateQuote;
 use App\Enums\Currency;
 use App\Enums\QuoteStatus;
 use App\Exceptions\InvalidQuote;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Customer;
 use App\Models\Package;
@@ -26,6 +27,7 @@ use Livewire\Component;
  */
 class OpenQuote extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

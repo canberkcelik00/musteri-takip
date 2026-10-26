@@ -14,7 +14,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
-beforeEach(fn () => $this->actingAs(User::factory()->create()));
+beforeEach(fn () => $this->actingAs(User::factory()->admin()->create()));
 
 /**
  * Fakes the WHM answers the pull window reads.

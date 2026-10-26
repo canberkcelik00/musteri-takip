@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Pages\Settings;
 
+use App\Enums\Permission;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\PaymentMethod;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,6 +21,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class PaymentMethods extends Component
 {
+    use AuthorizesPermission;
+
     public const string ARCHIVE_ACTIVE = 'active';
 
     public const string ARCHIVE_ARCHIVED = 'archived';
@@ -88,6 +92,11 @@ class PaymentMethods extends Component
         };
 
         return $query->get();
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::SettingsManage;
     }
 
     public function render(): View

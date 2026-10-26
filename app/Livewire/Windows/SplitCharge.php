@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Charges\SplitCharge as SplitChargeAction;
 use App\Exceptions\InvalidCharge;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\ReportsDomainErrors;
 use App\Models\Charge;
 use App\Support\Ui\MoneyAmountRule;
@@ -16,6 +17,7 @@ use Livewire\Component;
  */
 class SplitCharge extends Component
 {
+    use AuthorizesPermission;
     use ReportsDomainErrors;
 
     #[Locked]

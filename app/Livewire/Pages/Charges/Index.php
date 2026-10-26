@@ -5,6 +5,8 @@ namespace App\Livewire\Pages\Charges;
 use App\Actions\Charges\SumRemainingByCurrency;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
+use App\Enums\Permission;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Livewire\Concerns\WithTable;
 use App\Models\Charge;
 use App\Models\Customer;
@@ -28,6 +30,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Index extends Component
 {
+    use AuthorizesPermission;
     use WithTable;
 
     public const string STATUS_ALL = 'all';
@@ -175,6 +178,11 @@ class Index extends Component
     public function forgetCustomerOptions(): void
     {
         unset($this->customerOptions);
+    }
+
+    protected function requiredPermission(): ?Permission
+    {
+        return Permission::MoneyView;
     }
 
     public function render(): View

@@ -3,6 +3,7 @@
 namespace App\Livewire\Windows;
 
 use App\Enums\AllocationSource;
+use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Payment;
 use App\Support\Money;
 use Illuminate\Contracts\View\View;
@@ -17,6 +18,8 @@ use Livewire\Component;
  */
 class ViewPayment extends Component
 {
+    use AuthorizesPermission;
+
     #[Locked]
     public int $paymentId = 0;
 
