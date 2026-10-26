@@ -54,3 +54,42 @@ it('marks an error message with a "!" mark besides its color', function () {
 
     expect(Blade::render('<x-ui.input label="Ad" wire:model="name" />'))->toContain('class="ui-error"');
 });
+
+// Table hierarchy (G-11.6).
+
+it('sets the column heads apart and keeps them in view on a wide screen with a pointer', function () {
+    $tables = uiStylesheets()['tables'];
+
+    preg_match('/^\.ui-table th\s*\{([^{}]*)\}/m', $tables, $head);
+    expect($head[1])->toContain('letter-spacing')->toContain('border-bottom: 2px solid var(--mt-divider)');
+
+    expect($tables)
+        ->toContain('@media (min-width: 768px) and (hover: hover)')
+        ->toContain('position: sticky')
+        ->toContain('max-height: 70dvh');
+});
+
+it('lets a wide table scroll inside its card and not chain the scroll to the page', function () {
+    preg_match('/\.ui-table-wrap\s*\{([^{}]*)\}/', uiStylesheets()['tables'], $wrap);
+
+    expect($wrap[1])->toContain('overflow-x: auto')->toContain('overscroll-behavior-x: contain')->toContain('max-width: 100%');
+});
+
+it('shows hover on real pointers only and draws a selected row', function () {
+    $tables = uiStylesheets()['tables'];
+
+    expect($tables)
+        ->toContain('@media (hover: hover) {'."\n".'    .ui-row:hover')
+        ->toContain('.ui-row:focus-within')
+        ->toContain(".ui-row[aria-selected='true']")
+        ->toContain('.ui-row.is-selected');
+});
+
+it('sizes a name above its detail and sets numbers apart by weight', function () {
+    $tables = uiStylesheets()['tables'];
+
+    preg_match('/\.ui-cell-title\s*\{([^{}]*)\}/', $tables, $title);
+
+    expect($title[1])->toContain('font-size: var(--mt-text-md)')
+        ->and($tables)->toContain('.ui-table td.is-end')->toContain('.ui-table tfoot td.is-end');
+});

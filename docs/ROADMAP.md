@@ -457,8 +457,10 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
 - [x] **G-11.5 Erişilebilirlik** — Bağımlılık: G-11.4
   - Yapıldı: 3:1 opak odak çizgisi ve görünür alan kenarı (`--mt-focus-edge`, `--mt-input-border`), `prefers-reduced-motion`, devre dışı alan kesik kenar, hata "!" işareti, dokunmatikte 40 px tıklama alanı, tooltip taşma düzeltmesi (T-153).
   - Kabul: `AccessibilityTest`; `UiTokensTest` odak ve kenar için 3:1.
-- [ ] **G-11.6 Tablo hiyerarşisi** — Bağımlılık: G-11.4
+- [x] **G-11.6 Tablo hiyerarşisi** — Bağımlılık: G-11.4
   - Yapılacak: tablo başlığı, yapışkan başlık, satır hover/seçili, sayı/ad boyut ayrımı, taşma yedeği.
+  - Yapıldı: ayrışık sütun başı, geniş ekranda yapışkan başlık, hover yalnız gerçek işaretçide + odak, seçili satır, ad/sayı boyut ayrımı, taşma yedeği (T-154).
+  - Kabul: `AccessibilityTest` tablo testleri.
 - [ ] **G-11.7 Ortak bileşenler** — Bağımlılık: G-11.4
   - Yapılacak: `page-header`, `card`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti; satır içi `style` ve ham `<table>`/arama girişi temizliği.
 
