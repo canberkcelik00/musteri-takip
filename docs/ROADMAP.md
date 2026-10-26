@@ -501,7 +501,7 @@ Karar (kullanıcı, U-26): yazılımcılara günlük iş vermek için basit İş
 
 - [x] **G-13.0 Dokümanlar** — Bağımlılık: G-12.7
   - Yapıldı: PRD "İşler (Faz 13)" ve yetki tablosu, DATA_MODEL `tasks`, UI.md (menü 7 öğe, yazılımcı menüsü ve sekmeleri, İşler ekranı, iş penceresi, kart bölümü, Bugün kuralları, pembe menü karesi), DECISIONS U-26, bu faz.
-- [ ] **G-13.1 Veri katmanı ve Action'lar** — Bağımlılık: G-13.0
+- [x] **G-13.1 Veri katmanı ve Action'lar** — Bağımlılık: G-13.0
   - Yapılacak: `tasks` migration'ı, `Task` modeli/factory/örnek veri, `Permission::TasksManage` (Yazılımcı varsayılanında açık), `SyncRolesAndPermissions`'ın yeni izni mevcut yerleşik role bir kez vermesi (T-167), `CreateTask`/`UpdateTask`/`CompleteTask`/`ReopenTask`/`DeleteTask` (açık `User $actor`), `TaskAssignedMail` (senkron), `DeleteUser` ve müşteri silme kurallarına işler.
   - Kabul: İş oluşturma/düzenleme/bitirme/yeniden açma ve "kim" kaydı; başkasına atamada e-posta gider, kendine atamada gitmez, hatada iş kayıtlı kalır; pasif kullanıcıya atanamaz; yeni izin mevcut Yazılımcı'ya bir kez verilir ve sonradan kaldırılırsa geri gelmez, sync iki kez çalışınca kayıt artmaz; işi olan kullanıcı ve müşteri silinmez (testli).
 - [ ] **G-13.2 İşler ekranı ve iş penceresi** — Bağımlılık: G-13.1

@@ -22,6 +22,7 @@ return [
     'deleted' => 'Rol silindi.',
     'group_money' => 'Para',
     'group_customers' => 'Müşteriler ve hizmetler',
+    'group_tasks' => 'İşler',
     'group_sales' => 'Teklif ve katalog',
     'group_settings' => 'Ayarlar ve kullanıcılar',
 ];

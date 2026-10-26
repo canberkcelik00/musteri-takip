@@ -32,7 +32,15 @@ class Customer extends Model
      */
     protected function usageRelations(): array
     {
-        return ['customerServices', 'charges', 'payments', 'quotes'];
+        return ['customerServices', 'charges', 'payments', 'quotes', 'tasks'];
+    }
+
+    /**
+     * @return HasMany<Task, $this>
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
     }
 
     /**

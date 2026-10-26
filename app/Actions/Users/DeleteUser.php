@@ -7,13 +7,14 @@ use App\Exceptions\InvalidUserChange;
 use App\Models\Charge;
 use App\Models\Payment;
 use App\Models\Quote;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class DeleteUser
 {
     /**
-     * Delete a user who has done nothing yet. Someone named on a payment, charge or quote stays (deactivate them
+     * Delete a user who has done nothing yet. Someone named on a payment, charge, quote or task stays (deactivate them
      * instead), so the history keeps its "who". A user cannot delete themself, and the last active administrator
      * stays.
      *
@@ -43,6 +44,10 @@ class DeleteUser
     {
         return Payment::query()->where('recorded_by', $user->id)->exists()
             || Charge::query()->where('cancelled_by', $user->id)->orWhere('updated_by', $user->id)->exists()
-            || Quote::query()->where('accepted_by', $user->id)->exists();
+            || Quote::query()->where('accepted_by', $user->id)->exists()
+            || Task::query()->where(fn ($query) => $query
+                ->where('assigned_to', $user->id)
+                ->orWhere('created_by', $user->id)
+                ->orWhere('completed_by', $user->id))->exists();
     }
 }

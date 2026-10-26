@@ -15,15 +15,20 @@ class SyncRolesAndPermissions
      *
      * Safe to run on every deploy and from the console: nothing is duplicated and a permission that left the enum is
      * removed. The administrator always holds every permission. The developer gets its default list only when the role
-     * is first created; after that the roles screen owns it (T-165). Roles the administrator made are never touched,
+     * is first created and, once, any permission added later that is in its default list (T-167); after that the roles
+     * screen owns it (T-165). Roles the administrator made are never touched,
      * and role assignments of users neither.
      */
     public function handle(): void
     {
         $names = array_map(fn (Permission $permission): string => $permission->value, Permission::cases());
 
+        $created = [];
+
         foreach ($names as $name) {
-            PermissionModel::findOrCreate($name);
+            if (PermissionModel::findOrCreate($name)->wasRecentlyCreated) {
+                $created[] = $name;
+            }
         }
 
         PermissionModel::query()->whereNotIn('name', $names)->delete();
@@ -31,10 +36,12 @@ class SyncRolesAndPermissions
         foreach (Role::cases() as $role) {
             $record = RoleModel::findOrCreate($role->value);
 
+            $defaults = array_map(fn (Permission $permission): string => $permission->value, $role->permissions());
+
             if ($role === Role::Admin || $record->wasRecentlyCreated) {
-                $record->syncPermissions(
-                    array_map(fn (Permission $permission): string => $permission->value, $role->permissions()),
-                );
+                $record->syncPermissions($defaults);
+            } elseif ($newDefaults = array_values(array_intersect($defaults, $created))) {
+                $record->givePermissionTo($newDefaults);
             }
         }
 

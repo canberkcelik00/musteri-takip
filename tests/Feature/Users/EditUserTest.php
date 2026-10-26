@@ -6,6 +6,7 @@ use App\Livewire\Windows\Confirm;
 use App\Livewire\Windows\EditUser;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
+use App\Models\Task;
 use App\Models\User;
 use App\Support\Ui\Navigation;
 use Livewire\Livewire;
@@ -85,6 +86,18 @@ it('does not delete a user named on a money record and says to deactivate instea
 
     expect(User::query()->find($developer->id))->not->toBeNull();
 });
+
+it('does not delete a user who has a task', function (string $column) {
+    $developer = User::factory()->developer()->create();
+    Task::factory()->create([$column => $developer->id, 'assigned_to' => $column === 'assigned_to' ? $developer->id : User::factory()]);
+
+    Livewire::actingAs(User::factory()->admin()->create())->test(Confirm::class, ['action' => 'delete-user', 'id' => $developer->id])
+        ->call('confirm')
+        ->assertHasErrors('form')
+        ->assertSee(__('users.has_records'));
+
+    expect(User::query()->find($developer->id))->not->toBeNull();
+})->with(['assigned' => 'assigned_to', 'created' => 'created_by', 'completed' => 'completed_by']);
 
 it('does not delete the signed-in user or the last active administrator', function () {
     $admin = User::factory()->admin()->create();

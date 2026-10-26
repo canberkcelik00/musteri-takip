@@ -41,7 +41,7 @@ enum Role: string
     {
         return match ($this) {
             self::Admin => Permission::cases(),
-            self::Developer => [Permission::CustomersManage, Permission::ServicesView],
+            self::Developer => [Permission::CustomersManage, Permission::ServicesView, Permission::TasksManage],
         };
     }
 }

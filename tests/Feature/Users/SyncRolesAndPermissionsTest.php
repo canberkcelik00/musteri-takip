@@ -29,7 +29,37 @@ it('gives each role the permissions of its enum mapping', function () {
     expect(RoleModel::findByName('admin')->permissions->pluck('name')->sort()->values()->all())
         ->toBe(collect(Permission::cases())->map->value->sort()->values()->all())
         ->and(RoleModel::findByName('developer')->permissions->pluck('name')->sort()->values()->all())
-        ->toBe(['customers.manage', 'services.view']);
+        ->toBe(['customers.manage', 'services.view', 'tasks.manage']);
+});
+
+it('gives a permission added later to the existing developer role once, and never takes it back', function () {
+    app(SyncRolesAndPermissions::class)->handle();
+
+    $developer = RoleModel::findByName('developer');
+    $developer->revokePermissionTo(Permission::TasksManage->value);
+    PermissionModel::findByName(Permission::TasksManage->value)->delete();
+
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect($developer->fresh()->hasPermissionTo(Permission::TasksManage->value))->toBeTrue();
+
+    $developer->revokePermissionTo(Permission::TasksManage->value);
+
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect($developer->fresh()->hasPermissionTo(Permission::TasksManage->value))->toBeFalse()
+        ->and(PermissionModel::where('name', Permission::TasksManage->value)->count())->toBe(1);
+});
+
+it('does not give a newly created permission to a role the administrator made', function () {
+    app(SyncRolesAndPermissions::class)->handle();
+
+    $custom = RoleModel::create(['name' => 'Destek']);
+    PermissionModel::findByName(Permission::TasksManage->value)->delete();
+
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect($custom->fresh()->permissions)->toBeEmpty();
 });
 
 it('keeps a developer away from money permissions', function () {

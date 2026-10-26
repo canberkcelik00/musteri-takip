@@ -16,6 +16,7 @@ use App\Models\CustomerServiceItem;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Task;
 use Illuminate\Support\Facades\DB;
 
 describe('customer', function () {
@@ -52,6 +53,14 @@ describe('customer', function () {
         expect(fn () => app(DeleteCustomer::class)->handle($payment->customer))->toThrow(RecordInUse::class);
 
         expect(Customer::query()->find($payment->customer_id))->not->toBeNull();
+    });
+
+    it('does not delete a customer with a task', function () {
+        $task = Task::factory()->completed()->for(Customer::factory())->create();
+
+        expect(fn () => app(DeleteCustomer::class)->handle($task->customer))->toThrow(RecordInUse::class);
+
+        expect(Customer::query()->find($task->customer_id))->not->toBeNull();
     });
 
     it('can delete an archived customer that nothing depends on', function () {

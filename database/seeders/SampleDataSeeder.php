@@ -10,6 +10,8 @@ use App\Actions\CustomerServices\AssignCustomerService;
 use App\Actions\CustomerServices\CancelCustomerService;
 use App\Actions\CustomerServices\CreateRenewalCharge;
 use App\Actions\Payments\RecordPayment;
+use App\Actions\Tasks\CompleteTask;
+use App\Actions\Tasks\CreateTask;
 use App\Enums\Currency;
 use App\Enums\ServiceType;
 use App\Models\CatalogService;
@@ -19,6 +21,8 @@ use App\Models\CustomerService;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Task;
+use App\Models\User;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Closure;
@@ -55,6 +59,8 @@ class SampleDataSeeder extends Seeder
         private CancelCustomerService $cancelCustomerService,
         private CancelCharge $cancelCharge,
         private ArchiveCustomer $archiveCustomer,
+        private CreateTask $createTask,
+        private CompleteTask $completeTask,
     ) {}
 
     public function run(): void
@@ -79,9 +85,43 @@ class SampleDataSeeder extends Seeder
             $this->seedAnadoluGida();
             $this->seedKayaMatbaa();
             $this->seedGunesTekstil();
+            $this->seedTasks();
         } finally {
             Carbon::setTestNow($previousTestNow);
         }
+    }
+
+    /**
+     * A few open and done tasks, all given to the first user; nothing is made while there is no user yet.
+     */
+    private function seedTasks(): void
+    {
+        $user = User::query()->orderBy('id')->first();
+
+        if ($user === null) {
+            return;
+        }
+
+        $logi = Customer::query()->where('short_name', 'Logi')->firstOrFail();
+        $yildiz = Customer::query()->where('short_name', 'Yıldız Mobilya')->firstOrFail();
+
+        $this->task($user, 'Form e-postası gitmiyor, kontrol et', $logi, $this->today->subDays(2), 'Müşteri iletişim formundan gelen e-postalar ulaşmıyor.');
+        $this->task($user, 'SSL sertifikasını yenile', $yildiz, $this->today);
+        $this->task($user, 'Yeni sunucuya geçiş planını hazırla', null, $this->today->addDays(5));
+        $this->task($user, 'Teklif şablonunu gözden geçir', null, null);
+
+        $done = $this->task($user, 'Alan adı yönlendirmesini düzelt', $logi, $this->today->subDays(4));
+        $this->completeTask->handle($user, $done);
+    }
+
+    private function task(User $user, string $title, ?Customer $customer, ?CarbonImmutable $dueDate, ?string $notes = null): Task
+    {
+        return $this->createTask->handle($user, [
+            'title' => $title,
+            'notes' => $notes,
+            'customer_id' => $customer?->id,
+            'due_date' => $dueDate,
+        ]);
     }
 
     private function seedCatalog(): void

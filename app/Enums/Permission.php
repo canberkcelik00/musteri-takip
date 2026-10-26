@@ -9,6 +9,7 @@ enum Permission: string
     case CustomersManage = 'customers.manage';
     case ServicesView = 'services.view';
     case ServicesManage = 'services.manage';
+    case TasksManage = 'tasks.manage';
     case QuotesManage = 'quotes.manage';
     case CatalogManage = 'catalog.manage';
     case SettingsManage = 'settings.manage';
@@ -32,6 +33,7 @@ enum Permission: string
         return match ($this) {
             self::MoneyView, self::MoneyManage => 'money',
             self::CustomersManage, self::ServicesView, self::ServicesManage => 'customers',
+            self::TasksManage => 'tasks',
             self::QuotesManage, self::CatalogManage => 'sales',
             self::SettingsManage, self::UsersManage => 'settings',
         };
