@@ -48,8 +48,20 @@ a:hover {
 }
 
 :focus-visible {
-    outline: 2px solid var(--mt-focus-ring);
+    outline: 2px solid var(--mt-focus-edge);
     outline-offset: 2px;
+}
+
+/* No animation or transition for people who ask the system for less motion. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 [x-cloak] {
@@ -391,5 +403,32 @@ html.no-glass .ui-glass-menu {
 
     .ui-page {
         padding: 24px var(--mt-space-1);
+    }
+}
+
+/*
+ * Touch screens: the small controls keep their look but get a hit area of at least 40px (an invisible ::before
+ * around them), so a finger does not miss. ::after stays free for the tooltip.
+ */
+@media (pointer: coarse) {
+    .ui-btn-sm,
+    .ui-chip-x,
+    .ui-date-nav,
+    .ui-icon-link {
+        position: relative;
+    }
+
+    .ui-btn-sm::before,
+    .ui-chip-x::before,
+    .ui-date-nav::before,
+    .ui-icon-link::before,
+    .ui-search-clear::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: max(100%, 40px);
+        height: max(100%, 40px);
+        transform: translate(-50%, -50%);
     }
 }

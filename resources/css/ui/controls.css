@@ -32,7 +32,7 @@
 
 .ui-btn:disabled,
 .ui-btn[aria-disabled='true'] {
-    opacity: 0.5;
+    opacity: 0.6;
     pointer-events: none;
 }
 
@@ -178,10 +178,10 @@
 .ui-input {
     width: 100%;
     min-height: 40px;
-    border: 0;
+    border: 1px solid var(--mt-input-border);
     border-radius: var(--mt-radius-sm);
     background: var(--mt-input-bg);
-    padding: 9px var(--mt-space-3);
+    padding: 8px 11px;
     font: inherit;
     font-size: var(--mt-text-base);
     color: var(--mt-text);
@@ -191,9 +191,11 @@
     color: var(--mt-text-tertiary);
 }
 
-.ui-input:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--mt-focus-ring);
+.ui-input:focus-visible,
+.ui-select-trigger:focus-visible {
+    outline: 2px solid var(--mt-focus-edge);
+    outline-offset: 0;
+    box-shadow: 0 0 0 4px var(--mt-focus-ring);
 }
 
 /* ---- Search field: magnifier left, round clear button right (the browser's own cancel button is hidden) ---- */
@@ -250,7 +252,8 @@
 .ui-input[readonly],
 .ui-select-trigger:disabled,
 .ui-toggle:disabled {
-    opacity: 0.55;
+    border-style: dashed;
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
@@ -259,9 +262,28 @@
     color: var(--mt-text-tertiary);
 }
 
+/* The message carries a "!" mark, so an error is never told by its color alone. */
 .ui-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
     font-size: var(--mt-text-xs);
     color: var(--mt-danger-text);
+}
+
+.ui-error::before {
+    content: '!';
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid currentColor;
+    border-radius: var(--mt-radius-pill);
+    font-size: var(--mt-text-xs);
+    font-weight: 700;
+    line-height: 1;
 }
 
 .ui-check {
@@ -291,10 +313,10 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--mt-space-2);
-    border: 0;
+    border: 1px solid var(--mt-input-border);
     border-radius: var(--mt-radius-sm);
     background: var(--mt-input-bg);
-    padding: 9px var(--mt-space-3);
+    padding: 8px 11px;
     font: inherit;
     font-size: var(--mt-text-base);
     color: var(--mt-text);

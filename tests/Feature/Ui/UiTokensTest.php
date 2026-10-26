@@ -40,6 +40,8 @@ it('keeps text readable on every glass surface over every background blob', func
         [['mt-danger-text'], ['mt-danger-bg'], 4.5],
         [['mt-danger-text'], ['mt-danger-hover-bg'], 4.5],
         [['mt-text', 'mt-text-tertiary'], ['mt-input-bg'], 4.5],
+        // The focus outline and the field edge are graphics: 3:1 (WCAG 1.4.11).
+        [['mt-focus-edge', 'mt-input-border'], [], 3.0],
     ];
 
     foreach ($cases as [$texts, $extra, $minimum]) {

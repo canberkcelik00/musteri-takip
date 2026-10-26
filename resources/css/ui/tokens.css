@@ -40,6 +40,8 @@
     --mt-on-primary: #ffffff;
     --mt-link: #00479b;
     --mt-focus-ring: rgba(0, 113, 227, 0.4);
+    --mt-focus-edge: #0058b8;
+    --mt-input-border: rgba(60, 60, 67, 0.7);
     --mt-green: #34c759;
     --mt-whatsapp: #0b5e33;
     --mt-danger-text: #920012;
@@ -137,6 +139,8 @@
     --mt-primary-shadow: rgba(10, 114, 224, 0.45);
     --mt-link: #a9d3ff;
     --mt-focus-ring: rgba(64, 156, 255, 0.5);
+    --mt-focus-edge: #6fb3ff;
+    --mt-input-border: rgba(255, 255, 255, 0.5);
     --mt-green: #30d158;
     --mt-whatsapp: #30d158;
     --mt-danger-text: #ffb4af;
