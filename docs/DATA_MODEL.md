@@ -287,9 +287,26 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | invited_at | timestamp | Hayır | Son davetin gönderildiği an; imzalı bağlantı bununla eşleşmezse geçersizdir |
 | deactivated_at | timestamp | Hayır | Dolu = pasif; para kaydında adı geçen kullanıcı silinmez (G-12.6), pasifleştirilir |
 
-**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`); rol-izin eşlemesi veritabanındadır (Roller ekranından yönetilir, T-165); `SyncRolesAndPermissions` izinleri ve yerleşik rolleri idempotent kurar. `roles.label` (nullable): yerleşik rolün yönetici tarafından verilen görünen adı; boşsa `enums.role.*` çevirisi gösterilir, `name` kodun bulduğu sabit ad olarak kalır (T-166).
+**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`, `tasks.manage` (Faz 13)); rol-izin eşlemesi veritabanındadır (Roller ekranından yönetilir, T-165); `SyncRolesAndPermissions` izinleri ve yerleşik rolleri idempotent kurar. `roles.label` (nullable): yerleşik rolün yönetici tarafından verilen görünen adı; boşsa `enums.role.*` çevirisi gösterilir, `name` kodun bulduğu sabit ad olarak kalır (T-166).
 
 **quotes** tablosuna `accepted_by` (FK users, nullable) eklenir: teklifi kabul eden; boş = sistem / önceki kayıt.
+
+## İşler (Faz 13)
+
+**tasks**
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| title | string | Evet | En çok 255 karakter |
+| notes | text | Hayır | |
+| customer_id | FK customers | Hayır | `restrictOnDelete`; boş = müşterisiz iç iş. İşi olan müşteri silinmez, arşivlenir |
+| assigned_to | FK users | Evet | `restrictOnDelete`; işi olan kullanıcı silinmez, pasifleştirilir |
+| created_by | FK users | Hayır | `restrictOnDelete`; işi oluşturan |
+| completed_by | FK users | Hayır | `restrictOnDelete`; işi bitiren |
+| due_date | date | Hayır | |
+| completed_at | timestamp | Hayır | Dolu = Bitti; durum saklanmaz |
+
+İndeksler: (`assigned_to`, `completed_at`) ve (`customer_id`, `completed_at`). Açık, gecikmiş ve "bugün" durumları `completed_at` ve `due_date`'ten hesaplanır. Liste sırası: bitiş tarihi olanlar tarih sırasıyla önce (gecikmişler en üstte), tarihsizler sonda.
 
 ## Ayarlar
 

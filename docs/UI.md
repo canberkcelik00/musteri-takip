@@ -6,11 +6,13 @@ Bu sekme, panelin nasıl daha kolay kullanılacağına dair kuralları toplar: n
 
 ## 1. Kullanıcı ve görevler
 
-İki rol var (Faz 12, T-157): **yönetici** (işletme sahibi, her şeyi görür ve yapar) ve **yazılımcı** (en çok 2-3 kişi; parayı hiç görmez). Aşağıdaki görev tablosu yöneticinin görevleridir; yazılımcı yalnızca müşteri bulma ve müşteri kartına bakma işlerini kullanır. Panel bir veri ambarı değil, iş listesidir; açıldığında "bugün ne yapmalıyım" sorusunu cevaplamalı.
+İki rol var (Faz 12, T-157): **yönetici** (işletme sahibi, her şeyi görür ve yapar) ve **yazılımcı** (en çok 2-3 kişi; parayı hiç görmez). Aşağıdaki görev tablosu yöneticinin görevleridir; yazılımcı müşteri bulma, müşteri kartına bakma ve kendine atanan işleri görme/bitirme işlerini kullanır (Faz 13, U-26). Panel bir veri ambarı değil, iş listesidir; açıldığında "bugün ne yapmalıyım" sorusunu cevaplamalı.
 
 | Görev | Sıklık | Hedef erişim |
 | --- | --- | --- |
 | Bugün ne yapmalıyım (gecikmişler, yaklaşan yenilemeler, ücretsiz kararlar) | Her gün | 0 tık: açılış sayfası |
+| Bana atanan işlere bakmak ve bitirmek (Faz 13) | Her gün | 0 tık: açılış sayfası; bitirmek satırdan 1 tık |
+| İş eklemek ve atamak (Faz 13) | Haftada birkaç | İşler sayfasından veya müşteri kartından 1 tık + form |
 | Müşteri bulmak (kısa ad veya alan adıyla) | Her gün | 1 tık + yazma, her sayfadan |
 | Ödeme kaydetmek | Haftada birkaç | Her sayfadan 1 tıkla başlar; toplam 3 tık + tutar |
 | Müşteri kartına bakmak | Her gün | Arama sonucundan 1 tık |
@@ -40,20 +42,21 @@ Araştırmadan (başta Nielsen Norman Group'un uygulama tasarımı bulguları) b
 
 ## 3. Bilgi mimarisi (menü)
 
-Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
+Menü en fazla yedi ana öğe taşır ve sıklık sırasıyla dizilir (Faz 13'te "altı" sınırı kullanıcı kararıyla yediye çıktı, U-26).
 
 | Sıra | Öğe | İçerik |
 | --- | --- | --- |
 | 1 | **Bugün** | Açılış sayfası: yapılacaklar ve özet sayılar |
 | 2 | **Müşteriler** | Liste ve kartlar |
-| 3 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
-| 4 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
-| 5 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
-| 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar, Roller (en altta; Faz 12, yalnız yönetici; kullanıcı satırından ad/rol düzenleme ve silme, rol satırından yetki kutuları penceresi açılır) |
+| 3 | **İşler** | İş listesi (Faz 13, U-26) |
+| 4 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
+| 5 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
+| 6 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
+| 7 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar, Roller (en altta; Faz 12, yalnız yönetici; kullanıcı satırından ad/rol düzenleme ve silme, rol satırından yetki kutuları penceresi açılır) |
 
-**Yazılımcının menüsü (Faz 12, T-157):** Yalnız **Müşteriler** görünür. Bugün, Teklifler, Tahsilat, Katalog ve Ayarlar menüde yoktur; adresle açılırsa 403 verir (`/` adresi yazılımcıyı Müşteriler'e yönlendirir). Alt sekme çubuğu: Müşteriler · Menü. Üst çubukta "Ödeme al" gösterilmez; "Yeni müşteri" kalır. Müşteri kartında tutar, borç, ödeme ve teklif içeren hiçbir alan görünmez; hizmetler ad, alan adı, sunucu ve bitiş tarihiyle fiyatsız listelenir. Müşteri listesinde açık borç/bakiye sütunu gizlidir.
+**Yazılımcının menüsü (Faz 12, T-157; Faz 13'te genişledi, U-26):** **Bugün**, **Müşteriler** ve **İşler** görünür. Teklifler, Tahsilat, Katalog ve Ayarlar menüde yoktur; adresle açılırsa 403 verir. `/` herkesin açılış sayfasıdır (yazılımcı artık yönlendirilmez); yazılımcının Bugün'ünde para yoktur (aşağıda "Bugün"). Alt sekme çubuğu: Bugün · Müşteriler · İşler · Menü. Yöneticinin alt sekme çubuğu (aşağıdaki dar ekran kuralı): Bugün · Müşteriler · İşler · Borçlar · Menü. Üst çubukta "Ödeme al" gösterilmez; "Yeni müşteri" kalır. Müşteri kartında tutar, borç, ödeme ve teklif içeren hiçbir alan görünmez; hizmetler ad, alan adı, sunucu ve bitiş tarihiyle fiyatsız listelenir. Müşteri listesinde açık borç/bakiye sütunu gizlidir.
 
-**Dar ekranda (`lg` altında):** Kenar menünün yerine altta sekme çubuğu durur: Bugün · Müşteriler · Açık borçlar · Menü ("Menü" tam menüyü kayan panelde açar). Aktif sekme vurgulu mavidir (T-130).
+**Dar ekranda (`lg` altında):** Kenar menünün yerine altta sekme çubuğu durur: Bugün · Müşteriler · İşler · Açık borçlar · Menü ("Menü" tam menüyü kayan panelde açar). Aktif sekme vurgulu mavidir (T-130).
 
 **Üst çubuk (her sayfada aynı yerde):**
 
@@ -85,6 +88,8 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 - **Üst satır, dört sayı:** Toplam alacak (para birimi başına), Gecikmiş tutar ve adet, Bu ay vadesi gelen, 30 gün içinde yenilenecek hizmet sayısı. Her sayı tıklanınca ilgili süzülmüş listeye gider.
 - **Altında "Yapılacaklar" tek tablo olarak,** başlıkta iş sayısı ("6 iş"); sütunlar: Müşteri (kısa ad + ünvan), Konu, Vade / bitiş, Durum, Tutar, işlem. Satırlar öncelik sırasıyla: gecikmiş borçlar (en eski üstte), 7 gün içinde vadesi gelenler, ücretsiz devam kararı bekleyenler. Her satırda doğrudan iş düğmesi vardır ("Ödeme al", "Ücretsiz devam et", "Ücretli yap"); karta gitmeden iş bitirilebilir. Borç satırlarında, birincil kişinin telefonu varsa "Ödeme al"ın yanında ikincil bir WhatsApp simge düğmesi durur (yazısız; ipucu "WhatsApp") (G-5B.4): hazır borç mesajıyla sohbeti yeni sekmede açar, kayıt tutmaz; `md` altında gizlidir. Kısmi ödenmiş borcun konusu "… · kısmi ödendi", ücretsiz hizmetin "… · ücretsiz" olur; ücretsiz hizmetin durumu rozetsiz düz metin "Karar bekliyor", tutarı "—" yazılır (gri rozet yalnız iptal/arşivdir). `md` altında Konu ve Vade gizlenir.
 - Liste boşsa "Bugün yapılacak bir şey yok" yazar.
+- **Herkesin açılış sayfası (Faz 13, U-26):** Dört sayı, borç satırları, ücretsiz kararlar ve Tutar sütunu yalnız `money.view` olana görünür; kota satırları `services.view`, zamanlayıcı uyarısı `settings.manage` ister. Yazılımcı yalnız "Bana atanan işler" ve kota satırlarını görür; Tutar sütunu hiç çizilmez ve izinsiz bölümün verisi hiç okunmaz.
+- **"Bana atanan işler" (Faz 13):** Satırlar ücretsiz kararlardan sonra, kota satırlarından önce gelir (gecikmiş ve bugün bitenler önce). Konu: iş başlığı (müşteri kısa adı Müşteri sütununda, müşterisizse "—"); Vade / bitiş: bitiş tarihi; Durum: gecikmişse kırmızı "N gün gecikti", bugünse amber "Bugün", diğerinde rozetsiz düz metin; düğme: ikincil "Bitti". Satıra tıklamak iş penceresini açar. Bölüm fazlaysa "Tümünü gör" İşler ekranına gider.
 - **Zamanlayıcı uyarısı (G-5.6):** yalnız sorun varken, dört sayının üstünde kırmızı (danger) kutu: zamanlayıcı hiç çalışmadıysa, 1 saatten uzun süredir çalışmıyorsa (bekleyen yayın varsa "yayın adresini açın") ve son çalışmada hata veren hizmet varsa (en çok 5 hizmet adı müşteri kartına bağlantıyla, fazlası "ve N hizmet daha"). Sorun yokken hiçbir şey görünmez.
 
 ### Müşteri listesi
@@ -112,6 +117,16 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
   - Son ödemeler: son 5; "Tüm ödemeler" bağlantısı.
 - **Sağ sütun:** Birincil kişi (telefon ve e-posta tıklanınca aranır/yazılır), diğer kişiler, fatura bilgileri, notlar. Düzenleme buradan.
 - **En altta, ayrı:** Arşivle, Sil.
+
+### İşler (Faz 13, U-26)
+
+- **Üst:** Sayfa başlığı "İşler"; sağda ikincil "Yeni iş" düğmesi (ekranın tek birincil düğmesi üst çubuktaki "Ödeme al" olarak kalır; yazılımcıda üst çubukta birincil düğme yoktur, "Yeni iş" yine ikincil kalır).
+- **Süzgeçler:** "Bana atanan / Herkes" ayırıcısı, durum çipi (varsayılan "Açık", ×'li), "Gecikmiş" çipi, müşteri seçimi (aranabilir). Süzülmüş kayıt sayısı araç çubuğunun sağında ("5 iş"). Arama başlık, not ve müşteri kısa adında arar.
+- **Sütunlar:** İş (başlık kalın, altında not soluk ve tek satır), Müşteri (karta bağlantı; arşivliyse soluk + "Arşiv" rozeti; müşterisizse "—"), Atanan (yalnız "Herkes" süzgecinde; pasif kullanıcı "(pasif)"), Bitiş (gg.aa.yyyy; gecikmişse kırmızı "N gün gecikti", bugünse amber "Bugün", tarihsizse "—"), satırda metinli ikincil "Bitti" (Bitti süzgecinde "Yeniden aç"). `md` altında Müşteri başlığın altına iner ve Atanan gizlenir.
+- **Sıra:** Bitiş tarihi olanlar tarih sırasıyla önce (gecikmişler en üstte), tarihsizler sonda. Bitenler en son bitirilen üstte.
+- **Satıra tıklamak** iş penceresini açar. Boş liste: "Açık işiniz yok".
+- **İş penceresi:** Başlık, Müşteri (aranabilir, arşivsizler; müşteri kartından açılınca dolu), Atanan (etkin kullanıcılar, varsayılan oturumdaki kişi), Bitiş tarihi, Not. Mevcut işte altta adlandırılmış bölüm: "… tarafından oluşturuldu / bitirildi", "Bitti" / "Yeniden aç" ve ayrı, kırmızı, onaylı "Sil". Atama başkasınaysa e-posta gider; gönderilemezse iş kaydedilir ve uyarı gösterilir.
+- **Müşteri kartında "İşler" bölümü:** Sağ sütunda İlgili kişiler'in üstünde, `tasks.manage` olana görünür. Müşterinin açık işleri (en çok 5; başlık, atanan, bitiş rozeti, "Bitti"), başlıkta ikincil "İş ekle" (müşteri dolu gelir), altta "Tümü ve bitenler" bağlantısı (İşler ekranını müşteriye ve Herkes'e süzer).
 
 ### Teklifler (Faz 6, U-23)
 
@@ -181,7 +196,7 @@ Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstünd
 
 - **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir. Koyu tema gerçek siyah zeminli, #1C1C1E kartlıdır.
 - **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur. Yeşil anahtar (açık durum) iOS yeşilidir; ödendi rozetinin yeşilinden ayrı bir iştir ve yalnız anahtarda kullanılır.
-- **Menü:** Kenar menü sayfa zemini renginde, sağında ince çizgi. Her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi): Bugün mavi, Müşteriler çivit, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri. Üzerine gelinen satır açık gri, seçili satır soluk beyaz dolgu ve kalın yazıdır (T-147; eski düz tasarımdaki mavi dolgu tarihçedir); seçili satırın karesi yarı saydam beyaz olur.
+- **Menü:** Kenar menü sayfa zemini renginde, sağında ince çizgi. Her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi): Bugün mavi, Müşteriler çivit, İşler pembe, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri. Üzerine gelinen satır açık gri, seçili satır soluk beyaz dolgu ve kalın yazıdır (T-147; eski düz tasarımdaki mavi dolgu tarihçedir); seçili satırın karesi yarı saydam beyaz olur.
 - **Simge işlemleri (Kural 5'in istisnası):** WhatsApp, ara, e-posta, siteyi aç ve kopyala yazısız, simgeli düğmedir; ipucu ve erişilebilir ad Türkçe, `lang/tr`'den gelir.
 - **Yazı tipi (T-148):** SF Pro web'de lisanslı değildir; yığın `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI'`: Apple cihazlarda SF, diğerlerinde paketlenmiş Inter. Arama alanında solda büyüteç, doluyken sağda yuvarlak temizle düğmesi; odak halkası 3 px yumuşak (`--mt-focus-ring`).
 - **Avatar:** Müşteri adının solunda, kısa adın iki baş harfi (Türkçe büyük harf) ve müşteriye sabit bir renk; süstür, ekran okuyucudan gizlidir.
@@ -204,7 +219,7 @@ Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstünd
 | Kenar menü zemini | #F2F2F7, sağda #D1D1D6 çizgi | #000000, sağda #38383A çizgi |
 | Kenar menü metni / grup başlığı | #1D1D1F / #636366 | #F5F5F7 / #98989D |
 | Menü satırı: üzerine gelme / seçili | zemin #E5E5EA / zemin #0071E3, metin #FFFFFF, kalın | zemin #1C1C1E / zemin #0A72E0, metin #FFFFFF, kalın |
-| Menü kareleri | mavi #0A74E0, çivit #5E5CE6, turuncu #D9730D, mor #AF52DE, yeşil #2E9D4B, deniz mavisi #2A8FA3, gri #7C7C82; simge beyaz, 24 px kare, köşe 6 px; seçili satırda yarı saydam beyaz | aynı |
+| Menü kareleri | mavi #0A74E0, çivit #5E5CE6, pembe #D63A6A, turuncu #D9730D, mor #AF52DE, yeşil #2E9D4B, deniz mavisi #2A8FA3, gri #7C7C82; simge beyaz, 24 px kare, köşe 6 px; seçili satırda yarı saydam beyaz | aynı |
 | Üst çubuk | #F2F2F7 (%94 opak), altında ince çizgi | #000000 (%92 opak) |
 | Çizgi / satır ayırıcı / tablo başlığı zemini | #D1D1D6 / #E5E5EA / #FFFFFF (kartla aynı) | #38383A / #38383A / #1C1C1E |
 | Satır üzerine gelme zemini | #F2F2F7 | #2C2C2E |

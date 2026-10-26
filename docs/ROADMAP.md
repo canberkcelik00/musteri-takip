@@ -495,6 +495,29 @@ Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç g
 
 **Faz 12 bittiğinde:** Yönetici ekibi davet edebiliyor; yazılımcılar müşteri bilgisiyle çalışıyor ve hiçbir yerde para görmüyor.
 
+## Faz 13 – Ekip işleri
+
+Karar (kullanıcı, U-26): yazılımcılara günlük iş vermek için basit İşler listesi ve herkes için (parasız) Bugün sayfası. Herkes herkese iş atar; İşler menüde ayrı öğe (menü 7 öğe); hizmet yenileme onayı bu fazda yok. Her görev ayrı oturumda yapılır.
+
+- [x] **G-13.0 Dokümanlar** — Bağımlılık: G-12.7
+  - Yapıldı: PRD "İşler (Faz 13)" ve yetki tablosu, DATA_MODEL `tasks`, UI.md (menü 7 öğe, yazılımcı menüsü ve sekmeleri, İşler ekranı, iş penceresi, kart bölümü, Bugün kuralları, pembe menü karesi), DECISIONS U-26, bu faz.
+- [ ] **G-13.1 Veri katmanı ve Action'lar** — Bağımlılık: G-13.0
+  - Yapılacak: `tasks` migration'ı, `Task` modeli/factory/örnek veri, `Permission::TasksManage` (Yazılımcı varsayılanında açık), `SyncRolesAndPermissions`'ın yeni izni mevcut yerleşik role bir kez vermesi (T-167), `CreateTask`/`UpdateTask`/`CompleteTask`/`ReopenTask`/`DeleteTask` (açık `User $actor`), `TaskAssignedMail` (senkron), `DeleteUser` ve müşteri silme kurallarına işler.
+  - Kabul: İş oluşturma/düzenleme/bitirme/yeniden açma ve "kim" kaydı; başkasına atamada e-posta gider, kendine atamada gitmez, hatada iş kayıtlı kalır; pasif kullanıcıya atanamaz; yeni izin mevcut Yazılımcı'ya bir kez verilir ve sonradan kaldırılırsa geri gelmez, sync iki kez çalışınca kayıt artmaz; işi olan kullanıcı ve müşteri silinmez (testli).
+- [ ] **G-13.2 İşler ekranı ve iş penceresi** — Bağımlılık: G-13.1
+  - Yapılacak: `/tasks` sayfası (`can:tasks.manage`), menü ve sekme çubuğu öğesi, `EditTask` penceresi, `delete-task` onayı, `--mt-nav-pink` tokenı.
+  - Kabul: İzinsiz rol 403; varsayılan süzgeç yalnız bana atanan açık işleri gösterir; Herkes/Bitti/müşteri/arama süzgeçleri; sıralama; "Bitti" listeden düşürür; pencere izni her istekte denetlenir; sorgu sayısı sabit (testli).
+- [ ] **G-13.3 Müşteri kartında İşler** — Bağımlılık: G-13.2
+  - Yapılacak: Kartta "İşler" bölümü, "İş ekle" (müşteri dolu), "Tümü ve bitenler" bağlantısı.
+  - Kabul: Bölüm yazılımcıya görünür, izinsiz rolde görünmez; biten iş görünmez; sorgu artışı tek sorgu (testli).
+- [ ] **G-13.4 Herkes için Bugün** — Bağımlılık: G-13.2
+  - Yapılacak: `money-home` yönlendirmesi ve Bugün menü iznini kaldırma; `Today` ve `ListTodayTasks` izne göre bölüm üretir; "Bana atanan işler" bölümü; Tutar sütunu ve sayı kartları yalnız `money.view`.
+  - Kabul: Yazılımcı `/` adresinde 200 alır, sayfada hiçbir tutar/sayı kartı/borç yok ve para tablolarına sorgu çalışmaz; kendi işlerini ve kota satırlarını görür; yönetici eskisi gibi hepsini görür; "Bitti" satırı düşürür (testli).
+- [ ] **K-13.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-13.4, K-12.1
+  - Yapılacak: Yayından sonra bir yazılımcıya iş ata; e-postanın geldiğini, yazılımcının Bugün ve İşler ekranlarını ve Yazılımcı rolünde "İşler" kutusunun işaretli geldiğini kontrol et.
+
+**Faz 13 bittiğinde:** Yazılımcılar sisteme açtıklarında kendi işlerini görür ve bitirir; yönetici iş atar; kimse para görmez.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

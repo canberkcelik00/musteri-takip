@@ -272,6 +272,8 @@ Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. İki yerleşik rol vardı
 | Teklifler, katalog, paketler | Evet | Hayır |
 | Genel ayarlar, ödeme yöntemleri, sunucular | Evet | Hayır |
 | Kullanıcılar (davet, rol, pasifleştirme) | Evet | Hayır |
+| İşler: oluşturma, atama, bitirme (Faz 13) | Evet | Evet |
+| Bugün sayfası | Evet, tamamı | Evet, parasız: yalnız bana atanan işler ve kota uyarıları |
 
 **Kurallar**
 
@@ -283,6 +285,25 @@ Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. İki yerleşik rol vardı
 - **Yönetici güvencesi:** Yönetici kendini pasifleştiremez, silemez ya da rolünü düşüremez; son etkin yönetici pasifleştirilemez, silinemez ya da rolü düşürülemez.
 - **Kim yaptı:** Ödemeyi kaydeden, borcu iptal eden/düzenleyen ve teklifi kabul eden kullanıcı saklanır ve kayıtta görünür. Zamanlanmış işlerin oluşturduğu kayıtlarda boştur ("Sistem").
 - **Mevcut hesap:** `.env`'den oluşan ilk hesap (T-28) yönetici olur.
+
+## İşler (Faz 13)
+
+Müşteri talepleri ve ekip içi yapılacaklar WhatsApp'ta kaybolmasın diye tek bir basit iş listesi vardır. Öncelik, etiket, yorum, alt iş, tekrarlanan iş ve dosya eki **yoktur**.
+
+**Alanlar:** başlık (zorunlu), müşteri (isteğe bağlı; müşterisiz iç iş olabilir), atanan kişi (zorunlu; varsayılan işi oluşturan), bitiş tarihi (isteğe bağlı), not (isteğe bağlı).
+
+**Kurallar**
+
+- **Durum saklanmaz, hesaplanır:** Açık (`completed_at` boş) veya Bitti. Gecikmiş: açık ve bitiş tarihi bugünden önce. "Bugün": açık ve bitiş tarihi bugün. Bitirilen iş yeniden açılabilir.
+- **Yetki:** `tasks.manage` izni olan herkes (Yönetici ve Yazılımcı varsayılanı) iş oluşturur, her işi düzenler, başkasına atar, bitirir, yeniden açar ve siler. Yetki Roller ekranından değişir.
+- **E-posta:** İş başkasına atandığında (yeni iş ya da atanan değişince) atanan kişiye senkron e-posta gider; kendine atamada gitmez. E-posta gönderilemezse iş yine kaydedilir ve kullanıcıya uyarı gösterilir. E-postada para bilgisi bulunmaz.
+- **Kim yaptı:** Oluşturan ve bitiren kullanıcı saklanır ve gösterilir (T-159 ile aynı yöntem).
+- **Geçmiş korunur:** İşi olan müşteri silinmez, arşivlenir. İşi olan (atanmış, oluşturmuş ya da bitirmiş) kullanıcı silinmez, pasifleştirilir.
+- **Pasif kullanıcı:** Yeni atamada seçilemez; açık işleri adının yanında "(pasif)" ile görünür.
+- **Arşivlenmiş müşterinin işleri** listede kalır, müşteri adı soluk ve "Arşiv" rozetiyle görünür; arşivli müşteriye yeni iş açılamaz.
+- **Görünüm:** İşler ekranı (varsayılan: bana atanan, açık), müşteri kartında "İşler" bölümü ve Bugün'de "Bana atanan işler" bölümü. Süzgeçler: kişi (Bana atanan / Herkes), durum (Açık / Bitti), müşteri, gecikmiş.
+- **Bugün herkesin açılış sayfasıdır:** Dört sayı, borç satırları ve ücretsiz kararlar `money.view`; kota uyarıları `services.view`; "Bana atanan işler" `tasks.manage` ister. İzni olmayan bölümün verisi hiç okunmaz. Zamanlayıcı uyarısı `settings.manage` ister.
+- Özet e-postası (günlük özet) işleri içermez.
 
 ## Veri modeli
 
