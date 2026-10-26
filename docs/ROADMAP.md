@@ -504,7 +504,7 @@ Karar (kullanıcı, U-26): yazılımcılara günlük iş vermek için basit İş
 - [x] **G-13.1 Veri katmanı ve Action'lar** — Bağımlılık: G-13.0
   - Yapılacak: `tasks` migration'ı, `Task` modeli/factory/örnek veri, `Permission::TasksManage` (Yazılımcı varsayılanında açık), `SyncRolesAndPermissions`'ın yeni izni mevcut yerleşik role bir kez vermesi (T-167), `CreateTask`/`UpdateTask`/`CompleteTask`/`ReopenTask`/`DeleteTask` (açık `User $actor`), `TaskAssignedMail` (senkron), `DeleteUser` ve müşteri silme kurallarına işler.
   - Kabul: İş oluşturma/düzenleme/bitirme/yeniden açma ve "kim" kaydı; başkasına atamada e-posta gider, kendine atamada gitmez, hatada iş kayıtlı kalır; pasif kullanıcıya atanamaz; yeni izin mevcut Yazılımcı'ya bir kez verilir ve sonradan kaldırılırsa geri gelmez, sync iki kez çalışınca kayıt artmaz; işi olan kullanıcı ve müşteri silinmez (testli).
-- [ ] **G-13.2 İşler ekranı ve iş penceresi** — Bağımlılık: G-13.1
+- [x] **G-13.2 İşler ekranı ve iş penceresi** — Bağımlılık: G-13.1
   - Yapılacak: `/tasks` sayfası (`can:tasks.manage`), menü ve sekme çubuğu öğesi, `EditTask` penceresi, `delete-task` onayı, `--mt-nav-pink` tokenı.
   - Kabul: İzinsiz rol 403; varsayılan süzgeç yalnız bana atanan açık işleri gösterir; Herkes/Bitti/müşteri/arama süzgeçleri; sıralama; "Bitti" listeden düşürür; pencere izni her istekte denetlenir; sorgu sayısı sabit (testli).
 - [ ] **G-13.3 Müşteri kartında İşler** — Bağımlılık: G-13.2

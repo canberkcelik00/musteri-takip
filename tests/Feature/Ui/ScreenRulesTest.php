@@ -14,6 +14,7 @@ use App\Models\Package;
 use App\Models\Payment;
 use App\Models\Server;
 use App\Models\User;
+use App\Support\Ui\Navigation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ViewErrorBag;
@@ -186,4 +187,12 @@ it('re-applies the saved theme and glass choice after every wire:navigate', func
     $html = $this->get(route('app.today'))->assertOk()->getContent();
 
     expect($html)->toContain('mtApplyAppearance')->toContain('livewire:navigating')->toContain('livewire:navigated');
+});
+
+it('puts İşler after Müşteriler in the menu and between Müşteriler and Borçlar in the tab bar', function () {
+    $labels = collect(Navigation::entries(route('app.today')))->flatMap(fn (array $entry): array => $entry['items'] ?? [$entry])->pluck('label')->all();
+
+    expect(array_slice($labels, 0, 3))->toBe(['ui.nav.today', 'ui.nav.customers', 'ui.nav.tasks'])
+        ->and(collect(Navigation::tabs(route('app.today')))->pluck('tab')->all())
+        ->toBe(['ui.nav.tab_today', 'ui.nav.tab_customers', 'ui.nav.tab_tasks', 'ui.nav.tab_charges']);
 });

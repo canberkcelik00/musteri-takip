@@ -17,6 +17,7 @@ use App\Livewire\Pages\Settings\PaymentMethods as SettingsPaymentMethods;
 use App\Livewire\Pages\Settings\Roles as SettingsRoles;
 use App\Livewire\Pages\Settings\Servers as SettingsServers;
 use App\Livewire\Pages\Settings\Users as SettingsUsers;
+use App\Livewire\Pages\Tasks\Index as TasksIndex;
 use App\Livewire\Pages\Today;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,7 @@ Route::name('app.')->group(function (): void {
         Route::livewire('/profile', Profile::class)->name('profile');
         Route::livewire('/customers', CustomersIndex::class)->name('customers.index');
         Route::livewire('/customers/{customer}', CustomersShow::class)->name('customers.show');
+        Route::livewire('/tasks', TasksIndex::class)->middleware('can:tasks.manage')->name('tasks.index');
         Route::livewire('/charges', ChargesIndex::class)->middleware('can:money.view')->name('charges.index');
         Route::livewire('/payments', PaymentsIndex::class)->middleware('can:money.view')->name('payments.index');
         Route::livewire('/quotes', QuotesIndex::class)->middleware('can:money.view')->name('quotes.index');

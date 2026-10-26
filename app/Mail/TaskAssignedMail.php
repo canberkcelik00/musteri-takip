@@ -33,7 +33,7 @@ class TaskAssignedMail extends Mailable
                 'dueDate' => $this->task->due_date?->format('d.m.Y'),
                 'notes' => $this->task->notes,
                 'assignerName' => $this->assignedBy->name,
-                'url' => url('/tasks'),
+                'url' => route('app.tasks.index'),
             ],
         );
     }

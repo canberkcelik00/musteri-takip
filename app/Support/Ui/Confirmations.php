@@ -16,6 +16,7 @@ use App\Actions\Quotes\DeleteQuote;
 use App\Actions\Quotes\RejectQuote;
 use App\Actions\Roles\DeleteRole;
 use App\Actions\Servers\DeleteServer;
+use App\Actions\Tasks\DeleteTask;
 use App\Actions\Users\DeleteUser;
 use App\Enums\Permission;
 use App\Models\CatalogService;
@@ -27,6 +28,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Quote;
 use App\Models\Server;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +62,7 @@ final class Confirmations
             'delete-catalog-service', 'delete-package', 'delete-payment-method', 'delete-server' => ['heading' => __('archive.delete_heading'), 'description' => __('archive.delete_description'), 'label' => __('archive.delete'), 'danger' => true],
             'delete-role' => ['heading' => __('roles.delete_heading'), 'description' => __('roles.delete_description'), 'label' => __('roles.delete'), 'danger' => true],
             'delete-user' => ['heading' => __('users.delete_heading'), 'description' => __('users.delete_description'), 'label' => __('users.delete'), 'danger' => true],
+            'delete-task' => ['heading' => __('tasks.delete_heading'), 'description' => __('tasks.delete_description'), 'label' => __('tasks.delete'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -79,6 +82,7 @@ final class Confirmations
             'archive-payment-method', 'unarchive-payment-method', 'delete-payment-method',
             'archive-server', 'unarchive-server', 'delete-server' => Permission::SettingsManage,
             'delete-user', 'delete-role' => Permission::UsersManage,
+            'delete-task' => Permission::TasksManage,
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -114,6 +118,7 @@ final class Confirmations
             'delete-server' => self::delete(DeleteServer::class, Server::query()->findOrFail($id), 'servers-changed'),
             'delete-user' => self::deleteUser($id),
             'delete-role' => self::deleteRole($id),
+            'delete-task' => self::deleteTask($id),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -278,6 +283,16 @@ final class Confirmations
         app(DeleteRole::class)->handle(RoleModel::query()->findOrFail($id));
 
         return ['message' => __('roles.deleted'), 'event' => 'roles-changed', 'redirect' => null];
+    }
+
+    /**
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function deleteTask(int $id): array
+    {
+        app(DeleteTask::class)->handle(Task::query()->findOrFail($id));
+
+        return ['message' => __('tasks.deleted'), 'event' => 'tasks-changed', 'redirect' => null];
     }
 
     /**

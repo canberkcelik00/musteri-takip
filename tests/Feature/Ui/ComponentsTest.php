@@ -184,7 +184,7 @@ it('keeps the settings and collections groups open and the bottom tabs to the th
     expect($entries->firstWhere('group', 'ui.nav.collections')['open'])->toBeTrue()
         ->and($entries->firstWhere('group', 'ui.nav.settings')['open'])->toBeTrue()
         ->and(collect(Navigation::tabs(route('app.today')))->pluck('tab')->all())
-        ->toBe(['ui.nav.tab_today', 'ui.nav.tab_customers', 'ui.nav.tab_charges']);
+        ->toBe(['ui.nav.tab_today', 'ui.nav.tab_customers', 'ui.nav.tab_tasks', 'ui.nav.tab_charges']);
 });
 
 it('renders the sidebar with the menu squares and a "Menü" tab', function () {

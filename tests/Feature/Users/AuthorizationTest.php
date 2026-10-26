@@ -160,8 +160,8 @@ it('leaves the money items out of a developer menu and tab bar', function () {
         ->pluck('label')
         ->all();
 
-    expect($labels)->toBe(['ui.nav.customers'])
-        ->and(collect(Navigation::tabs())->pluck('tab')->all())->toBe(['ui.nav.tab_customers']);
+    expect($labels)->toBe(['ui.nav.customers', 'ui.nav.tasks'])
+        ->and(collect(Navigation::tabs())->pluck('tab')->all())->toBe(['ui.nav.tab_customers', 'ui.nav.tab_tasks']);
 });
 
 it('shows an administrator the whole menu', function () {

@@ -334,6 +334,7 @@ html.no-glass .ui-glass-menu {
 .ui-nav-purple { background: var(--mt-nav-purple); }
 .ui-nav-green { background: var(--mt-nav-green); }
 .ui-nav-teal { background: var(--mt-nav-teal); }
+.ui-nav-pink { background: var(--mt-nav-pink); }
 .ui-nav-gray { background: var(--mt-nav-gray); }
 
 .ui-nav-chevron {
