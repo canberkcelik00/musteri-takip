@@ -1,0 +1,80 @@
+/*
+ * Small layout helpers that replace one-off `style` attributes (G-11.7). Last in the cascade, so a helper wins over the
+ * margin a component class sets. Only the progress bar's width stays inline: it is data.
+ */
+
+.ui-mt-1 { margin-top: var(--mt-space-1); }
+.ui-mt-2 { margin-top: var(--mt-space-2); }
+.ui-mt-3 { margin-top: var(--mt-space-3); }
+.ui-mt-5 { margin-top: var(--mt-space-5); }
+
+.ui-m-0 { margin: 0; }
+.ui-mr-auto { margin-right: auto; }
+.ui-mb-3 { margin-bottom: var(--mt-space-3); }
+
+/* A hint that sits close under the heading of a window. */
+.ui-hint-lead {
+    margin: -6px 0 var(--mt-space-2);
+}
+
+.ui-hint-lead.is-center {
+    text-align: center;
+}
+
+/* A summary line that opens a folded section. */
+.ui-summary {
+    cursor: pointer;
+}
+
+/* A short, scrolling list of checkboxes. */
+.ui-check-list {
+    display: grid;
+    max-height: 180px;
+    gap: var(--mt-space-2);
+    overflow-y: auto;
+    padding: var(--mt-space-1) 2px;
+}
+
+.ui-dl-form > .is-full {
+    grid-column: 1 / -1;
+}
+
+.ui-link-accent {
+    color: var(--mt-link);
+}
+
+.ui-required {
+    color: var(--mt-danger-text);
+}
+
+.ui-page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--mt-space-3);
+}
+
+.ui-width-sm { min-width: 150px; }
+.ui-width-md { min-width: 180px; }
+.ui-width-lg { min-width: 200px; }
+
+.ui-empty-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto var(--mt-space-2);
+    color: var(--mt-text-tertiary);
+}
+
+.ui-subtitle.is-tight {
+    margin-top: 2px;
+}
+
+.ui-pre-line {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.ui-nowrap {
+    white-space: nowrap;
+}

@@ -12,19 +12,16 @@
 @endphp
 
 <div>
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="ui-title">{{ __('catalog_services.plural') }}</h1>
-        </div>
+    <x-ui.page-header :title="__('catalog_services.plural')">
         <x-ui.button x-on:click="{!! Js::openWindow('edit-catalog-service') !!}">{{ __('catalog_services.add') }}</x-ui.button>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.table class="mt-5" :count="__('catalog_services.count', ['count' => $services->total()])" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$services->isEmpty()">
         <x-slot:toolbar>
             <div class="ui-toolbar-search">
                 <x-ui.input type="search" wire:model.live.debounce.300ms="search" :placeholder="__('ui.table.search')" :aria-label="__('ui.table.search')" />
             </div>
-            <div style="min-width: 170px"><x-ui.select wire:model.live="type" :options="$types" :aria-label="__('catalog_services.type')" /></div>
+            <x-ui.select width="md" wire:model.live="type" :options="$types" :aria-label="__('catalog_services.type')" />
             <x-ui.segmented
                 wire:model.live="archive"
                 :options="[
@@ -38,7 +35,7 @@
         @foreach ($services as $service)
             <x-ui.row wire:key="service-{{ $service->id }}">
                 <td>
-                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('edit-catalog-service', ['service' => $service->id]) !!}">{{ $service->name }}</button>
+                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-catalog-service', ['service' => $service->id]) !!}">{{ $service->name }}</x-ui.link-button>
                 </td>
                 <td class="ui-from-md">{{ $service->type->getLabel() }}</td>
                 <td class="is-end"><x-ui.money :amount="$service->price" :currency="$service->currency" /></td>
@@ -58,7 +55,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('catalog_services.empty_heading')" :description="__('catalog_services.empty_description')">
                     <x-ui.button x-on:click="{!! Js::openWindow('edit-catalog-service') !!}">{{ __('catalog_services.add') }}</x-ui.button>

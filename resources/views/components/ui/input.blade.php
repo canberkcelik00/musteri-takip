@@ -11,7 +11,7 @@
 
 <div class="ui-field">
     @if ($label)
-        <label class="ui-label" for="{{ $id }}">{{ $label }}</label>
+        <label class="ui-label" for="{{ $id }}">{{ $label }}@if ($attributes->has('required'))<span class="ui-required" aria-hidden="true"> *</span>@endif</label>
     @endif
 
     <div @class(['ui-input-suffix' => $suffix])>

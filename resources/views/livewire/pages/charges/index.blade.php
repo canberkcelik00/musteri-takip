@@ -18,7 +18,7 @@
 @endphp
 
 <div>
-    <h1 class="ui-title">{{ __('navigation.open_charges') }}</h1>
+    <x-ui.page-header :title="__('navigation.open_charges')" />
 
     <x-ui.table class="mt-5" :count="__('charges.count', ['count' => $charges->total()])" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$charges->isEmpty()">
         <x-slot:toolbar>
@@ -32,10 +32,10 @@
             @if ($status !== 'all')
                 <x-ui.filter-chip :label="__('charges.status_chip', ['value' => $statuses[$status] ?? $status])" wire:click="$set('status', 'all')" />
             @else
-                <div style="min-width: 150px"><x-ui.select wire:model.live="status" :options="$statuses" :aria-label="__('charges.status')" /></div>
+                <x-ui.select width="sm" wire:model.live="status" :options="$statuses" :aria-label="__('charges.status')" />
             @endif
-            <div style="min-width: 150px"><x-ui.select wire:model.live="currency" :options="$currencies" :aria-label="__('charges.currency')" /></div>
-            <div style="min-width: 180px"><x-ui.select wire:model.live="customer" :options="['' => __('archive.filter_all')] + $customers" :searchable="true" :aria-label="__('charges.customer')" /></div>
+            <x-ui.select width="sm" wire:model.live="currency" :options="$currencies" :aria-label="__('charges.currency')" />
+            <x-ui.select width="md" wire:model.live="customer" :options="['' => __('archive.filter_all')] + $customers" :searchable="true" :aria-label="__('charges.customer')" />
         </x-slot:toolbar>
 
         @foreach ($charges as $charge)
@@ -102,7 +102,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('charges.empty_heading')" :description="__('charges.empty_description')" />
             @endif

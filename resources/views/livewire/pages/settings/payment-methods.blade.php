@@ -23,13 +23,9 @@
         },
     }"
 >
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="ui-title">{{ __('payment_methods.plural') }}</h1>
-            <p class="ui-subtitle">{{ __('payment_methods.order_hint') }}</p>
-        </div>
+    <x-ui.page-header :title="__('payment_methods.plural')" :subtitle="__('payment_methods.order_hint')">
         <x-ui.button x-on:click="{!! Js::openWindow('edit-payment-method') !!}">{{ __('payment_methods.add') }}</x-ui.button>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.table class="mt-5" :columns="$columns" :end="true" :empty="$methods->isEmpty()">
         <x-slot:toolbar>
@@ -53,7 +49,7 @@
                 x-on:drop.prevent="drop({{ $method->id }})"
             >
                 <td>
-                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('edit-payment-method', ['method' => $method->id]) !!}">{{ $method->name }}</button>
+                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-payment-method', ['method' => $method->id]) !!}">{{ $method->name }}</x-ui.link-button>
                 </td>
                 <td class="ui-from-md">
                     @if ($method->isArchived())
@@ -71,7 +67,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('payment_methods.empty_heading')" :description="__('payment_methods.empty_description')">
                     <x-ui.button x-on:click="{!! Js::openWindow('edit-payment-method') !!}">{{ __('payment_methods.add') }}</x-ui.button>

@@ -7,10 +7,7 @@
         @endif
 
         @if ($preview['cancellable'])
-            <label class="ui-check is-full">
-                <input type="checkbox" wire:model="cancel_upcoming_charges">
-                <span>{{ __('customer_services.cancel_upcoming_charges', ['amount' => $preview['cancellable']]) }}</span>
-            </label>
+            <x-ui.checkbox class="is-full" wire:model="cancel_upcoming_charges" :label="__('customer_services.cancel_upcoming_charges', ['amount' => $preview['cancellable']])" />
         @endif
 
         @if ($preview['overdue'])

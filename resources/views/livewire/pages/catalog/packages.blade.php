@@ -12,12 +12,9 @@
 @endphp
 
 <div>
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="ui-title">{{ __('packages.plural') }}</h1>
-        </div>
+    <x-ui.page-header :title="__('packages.plural')">
         <x-ui.button x-on:click="{!! Js::openWindow('edit-package') !!}">{{ __('packages.add') }}</x-ui.button>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.table class="mt-5" :count="__('packages.count', ['count' => $packages->total()])" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$packages->isEmpty()">
         <x-slot:toolbar>
@@ -37,7 +34,7 @@
         @foreach ($packages as $package)
             <x-ui.row wire:key="package-{{ $package->id }}">
                 <td>
-                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('edit-package', ['package' => $package->id]) !!}">{{ $package->name }}</button>
+                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-package', ['package' => $package->id]) !!}">{{ $package->name }}</x-ui.link-button>
                 </td>
                 <td class="ui-from-md">{{ $package->catalogServices->pluck('name')->sort()->implode(', ') }}</td>
                 <td class="is-end"><x-ui.money :amount="$package->price" :currency="$package->currency" /></td>
@@ -57,7 +54,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('packages.empty_heading')" :description="__('packages.empty_description')">
                     <x-ui.button x-on:click="{!! Js::openWindow('edit-package') !!}">{{ __('packages.add') }}</x-ui.button>

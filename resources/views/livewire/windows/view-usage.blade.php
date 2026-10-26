@@ -7,7 +7,7 @@
 <x-ui.window :title="$report->title ?? __('usage.heading')">
     <div class="ui-usage">
         @if ($report !== null)
-            <p class="ui-hint" style="margin: -6px 0 8px; text-align: center">{{ $report->serverName }}</p>
+            <p class="ui-hint ui-hint-lead is-center">{{ $report->serverName }}</p>
         @endif
 
         @if ($report === null)
@@ -68,7 +68,7 @@
             @endif
 
             @if ($report->hasData())
-                <h4 class="ui-form-section" style="margin-top: 14px">{{ __('usage.mailboxes_heading', ['count' => count($report->mailboxes)]) }}</h4>
+                <h4 class="ui-form-section ui-mt-3">{{ __('usage.mailboxes_heading', ['count' => count($report->mailboxes)]) }}</h4>
 
                 @if ($report->mailboxes === [])
                     <p class="ui-hint">{{ __('usage.no_mailboxes') }}</p>
@@ -97,8 +97,8 @@
                 @endif
 
                 @if ($report->databases !== [])
-                    <details style="margin-top: 10px">
-                        <summary class="ui-form-section" style="cursor: pointer">{{ __('usage.databases_heading', ['count' => count($report->databases)]) }}</summary>
+                    <details class="ui-mt-2">
+                        <summary class="ui-form-section ui-summary">{{ __('usage.databases_heading', ['count' => count($report->databases)]) }}</summary>
                         <ul class="ui-mailboxes">
                             @foreach ($report->databases as $database)
                                 <li>
@@ -115,7 +115,7 @@
 
     <x-slot:footer>
         @if ($report !== null)
-            <x-ui.button wire:click="refreshUsage" style="margin-right: auto">{{ __('usage.refresh') }}</x-ui.button>
+            <x-ui.button wire:click="refreshUsage" class="ui-mr-auto">{{ __('usage.refresh') }}</x-ui.button>
         @endif
         <x-ui.button x-on:click="$dispatch('close-window')">{{ __('actions.close') }}</x-ui.button>
     </x-slot:footer>

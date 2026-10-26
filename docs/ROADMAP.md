@@ -461,8 +461,10 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
   - Yapılacak: tablo başlığı, yapışkan başlık, satır hover/seçili, sayı/ad boyut ayrımı, taşma yedeği.
   - Yapıldı: ayrışık sütun başı, geniş ekranda yapışkan başlık, hover yalnız gerçek işaretçide + odak, seçili satır, ad/sayı boyut ayrımı, taşma yedeği (T-154).
   - Kabul: `AccessibilityTest` tablo testleri.
-- [ ] **G-11.7 Ortak bileşenler** — Bağımlılık: G-11.4
+- [x] **G-11.7 Ortak bileşenler** — Bağımlılık: G-11.4
   - Yapılacak: `page-header`, `card`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti; satır içi `style` ve ham `<table>`/arama girişi temizliği.
+  - Yapıldı: `page-header`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti, satır içi `style` ve `view-payment` ham tablo temizliği (T-155). `card` bileşeni ve üst arama girişinin `search-field`e geçişi gerekçesiyle yapılmadı (T-155).
+  - Kabul: `SharedComponentsTest`.
 
 ## Faz 7 ve sonrası
 

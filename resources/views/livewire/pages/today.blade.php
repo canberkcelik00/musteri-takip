@@ -6,15 +6,14 @@
 @endphp
 
 <div>
-    <h1 class="ui-title">{{ __('navigation.today') }}</h1>
-    <p class="ui-subtitle">{{ $dateText }}</p>
+    <x-ui.page-header :title="__('navigation.today')" :subtitle="$dateText" />
 
     {{-- Scheduler warning: only while there is a problem. --}}
     @if ($health['message'] !== null)
-        <div class="ui-error-box" role="alert" style="margin-top: 18px">{{ $health['message'] }}</div>
+        <div class="ui-error-box ui-mt-5" role="alert">{{ $health['message'] }}</div>
     @endif
     @if ($health['failedCount'] > 0)
-        <div class="ui-error-box" role="alert" style="margin-top: 12px">
+        <div class="ui-error-box ui-mt-3" role="alert">
             <strong>{{ __('scheduler.failed_services', ['count' => $health['failedCount']]) }}</strong><br>
             @foreach ($health['failed'] as $failed)
                 <a href="{{ $failed['url'] }}">{{ $failed['label'] }}</a>@if (! $loop->last), @endif
@@ -55,7 +54,7 @@
     </div>
 
     {{-- Yapılacaklar --}}
-    <section class="ui-card ui-pane is-flush" style="margin-top: 22px">
+    <section class="ui-card ui-pane is-flush ui-mt-5">
         <div class="ui-card-head">
             <h2>{{ __('today.tasks_heading') }}</h2>
             @unless ($isEmpty)
@@ -64,7 +63,7 @@
         </div>
 
         @if ($isEmpty)
-            <div class="ui-empty"><x-ui.empty-state :heading="__('today.empty')" /></div>
+            <x-ui.empty-state :heading="__('today.empty')" />
         @else
             <x-ui.table
                 :end="true"
@@ -95,7 +94,7 @@
                             @endif
                             {{-- Below `md` the subject, date and state columns are hidden; they move under the name. --}}
                             <span class="ui-sub-line ui-below-md">{{ $row['subject'] }} · {{ $row['date'] }}</span>
-                            <span class="ui-below-md" style="margin-top: 2px">
+                            <span class="ui-below-md ui-mt-1">
                                 @if ($row['tone'])
                                     <x-ui.badge :tone="$row['tone']">{{ $row['status'] }}</x-ui.badge>
                                 @else

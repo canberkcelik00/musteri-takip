@@ -1,5 +1,5 @@
 <div>
-    <h1 class="ui-title">{{ __('settings.title') }}</h1>
+    <x-ui.page-header :title="__('settings.title')" />
 
     <form wire:submit="save" class="ui-card ui-pane mt-5">
         <div class="ui-form">
@@ -49,16 +49,12 @@
             <div class="is-full"><x-ui.input :label="__('settings.company_iban')" :hint="__('settings.company_iban_help')" wire:model="company_iban" maxlength="40" /></div>
 
             <div class="ui-field is-full">
-                <label class="ui-label" for="f-logo">{{ __('settings.company_logo') }}</label>
+                <span class="ui-label">{{ __('settings.company_logo') }}</span>
                 @if ($company_logo !== null && ! $remove_logo)
                     <span class="ui-sub-line">{{ basename($company_logo) }}</span>
                     <div><x-ui.button size="sm" wire:click="$set('remove_logo', true)">{{ __('actions.remove') }}</x-ui.button></div>
                 @endif
-                <input id="f-logo" type="file" wire:model="logo" accept="image/png,image/jpeg,image/gif" class="ui-input">
-                <span class="ui-hint">{{ __('settings.company_logo_help') }}</span>
-                @error('logo')
-                    <span class="ui-error">{{ $message }}</span>
-                @enderror
+                <x-ui.file-input wire:model="logo" accept="image/png,image/jpeg,image/gif" :hint="__('settings.company_logo_help')" />
             </div>
         </div>
 

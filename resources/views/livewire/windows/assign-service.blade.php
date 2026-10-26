@@ -17,10 +17,7 @@
         @unless ($is_free)
             <div class="ui-field is-full">
                 <span class="ui-label">{{ __('customer_services.create_first_charge') }}</span>
-                <div class="ui-radio">
-                    <label><input type="radio" wire:model="create_first_charge" value="1"> {{ __('customer_services.create_first_charge_yes') }}</label>
-                    <label><input type="radio" wire:model="create_first_charge" value="0"> {{ __('customer_services.create_first_charge_no') }}</label>
-                </div>
+                <x-ui.radio wire:model="create_first_charge" :options="[1 => __('customer_services.create_first_charge_yes'), 0 => __('customer_services.create_first_charge_no')]" />
                 <span class="ui-hint">{{ __('customer_services.create_first_charge_helper') }}</span>
             </div>
         @endunless

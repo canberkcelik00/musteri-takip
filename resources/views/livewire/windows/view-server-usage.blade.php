@@ -7,7 +7,7 @@
 
 <x-ui.window :title="$server->name">
     <div class="ui-usage">
-        <p class="ui-hint" style="margin: -6px 0 8px; text-align: center">{{ $server->hostname }}</p>
+        <p class="ui-hint ui-hint-lead is-center">{{ $server->hostname }}</p>
 
         @if ($report === null)
             <p class="ui-note">{{ __('usage.server_not_whm') }}</p>
@@ -71,7 +71,7 @@
                     </div>
                 </dl>
 
-                <h4 class="ui-form-section" style="margin-top: 14px">{{ __('usage.accounts_heading', ['count' => count($report->accounts)]) }}</h4>
+                <h4 class="ui-form-section ui-mt-3">{{ __('usage.accounts_heading', ['count' => count($report->accounts)]) }}</h4>
 
                 @if ($report->accounts === [])
                     <p class="ui-hint">{{ __('usage.no_accounts') }}</p>
@@ -84,7 +84,7 @@
                                     <span class="ui-sub-line">{{ $account->username }}@if ($account->plan !== null) · {{ $account->plan }}@endif</span>
                                     @forelse ($account->customers as $customer)
                                         <span class="ui-sub-line">
-                                            <a href="{{ route('app.customers.show', $customer['id']) }}" class="ui-link-button">{{ $customer['short_name'] }}</a>@if ($customer['archived']) · {{ __('usage.customer_archived') }}@endif
+                                            <x-ui.link-button href="{{ route('app.customers.show', $customer['id']) }}">{{ $customer['short_name'] }}</x-ui.link-button>@if ($customer['archived']) · {{ __('usage.customer_archived') }}@endif
                                         </span>
                                     @empty
                                         <span class="ui-sub-line">{{ __('usage.not_linked_short') }}</span>
@@ -119,7 +119,7 @@
     </div>
 
     <x-slot:footer>
-        <x-ui.button wire:click="refreshUsage" style="margin-right: auto">{{ __('usage.refresh') }}</x-ui.button>
+        <x-ui.button wire:click="refreshUsage" class="ui-mr-auto">{{ __('usage.refresh') }}</x-ui.button>
         <x-ui.button x-on:click="$dispatch('close-window')">{{ __('actions.close') }}</x-ui.button>
     </x-slot:footer>
 </x-ui.window>

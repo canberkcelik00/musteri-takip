@@ -1,6 +1,5 @@
 <div>
-    <h1 class="ui-title">{{ __('ui.profile.title') }}</h1>
-    <p class="ui-subtitle">{{ __('ui.profile.subtitle') }}</p>
+    <x-ui.page-header :title="__('ui.profile.title')" :subtitle="__('ui.profile.subtitle')" />
 
     <div class="mt-6 flex max-w-xl flex-col gap-5">
         <form wire:submit="saveProfile" class="ui-card ui-pane flex flex-col gap-4">

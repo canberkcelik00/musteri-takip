@@ -21,7 +21,7 @@
             @error('items') <span class="ui-error">{{ $message }}</span> @enderror
 
             @foreach ($items as $index => $row)
-                <div class="ui-actions-section" wire:key="quote-item-{{ $index }}-{{ $row['id'] ?? 'new' }}" style="margin-top: 8px">
+                <div class="ui-actions-section ui-mt-2" wire:key="quote-item-{{ $index }}-{{ $row['id'] ?? 'new' }}">
                     <div class="ui-form">
                         @if ($row['id'] !== null)
                             <div class="is-full"><strong>{{ $row['name'] }}</strong></div>
@@ -33,7 +33,7 @@
                         <div class="is-full"><x-ui.toggle wire:model.live="items.{{ $index }}.is_free" :label="__('quotes.is_free')" :disabled="! $draft" /></div>
                     </div>
                     @if ($draft)
-                        <div class="ui-actions-row" style="margin-top: 8px">
+                        <div class="ui-actions-row ui-mt-2">
                             <x-ui.button size="sm" wire:click="moveItem({{ $index }}, -1)" :disabled="$index === 0">{{ __('actions.up') }}</x-ui.button>
                             <x-ui.button size="sm" wire:click="moveItem({{ $index }}, 1)" :disabled="$index === count($items) - 1">{{ __('actions.down') }}</x-ui.button>
                             <x-ui.button size="sm" variant="danger" wire:click="removeItem({{ $index }})">{{ __('quotes.remove_item') }}</x-ui.button>

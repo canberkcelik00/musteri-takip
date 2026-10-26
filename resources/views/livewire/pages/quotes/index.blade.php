@@ -15,19 +15,16 @@
 @endphp
 
 <div>
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="ui-title">{{ __('quotes.plural') }}</h1>
-        </div>
+    <x-ui.page-header :title="__('quotes.plural')">
         <x-ui.button x-on:click="{!! Js::openWindow('create-quote') !!}">{{ __('quotes.new') }}</x-ui.button>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.table :count="__('quotes.count', ['count' => $quotes->total()])" class="mt-5" :columns="$columns" :sort="$sort" :direction="$direction" :end="true" :empty="$quotes->isEmpty()">
         <x-slot:toolbar>
             <div class="ui-toolbar-search">
                 <x-ui.input type="search" wire:model.live.debounce.300ms="search" :placeholder="__('ui.table.search')" :aria-label="__('ui.table.search')" />
             </div>
-            <div style="min-width: 170px"><x-ui.select wire:model.live="status" :options="$statuses" :aria-label="__('quotes.filter_status')" /></div>
+            <x-ui.select width="md" wire:model.live="status" :options="$statuses" :aria-label="__('quotes.filter_status')" />
         </x-slot:toolbar>
 
         @foreach ($quotes as $quote)
@@ -42,7 +39,7 @@
             @endphp
             <x-ui.row wire:key="quote-{{ $quote->id }}">
                 <td>
-                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('quote', ['quote' => $quote->id]) !!}">{{ $quote->number }}</button>
+                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('quote', ['quote' => $quote->id]) !!}">{{ $quote->number }}</x-ui.link-button>
                     <span class="ui-sub-line">{{ $recipient }}</span>
                 </td>
                 <td class="is-end">
@@ -77,7 +74,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('quotes.empty_heading')" :description="__('quotes.empty_description')">
                     <x-ui.button x-on:click="{!! Js::openWindow('create-quote') !!}">{{ __('quotes.new') }}</x-ui.button>

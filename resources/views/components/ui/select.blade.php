@@ -1,9 +1,9 @@
-@props(['options' => [], 'label' => null, 'placeholder' => null, 'searchable' => false, 'disabled' => false])
+@props(['options' => [], 'label' => null, 'placeholder' => null, 'searchable' => false, 'disabled' => false, 'width' => null])
 
 {{--
     A select that is never the system's own (docs/UI.md §6 "Seçim kutusu"): an Alpine listbox with a search field
     (`searchable`), grouped options (`['Group' => ['key' => 'Label']]`) and keyboard use (arrows, Enter, Esc).
-    Bind it with wire:model; the value is exchanged as a string.
+    Bind it with wire:model; the value is exchanged as a string. `width` (sm|md|lg) sets a minimum width for a select in a toolbar.
 --}}
 @php
     $list = [];
@@ -21,7 +21,7 @@
     $model = collect($attributes->getAttributes())->first(fn ($value, $key) => str_starts_with((string) $key, 'wire:model'));
 @endphp
 
-<div class="ui-field">
+<div @class(['ui-field', "ui-width-{$width}" => $width])>
     @if ($label)
         <span class="ui-label">{{ $label }}</span>
     @endif

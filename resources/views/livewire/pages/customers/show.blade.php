@@ -29,7 +29,7 @@
                 </div>
                 <h1>{{ $customer->short_name }}</h1>
                 @if (filled($customer->legal_title))
-                    <p class="ui-subtitle" style="margin: 2px 0 0">{{ $customer->legal_title }}</p>
+                    <p class="ui-subtitle is-tight">{{ $customer->legal_title }}</p>
                 @endif
                 @if ($customer->isArchived())
                     <x-ui.badge class="mt-1">{{ __('archive.status_archived') }}</x-ui.badge>
@@ -69,13 +69,11 @@
                 </div>
 
                 @if ($activeServices->isEmpty())
-                    <div class="ui-empty">
-                        <x-ui.empty-state :heading="__('customer_services.empty_heading')" :description="__('customer_services.empty_description')">
+                    <x-ui.empty-state :heading="__('customer_services.empty_heading')" :description="__('customer_services.empty_description')">
                             @unless ($customer->isArchived())
                                 <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
                             @endunless
                         </x-ui.empty-state>
-                    </div>
                 @else
                     <x-ui.table :columns="$serviceColumns" :card="false">
                         @foreach ($activeServices as $service)
@@ -104,9 +102,7 @@
                 </div>
 
                 @if ($customer->charges->isEmpty())
-                    <div class="ui-empty">
-                        <x-ui.empty-state :heading="__('charges.open_empty_heading')" :description="__('charges.open_empty_description')" />
-                    </div>
+                    <x-ui.empty-state :heading="__('charges.open_empty_heading')" :description="__('charges.open_empty_description')" />
                 @else
                     <x-ui.table
                         :end="true"
@@ -125,7 +121,7 @@
                             @endphp
                             <x-ui.row wire:key="charge-{{ $charge->id }}">
                                 <td>
-                                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('edit-charge', ['charge' => $charge->id]) !!}">{{ $charge->description }}</button>
+                                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-charge', ['charge' => $charge->id]) !!}">{{ $charge->description }}</x-ui.link-button>
                                     @if ($domains !== [])
                                         <span class="ui-sub-line">{{ implode(', ', $domains) }}</span>
                                     @endif
@@ -171,13 +167,11 @@
                 </div>
 
                 @if ($customer->payments->isEmpty())
-                    <div class="ui-empty">
-                        <x-ui.empty-state :heading="__('payments.recent_empty_heading')" :description="__('payments.recent_empty_description')">
+                    <x-ui.empty-state :heading="__('payments.recent_empty_heading')" :description="__('payments.recent_empty_description')">
                             @unless ($customer->isArchived())
                                 <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
                             @endunless
                         </x-ui.empty-state>
-                    </div>
                 @else
                     <x-ui.table
                         :end="true"
@@ -193,7 +187,7 @@
                             <x-ui.row wire:key="payment-{{ $payment->id }}">
                                 <td>{{ $fmt($payment->paid_on) }}</td>
                                 <td class="is-end">
-                                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('view-payment', ['payment' => $payment->id]) !!}"><x-ui.money :amount="$payment->amount" :currency="$payment->currency" /></button>
+                                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('view-payment', ['payment' => $payment->id]) !!}"><x-ui.money :amount="$payment->amount" :currency="$payment->currency" /></x-ui.link-button>
                                     @if ($payment->domains() !== [])
                                         <span class="ui-sub-line">{{ implode(', ', $payment->domains()) }}</span>
                                     @endif
@@ -224,7 +218,7 @@
                         @foreach ($customer->quotes as $quote)
                             @php($quoteTone = StatusBadges::quoteTone($quote))
                             <x-ui.row wire:key="quote-{{ $quote->id }}">
-                                <td><button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('quote', ['quote' => $quote->id]) !!}">{{ $quote->number }}</button></td>
+                                <td><x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('quote', ['quote' => $quote->id]) !!}">{{ $quote->number }}</x-ui.link-button></td>
                                 <td class="is-end">
                                     @forelse ($quote->totals() as $money)
                                         <div><x-ui.money :amount="$money->amount" :currency="$money->currency" /></div>
@@ -256,7 +250,7 @@
 
                 @forelse ($customer->contacts as $contact)
                     <div class="ui-contact" wire:key="contact-{{ $contact->id }}">
-                        <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('contact', ['customer' => $customer->id, 'contact' => $contact->id]) !!}">{{ $contact->name.($contact->is_primary ? ' · '.__('contacts.is_primary') : '') }}</button>
+                        <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('contact', ['customer' => $customer->id, 'contact' => $contact->id]) !!}">{{ $contact->name.($contact->is_primary ? ' · '.__('contacts.is_primary') : '') }}</x-ui.link-button>
                         @if (filled($contact->title))
                             <span class="ui-muted">{{ $contact->title }}</span>
                         @endif
@@ -268,16 +262,14 @@
                         @endif
                     </div>
                 @empty
-                    <div class="ui-empty">
-                        <x-ui.empty-state :heading="__('contacts.empty_heading')" :description="__('contacts.empty_description')" />
-                    </div>
+                    <x-ui.empty-state :heading="__('contacts.empty_heading')" :description="__('contacts.empty_description')" />
                 @endforelse
             </section>
 
             <section class="ui-card ui-pane">
                 <div class="ui-card-head">
                     <h2>{{ __('customers.billing_section') }}</h2>
-                    <button type="button" class="ui-link-button" style="color: var(--mt-link)" x-on:click="{!! Js::openWindow('edit-customer', ['customer' => $customer->id]) !!}">{{ __('customers.edit') }}</button>
+                    <x-ui.link-button class="ui-link-accent" x-on:click="{!! Js::openWindow('edit-customer', ['customer' => $customer->id]) !!}">{{ __('customers.edit') }}</x-ui.link-button>
                 </div>
                 <dl class="ui-kv">
                     @foreach (['legal_title', 'tax_office', 'tax_number', 'billing_address'] as $field)
@@ -289,7 +281,7 @@
 
             <section class="ui-card ui-pane">
                 <div class="ui-card-head"><h2>{{ __('customers.notes_section') }}</h2></div>
-                <p style="margin: 0; white-space: pre-line; overflow-wrap: anywhere">{{ filled($customer->notes) ? $customer->notes : __('money.empty') }}</p>
+                <p class="ui-m-0 ui-pre-line">{{ filled($customer->notes) ? $customer->notes : __('money.empty') }}</p>
             </section>
         </div>
     </div>

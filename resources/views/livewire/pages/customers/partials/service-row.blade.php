@@ -13,7 +13,7 @@
 
 <x-ui.row wire:key="service-{{ $service->id }}">
     <td>
-        <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('edit-service', ['service' => $service->id]) !!}">{{ $service->name }}</button>
+        <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-service', ['service' => $service->id]) !!}">{{ $service->name }}</x-ui.link-button>
         @if ($domains !== [])
             <span class="ui-sub-line">
                 <x-ui.domains :domains="$domains" />@if ($others > 0) +{{ __('customer_services.more_domains', ['count' => $others]) }}@endif
@@ -23,9 +23,9 @@
             <span class="ui-below-xl"><x-ui.badge :tone="$statusTone">{{ $statusLabel }}</x-ui.badge></span>
         @endif
         @if ($usageBadge)
-            <button type="button" class="ui-link-button is-block" x-on:click="{!! Js::openWindow('view-usage', ['item' => $usageBadge['item']]) !!}">
+            <x-ui.link-button :block="true" x-on:click="{!! Js::openWindow('view-usage', ['item' => $usageBadge['item']]) !!}">
                 <x-ui.badge :tone="$usageBadge['tone']">{{ $usageBadge['text'] }}</x-ui.badge>
-            </button>
+            </x-ui.link-button>
         @endif
     </td>
     <td class="ui-from-md">{{ Carbon::parse($service->end_date)->format('d.m.Y') }}</td>

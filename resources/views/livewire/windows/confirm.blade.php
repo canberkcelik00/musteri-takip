@@ -1,6 +1,6 @@
 <x-ui.window :title="$text['heading']" submit="confirm">
     @if ($text['description'] !== '')
-        <p style="margin: 0">{{ $text['description'] }}</p>
+        <p class="ui-m-0">{{ $text['description'] }}</p>
     @endif
 
     <x-slot:footer>

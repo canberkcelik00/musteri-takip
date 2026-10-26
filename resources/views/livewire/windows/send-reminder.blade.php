@@ -1,5 +1,5 @@
 <x-ui.window :title="__('reminders.send_heading')" submit="send">
-    <p style="margin: 0">{{ $text }}</p>
+    <p class="ui-m-0">{{ $text }}</p>
 
     <x-slot:footer>
         <x-ui.button x-on:click="$dispatch('close-window')">{{ $canSend ? __('actions.discard') : __('actions.close') }}</x-ui.button>

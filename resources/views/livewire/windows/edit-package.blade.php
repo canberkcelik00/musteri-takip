@@ -8,12 +8,9 @@
 
         <div class="ui-field is-full">
             <span class="ui-label">{{ __('packages.catalog_services') }}</span>
-            <div style="max-height: 180px; overflow-y: auto; display: grid; gap: 8px; padding: 4px 2px">
+            <div class="ui-check-list">
                 @forelse ($services as $id => $label)
-                    <label class="ui-check" wire:key="package-service-{{ $id }}">
-                        <input type="checkbox" wire:model="serviceIds" value="{{ $id }}">
-                        <span>{{ $label }}</span>
-                    </label>
+                    <x-ui.checkbox :wire:key="'package-service-'.$id" wire:model="serviceIds" :value="$id" :label="$label" />
                 @empty
                     <span class="ui-hint">{{ __('packages.no_services') }}</span>
                 @endforelse

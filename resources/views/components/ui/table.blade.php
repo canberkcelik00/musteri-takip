@@ -19,7 +19,7 @@
     @endisset
 
     @if ($empty && isset($emptyState))
-        <div class="ui-empty">{{ $emptyState }}</div>
+        {{ $emptyState }}
     @else
         <div class="ui-table-wrap">
             <table class="ui-table">

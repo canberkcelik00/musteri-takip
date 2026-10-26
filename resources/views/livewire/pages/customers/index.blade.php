@@ -15,12 +15,9 @@
 @endphp
 
 <div>
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="ui-title">{{ __('customers.plural') }}</h1>
-        </div>
+    <x-ui.page-header :title="__('customers.plural')">
         <x-ui.button x-on:click="$dispatch('open-window', { name: 'create-customer' })">{{ __('customers.create') }}</x-ui.button>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.table :count="__('customers.count', ['count' => $total])"
         class="mt-5"
@@ -93,7 +90,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('customers.empty_heading')" :description="__('customers.empty_description')">
                     <x-ui.button x-on:click="$dispatch('open-window', { name: 'create-customer' })">{{ __('customers.create') }}</x-ui.button>

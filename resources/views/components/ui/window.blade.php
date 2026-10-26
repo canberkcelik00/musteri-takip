@@ -31,7 +31,7 @@
         </div>
         <div class="ui-window-body">
             @if (isset($errors) && $errors->has('form'))
-                <div class="ui-error-box" role="alert" style="margin-bottom: 12px">{{ $errors->first('form') }}</div>
+                <div class="ui-error-box ui-mb-3" role="alert">{{ $errors->first('form') }}</div>
             @endif
             {{ $slot }}
         </div>

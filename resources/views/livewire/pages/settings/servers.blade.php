@@ -15,12 +15,9 @@
 @endphp
 
 <div>
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="ui-title">{{ __('servers.plural') }}</h1>
-        </div>
+    <x-ui.page-header :title="__('servers.plural')">
         <x-ui.button x-on:click="{!! Js::openWindow('edit-server') !!}">{{ __('servers.add') }}</x-ui.button>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.table class="mt-5" :count="__('servers.count', ['count' => $servers->count()])" :columns="$columns" :end="true" :empty="$servers->isEmpty()">
         <x-slot:toolbar>
@@ -40,7 +37,7 @@
             @endphp
             <x-ui.row wire:key="server-{{ $server->id }}">
                 <td>
-                    <button type="button" class="ui-link-button ui-cell-title" x-on:click="{!! Js::openWindow('edit-server', ['server' => $server->id]) !!}">{{ $server->name }}</button>
+                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-server', ['server' => $server->id]) !!}">{{ $server->name }}</x-ui.link-button>
                 </td>
                 <td class="ui-from-md">{{ $server->type->getLabel() }}</td>
                 <td class="ui-from-lg">{{ $server->hostname }}</td>
@@ -53,7 +50,7 @@
                 </td>
                 <td class="ui-from-md">
                     @if ($server->type === ServerType::Whm)
-                        <button type="button" class="ui-link-button @if ($summary['failed']) is-danger @endif" x-on:click="{!! Js::openWindow('view-server-usage', ['server' => $server->id]) !!}">{{ $summary['text'] }}</button>
+                        <x-ui.link-button :danger="$summary['failed']" x-on:click="{!! Js::openWindow('view-server-usage', ['server' => $server->id]) !!}">{{ $summary['text'] }}</x-ui.link-button>
                     @else
                         <span @class(['is-danger' => $summary['failed']])>{{ $summary['text'] }}</span>
                     @endif
@@ -77,7 +74,7 @@
 
         <x-slot:emptyState>
             @if ($filtered)
-                <x-ui.empty-state :heading="__('ui.table.no_results')" :description="__('ui.table.no_results_hint')" />
+                <x-ui.empty-state :heading="__('ui.table.no_results')" icon="document-magnifying-glass" :description="__('ui.table.no_results_hint')" />
             @else
                 <x-ui.empty-state :heading="__('servers.empty_heading')" :description="__('servers.empty_description')">
                     <x-ui.button x-on:click="{!! Js::openWindow('edit-server') !!}">{{ __('servers.add') }}</x-ui.button>
