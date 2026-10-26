@@ -174,7 +174,7 @@ it('keeps the top bar search state across renders, since Alpine re-creates a com
     $search = Livewire::test(Search::class);
     $rootOf = fn (string $html): string => preg_match('/^<div[^>]*>/', $html, $match) === 1 ? preg_replace('/ wire:\S+="[^"]*"/', '', $match[0]) : '';
     $empty = $search->html();
-    $filled = $search->set('query', 'a')->html();
+    $filled = $search->set('query', 'ab')->html();
 
     expect($rootOf($filled))->toBe($rootOf($empty))->toContain('open: false, filled: false');
     expect($empty)->not->toContain('ui-search-results');

@@ -2,7 +2,7 @@
     use App\Support\Ui\Links;
 
     $results = $this->results;
-    $filled = trim($query) !== '';
+    $filled = mb_strlen(trim($query)) >= \App\Livewire\Topbar\Search::MIN_LENGTH;
 @endphp
 
 {{--

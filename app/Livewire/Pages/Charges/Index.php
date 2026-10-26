@@ -12,6 +12,7 @@ use App\Support\Money;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -21,6 +22,8 @@ use Livewire\Component;
  * The charge list (docs/UI.md §5 "Açık borçlar listesi"): open charges by default, oldest due date first, with a
  * total row per currency under "Kalan" that follows the search and the filters. The state is a column from `lg`
  * and a badge under "Kalan" below it; the row has "Ödeme al" and (from `md`) "Düzenle".
+ *
+ * @property-read array<int, string> $customerOptions
  */
 #[Layout('layouts.app')]
 class Index extends Component
@@ -157,6 +160,23 @@ class Index extends Component
         return app(SumRemainingByCurrency::class)->handle($this->filtered()->where('status', ChargeStatus::Open));
     }
 
+    /**
+     * The customer filter's options, read once and kept until a customer is added or edited.
+     *
+     * @return array<int, string>
+     */
+    #[Computed(persist: true)]
+    public function customerOptions(): array
+    {
+        return Customer::query()->orderBy('short_name')->pluck('short_name', 'id')->all();
+    }
+
+    #[On('customers-changed')]
+    public function forgetCustomerOptions(): void
+    {
+        unset($this->customerOptions);
+    }
+
     public function render(): View
     {
         $charges = $this->charges();
@@ -164,7 +184,7 @@ class Index extends Component
         return view('livewire.pages.charges.index', [
             'charges' => $charges,
             'totals' => $this->totals(),
-            'customers' => Customer::query()->orderBy('short_name')->pluck('short_name', 'id')->all(),
+            'customers' => $this->customerOptions,
             'statuses' => [self::STATUS_ALL => __('archive.filter_all')] + collect(ChargeStatus::cases())->mapWithKeys(fn (ChargeStatus $status): array => [$status->value => $status->getLabel()])->all(),
             'currencies' => ['' => __('archive.filter_all')] + collect(Currency::cases())->mapWithKeys(fn (Currency $case): array => [$case->value => $case->getLabel()])->all(),
         ])->title(__('navigation.open_charges'));

@@ -17,6 +17,9 @@ class Search extends Component
 {
     public const int LIMIT = 8;
 
+    /** A shorter term matches nearly everything: no query runs and no result box opens. */
+    public const int MIN_LENGTH = 2;
+
     public string $query = '';
 
     /**
@@ -25,12 +28,13 @@ class Search extends Component
     #[Computed]
     public function results(): Collection
     {
-        if (trim($this->query) === '') {
+        if (mb_strlen(trim($this->query)) < self::MIN_LENGTH) {
             return new Collection;
         }
 
         return Customer::query()
-            ->with('customerServices.items')
+            ->select(['id', 'short_name', 'legal_title', 'archived_at'])
+            ->with(['customerServices:id,customer_id', 'customerServices.items:id,customer_service_id,details'])
             ->search($this->query)
             ->orderBy('short_name')
             ->limit(self::LIMIT)

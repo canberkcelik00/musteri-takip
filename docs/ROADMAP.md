@@ -448,8 +448,9 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
 - [x] **G-11.2 Arka plan ve gezinme** — Bağımlılık: G-11.1
   - Yapıldı: zemin degradesi zaten `position: fixed` `body::before` katmanındaydı (testle güvence altına alındı); kenar menü, alt sekme çubuğu ve müşteri kartı bağlantıları `wire:navigate.hover` kullanır.
   - Kabul: `PerformanceTest` (hover ile ön yükleme, sabit blursuz zemin katmanı).
-- [ ] **G-11.3 Sorgu hafifletme** — Bağımlılık: G-11.1
-  - Yapılacak: Açık borçlar/Ödemeler müşteri filtre listesini her güncellemede çekmemek; üst arama en az 2 karakter, yalnız gösterilen sütunlar, gereksiz eager-load yok; toplam sayı gerekmeyen yerde `simplePaginate`; önce/sonra sorgu ölçümü.
+- [x] **G-11.3 Sorgu hafifletme** — Bağımlılık: G-11.1
+  - Yapıldı: Açık borçlar ve Ödemeler müşteri filtre listesi sayfa ömrü boyunca bir kez okunur, `customers-changed` olayında yenilenir; üst arama en az 2 karakterde çalışır, yalnız gösterilen müşteri sütunlarını ve alan adı için gereken ilişki sütunlarını okur. `simplePaginate` uygulanmadı: her listede kayıt sayacı (`total()`) var (UI.md).
+  - Kabul: `PerformanceTest` (2 karakter altında sorgu yok, dar sütunlar, filtre listesi güncellemede yeniden sorgulanmaz); `ListPerformanceTest` sorgu sayısı sabit kalır.
 - [ ] **G-11.4 Tasarım tokenları** — Bağımlılık: G-11.1
   - Yapılacak: köşe ve boşluk tokenları, yazı ölçeği; sabit değerlerin tokena çevrilmesi; `tables.css`'in müşteri kartı/kullanım/Bugün/tarih seçici bölümlerinin ayrı dosyalara bölünmesi.
 - [ ] **G-11.5 Erişilebilirlik** — Bağımlılık: G-11.4
