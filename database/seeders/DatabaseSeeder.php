@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Actions\EnsureAdminUser;
+use App\Actions\Users\SyncRolesAndPermissions;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -16,12 +17,13 @@ class DatabaseSeeder extends Seeder
      * deploy uses (nothing is created when they are empty); the seeder holds no user or password
      * of its own.
      */
-    public function run(EnsureAdminUser $ensureAdminUser): void
+    public function run(EnsureAdminUser $ensureAdminUser, SyncRolesAndPermissions $syncRolesAndPermissions): void
     {
         if (! app()->environment(['local', 'testing'])) {
             throw new RuntimeException('Örnek veri yalnızca yerel ortamda oluşturulabilir.');
         }
 
+        $syncRolesAndPermissions->handle();
         $ensureAdminUser->handle();
 
         $this->call(SampleDataSeeder::class);

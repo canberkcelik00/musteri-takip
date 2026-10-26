@@ -102,7 +102,7 @@ it('runs the deploy steps once and remembers the release', function () {
 
     expect($runner->calls)->toBe(DEPLOY_STEPS)
         ->and(deployedRelease())->toBe('release-1')
-        ->and(User::where('email', 'sahip@example.com')->exists())->toBeTrue();
+        ->and(User::where('email', 'sahip@example.com')->first()?->hasRole('admin'))->toBeTrue();
 });
 
 it('does not flush the database cache, whose table does not exist before the first migration', function () {

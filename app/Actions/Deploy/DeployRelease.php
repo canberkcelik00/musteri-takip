@@ -3,6 +3,7 @@
 namespace App\Actions\Deploy;
 
 use App\Actions\EnsureAdminUser;
+use App\Actions\Users\SyncRolesAndPermissions;
 use App\Enums\DeployResult;
 use BladeUI\Icons\IconsManifest;
 use Illuminate\Cache\Repository as CacheRepository;
@@ -18,6 +19,7 @@ class DeployRelease
     public function __construct(
         private readonly ArtisanRunner $artisan,
         private readonly EnsureAdminUser $ensureAdminUser,
+        private readonly SyncRolesAndPermissions $syncRolesAndPermissions,
         private readonly IconsManifest $iconsManifest,
     ) {}
 
@@ -109,6 +111,7 @@ class DeployRelease
         $this->iconsManifest->delete();
         $this->run('migrate', ['--force' => true]);
 
+        $this->syncRolesAndPermissions->handle();
         $this->ensureAdminUser->handle();
 
         $this->run('optimize');

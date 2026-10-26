@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Actions\Users\SyncRolesAndPermissions;
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -41,5 +43,52 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * An administrator: holds every permission.
+     */
+    public function admin(): static
+    {
+        return $this->withRole(Role::Admin);
+    }
+
+    /**
+     * A developer: works with customers, sees no money.
+     */
+    public function developer(): static
+    {
+        return $this->withRole(Role::Developer);
+    }
+
+    /**
+     * A user who was deactivated and cannot sign in.
+     */
+    public function deactivated(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'deactivated_at' => now(),
+        ]);
+    }
+
+    /**
+     * A user who was invited and has not chosen a password yet.
+     */
+    public function invited(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'password' => null,
+            'email_verified_at' => null,
+            'invited_at' => now(),
+        ]);
+    }
+
+    private function withRole(Role $role): static
+    {
+        return $this->afterCreating(function (User $user) use ($role): void {
+            app(SyncRolesAndPermissions::class)->handle();
+
+            $user->assignRole($role->value);
+        });
     }
 }

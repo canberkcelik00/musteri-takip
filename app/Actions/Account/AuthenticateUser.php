@@ -2,6 +2,7 @@
 
 namespace App\Actions\Account;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -14,7 +15,9 @@ class AuthenticateUser
 
     /**
      * Sign the user in, or throw a validation error on the `email` field: the credentials do
-     * not match, or there were too many failed attempts.
+     * not match, the account is deactivated or has no password yet (an unaccepted invitation),
+     * or there were too many failed attempts. The first three look the same to the caller, so
+     * the form does not tell which e-mail addresses have an account.
      *
      * @throws ValidationException
      */
@@ -28,7 +31,13 @@ class AuthenticateUser
             ]);
         }
 
-        if (! Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+        $credentials = [
+            'email' => $email,
+            'password' => $password,
+            fn (Builder $query) => $query->whereNull('deactivated_at')->whereNotNull('password'),
+        ];
+
+        if (! Auth::attempt($credentials, $remember)) {
             RateLimiter::hit($key);
 
             throw ValidationException::withMessages(['email' => __('auth.failed')]);

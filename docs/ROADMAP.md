@@ -472,7 +472,7 @@ Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç g
 
 - [x] **G-12.1 Dokümanlar** — Bağımlılık: G-11.7
   - Yapıldı: PRD'ye "Kullanıcılar ve yetkiler", UI.md §1/§3'e rol ve yazılımcı menüsü, DATA_MODEL'e kullanıcı/izin tabloları ve "kim" sütunları, DECISIONS'a T-29'un geçersizliği ve T-157–T-159.
-- [ ] **G-12.2 Rol altyapısı** — Bağımlılık: G-12.1
+- [x] **G-12.2 Rol altyapısı** — Bağımlılık: G-12.1
   - Yapılacak: `spatie/laravel-permission` (Laravel 13 uyumu önce doğrulanır); `Role`/`Permission` enum'ları; `users` migration'ı (`invited_at`, `deactivated_at`, boş şifre); idempotent `SyncRolesAndPermissions` (`DeployRelease` ve `app:create-admin` çağırır); `EnsureAdminUser` ilk hesaba Admin rolü verir; pasif/şifresiz kullanıcı girişi reddedilir, pasifleştirilenin oturumu kapanır.
   - Kabul: Eşleme iki kez çalışınca kayıt artmaz; mevcut admin Admin rolü alır; pasif ve şifresiz kullanıcı giriş yapamaz (testli).
 - [ ] **G-12.3 Para gizleme** — Bağımlılık: G-12.2

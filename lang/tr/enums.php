@@ -54,6 +54,11 @@ return [
         'credit_balance' => 'Alacak bakiyesi',
     ],
 
+    'role' => [
+        'admin' => 'Yönetici',
+        'developer' => 'Yazılımcı',
+    ],
+
     'server_type' => [
         'whm' => 'WHM (reseller)',
         'cpanel' => 'cPanel',

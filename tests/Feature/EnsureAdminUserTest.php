@@ -1,10 +1,15 @@
 <?php
 
 use App\Actions\EnsureAdminUser;
+use App\Actions\Users\SyncRolesAndPermissions;
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role as RoleModel;
 
 beforeEach(function () {
+    app(SyncRolesAndPermissions::class)->handle();
+
     config()->set('app.admin', [
         'name' => 'İşletme Sahibi',
         'email' => 'sahip@example.com',
@@ -73,4 +78,36 @@ it('skips quietly from the command when admin values are empty', function () {
         ->assertSuccessful();
 
     expect(User::count())->toBe(0);
+});
+
+it('makes the created user an administrator', function () {
+    $user = app(EnsureAdminUser::class)->handle();
+
+    expect($user->hasRole(Role::Admin->value))->toBeTrue();
+});
+
+it('makes an existing user without a role an administrator', function () {
+    User::factory()->create(['email' => 'sahip@example.com']);
+
+    $user = app(EnsureAdminUser::class)->handle();
+
+    expect(User::count())->toBe(1)
+        ->and($user->hasRole(Role::Admin->value))->toBeTrue();
+});
+
+it('does not promote an account that was given another role', function () {
+    app(EnsureAdminUser::class)->handle()->syncRoles(Role::Developer->value);
+
+    $user = app(EnsureAdminUser::class)->handle();
+
+    expect($user->hasRole(Role::Admin->value))->toBeFalse()
+        ->and($user->hasRole(Role::Developer->value))->toBeTrue();
+});
+
+it('syncs the roles from the command so the admin can get its role', function () {
+    RoleModel::query()->delete();
+
+    $this->artisan('app:create-admin')->assertSuccessful();
+
+    expect(User::first()->hasRole(Role::Admin->value))->toBeTrue();
 });
