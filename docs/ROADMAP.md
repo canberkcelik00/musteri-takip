@@ -438,6 +438,26 @@ Hedef: Arayüzü Apple cam (Liquid Glass) tasarımıyla birebir, Filament'siz ye
 
 **Faz 10 bittiğinde:** Panel cam tasarımıyla, Filament'siz, aynı akışlarla çalışıyor.
 
+## Faz 11 – Tasarım ve tasarım performansı cilası
+
+Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır (cilalama); performansta yeni paket yok, cam efekti azaltılmaz (güvenli hızlandırma). Plan: önce performans (A), sonra tasarım (B).
+
+- [x] **G-11.1 Yazı tipi yükü** — Bağımlılık: G-10.14
+  - Yapıldı: kullanılmayan `Instrument Sans` (bunny) yazı tipi bloğu `vite.config.js`'ten kaldırıldı (7 dosya, ~120 KB); latin Inter woff2 `head.blade.php`'te `preload` edilir.
+  - Kabul: derlemede `instrument-sans` yok; sayfa başında Inter latin preload'u var (`PerformanceTest`).
+- [ ] **G-11.2 Arka plan ve gezinme** — Bağımlılık: G-11.1
+  - Yapılacak: `base.css` zemin degradesini sabit katmana almak, menü bağlantılarına `wire:navigate.hover`.
+- [ ] **G-11.3 Sorgu hafifletme** — Bağımlılık: G-11.1
+  - Yapılacak: Açık borçlar/Ödemeler müşteri filtre listesini her güncellemede çekmemek; üst arama en az 2 karakter, yalnız gösterilen sütunlar, gereksiz eager-load yok; toplam sayı gerekmeyen yerde `simplePaginate`; önce/sonra sorgu ölçümü.
+- [ ] **G-11.4 Tasarım tokenları** — Bağımlılık: G-11.1
+  - Yapılacak: köşe ve boşluk tokenları, yazı ölçeği; sabit değerlerin tokena çevrilmesi; `tables.css`'in müşteri kartı/kullanım/Bugün/tarih seçici bölümlerinin ayrı dosyalara bölünmesi.
+- [ ] **G-11.5 Erişilebilirlik** — Bağımlılık: G-11.4
+  - Yapılacak: 3:1 odak halkası, görünür input kenarı, `prefers-reduced-motion`, devre dışı kontrol kontrastı, hata simgesi, dokunma hedefleri, tooltip taşması.
+- [ ] **G-11.6 Tablo hiyerarşisi** — Bağımlılık: G-11.4
+  - Yapılacak: tablo başlığı, yapışkan başlık, satır hover/seçili, sayı/ad boyut ayrımı, taşma yedeği.
+- [ ] **G-11.7 Ortak bileşenler** — Bağımlılık: G-11.4
+  - Yapılacak: `page-header`, `card`, `link-button`, `checkbox`, `radio`, `file-input`, `select` genişlik prop'u, `empty-state` simgesi, zorunlu alan işareti; satır içi `style` ve ham `<table>`/arama girişi temizliği.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

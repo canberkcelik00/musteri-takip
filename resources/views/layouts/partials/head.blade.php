@@ -21,4 +21,6 @@
     });
     document.addEventListener('livewire:navigated', window.mtApplyAppearance);
 </script>
+{{-- The latin Inter subset is on almost every page: fetch it with the CSS instead of after it (fonts need crossorigin). --}}
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') }}">
 @vite('resources/css/ui.css')
