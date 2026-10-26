@@ -11,10 +11,12 @@ use Spatie\Permission\PermissionRegistrar;
 class SyncRolesAndPermissions
 {
     /**
-     * Make the roles and permissions tables match the `Role` and `Permission` enums.
+     * Make the roles and permissions tables match the `Permission` enum and the built-in roles.
      *
-     * Safe to run on every deploy and from the console: nothing is duplicated, a permission
-     * that left the enum is removed, and role assignments of users are never touched.
+     * Safe to run on every deploy and from the console: nothing is duplicated and a permission that left the enum is
+     * removed. The administrator always holds every permission. The developer gets its default list only when the role
+     * is first created; after that the roles screen owns it (T-165). Roles the administrator made are never touched,
+     * and role assignments of users neither.
      */
     public function handle(): void
     {
@@ -27,9 +29,13 @@ class SyncRolesAndPermissions
         PermissionModel::query()->whereNotIn('name', $names)->delete();
 
         foreach (Role::cases() as $role) {
-            RoleModel::findOrCreate($role->value)->syncPermissions(
-                array_map(fn (Permission $permission): string => $permission->value, $role->permissions()),
-            );
+            $record = RoleModel::findOrCreate($role->value);
+
+            if ($role === Role::Admin || $record->wasRecentlyCreated) {
+                $record->syncPermissions(
+                    array_map(fn (Permission $permission): string => $permission->value, $role->permissions()),
+                );
+            }
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

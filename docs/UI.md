@@ -49,7 +49,7 @@ Menü en fazla altı ana öğe taşır ve sıklık sırasıyla dizilir.
 | 3 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
 | 4 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
 | 5 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
-| 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar (en altta; Faz 12, yalnız yönetici; satırdan ad/rol düzenleme ve silme penceresi açılır) |
+| 6 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar, Roller (en altta; Faz 12, yalnız yönetici; kullanıcı satırından ad/rol düzenleme ve silme, rol satırından yetki kutuları penceresi açılır) |
 
 **Yazılımcının menüsü (Faz 12, T-157):** Yalnız **Müşteriler** görünür. Bugün, Teklifler, Tahsilat, Katalog ve Ayarlar menüde yoktur; adresle açılırsa 403 verir (`/` adresi yazılımcıyı Müşteriler'e yönlendirir). Alt sekme çubuğu: Müşteriler · Menü. Üst çubukta "Ödeme al" gösterilmez; "Yeni müşteri" kalır. Müşteri kartında tutar, borç, ödeme ve teklif içeren hiçbir alan görünmez; hizmetler ad, alan adı, sunucu ve bitiş tarihiyle fiyatsız listelenir. Müşteri listesinde açık borç/bakiye sütunu gizlidir.
 

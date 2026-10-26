@@ -14,6 +14,7 @@ use App\Livewire\Pages\Payments\Index as PaymentsIndex;
 use App\Livewire\Pages\Quotes\Index as QuotesIndex;
 use App\Livewire\Pages\Settings\General as SettingsGeneral;
 use App\Livewire\Pages\Settings\PaymentMethods as SettingsPaymentMethods;
+use App\Livewire\Pages\Settings\Roles as SettingsRoles;
 use App\Livewire\Pages\Settings\Servers as SettingsServers;
 use App\Livewire\Pages\Settings\Users as SettingsUsers;
 use App\Livewire\Pages\Today;
@@ -39,6 +40,7 @@ Route::name('app.')->group(function (): void {
         Route::livewire('/settings/payment-methods', SettingsPaymentMethods::class)->middleware('can:settings.manage')->name('payment-methods');
         Route::livewire('/settings/servers', SettingsServers::class)->middleware('can:settings.manage')->name('servers');
         Route::livewire('/settings/users', SettingsUsers::class)->middleware('can:users.manage')->name('users');
+        Route::livewire('/settings/roles', SettingsRoles::class)->middleware('can:users.manage')->name('roles');
         Route::post('/logout', LogoutController::class)->name('logout');
     });
 });

@@ -22,8 +22,8 @@ enum Role: string
     }
 
     /**
-     * The permissions the role holds. Widening a role's rights later means editing this list
-     * only; the next deploy syncs it.
+     * The permissions the role starts with. The administrator always holds them all; the developer's list is only
+     * the first default, the roles screen changes it afterwards (T-165).
      *
      * @return list<Permission>
      */

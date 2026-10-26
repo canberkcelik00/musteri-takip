@@ -49,16 +49,28 @@ it('lets an administrator do everything', function () {
     }
 });
 
-it('restores a role mapping that was changed by hand and removes a stale permission', function () {
+it('keeps the developer rights the roles screen changed, restores the administrator and removes a stale permission', function () {
     app(SyncRolesAndPermissions::class)->handle();
 
     RoleModel::findByName('developer')->givePermissionTo(Permission::MoneyView->value);
+    RoleModel::findByName('admin')->revokePermissionTo(Permission::UsersManage->value);
     PermissionModel::create(['name' => 'old.permission']);
 
     app(SyncRolesAndPermissions::class)->handle();
 
-    expect(RoleModel::findByName('developer')->hasPermissionTo(Permission::MoneyView->value))->toBeFalse()
+    expect(RoleModel::findByName('developer')->hasPermissionTo(Permission::MoneyView->value))->toBeTrue()
+        ->and(RoleModel::findByName('admin')->permissions()->count())->toBe(count(Permission::cases()))
         ->and(PermissionModel::where('name', 'old.permission')->exists())->toBeFalse();
+});
+
+it('does not touch a role the administrator made', function () {
+    app(SyncRolesAndPermissions::class)->handle();
+
+    RoleModel::create(['name' => 'Destek'])->givePermissionTo(Permission::MoneyView->value);
+
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect(RoleModel::findByName('Destek')->permissions->pluck('name')->all())->toBe([Permission::MoneyView->value]);
 });
 
 it('does not touch the roles of existing users', function () {

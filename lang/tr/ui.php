@@ -20,6 +20,7 @@ return [
         'payment_methods' => 'Ödeme yöntemleri',
         'servers' => 'Sunucular',
         'users' => 'Kullanıcılar',
+        'roles' => 'Roller',
         'tab_bar' => 'Ana gezinme',
         'tab_today' => 'Bugün',
         'tab_customers' => 'Müşteriler',

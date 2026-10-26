@@ -13,6 +13,7 @@ use App\Livewire\Windows\EditCharge;
 use App\Livewire\Windows\EditCustomer;
 use App\Livewire\Windows\EditPackage;
 use App\Livewire\Windows\EditPaymentMethod;
+use App\Livewire\Windows\EditRole;
 use App\Livewire\Windows\EditServer;
 use App\Livewire\Windows\EditService;
 use App\Livewire\Windows\EditUser;
@@ -66,6 +67,7 @@ return [
         'view-server-usage' => 'settings.manage',
         'invite-user' => 'users.manage',
         'edit-user' => 'users.manage',
+        'edit-role' => 'users.manage',
     ],
 
     /*
@@ -102,6 +104,7 @@ return [
         'view-server-usage' => ViewServerUsage::class,
         'invite-user' => InviteUser::class,
         'edit-user' => EditUser::class,
+        'edit-role' => EditRole::class,
         'confirm' => Confirm::class,
     ],
 
@@ -137,6 +140,7 @@ return [
                 ['label' => 'ui.nav.payment_methods', 'icon' => 'credit-card', 'color' => 'gray', 'route' => 'app.payment-methods', 'permission' => 'settings.manage'],
                 ['label' => 'ui.nav.servers', 'icon' => 'server', 'color' => 'gray', 'route' => 'app.servers', 'permission' => 'settings.manage'],
                 ['label' => 'ui.nav.users', 'icon' => 'user-group', 'color' => 'gray', 'route' => 'app.users', 'permission' => 'users.manage'],
+                ['label' => 'ui.nav.roles', 'icon' => 'shield-check', 'color' => 'gray', 'route' => 'app.roles', 'permission' => 'users.manage'],
             ],
         ],
     ],

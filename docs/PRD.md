@@ -261,7 +261,7 @@ Her satırda ilgili kayda bağlantı vardır.
 
 ## Kullanıcılar ve yetkiler (Faz 12)
 
-Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. Roller sabittir (`Yönetici`, `Yazılımcı`); kişi başına özel izin kutusu yoktur. Rol-izin eşlemesi kodda durur ve dağıtımda uygulanır.
+Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. İki yerleşik rol vardır (`Yönetici`, `Yazılımcı`); yönetici Ayarlar > Roller ekranından yeni rol ekler ve her rolün yetkilerini kutularla ayarlar (kişi başına izin yok, izinler role bağlıdır). `Yönetici` rolü kilitlidir ve her zaman tüm yetkilere sahiptir. Rol-izin eşlemesi veritabanındadır; Yazılımcı varsayılanı yalnız ilk kurulumda yazılır.
 
 | Alan | Yönetici | Yazılımcı |
 | --- | --- | --- |
@@ -279,6 +279,7 @@ Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. Roller sabittir (`Yöneti
 - **Davetle hesap:** Yönetici ad, e-posta ve rol girer; kişiye 72 saat geçerli imzalı bir bağlantı e-postayla gider (senkron), şifresini kendisi belirler. Yeniden gönderilen davet öncekini geçersiz kılar. Şifresi belirlenmemiş kullanıcı giriş yapamaz.
 - **Silme ve pasifleştirme:** Para kaydında adı geçen (ödeme kaydeden, borç iptal eden/düzenleyen, teklif kabul eden) kullanıcı silinmez; pasifleştirilir. Hiç işlem yapmamış kullanıcı silinebilir. Pasif kullanıcı giriş yapamaz, açık oturumu kapanır.
 - **Düzenleme:** Yönetici kullanıcının adını ve rolünü değiştirir; e-posta adresi değişmez.
+- **Roller:** Yönetici yeni rol ekler, özel rolün adını ve yetkilerini değiştirir; Yazılımcı'nın yetkilerini değiştirir (adı sabit). Yönetici rolü değişmez. Yönetmek görmeyi gerektirir: `money.manage` `money.view`'ı, `services.manage` `services.view`'ı kendiliğinden getirir. Yerleşik roller ve kullanıcısı olan rol silinmez.
 - **Yönetici güvencesi:** Yönetici kendini pasifleştiremez, silemez ya da rolünü düşüremez; son etkin yönetici pasifleştirilemez, silinemez ya da rolü düşürülemez.
 - **Kim yaptı:** Ödemeyi kaydeden, borcu iptal eden/düzenleyen ve teklifi kabul eden kullanıcı saklanır ve kayıtta görünür. Zamanlanmış işlerin oluşturduğu kayıtlarda boştur ("Sistem").
 - **Mevcut hesap:** `.env`'den oluşan ilk hesap (T-28) yönetici olur.

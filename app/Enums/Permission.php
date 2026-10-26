@@ -13,4 +13,40 @@ enum Permission: string
     case CatalogManage = 'catalog.manage';
     case SettingsManage = 'settings.manage';
     case UsersManage = 'users.manage';
+
+    public function getLabel(): string
+    {
+        return __('enums.permission.'.$this->value);
+    }
+
+    public function getDescription(): string
+    {
+        return __('enums.permission_hint.'.$this->value);
+    }
+
+    /**
+     * The group the roles screen lists the permission under.
+     */
+    public function group(): string
+    {
+        return match ($this) {
+            self::MoneyView, self::MoneyManage => 'money',
+            self::CustomersManage, self::ServicesView, self::ServicesManage => 'customers',
+            self::QuotesManage, self::CatalogManage => 'sales',
+            self::SettingsManage, self::UsersManage => 'settings',
+        };
+    }
+
+    /**
+     * The permission this one cannot work without: managing something implies seeing it, so a role never
+     * "manages money but cannot see it".
+     */
+    public function requires(): ?self
+    {
+        return match ($this) {
+            self::MoneyManage => self::MoneyView,
+            self::ServicesManage => self::ServicesView,
+            default => null,
+        };
+    }
 }

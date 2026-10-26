@@ -59,6 +59,30 @@ return [
         'developer' => 'Yazılımcı',
     ],
 
+    'permission' => [
+        'money.view' => 'Para: görüntüleme',
+        'money.manage' => 'Para: yönetme',
+        'customers.manage' => 'Müşteri işlemleri',
+        'services.view' => 'Hizmetleri görme',
+        'services.manage' => 'Hizmet işlemleri',
+        'quotes.manage' => 'Teklifler',
+        'catalog.manage' => 'Katalog',
+        'settings.manage' => 'Ayarlar',
+        'users.manage' => 'Kullanıcılar ve roller',
+    ],
+
+    'permission_hint' => [
+        'money.view' => 'Borç, ödeme, bakiye ve fiyatları görür.',
+        'money.manage' => 'Ödeme kaydeder, borcu düzenler, böler ve iptal eder.',
+        'customers.manage' => 'Müşteri ve ilgili kişi ekler, düzenler, arşivler.',
+        'services.view' => 'Müşterilerin hizmetlerini görür.',
+        'services.manage' => 'Müşteriye hizmet atar, düzenler, iptal eder.',
+        'quotes.manage' => 'Teklif oluşturur, gönderir, kabul eder.',
+        'catalog.manage' => 'Hizmet ve paket kataloğunu düzenler.',
+        'settings.manage' => 'Genel ayarlar, ödeme yöntemleri ve sunucular.',
+        'users.manage' => 'Kullanıcı davet eder, düzenler; rolleri ve yetkileri ayarlar.',
+    ],
+
     'server_type' => [
         'whm' => 'WHM (reseller)',
         'cpanel' => 'cPanel',

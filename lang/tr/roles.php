@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'singular' => 'Rol',
+    'plural' => 'Roller',
+    'subtitle' => 'Rolleri ve her rolün yetkilerini ayarla.',
+    'name' => 'Rol adı',
+    'permissions' => 'Yetkiler',
+    'users' => 'Kullanıcı',
+    'add' => 'Rol ekle',
+    'edit' => 'Rolü düzenle',
+    'view' => 'Görüntüle',
+    'saved' => 'Rol kaydedildi.',
+    'locked_badge' => 'Kilitli',
+    'locked' => 'Yönetici rolü her zaman tüm yetkilere sahiptir; değiştirilemez.',
+    'built_in' => 'Hazır rolün adı değiştirilemez.',
+    'name_taken' => 'Bu rol adı kullanılıyor.',
+    'in_use' => 'Bu rolü taşıyan kullanıcılar var; önce onların rolünü değiştirin.',
+    'delete' => 'Rolü sil',
+    'delete_heading' => 'Rol silinsin mi?',
+    'delete_description' => 'Rol kalıcı olarak silinir. Bu işlem geri alınamaz.',
+    'deleted' => 'Rol silindi.',
+    'group_money' => 'Para',
+    'group_customers' => 'Müşteriler ve hizmetler',
+    'group_sales' => 'Teklif ve katalog',
+    'group_settings' => 'Ayarlar ve kullanıcılar',
+];

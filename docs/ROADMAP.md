@@ -487,7 +487,7 @@ Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç g
 - [x] **G-12.6 Menü düzeltmesi, kullanıcı düzenleme ve silme** — Bağımlılık: G-12.4
   - Yapılacak: Menüde adresi başka öğenin adresiyle başlayan öğe de vurgulanıyordu (`/settings/users` iken "Genel"); yalnız en uzun eşleşen öğe vurgulanır. Kullanıcılar satırından ad ve rol düzenleme penceresi (`EditUser`; e-posta değişmez); para kaydında adı geçmeyen kullanıcı silinebilir (`DeleteUser`), kaydı olan pasifleştirilir. Rol seçimi artık veritabanındaki rollerden gelir (`ChangeUserRole` ve `InviteUser` spatie `Role` modeli alır).
   - Kabul: `/settings/users`, `/settings`, `/settings/servers` ve müşteri alt sayfasında yalnız ilgili öğe vurgulanır; ad ve rol güncellenir, e-posta değişmez; kendi rolü ve son yönetici korunur; kaydı olmayan kullanıcı silinir, kaydı olan silinmez ve uyarı çıkar (testli).
-- [ ] **G-12.7 Roller ekranı** — Bağımlılık: G-12.6
+- [x] **G-12.7 Roller ekranı** — Bağımlılık: G-12.6
   - Yapılacak: Ayarlar > Roller (`users.manage`); yeni rol ekleme, rolün izinlerini kutularla işaretleme, özel rol silme. Yönetici rolü kilitli ve her zaman tüm izinlere sahip; Yazılımcı varsayılanı yalnız ilk oluşta yazılır, sonra ekrandaki değişiklik korunur (`SyncRolesAndPermissions` özel role ve Yazılımcı'nın düzenlenmiş izinlerine dokunmaz). `money.manage` `money.view`'ı, `services.manage` `services.view`'ı kendiliğinden getirir. Kullanıcısı olan rol silinmez.
   - Kabul: Yeni rol izinleriyle çalışır (izinli sayfa açılır, izinsiz 403); Yazılımcı'ya `money.view` verilince müşteri kartında tutar görünür; sync iki kez çalışınca kayıt artmaz ve düzenlemeyi korur; yazılımcı Roller ekranına giremez (testli).
 - [ ] **K-12.1 Canlı doğrulama ve davet (kullanıcı)** — Bağımlılık: G-12.4
