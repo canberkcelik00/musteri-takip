@@ -3,14 +3,22 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Role;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @property string $name
+ * @property string $email
+ * @property Carbon|null $invited_at
+ * @property Carbon|null $deactivated_at
+ */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -39,6 +47,22 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->deactivated_at === null;
+    }
+
+    /**
+     * Whether the user was invited, did not choose a password yet and is not deactivated: the invitation link works.
+     */
+    public function isInvitationPending(): bool
+    {
+        return $this->isActive() && ! $this->hasPassword() && $this->invited_at !== null;
+    }
+
+    /**
+     * How many active users hold the administrator role.
+     */
+    public static function activeAdministratorCount(): int
+    {
+        return static::query()->role(Role::Admin->value)->whereNull('deactivated_at')->count();
     }
 
     /**

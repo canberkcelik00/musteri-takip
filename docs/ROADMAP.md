@@ -478,7 +478,7 @@ Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç g
 - [x] **G-12.3 Para gizleme** — Bağımlılık: G-12.2
   - Yapılacak: Para rotalarına `can:` middleware'i; her sayfa `mount()` ve her pencere `mount` ile eylemde yetki denetler (`AuthorizesPermission` trait'i); menü, sekme çubuğu ve "Ödeme al" izne göre süzülür; müşteri kartı ve listesi para alanlarını göstermez ve okumaz; yazılımcı `/` adresinde Müşteriler'e gider; üst aramada para sonucu yok.
   - Kabul: Yazılımcı her para rotasında 403 alır; pencere çağrıları yasaktır; müşteri kartı ve listesinde tutar görünmez (testli).
-- [ ] **G-12.4 Kullanıcılar ekranı ve davet** — Bağımlılık: G-12.2
+- [x] **G-12.4 Kullanıcılar ekranı ve davet** — Bağımlılık: G-12.2
   - Yapılacak: Ayarlar > Kullanıcılar (`users.manage`); `InviteUser` penceresi; `InviteUser`, `ResendInvitation`, `ChangeUserRole`, `DeactivateUser`, `ReactivateUser`, `AcceptInvitation` Action'ları; 72 saatlik imzalı davet bağlantısı ve `InvitationMail` (senkron).
   - Kabul: Davetle kullanıcı ve e-posta oluşur; bağlantıyla şifre belirlenip giriş yapılır; 72 saat sonra, ikinci kullanımda, yeniden gönderimden sonra eski bağlantıda ve pasif kullanıcıda bağlantı geçersiz; yönetici kendini pasifleştiremez, son yönetici pasifleştirilemez (testli).
 - [ ] **G-12.5 Para kayıtlarında "kim"** — Bağımlılık: G-12.2

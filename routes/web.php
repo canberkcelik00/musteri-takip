@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\App\LogoutController;
 use App\Http\Controllers\App\QuotePdfController;
+use App\Livewire\Pages\Auth\AcceptInvitation;
 use App\Livewire\Pages\Auth\Login;
 use App\Livewire\Pages\Auth\Profile;
 use App\Livewire\Pages\Catalog\Packages as CatalogPackages;
@@ -14,12 +15,14 @@ use App\Livewire\Pages\Quotes\Index as QuotesIndex;
 use App\Livewire\Pages\Settings\General as SettingsGeneral;
 use App\Livewire\Pages\Settings\PaymentMethods as SettingsPaymentMethods;
 use App\Livewire\Pages\Settings\Servers as SettingsServers;
+use App\Livewire\Pages\Settings\Users as SettingsUsers;
 use App\Livewire\Pages\Today;
 use Illuminate\Support\Facades\Route;
 
 // The glass interface (Faz 10): served from the site root, route names `app.*`.
 Route::name('app.')->group(function (): void {
     Route::livewire('/login', Login::class)->middleware('guest')->name('login');
+    Route::livewire('/invitation/{user}', AcceptInvitation::class)->middleware(['guest', 'signed'])->name('invitation');
 
     Route::middleware(['auth', 'active'])->group(function (): void {
         Route::livewire('/', Today::class)->middleware('money-home')->name('today');
@@ -35,6 +38,7 @@ Route::name('app.')->group(function (): void {
         Route::livewire('/settings', SettingsGeneral::class)->middleware('can:settings.manage')->name('settings');
         Route::livewire('/settings/payment-methods', SettingsPaymentMethods::class)->middleware('can:settings.manage')->name('payment-methods');
         Route::livewire('/settings/servers', SettingsServers::class)->middleware('can:settings.manage')->name('servers');
+        Route::livewire('/settings/users', SettingsUsers::class)->middleware('can:users.manage')->name('users');
         Route::post('/logout', LogoutController::class)->name('logout');
     });
 });

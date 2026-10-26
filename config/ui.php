@@ -15,6 +15,7 @@ use App\Livewire\Windows\EditPackage;
 use App\Livewire\Windows\EditPaymentMethod;
 use App\Livewire\Windows\EditServer;
 use App\Livewire\Windows\EditService;
+use App\Livewire\Windows\InviteUser;
 use App\Livewire\Windows\MarkFree;
 use App\Livewire\Windows\OpenQuote;
 use App\Livewire\Windows\PullFromServer;
@@ -62,6 +63,7 @@ return [
         'edit-server' => 'settings.manage',
         'pull-from-server' => 'settings.manage',
         'view-server-usage' => 'settings.manage',
+        'invite-user' => 'users.manage',
     ],
 
     /*
@@ -96,6 +98,7 @@ return [
         'edit-server' => EditServer::class,
         'pull-from-server' => PullFromServer::class,
         'view-server-usage' => ViewServerUsage::class,
+        'invite-user' => InviteUser::class,
         'confirm' => Confirm::class,
     ],
 
@@ -130,6 +133,7 @@ return [
                 ['label' => 'ui.nav.general', 'icon' => 'cog-6-tooth', 'color' => 'gray', 'route' => 'app.settings', 'permission' => 'settings.manage'],
                 ['label' => 'ui.nav.payment_methods', 'icon' => 'credit-card', 'color' => 'gray', 'route' => 'app.payment-methods', 'permission' => 'settings.manage'],
                 ['label' => 'ui.nav.servers', 'icon' => 'server', 'color' => 'gray', 'route' => 'app.servers', 'permission' => 'settings.manage'],
+                ['label' => 'ui.nav.users', 'icon' => 'user-group', 'color' => 'gray', 'route' => 'app.users', 'permission' => 'users.manage'],
             ],
         ],
     ],

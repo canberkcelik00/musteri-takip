@@ -19,6 +19,7 @@ return [
         'general' => 'Genel',
         'payment_methods' => 'Ödeme yöntemleri',
         'servers' => 'Sunucular',
+        'users' => 'Kullanıcılar',
         'tab_bar' => 'Ana gezinme',
         'tab_today' => 'Bugün',
         'tab_customers' => 'Müşteriler',
