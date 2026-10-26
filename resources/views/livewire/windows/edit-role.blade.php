@@ -5,10 +5,7 @@
 <x-ui.window :title="$record === null ? __('roles.add') : __('roles.edit')" submit="save">
     <div class="ui-form">
         <div class="is-full">
-            <x-ui.input :label="__('roles.name')" wire:model="name" maxlength="255" required :disabled="$locked || $builtIn" autofocus />
-            @if ($builtIn)
-                <span class="ui-hint">{{ __('roles.built_in') }}</span>
-            @endif
+            <x-ui.input :label="__('roles.name')" wire:model="name" maxlength="255" required :disabled="$locked" autofocus />
         </div>
 
         @if ($locked)

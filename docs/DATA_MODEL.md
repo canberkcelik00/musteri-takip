@@ -287,7 +287,7 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | invited_at | timestamp | Hayır | Son davetin gönderildiği an; imzalı bağlantı bununla eşleşmezse geçersizdir |
 | deactivated_at | timestamp | Hayır | Dolu = pasif; para kaydında adı geçen kullanıcı silinmez (G-12.6), pasifleştirilir |
 
-**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`); rol-izin eşlemesi kodda tanımlıdır ve `SyncRolesAndPermissions` ile (idempotent) veritabanına yazılır.
+**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`); rol-izin eşlemesi veritabanındadır (Roller ekranından yönetilir, T-165); `SyncRolesAndPermissions` izinleri ve yerleşik rolleri idempotent kurar. `roles.label` (nullable): yerleşik rolün yönetici tarafından verilen görünen adı; boşsa `enums.role.*` çevirisi gösterilir, `name` kodun bulduğu sabit ad olarak kalır (T-166).
 
 **quotes** tablosuna `accepted_by` (FK users, nullable) eklenir: teklifi kabul eden; boş = sistem / önceki kayıt.
 

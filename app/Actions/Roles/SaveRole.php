@@ -12,8 +12,9 @@ use Spatie\Permission\PermissionRegistrar;
 class SaveRole
 {
     /**
-     * Create a role (`$role` null) or change one: its name and its permissions. The administrator role is locked and a
-     * built-in role keeps its name. A permission brings the one it requires (`money.manage` → `money.view`).
+     * Create a role (`$role` null) or change one: its name and its permissions. The administrator role is locked. A
+     * built-in role keeps its stored name (the code finds it by it) and takes the typed name as its shown `label`. A
+     * permission brings the one it requires (`money.manage` → `money.view`).
      *
      * @param  list<Permission>  $permissions
      *
@@ -29,9 +30,7 @@ class SaveRole
 
         $builtIn = $role !== null && Role::tryFrom($role->name) !== null;
 
-        if (! $builtIn) {
-            $this->assertNameFree($name, $role);
-        }
+        $this->assertNameFree($name, $role);
 
         $values = collect($permissions)
             ->flatMap(fn (Permission $permission): array => array_filter([$permission, $permission->requires()]))
@@ -43,7 +42,9 @@ class SaveRole
         return DB::transaction(function () use ($role, $name, $builtIn, $values): RoleModel {
             $role ??= RoleModel::query()->create(['name' => $name, 'guard_name' => 'web']);
 
-            if (! $builtIn && $role->name !== $name) {
+            if ($builtIn) {
+                $role->update(['label' => $name === Role::from($role->name)->getLabel() ? null : $name]);
+            } elseif ($role->name !== $name) {
                 $role->update(['name' => $name]);
             }
 
@@ -55,15 +56,23 @@ class SaveRole
     }
 
     /**
-     * The built-in names and their shown names are reserved so a custom role never looks like a built-in one.
+     * No two roles share a shown name, and the administrator's names stay reserved so a role never looks like it. A
+     * built-in role may keep its own current shown name.
      */
     private function assertNameFree(string $name, ?RoleModel $role): void
     {
-        $reserved = collect(Role::cases())->flatMap(fn (Role $case): array => [mb_strtolower($case->value), mb_strtolower($case->getLabel())]);
+        $lower = mb_strtolower($name);
 
-        $taken = RoleModel::query()->where('name', $name)->when($role, fn ($query) => $query->whereKeyNot($role?->getKey()))->exists();
+        $reserved = collect([Role::Admin])->flatMap(fn (Role $case): array => [mb_strtolower($case->value), mb_strtolower($case->getLabel())]);
 
-        if ($taken || $reserved->contains(mb_strtolower($name))) {
+        $taken = RoleModel::query()
+            ->when($role, fn ($query) => $query->whereKeyNot($role?->getKey()))
+            ->get()
+            ->contains(fn (RoleModel $other): bool => mb_strtolower($other->name) === $lower || mb_strtolower(Role::labelFor($other->name)) === $lower);
+
+        $ownBuiltInName = $role !== null && Role::tryFrom($role->name) !== null && $lower === mb_strtolower($role->name);
+
+        if (($taken || $reserved->contains($lower)) && ! $ownBuiltInName) {
             throw InvalidRole::nameTaken();
         }
     }

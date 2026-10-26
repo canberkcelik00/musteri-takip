@@ -13,7 +13,7 @@ return [
     'saved' => 'Rol kaydedildi.',
     'locked_badge' => 'Kilitli',
     'locked' => 'Yönetici rolü her zaman tüm yetkilere sahiptir; değiştirilemez.',
-    'built_in' => 'Hazır rolün adı değiştirilemez.',
+    'built_in' => 'Hazır roller silinemez.',
     'name_taken' => 'Bu rol adı kullanılıyor.',
     'in_use' => 'Bu rolü taşıyan kullanıcılar var; önce onların rolünü değiştirin.',
     'delete' => 'Rolü sil',

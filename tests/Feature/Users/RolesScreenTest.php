@@ -3,6 +3,7 @@
 use App\Actions\Roles\SaveRole;
 use App\Actions\Users\SyncRolesAndPermissions;
 use App\Enums\Permission;
+use App\Enums\Role;
 use App\Livewire\Pages\Settings\Roles;
 use App\Livewire\Windows\Confirm;
 use App\Livewire\Windows\EditRole;
@@ -67,7 +68,7 @@ it('adds the permission a chosen one requires', function () {
     expect(rolePermissions('Muhasebe'))->toBe(['money.manage', 'money.view', 'services.manage', 'services.view']);
 });
 
-it('renames a custom role but not a built-in one', function () {
+it('renames a custom role and a built-in one by its shown name', function () {
     $admin = User::factory()->admin()->create();
     app(SaveRole::class)->handle(null, 'Destek', []);
 
@@ -75,11 +76,28 @@ it('renames a custom role but not a built-in one', function () {
         ->set('name', 'Destek Ekibi')->call('save')->assertHasNoErrors();
 
     Livewire::actingAs($admin)->test(EditRole::class, ['role' => roleNamed('developer')->id])
-        ->set('name', 'Başka')->call('save')->assertHasNoErrors();
+        ->set('name', 'Geliştirici')->call('save')->assertHasNoErrors();
 
     expect(RoleModel::query()->where('name', 'Destek Ekibi')->exists())->toBeTrue()
-        ->and(RoleModel::query()->where('name', 'Başka')->exists())->toBeFalse()
-        ->and(RoleModel::query()->where('name', 'developer')->exists())->toBeTrue();
+        ->and(roleNamed('developer')->label)->toBe('Geliştirici')
+        ->and(Role::labelFor('developer'))->toBe('Geliştirici')
+        ->and(User::factory()->developer()->create()->hasRole('developer'))->toBeTrue();
+
+    Livewire::actingAs($admin)->test(EditRole::class, ['role' => roleNamed('developer')->id])
+        ->set('name', 'Yazılımcı')->call('save')->assertHasNoErrors();
+
+    expect(roleNamed('developer')->label)->toBeNull()
+        ->and(Role::labelFor('developer'))->toBe('Yazılımcı');
+});
+
+it('keeps the renamed developer role when the roles are synced again', function () {
+    app(SyncRolesAndPermissions::class)->handle();
+    roleNamed('developer')->update(['label' => 'Geliştirici']);
+
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect(RoleModel::query()->where('name', 'developer')->count())->toBe(1)
+        ->and(Role::labelFor('developer'))->toBe('Geliştirici');
 });
 
 it('refuses a name that is taken or reserved', function () {
@@ -89,6 +107,9 @@ it('refuses a name that is taken or reserved', function () {
     foreach (['Destek', 'destek', 'admin', 'Yönetici', 'Yazılımcı'] as $name) {
         Livewire::actingAs($admin)->test(EditRole::class)->set('name', $name)->call('save')->assertHasErrors('form');
     }
+
+    Livewire::actingAs($admin)->test(EditRole::class, ['role' => roleNamed('developer')->id])
+        ->set('name', 'Destek')->call('save')->assertHasErrors('form');
 });
 
 it('does not change the administrator role', function () {
@@ -138,4 +159,11 @@ it('puts the roles item in the administrator menu only and highlights it alone',
 
     expect($items->pluck('label'))->toContain('ui.nav.roles')
         ->and($items->where('active', true)->pluck('label')->all())->toBe(['ui.nav.roles']);
+});
+
+it('translates every permission label and hint', function () {
+    foreach (Permission::cases() as $permission) {
+        expect($permission->getLabel())->not->toStartWith('enums.')
+            ->and($permission->getDescription())->not->toStartWith('enums.');
+    }
 });

@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use Spatie\Permission\Models\Role as RoleModel;
+
 enum Role: string
 {
     case Admin = 'admin';
@@ -13,12 +15,20 @@ enum Role: string
     }
 
     /**
-     * The shown name of a role by its stored name: a built-in role is translated, a role the administrator made is
-     * shown as typed.
+     * The shown name of a role by its stored name: a built-in role shows the name the administrator gave it (`label`)
+     * or else its translation; a role the administrator made is shown as typed.
      */
     public static function labelFor(string $name): string
     {
-        return self::tryFrom($name)?->getLabel() ?? $name;
+        $builtIn = self::tryFrom($name);
+
+        if ($builtIn === null) {
+            return $name;
+        }
+
+        $label = RoleModel::query()->where('name', $name)->value('label');
+
+        return is_string($label) && $label !== '' ? $label : $builtIn->getLabel();
     }
 
     /**

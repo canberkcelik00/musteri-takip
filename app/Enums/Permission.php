@@ -16,12 +16,12 @@ enum Permission: string
 
     public function getLabel(): string
     {
-        return __('enums.permission.'.$this->value);
+        return __('enums.permission.'.str_replace('.', '_', $this->value));
     }
 
     public function getDescription(): string
     {
-        return __('enums.permission_hint.'.$this->value);
+        return __('enums.permission_hint.'.str_replace('.', '_', $this->value));
     }
 
     /**
