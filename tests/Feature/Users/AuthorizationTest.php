@@ -180,3 +180,10 @@ it('hides the top bar payment button from a developer', function () {
         ->assertDontSee("name: 'record-payment'", false)
         ->assertSee("name: 'create-customer'", false);
 });
+
+it('shows the add task button in the top bar to whoever manages tasks', function () {
+    $this->actingAs(developer())->get(route('app.customers.index'))
+        ->assertOk()
+        ->assertSee("name: 'edit-task'", false)
+        ->assertSee(__('navigation.new_task'));
+});

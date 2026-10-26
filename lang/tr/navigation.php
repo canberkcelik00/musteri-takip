@@ -9,6 +9,7 @@ return [
     'settings' => 'Ayarlar',
     'general' => 'Genel',
     'new_customer' => 'Yeni müşteri',
+    'new_task' => 'İş ekle',
     'search_open' => 'Ara',
     'search_close' => 'Kapat',
     'tab_bar' => 'Ana gezinme',
