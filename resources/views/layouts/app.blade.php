@@ -32,7 +32,7 @@
 
         <nav class="ui-tabbar ui-glass" aria-label="{{ __('ui.nav.tab_bar') }}">
             @foreach ($tabs as $tab)
-                <a href="{{ $tab['url'] }}" wire:navigate class="ui-tab" @if ($tab['active']) aria-current="page" @endif>
+                <a href="{{ $tab['url'] }}" wire:navigate.hover class="ui-tab" @if ($tab['active']) aria-current="page" @endif>
                     <x-dynamic-component :component="'heroicon-o-'.$tab['icon']" aria-hidden="true" />
                     <span>{{ __($tab['tab']) }}</span>
                 </a>

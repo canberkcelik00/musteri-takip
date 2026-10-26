@@ -445,8 +445,9 @@ Karar (kullanıcı): cam dili, UI.md kuralları ve tık sayıları aynen kalır 
 - [x] **G-11.1 Yazı tipi yükü** — Bağımlılık: G-10.14
   - Yapıldı: kullanılmayan `Instrument Sans` (bunny) yazı tipi bloğu `vite.config.js`'ten kaldırıldı (7 dosya, ~120 KB); latin Inter woff2 `head.blade.php`'te `preload` edilir.
   - Kabul: derlemede `instrument-sans` yok; sayfa başında Inter latin preload'u var (`PerformanceTest`).
-- [ ] **G-11.2 Arka plan ve gezinme** — Bağımlılık: G-11.1
-  - Yapılacak: `base.css` zemin degradesini sabit katmana almak, menü bağlantılarına `wire:navigate.hover`.
+- [x] **G-11.2 Arka plan ve gezinme** — Bağımlılık: G-11.1
+  - Yapıldı: zemin degradesi zaten `position: fixed` `body::before` katmanındaydı (testle güvence altına alındı); kenar menü, alt sekme çubuğu ve müşteri kartı bağlantıları `wire:navigate.hover` kullanır.
+  - Kabul: `PerformanceTest` (hover ile ön yükleme, sabit blursuz zemin katmanı).
 - [ ] **G-11.3 Sorgu hafifletme** — Bağımlılık: G-11.1
   - Yapılacak: Açık borçlar/Ödemeler müşteri filtre listesini her güncellemede çekmemek; üst arama en az 2 karakter, yalnız gösterilen sütunlar, gereksiz eager-load yok; toplam sayı gerekmeyen yerde `simplePaginate`; önce/sonra sorgu ölçümü.
 - [ ] **G-11.4 Tasarım tokenları** — Bağımlılık: G-11.1
