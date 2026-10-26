@@ -15,7 +15,7 @@ use App\Support\Money;
 
 function recordTryPayment(Customer $customer, int $amount): Payment
 {
-    return app(RecordPayment::class)->handle($customer, [
+    return app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => Currency::Try,
         'paid_on' => '2026-03-10',

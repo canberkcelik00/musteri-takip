@@ -66,6 +66,7 @@ return [
     'send_failed' => 'Teklif gönderilemedi. E-posta ayarlarını ve adresi kontrol edip yeniden deneyin.',
 
     'accept' => 'Kabul et',
+    'accepted_by' => ':name tarafından kabul edildi',
     'accept_heading' => 'Teklifi kabul et',
     'accept_helper' => 'Her kalem için ayrı bir müşteri hizmeti oluşur ve ilk dönemin borcu doğar.',
     'start_date' => 'Başlangıç tarihi',

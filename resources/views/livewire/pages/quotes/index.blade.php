@@ -56,6 +56,9 @@
                     @else
                         {{ StatusBadges::quoteLabel($quote) }}
                     @endif
+                    @if ($quote->acceptedBy)
+                        <span class="ui-sub-line">{{ __('quotes.accepted_by', ['name' => $quote->acceptedBy->name]) }}</span>
+                    @endif
                 </td>
                 <x-slot:actions>
                     @if ($draft)

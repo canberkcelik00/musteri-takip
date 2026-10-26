@@ -12,7 +12,7 @@ use App\Models\PaymentMethod;
 
 function cancelCharge(Charge $charge, string $reason): Charge
 {
-    return app(CancelCharge::class)->handle($charge, $reason);
+    return app(CancelCharge::class)->handle(actor(), $charge, $reason);
 }
 
 it('cancels the charge with a reason', function () {
@@ -39,7 +39,7 @@ it('does not cancel a charge without a reason', function (string $reason) {
 
 it('does not cancel a charge with allocations', function (int $paid, ChargeStatus $status) {
     $charge = Charge::factory()->create(['amount' => 400000]);
-    app(RecordPayment::class)->handle($charge->customer, [
+    app(RecordPayment::class)->handle(actor(), $charge->customer, [
         'amount' => $paid,
         'currency' => Currency::Try,
         'paid_on' => '2027-03-01',

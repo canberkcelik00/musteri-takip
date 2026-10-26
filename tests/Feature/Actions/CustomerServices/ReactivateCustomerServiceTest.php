@@ -47,7 +47,7 @@ function reactivate(CustomerService $customerService, array $attributes = []): C
 
 function addCreditBalance(CustomerService $customerService, int $amount, string $paidOn): void
 {
-    app(RecordPayment::class)->handle($customerService->customer, [
+    app(RecordPayment::class)->handle(actor(), $customerService->customer, [
         'amount' => $amount,
         'currency' => Currency::Try,
         'paid_on' => $paidOn,

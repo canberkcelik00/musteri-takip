@@ -5,6 +5,7 @@ namespace App\Actions\Charges;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
 use App\Models\Charge;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class CancelCharge
@@ -12,11 +13,11 @@ class CancelCharge
     /**
      * Cancel the charge with a reason. A charge with any allocation (from a payment or
      * the credit balance) cannot be cancelled; the payment must be deleted first. An
-     * already cancelled charge is left untouched.
+     * already cancelled charge is left untouched. The charge remembers the user who cancelled it.
      *
      * @throws InvalidCharge
      */
-    public function handle(Charge $charge, string $reason): Charge
+    public function handle(?User $actor, Charge $charge, string $reason): Charge
     {
         $reason = trim($reason);
 
@@ -24,7 +25,7 @@ class CancelCharge
             throw InvalidCharge::cancelReasonRequired();
         }
 
-        return DB::transaction(function () use ($charge, $reason): Charge {
+        return DB::transaction(function () use ($actor, $charge, $reason): Charge {
             $charge->customer->charges()
                 ->where('currency', $charge->currency)
                 ->lockForUpdate()
@@ -44,6 +45,7 @@ class CancelCharge
                 'status' => ChargeStatus::Cancelled,
                 'cancelled_at' => now(),
                 'cancel_reason' => $reason,
+                'cancelled_by' => $actor?->id,
             ]);
 
             return $charge;

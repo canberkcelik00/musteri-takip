@@ -81,15 +81,6 @@ class Users extends Component
         $this->dispatch('notify', message: $message);
     }
 
-    private function actor(): User
-    {
-        $user = Auth::user();
-
-        abort_unless($user instanceof User, 403);
-
-        return $user;
-    }
-
     private function roleOf(User $user): ?Role
     {
         return Role::tryFrom((string) $user->roles->first()?->getAttribute('name'));

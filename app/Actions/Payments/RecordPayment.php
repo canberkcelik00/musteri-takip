@@ -9,6 +9,7 @@ use App\Exceptions\InvalidPaymentAllocation;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\Payment;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -21,16 +22,17 @@ class RecordPayment
 
     /**
      * Record the customer's payment and allocate it to charges (see SuggestPaymentAllocations).
-     * Whatever is not allocated stays as the customer's credit balance.
+     * Whatever is not allocated stays as the customer's credit balance. The payment remembers
+     * the user who recorded it.
      *
      * @param  array{amount: int, currency: Currency, paid_on: CarbonInterface|string, payment_method_id: int, note?: ?string}  $attributes
      * @param  array<int, int>  $manualAllocations  Amounts in minor units keyed by charge id.
      *
      * @throws InvalidPaymentAllocation
      */
-    public function handle(Customer $customer, array $attributes, array $manualAllocations = []): Payment
+    public function handle(?User $actor, Customer $customer, array $attributes, array $manualAllocations = []): Payment
     {
-        return DB::transaction(function () use ($customer, $attributes, $manualAllocations): Payment {
+        return DB::transaction(function () use ($actor, $customer, $attributes, $manualAllocations): Payment {
             $customer->charges()
                 ->where('currency', $attributes['currency'])
                 ->lockForUpdate()
@@ -43,7 +45,7 @@ class RecordPayment
                 $manualAllocations,
             );
 
-            $payment = $customer->payments()->create($attributes);
+            $payment = $customer->payments()->create([...$attributes, 'recorded_by' => $actor?->id]);
 
             foreach ($allocations as $chargeId => $amount) {
                 $payment->allocations()->create([

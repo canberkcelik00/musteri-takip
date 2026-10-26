@@ -50,7 +50,7 @@ class AcceptQuote extends Component
         ], attributes: ['start_date' => __('quotes.start_date'), 'short_name' => __('quotes.short_name')]);
 
         try {
-            $accepted = $acceptQuote->handle($quote, $this->start_date, $needsName ? $this->short_name : null);
+            $accepted = $acceptQuote->handle($this->actor(), $quote, $this->start_date, $needsName ? $this->short_name : null);
         } catch (InvalidQuote|InvalidCustomerService $exception) {
             $this->reportDomainError($exception, ['start_date', 'short_name']);
 

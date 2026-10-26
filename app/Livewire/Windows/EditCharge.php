@@ -59,7 +59,7 @@ class EditCharge extends Component
         }
 
         try {
-            $updateCharge->handle($charge, $attributes);
+            $updateCharge->handle($this->actor(), $charge, $attributes);
         } catch (InvalidCharge $exception) {
             $this->reportDomainError($exception, ['amount', 'due_date']);
 

@@ -71,7 +71,7 @@ it('keeps an upcoming charge with an allocation among those that stay', function
     $customerService = serviceToPreview();
     $upcoming = upcomingCharge($customerService);
 
-    app(RecordPayment::class)->handle($customerService->customer, [
+    app(RecordPayment::class)->handle(actor(), $customerService->customer, [
         'amount' => 100000,
         'currency' => Currency::Try,
         'paid_on' => '2026-06-15',

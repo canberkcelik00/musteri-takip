@@ -274,7 +274,7 @@ class SampleDataSeeder extends Seeder
 
         $this->at($sslStart->addDays(10), function () use ($ssl): void {
             $this->cancelCustomerService->handle($ssl, cancelNote: 'Müşteri SSL sertifikasını kendisi aldı.');
-            $this->cancelCharge->handle($this->periodCharge($ssl), __('customer_services.charge_cancel_reason_service_cancelled'));
+            $this->cancelCharge->handle(null, $this->periodCharge($ssl), __('customer_services.charge_cancel_reason_service_cancelled'));
         });
 
         $this->payment($customer, '3.500', Currency::Try, $this->today->subDays(10), 'Havale/EFT', 'Fazla gönderildi, bakiyede kalacak.');
@@ -397,7 +397,7 @@ class SampleDataSeeder extends Seeder
      */
     private function payment(Customer $customer, string $amount, Currency $currency, CarbonImmutable $paidOn, string $method, ?string $note = null): Payment
     {
-        return $this->at($paidOn, fn (): Payment => $this->recordPayment->handle($customer, [
+        return $this->at($paidOn, fn (): Payment => $this->recordPayment->handle(null, $customer, [
             'amount' => Money::parseAmount($amount),
             'currency' => $currency,
             'paid_on' => $paidOn->toDateString(),

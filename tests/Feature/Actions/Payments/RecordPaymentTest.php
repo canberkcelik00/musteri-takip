@@ -28,7 +28,7 @@ function openChargeForPayment(Customer $customer, int $amount, string $dueDate, 
  */
 function recordPaymentFor(Customer $customer, int $amount, array $manualAllocations = [], Currency $currency = Currency::Try): Payment
 {
-    return app(RecordPayment::class)->handle($customer, [
+    return app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => $currency,
         'paid_on' => '2026-03-10',

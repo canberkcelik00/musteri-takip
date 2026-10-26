@@ -56,7 +56,7 @@ it('takes a quote from the catalog to a customer card with its services and firs
     expect($quote->status)->toBe(QuoteStatus::Sent)
         ->and($quote->sent_to)->toBe('ali@example.com');
 
-    $accepted = app(AcceptQuote::class)->handle($quote);
+    $accepted = app(AcceptQuote::class)->handle(actor(), $quote);
 
     $customer = Customer::query()->sole();
 

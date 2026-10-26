@@ -168,7 +168,7 @@ it('applies the customer credit balance to the upcoming period charge', function
 
     $this->travelTo('2027-02-15');
 
-    app(RecordPayment::class)->handle($customer, [
+    app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => 100000,
         'currency' => Currency::Try,
         'paid_on' => '2027-02-15',

@@ -21,7 +21,7 @@ beforeEach(function () {
  */
 function uiPayPartOf(Charge $charge, int $amount): void
 {
-    app(RecordPayment::class)->handle($charge->customer, [
+    app(RecordPayment::class)->handle(actor(), $charge->customer, [
         'amount' => $amount,
         'currency' => $charge->currency,
         'paid_on' => '2026-06-15',

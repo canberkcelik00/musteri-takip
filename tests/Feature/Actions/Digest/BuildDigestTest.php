@@ -83,7 +83,7 @@ it('leaves out cancelled charges and charges of archived customers', function ()
 it('marks the new charges closed fully or partly from the credit balance', function () {
     $this->travelTo('2026-10-01 10:00:00');
     $customer = Customer::factory()->create();
-    $recordPayment = fn (int $amount) => app(RecordPayment::class)->handle($customer, [
+    $recordPayment = fn (int $amount) => app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => Currency::Try,
         'paid_on' => '2026-10-01',
@@ -166,7 +166,7 @@ it('is empty when every section is empty', function () {
 it('gives a new charge only a payment badge: paid, partly paid or closed from the credit balance', function () {
     $this->travelTo('2026-10-01 10:00:00');
     $customer = Customer::factory()->create();
-    $recordPayment = fn (int $amount) => app(RecordPayment::class)->handle($customer, [
+    $recordPayment = fn (int $amount) => app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => Currency::Try,
         'paid_on' => '2026-10-01',
@@ -186,7 +186,7 @@ it('gives a new charge only a payment badge: paid, partly paid or closed from th
         'currency' => Currency::Try,
         'due_date' => '2026-12-01',
     ]);
-    app(RecordPayment::class)->handle($other, [
+    app(RecordPayment::class)->handle(actor(), $other, [
         'amount' => 100000,
         'currency' => Currency::Try,
         'paid_on' => '2026-10-01',

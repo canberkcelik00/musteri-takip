@@ -193,7 +193,7 @@ it('shows only "Kalan" for an open charge and a faded original amount once parti
 
     uiCard($customer)->assertSee('4.000 TL')->assertDontSee("4.000 TL'den");
 
-    app(RecordPayment::class)->handle($customer, [
+    app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => 100000, 'currency' => Currency::Try, 'paid_on' => '2026-06-15',
         'payment_method_id' => PaymentMethod::query()->firstOrFail()->id,
     ]);

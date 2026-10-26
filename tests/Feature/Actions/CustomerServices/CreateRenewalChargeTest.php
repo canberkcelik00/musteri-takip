@@ -171,7 +171,7 @@ it('applies the customer credit balance to the renewal charge', function () {
     $firstCharge = Charge::factory()->forCustomerService($customerService)->create();
 
     $this->travelTo('2026-03-05');
-    app(RecordPayment::class)->handle($customer, [
+    app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => 500000,
         'currency' => Currency::Try,
         'paid_on' => '2026-03-05',

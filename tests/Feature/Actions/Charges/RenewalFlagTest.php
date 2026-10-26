@@ -117,7 +117,7 @@ it('does not mark the part split off a renewal charge', function () {
     $this->travelTo('2027-02-10');
     $renewal = app(CreateRenewalCharge::class)->handle($customerService);
 
-    $part = app(SplitCharge::class)->handle($renewal, 100000, '2027-06-01');
+    $part = app(SplitCharge::class)->handle(actor(), $renewal, 100000, '2027-06-01');
 
     expect($part->fresh()->is_renewal)->toBeFalse()
         ->and($renewal->fresh()->is_renewal)->toBeTrue();

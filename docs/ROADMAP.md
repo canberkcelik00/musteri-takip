@@ -481,7 +481,7 @@ Karar (kullanıcı): 1 yönetici + 2-3 yazılımcı; yazılımcı parayı hiç g
 - [x] **G-12.4 Kullanıcılar ekranı ve davet** — Bağımlılık: G-12.2
   - Yapılacak: Ayarlar > Kullanıcılar (`users.manage`); `InviteUser` penceresi; `InviteUser`, `ResendInvitation`, `ChangeUserRole`, `DeactivateUser`, `ReactivateUser`, `AcceptInvitation` Action'ları; 72 saatlik imzalı davet bağlantısı ve `InvitationMail` (senkron).
   - Kabul: Davetle kullanıcı ve e-posta oluşur; bağlantıyla şifre belirlenip giriş yapılır; 72 saat sonra, ikinci kullanımda, yeniden gönderimden sonra eski bağlantıda ve pasif kullanıcıda bağlantı geçersiz; yönetici kendini pasifleştiremez, son yönetici pasifleştirilemez (testli).
-- [ ] **G-12.5 Para kayıtlarında "kim"** — Bağımlılık: G-12.2
+- [x] **G-12.5 Para kayıtlarında "kim"** — Bağımlılık: G-12.2
   - Yapılacak: `payments.recorded_by`, `charges.cancelled_by`/`updated_by`, `quotes.accepted_by` migration'ı; ilgili Action'lar açık `User $actor` parametresi alır (T-159); `ViewPayment`, iptal edilmiş borç satırı ve teklif kartında "… tarafından".
   - Kabul: Ödeme, borç iptali/düzenlemesi ve teklif kabulü işlemi yapanı kaydeder; zamanlanmış işin borcunda alan boştur (testli).
 - [ ] **K-12.1 Canlı doğrulama ve davet (kullanıcı)** — Bağımlılık: G-12.4

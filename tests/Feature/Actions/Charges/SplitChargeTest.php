@@ -27,7 +27,7 @@ function periodChargeToSplit(): Charge
 
 function splitCharge(Charge $charge, int $amount, string $dueDate = '2027-06-01', ?string $description = null): Charge
 {
-    return app(SplitCharge::class)->handle($charge, $amount, $dueDate, $description);
+    return app(SplitCharge::class)->handle(actor(), $charge, $amount, $dueDate, $description);
 }
 
 it('keeps the total when a charge is split', function () {
@@ -83,7 +83,7 @@ it('rejects a split amount that is not between zero and the charge amount', func
 
 it('does not split a charge with allocations', function () {
     $charge = periodChargeToSplit();
-    app(RecordPayment::class)->handle($charge->customer, [
+    app(RecordPayment::class)->handle(actor(), $charge->customer, [
         'amount' => 100000,
         'currency' => Currency::Try,
         'paid_on' => '2027-03-01',

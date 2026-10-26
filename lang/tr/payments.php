@@ -15,6 +15,7 @@ return [
     'amount' => 'Tutar',
     'payment_method' => 'Yöntem',
     'note' => 'Açıklama',
+    'recorded_by' => 'Kaydeden',
 
     'record' => 'Ödeme al',
     'record_heading' => 'Ödeme kaydı',

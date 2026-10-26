@@ -5,6 +5,7 @@ namespace App\Actions\Charges;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
 use App\Models\Charge;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -16,15 +17,15 @@ class UpdateCharge
      * Change the amount and/or due date of an open charge. The amount of a charge with
      * any allocation (from a payment or the credit balance) cannot change; its due date
      * can. The customer's credit balance is applied afterwards, so an open charge and a
-     * credit balance never exist side by side in the same currency.
+     * credit balance never exist side by side in the same currency. The charge remembers the user who edited it.
      *
      * @param  array{amount?: int, due_date?: CarbonInterface|string}  $attributes
      *
      * @throws InvalidCharge
      */
-    public function handle(Charge $charge, array $attributes): Charge
+    public function handle(?User $actor, Charge $charge, array $attributes): Charge
     {
-        return DB::transaction(function () use ($charge, $attributes): Charge {
+        return DB::transaction(function () use ($actor, $charge, $attributes): Charge {
             $charge->customer->charges()
                 ->where('currency', $charge->currency)
                 ->lockForUpdate()
@@ -52,6 +53,7 @@ class UpdateCharge
                 $charge->fill(['due_date' => $attributes['due_date']]);
             }
 
+            $charge->updated_by = $actor?->id;
             $charge->save();
 
             return $this->applyCreditBalance->handle($charge);

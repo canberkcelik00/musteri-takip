@@ -99,7 +99,7 @@ class RecordPayment extends Component
         $currency = Currency::from($this->currency);
 
         try {
-            $payment = $recordPayment->handle($customer, [
+            $payment = $recordPayment->handle($this->actor(), $customer, [
                 'amount' => (int) MoneyAmountRule::minorUnits($this->amount),
                 'currency' => $currency,
                 'paid_on' => $this->paid_on,

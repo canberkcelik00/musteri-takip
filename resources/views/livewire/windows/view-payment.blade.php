@@ -10,6 +10,9 @@
         <div><dt>{{ __('payments.customer') }}</dt><dd>{{ $payment->customer->short_name }}</dd></div>
         <div><dt>{{ __('payments.amount') }}</dt><dd><x-ui.money :amount="$payment->amount" :currency="$payment->currency" /></dd></div>
         <div><dt>{{ __('payments.payment_method') }}</dt><dd>{{ $payment->paymentMethod?->name }}</dd></div>
+        @if ($payment->recordedBy)
+            <div><dt>{{ __('payments.recorded_by') }}</dt><dd>{{ $payment->recordedBy->name }}</dd></div>
+        @endif
         <div class="is-full"><dt>{{ __('payments.note') }}</dt><dd>{{ filled($payment->note) ? $payment->note : __('money.empty') }}</dd></div>
         @if ($creditText)
             <div class="is-full"><dd>{{ $creditText }}</dd></div>

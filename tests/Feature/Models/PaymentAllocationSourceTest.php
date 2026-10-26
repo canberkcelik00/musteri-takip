@@ -26,7 +26,7 @@ it('marks allocations made while recording a payment as from the payment', funct
     $customer = Customer::factory()->create();
     Charge::factory()->for($customer)->create(['amount' => 400000]);
 
-    $payment = app(RecordPayment::class)->handle($customer, [
+    $payment = app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => 400000,
         'currency' => Currency::Try,
         'paid_on' => '2026-03-10',
@@ -39,7 +39,7 @@ it('marks allocations made while recording a payment as from the payment', funct
 it('finds the allocations applied from the credit balance on a day in Istanbul time', function () {
     $customer = Customer::factory()->create();
     $this->travelTo(Carbon::parse('2027-01-28 12:00', 'Europe/Istanbul'));
-    app(RecordPayment::class)->handle($customer, [
+    app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => 1000000,
         'currency' => Currency::Try,
         'paid_on' => '2027-01-28',
@@ -53,7 +53,7 @@ it('finds the allocations applied from the credit balance on a day in Istanbul t
 
     $this->travelTo(Carbon::parse('2027-01-30 12:00', 'Europe/Istanbul'));
     $paymentToday = Charge::factory()->for($customer)->create(['amount' => 50000]);
-    app(RecordPayment::class)->handle($customer, [
+    app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => 50000,
         'currency' => Currency::Try,
         'paid_on' => '2027-01-30',

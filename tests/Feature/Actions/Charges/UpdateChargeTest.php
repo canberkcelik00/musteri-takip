@@ -12,7 +12,7 @@ use App\Models\PaymentMethod;
 
 function recordTryPaymentForUpdate(Customer $customer, int $amount): Payment
 {
-    return app(RecordPayment::class)->handle($customer, [
+    return app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => Currency::Try,
         'paid_on' => '2026-03-10',
@@ -25,7 +25,7 @@ function recordTryPaymentForUpdate(Customer $customer, int $amount): Payment
  */
 function updateCharge(Charge $charge, array $attributes): Charge
 {
-    return app(UpdateCharge::class)->handle($charge, $attributes);
+    return app(UpdateCharge::class)->handle(actor(), $charge, $attributes);
 }
 
 it('changes the amount and due date of an open charge', function () {

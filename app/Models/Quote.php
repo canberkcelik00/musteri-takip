@@ -37,6 +37,7 @@ use Illuminate\Support\Carbon;
     'sent_to',
     'accepted_at',
     'rejected_at',
+    'accepted_by',
     'notes',
 ])]
 class Quote extends Model
@@ -57,6 +58,16 @@ class Quote extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * The user who accepted the quote; none for a quote accepted before Faz 12.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function acceptedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'accepted_by');
     }
 
     /**

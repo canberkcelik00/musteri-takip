@@ -12,6 +12,7 @@ use App\Models\Customer;
 use App\Models\Package;
 use App\Models\Quote;
 use App\Models\QuoteItem;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -31,18 +32,18 @@ class AcceptQuote
      * applied as usual). A quote to a hand-written recipient first creates the customer: the
      * short name is the one given, else the company, else the person's name, and the quote's
      * person becomes the primary contact. All in one transaction, so a failing item leaves
-     * nothing behind.
+     * nothing behind. The quote remembers the user who accepted it.
      *
      * @param  string|null  $shortName  Short name of the new customer; only used for a hand-written recipient.
      *
      * @throws InvalidQuote
      * @throws InvalidCustomerService When a service cannot be assigned, e.g. its period would already have ended.
      */
-    public function handle(Quote $quote, CarbonInterface|string|null $startDate = null, ?string $shortName = null): Quote
+    public function handle(?User $actor, Quote $quote, CarbonInterface|string|null $startDate = null, ?string $shortName = null): Quote
     {
         $startDate ??= Carbon::today(config('app.timezone'));
 
-        return DB::transaction(function () use ($quote, $startDate, $shortName): Quote {
+        return DB::transaction(function () use ($actor, $quote, $startDate, $shortName): Quote {
             $locked = $this->lockQuote->handle($quote);
             $locked->load(['customer', 'items.catalogService', 'items.package']);
 
@@ -67,6 +68,7 @@ class AcceptQuote
                 'customer_id' => $customer->id,
                 'status' => QuoteStatus::Accepted,
                 'accepted_at' => now(),
+                'accepted_by' => $actor?->id,
             ]);
 
             return $locked;

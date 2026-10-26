@@ -61,7 +61,7 @@ class Index extends Component
      */
     private function quotes(): LengthAwarePaginator
     {
-        $query = Quote::query()->with(['customer', 'items']);
+        $query = Quote::query()->with(['customer', 'items', 'acceptedBy']);
 
         $this->filterByStatus($query);
 

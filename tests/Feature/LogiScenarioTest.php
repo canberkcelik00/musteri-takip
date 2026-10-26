@@ -77,7 +77,7 @@ it('runs the Logi scenario from assignment to cancellation', function () {
         ]);
 
     // 2. 5.000 TL paid: 4.000 TL closes the charge, 1.000 TL stays as credit balance.
-    $payment = app(RecordPayment::class)->handle($customer, [
+    $payment = app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => Money::parseAmount('5.000'),
         'currency' => Currency::Try,
         'paid_on' => '2026-03-01',

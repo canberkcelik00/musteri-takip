@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  * @property Currency $currency
  * @property Carbon $paid_on
  */
-#[Fillable(['amount', 'currency', 'paid_on', 'payment_method_id', 'note'])]
+#[Fillable(['amount', 'currency', 'paid_on', 'payment_method_id', 'note', 'recorded_by'])]
 class Payment extends Model
 {
     /** @use HasFactory<PaymentFactory> */
@@ -31,6 +31,16 @@ class Payment extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * The user who recorded the payment; none for a payment from before Faz 12.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function recordedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recorded_by');
     }
 
     /**

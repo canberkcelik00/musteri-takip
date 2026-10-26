@@ -51,6 +51,7 @@ class SplitCharge extends Component
 
         try {
             $splitCharge->handle(
+                $this->actor(),
                 Charge::query()->findOrFail($this->chargeId),
                 (int) MoneyAmountRule::minorUnits($this->amount),
                 $this->due_date,

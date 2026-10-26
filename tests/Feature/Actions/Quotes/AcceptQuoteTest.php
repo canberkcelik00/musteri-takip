@@ -62,7 +62,7 @@ describe('existing customer', function () {
         ]);
         $catalogService->update(['name' => 'Katalogda yeni ad', 'price' => 999900]);
 
-        $accepted = app(AcceptQuote::class)->handle($quote);
+        $accepted = app(AcceptQuote::class)->handle(actor(), $quote);
 
         $service = CustomerService::query()->sole();
 
@@ -93,7 +93,7 @@ describe('existing customer', function () {
         $quote = sentQuote();
         QuoteItem::factory()->forPackage()->for($quote)->create(['package_id' => $package->id, 'name' => 'Kurumsal Paket', 'price' => 400000]);
 
-        app(AcceptQuote::class)->handle($quote);
+        app(AcceptQuote::class)->handle(actor(), $quote);
 
         $service = CustomerService::query()->sole();
 
@@ -109,7 +109,7 @@ describe('existing customer', function () {
         QuoteItem::factory()->for($quote)->create(['name' => 'Alan adı', 'price' => 30000, 'sort_order' => 1]);
         QuoteItem::factory()->forPackage()->for($quote)->create(['name' => 'Bakım paketi', 'price' => 90000, 'sort_order' => 2]);
 
-        app(AcceptQuote::class)->handle($quote, '2027-03-10');
+        app(AcceptQuote::class)->handle(actor(), $quote, '2027-03-10');
 
         $services = CustomerService::query()->orderBy('id')->get();
 
@@ -124,7 +124,7 @@ describe('existing customer', function () {
         QuoteItem::factory()->for($quote)->create(['name' => 'Hosting', 'price' => 150000]);
         QuoteItem::factory()->for($quote)->free()->create(['name' => 'Bakım (ilk yıl)', 'sort_order' => 1]);
 
-        app(AcceptQuote::class)->handle($quote);
+        app(AcceptQuote::class)->handle(actor(), $quote);
 
         $free = CustomerService::query()->where('name', 'Bakım (ilk yıl)')->sole();
 
@@ -137,7 +137,7 @@ describe('existing customer', function () {
         $quote = sentQuote();
         QuoteItem::factory()->for($quote)->create();
 
-        app(AcceptQuote::class)->handle($quote, '2027-04-01');
+        app(AcceptQuote::class)->handle(actor(), $quote, '2027-04-01');
 
         $service = CustomerService::query()->sole();
 
@@ -148,7 +148,7 @@ describe('existing customer', function () {
 
     it('applies the customer credit balance to the first charge', function () {
         $customer = Customer::factory()->create();
-        app(RecordPayment::class)->handle($customer, [
+        app(RecordPayment::class)->handle(actor(), $customer, [
             'amount' => 400000,
             'currency' => Currency::Try,
             'paid_on' => '2027-02-20',
@@ -157,7 +157,7 @@ describe('existing customer', function () {
         $quote = sentQuote($customer);
         QuoteItem::factory()->for($quote)->create(['price' => 300000, 'currency' => Currency::Try]);
 
-        app(AcceptQuote::class)->handle($quote);
+        app(AcceptQuote::class)->handle(actor(), $quote);
 
         expect(Charge::query()->sole()->status)->toBe(ChargeStatus::Paid)
             ->and($customer->creditBalances()['TRY']->amount)->toBe(100000);
@@ -167,7 +167,7 @@ describe('existing customer', function () {
         $quote = sentQuote(Customer::factory()->archived()->create());
         QuoteItem::factory()->for($quote)->create();
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote))
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote))
             ->toThrow(InvalidQuote::class, __('quotes.customer_archived'));
 
         expect(CustomerService::count())->toBe(0)
@@ -180,7 +180,7 @@ describe('hand-written recipient', function () {
         $quote = manualSentQuote();
         QuoteItem::factory()->for($quote)->create(['price' => 150000]);
 
-        $accepted = app(AcceptQuote::class)->handle($quote);
+        $accepted = app(AcceptQuote::class)->handle(actor(), $quote);
 
         $customer = Customer::query()->where('short_name', 'Veli Ltd.')->sole();
         $contact = $customer->primaryContact;
@@ -200,7 +200,7 @@ describe('hand-written recipient', function () {
         $quote = manualSentQuote(['recipient_company' => null]);
         QuoteItem::factory()->for($quote)->create();
 
-        app(AcceptQuote::class)->handle($quote);
+        app(AcceptQuote::class)->handle(actor(), $quote);
 
         expect(Customer::query()->where('short_name', 'Ali Veli')->exists())->toBeTrue();
     });
@@ -209,7 +209,7 @@ describe('hand-written recipient', function () {
         $quote = manualSentQuote();
         QuoteItem::factory()->for($quote)->create();
 
-        app(AcceptQuote::class)->handle($quote, null, '  Veli  ');
+        app(AcceptQuote::class)->handle(actor(), $quote, null, '  Veli  ');
 
         expect(Customer::query()->where('short_name', 'Veli')->exists())->toBeTrue()
             ->and(Customer::query()->where('short_name', 'Veli Ltd.')->exists())->toBeFalse();
@@ -222,7 +222,7 @@ describe('hand-written recipient', function () {
         $thrown = null;
 
         try {
-            app(AcceptQuote::class)->handle($quote);
+            app(AcceptQuote::class)->handle(actor(), $quote);
         } catch (InvalidQuote $exception) {
             $thrown = $exception;
         }
@@ -233,7 +233,7 @@ describe('hand-written recipient', function () {
             ->and($quote->fresh()->status)->toBe(QuoteStatus::Sent)
             ->and($quote->fresh()->customer_id)->toBeNull();
 
-        app(AcceptQuote::class)->handle($quote, null, 'Veli Ltd. (yeni)');
+        app(AcceptQuote::class)->handle(actor(), $quote, null, 'Veli Ltd. (yeni)');
 
         expect(Customer::count())->toBe(2);
     });
@@ -243,7 +243,7 @@ describe('hand-written recipient', function () {
         $quote = manualSentQuote();
         QuoteItem::factory()->for($quote)->create();
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote))->toThrow(InvalidQuote::class, __('quotes.short_name_taken'));
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote))->toThrow(InvalidQuote::class, __('quotes.short_name_taken'));
     });
 
     it('ignores the given short name for an existing customer', function () {
@@ -251,7 +251,7 @@ describe('hand-written recipient', function () {
         $quote = sentQuote($customer);
         QuoteItem::factory()->for($quote)->create();
 
-        app(AcceptQuote::class)->handle($quote, null, 'Başka ad');
+        app(AcceptQuote::class)->handle(actor(), $quote, null, 'Başka ad');
 
         expect(Customer::query()->where('short_name', 'Başka ad')->exists())->toBeFalse()
             ->and(CustomerService::query()->sole()->customer_id)->toBe($customer->id);
@@ -264,7 +264,7 @@ describe('all or nothing', function () {
         QuoteItem::factory()->for($quote)->create(['price' => 150000]);
         QuoteItem::factory()->for($quote)->create(['price' => 0, 'is_free' => false, 'sort_order' => 1]);
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote))->toThrow(InvalidCustomerService::class);
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote))->toThrow(InvalidCustomerService::class);
 
         expect(Customer::count())->toBe(0)
             ->and(Contact::count())->toBe(0)
@@ -278,7 +278,7 @@ describe('all or nothing', function () {
         $quote = sentQuote();
         QuoteItem::factory()->for($quote)->create();
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote, '2025-01-01'))
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote, '2025-01-01'))
             ->toThrow(InvalidCustomerService::class, __('customer_services.period_already_ended'));
 
         expect(CustomerService::count())->toBe(0)
@@ -292,7 +292,7 @@ describe('who can accept', function () {
         $quote = $factory->for(Customer::factory()->create())->create(['valid_until' => '2027-03-15']);
         QuoteItem::factory()->for($quote)->create();
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote))->toThrow(InvalidQuote::class, __('quotes.not_sent'));
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote))->toThrow(InvalidQuote::class, __('quotes.not_sent'));
 
         expect(CustomerService::count())->toBe(0)
             ->and($quote->fresh()->status->value)->toBe($state === 'expired' ? 'sent' : $state);
@@ -302,7 +302,7 @@ describe('who can accept', function () {
         $quote = sentQuote(attributes: ['valid_until' => '2027-02-28']);
         QuoteItem::factory()->for($quote)->create();
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote))->toThrow(InvalidQuote::class, __('quotes.expired'));
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote))->toThrow(InvalidQuote::class, __('quotes.expired'));
 
         expect(CustomerService::count())->toBe(0)
             ->and($quote->fresh()->status)->toBe(QuoteStatus::Sent);
@@ -313,22 +313,22 @@ describe('who can accept', function () {
         QuoteItem::factory()->for($quote)->create();
 
         $this->travelTo('2027-03-15 23:30:00');
-        expect(app(AcceptQuote::class)->handle($quote)->status)->toBe(QuoteStatus::Accepted);
+        expect(app(AcceptQuote::class)->handle(actor(), $quote)->status)->toBe(QuoteStatus::Accepted);
 
         $late = sentQuote();
         QuoteItem::factory()->for($late)->create();
 
         $this->travelTo('2027-03-16 00:30:00');
-        expect(fn () => app(AcceptQuote::class)->handle($late))->toThrow(InvalidQuote::class, __('quotes.expired'));
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $late))->toThrow(InvalidQuote::class, __('quotes.expired'));
     });
 
     it('cannot accept the same quote twice', function () {
         $quote = sentQuote();
         QuoteItem::factory()->for($quote)->create();
 
-        app(AcceptQuote::class)->handle($quote);
+        app(AcceptQuote::class)->handle(actor(), $quote);
 
-        expect(fn () => app(AcceptQuote::class)->handle($quote))->toThrow(InvalidQuote::class, __('quotes.not_sent'));
+        expect(fn () => app(AcceptQuote::class)->handle(actor(), $quote))->toThrow(InvalidQuote::class, __('quotes.not_sent'));
 
         expect(CustomerService::count())->toBe(1)
             ->and(Charge::count())->toBe(1);

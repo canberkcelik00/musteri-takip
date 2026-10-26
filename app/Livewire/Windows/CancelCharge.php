@@ -34,7 +34,7 @@ class CancelCharge extends Component
         $this->validate(['reason' => ['required', 'string']], attributes: ['reason' => __('charges.cancel_reason')]);
 
         try {
-            $cancelCharge->handle(Charge::query()->findOrFail($this->chargeId), $this->reason);
+            $cancelCharge->handle($this->actor(), Charge::query()->findOrFail($this->chargeId), $this->reason);
         } catch (InvalidCharge $exception) {
             $this->reportDomainError($exception, ['reason']);
 

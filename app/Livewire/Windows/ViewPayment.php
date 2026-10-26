@@ -31,7 +31,7 @@ class ViewPayment extends Component
     public function render(): View
     {
         $payment = Payment::query()
-            ->with(['customer', 'paymentMethod', 'allocations.charge'])
+            ->with(['customer', 'paymentMethod', 'recordedBy', 'allocations.charge'])
             ->findOrFail($this->paymentId);
 
         $allocated = (int) $payment->allocations->where('source', AllocationSource::Payment)->sum('amount');

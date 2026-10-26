@@ -19,7 +19,7 @@ use App\Support\Money;
  */
 function creditBalancePayment(Customer $customer, int $amount, Currency $currency = Currency::Try, string $paidOn = '2026-03-10'): Payment
 {
-    return app(RecordPayment::class)->handle($customer, [
+    return app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => $currency,
         'paid_on' => $paidOn,

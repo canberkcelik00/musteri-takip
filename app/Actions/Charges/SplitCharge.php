@@ -5,6 +5,7 @@ namespace App\Actions\Charges;
 use App\Enums\ChargeStatus;
 use App\Exceptions\InvalidCharge;
 use App\Models\Charge;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -16,13 +17,13 @@ class SplitCharge
      * Split the given amount off an open charge without allocations into a new charge
      * with its own due date, and return the new charge. The total stays the same. The
      * original charge keeps its period, due date and description; the new charge belongs
-     * to the same customer service but has no period, since a period is charged once.
+     * to the same customer service but has no period, since a period is charged once. The original charge remembers the user who split it.
      *
      * @throws InvalidCharge
      */
-    public function handle(Charge $charge, int $amount, CarbonInterface|string $dueDate, ?string $description = null): Charge
+    public function handle(?User $actor, Charge $charge, int $amount, CarbonInterface|string $dueDate, ?string $description = null): Charge
     {
-        return DB::transaction(function () use ($charge, $amount, $dueDate, $description): Charge {
+        return DB::transaction(function () use ($actor, $charge, $amount, $dueDate, $description): Charge {
             $charge->customer->charges()
                 ->where('currency', $charge->currency)
                 ->lockForUpdate()
@@ -42,7 +43,7 @@ class SplitCharge
                 throw InvalidCharge::invalidSplitAmount();
             }
 
-            $charge->update(['amount' => $charge->amount - $amount]);
+            $charge->update(['amount' => $charge->amount - $amount, 'updated_by' => $actor?->id]);
 
             $description = trim((string) $description);
 

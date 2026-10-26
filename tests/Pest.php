@@ -5,6 +5,7 @@ use App\Actions\Deploy\DeployRelease;
 use App\Models\Charge;
 use App\Models\Contact;
 use App\Models\CustomerService;
+use App\Models\User;
 use BladeUI\Icons\IconsManifest;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -298,4 +299,12 @@ function renewalChargeToRemind(array $charge = [], array $contact = [], array $s
         'period_end' => '2028-03-01',
         ...$charge,
     ]);
+}
+
+/**
+ * The user an Action is handed as `$actor` (T-159).
+ */
+function actor(): User
+{
+    return User::factory()->create();
 }

@@ -3,6 +3,7 @@
 namespace App\Livewire\Concerns;
 
 use App\Enums\Permission;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -25,6 +26,18 @@ trait AuthorizesPermission
     protected function authorizePermission(Permission $permission): void
     {
         abort_unless(Auth::user()?->can($permission->value), 403);
+    }
+
+    /**
+     * The signed-in user, handed to an Action as `$actor` (T-159); the Action itself never reads the session.
+     */
+    protected function actor(): User
+    {
+        $user = Auth::user();
+
+        abort_unless($user instanceof User, 403);
+
+        return $user;
     }
 
     protected function requiredPermission(): ?Permission

@@ -72,7 +72,7 @@ it('does not cancel an upcoming charge with an allocation', function () {
 
     $charge = app(CreateRenewalCharge::class)->handle($customerService);
 
-    app(RecordPayment::class)->handle($customerService->customer, [
+    app(RecordPayment::class)->handle(actor(), $customerService->customer, [
         'amount' => 100000,
         'currency' => Currency::Try,
         'paid_on' => '2027-02-15',

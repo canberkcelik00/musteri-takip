@@ -44,6 +44,8 @@ use Illuminate\Support\Carbon;
     'cancelled_at',
     'cancel_reason',
     'is_renewal',
+    'cancelled_by',
+    'updated_by',
 ])]
 class Charge extends Model
 {
@@ -63,6 +65,26 @@ class Charge extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * The user who cancelled the charge; none for one cancelled before Faz 12.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    /**
+     * The user who last edited or split the charge; none when no user ever did.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     /**

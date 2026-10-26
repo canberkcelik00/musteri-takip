@@ -43,7 +43,7 @@ function assignService(Customer $customer, CatalogService|Package $sold, array $
 
 function recordCreditBalance(Customer $customer, int $amount, Currency $currency = Currency::Try): void
 {
-    app(RecordPayment::class)->handle($customer, [
+    app(RecordPayment::class)->handle(actor(), $customer, [
         'amount' => $amount,
         'currency' => $currency,
         'paid_on' => '2026-02-20',
