@@ -28,6 +28,30 @@ class WindowHost extends Component
     public int $opened = 0;
 
     /**
+     * A full redirect drops the events its component dispatched, so a window that sends the user to another page
+     * leaves its notification and the window to open there under this one-use session key:
+     * `['message' => string, 'window' => ?string, 'params' => array]`.
+     */
+    public const string AFTER_REDIRECT = 'window_host.after_redirect';
+
+    public function mount(): void
+    {
+        $pending = session()->pull(self::AFTER_REDIRECT);
+
+        if (! is_array($pending)) {
+            return;
+        }
+
+        if (is_string($pending['message'] ?? null)) {
+            $this->dispatch('notify', message: $pending['message']);
+        }
+
+        if (is_string($pending['window'] ?? null)) {
+            $this->open($pending['window'], is_array($pending['params'] ?? null) ? $pending['params'] : []);
+        }
+    }
+
+    /**
      * @param  array<string, mixed>  $params
      */
     #[On('open-window')]

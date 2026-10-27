@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Customers\CreateCustomer as CreateCustomerAction;
 use App\Livewire\Concerns\AuthorizesPermission;
+use App\Livewire\WindowHost;
 use App\Support\Ui\Links;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -11,7 +12,8 @@ use Livewire\Component;
 
 /**
  * The new-customer window: the customer's details and the first (primary) contact, created together through the
- * CreateCustomer Action; afterwards the customer's card opens.
+ * CreateCustomer Action; afterwards the customer's card opens with the assign-service window on top (see
+ * WindowHost::AFTER_REDIRECT).
  */
 class CreateCustomer extends Component
 {
@@ -59,7 +61,11 @@ class CreateCustomer extends Component
         );
 
         $this->dispatch('customers-changed');
-        $this->dispatch('notify', message: __('customers.created'));
+        session()->put(WindowHost::AFTER_REDIRECT, [
+            'message' => __('customers.created'),
+            'window' => 'assign-service',
+            'params' => ['customer' => $customer->id],
+        ]);
 
         $this->redirect(Links::customer($customer));
     }

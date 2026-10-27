@@ -1,9 +1,12 @@
 <?php
 
+use App\Enums\Permission;
+use App\Livewire\WindowHost;
 use App\Livewire\Windows\CreateCustomer;
 use App\Models\Customer;
 use App\Models\User;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Role as RoleModel;
 
 beforeEach(function () {
     $this->actingAs(User::factory()->admin()->create());
@@ -17,8 +20,7 @@ it('creates the customer with its first contact as the primary one and opens the
         ->set('contact_email', 'ayse@example.com')
         ->call('save')
         ->assertHasNoErrors()
-        ->assertDispatched('customers-changed')
-        ->assertDispatched('notify', message: __('customers.created'));
+        ->assertDispatched('customers-changed');
 
     $customer = Customer::query()->where('short_name', 'Logi')->sole();
     $contact = $customer->contacts()->sole();
@@ -39,6 +41,39 @@ it('redirects to the customer card after saving', function () {
     $id = Customer::query()->where('short_name', 'Logi')->value('id');
 
     $component->assertRedirect(route('app.customers.show', $id));
+});
+
+it('opens the assign-service window and the notification on the new card, once', function () {
+    Livewire::test(CreateCustomer::class)
+        ->set('short_name', 'Logi')
+        ->set('contact_name', 'Ayşe')
+        ->call('save');
+
+    $id = Customer::query()->where('short_name', 'Logi')->value('id');
+
+    Livewire::test(WindowHost::class)
+        ->assertDispatched('notify', message: __('customers.created'))
+        ->assertSet('name', 'assign-service')
+        ->assertSet('params', ['customer' => $id]);
+
+    // A reload finds nothing left to open.
+    Livewire::test(WindowHost::class)
+        ->assertNotDispatched('notify')
+        ->assertSet('name', null);
+});
+
+it('keeps the window closed for a user who may not assign services but still shows the notification', function () {
+    RoleModel::findByName('developer')->revokePermissionTo(Permission::ServicesManage->value);
+    session()->put(WindowHost::AFTER_REDIRECT, [
+        'message' => __('customers.created'),
+        'window' => 'assign-service',
+        'params' => ['customer' => 1],
+    ]);
+
+    Livewire::actingAs(User::factory()->developer()->create())
+        ->test(WindowHost::class)
+        ->assertDispatched('notify', message: __('customers.created'))
+        ->assertSet('name', null);
 });
 
 it('asks for a short name and a contact name', function () {

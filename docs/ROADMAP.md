@@ -548,7 +548,7 @@ Karar (kullanıcı, U-32): ödeme kısayolları, güçlü arama ve akış kısal
 - [x] **G-14.3 Arama güçlenir** — Bağımlılık: G-14.0
   - Yapılacak: Oturumda son 5 müşteri ve boş kutuda "Son baktıklarınız"; telefon normalizasyonu (`Customer::search`); "Git: …" sayfa kısayolları (menü tanımından, izne göre); parasız kullanıcıda "İş ekle".
   - Kabul: Son bakılanlar sırası tekrarsız ve en çok 5, arşivli çıkmaz; telefon üç farklı yazımla bulunur; izinsiz sayfa kısayolu çıkmaz; yazılımcı "İş ekle"yi görür, "Ödeme al"ı görmez; sorgu sayısı sabit (testli).
-- [ ] **G-14.4 Yeni müşteriden hizmet eklemeye** — Bağımlılık: G-14.0
+- [x] **G-14.4 Yeni müşteriden hizmet eklemeye** — Bağımlılık: G-14.0
   - Yapılacak: `CreateCustomer::save()` bildirimi ve "hizmet ekle penceresini aç" işaretini tek kullanımlık oturum verisi olarak yazar; kart yüklenince `WindowHost` pencereyi açar (kayıp bildirim de düzelir).
   - Kabul: Yeni müşteri kartı açılır, hizmet penceresi o müşteriyle açık gelir, bildirim görünür; sayfa yenilenince pencere tekrar açılmaz (testli).
 - [ ] **G-14.5 İş penceresinde tarih hapları** — Bağımlılık: G-14.0
