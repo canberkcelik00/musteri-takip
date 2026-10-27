@@ -66,6 +66,7 @@ return [
         'services_view' => 'Hizmetleri görme',
         'services_manage' => 'Hizmet işlemleri',
         'tasks_manage' => 'İşler',
+        'calendar_manage' => 'Takvim',
         'quotes_manage' => 'Teklifler',
         'catalog_manage' => 'Katalog',
         'settings_manage' => 'Ayarlar',
@@ -79,10 +80,17 @@ return [
         'services_view' => 'Müşterilerin hizmetlerini görür.',
         'services_manage' => 'Müşteriye hizmet atar, düzenler, iptal eder.',
         'tasks_manage' => 'İş oluşturur, atar, bitirir; kendine atanan işleri Bugün sayfasında görür.',
+        'calendar_manage' => 'Takvimde etkinlik ekler, düzenler, siler; katılanlara davet e-postası gider.',
         'quotes_manage' => 'Teklif oluşturur, gönderir, kabul eder.',
         'catalog_manage' => 'Hizmet ve paket kataloğunu düzenler.',
         'settings_manage' => 'Genel ayarlar, ödeme yöntemleri ve sunucular.',
         'users_manage' => 'Kullanıcı davet eder, düzenler; rolleri ve yetkileri ayarlar.',
+    ],
+
+    'event_repeat' => [
+        'none' => 'Tekrarlamaz',
+        'weekly' => 'Her hafta',
+        'monthly' => 'Her ay',
     ],
 
     'server_type' => [

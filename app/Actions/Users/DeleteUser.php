@@ -4,6 +4,7 @@ namespace App\Actions\Users;
 
 use App\Enums\Role;
 use App\Exceptions\InvalidUserChange;
+use App\Models\CalendarEvent;
 use App\Models\Charge;
 use App\Models\Payment;
 use App\Models\Quote;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class DeleteUser
 {
     /**
-     * Delete a user who has done nothing yet. Someone named on a payment, charge, quote or task stays (deactivate them
+     * Delete a user who has done nothing yet. Someone named on a payment, charge, quote, task or calendar event stays (deactivate them
      * instead), so the history keeps its "who". A user cannot delete themself, and the last active administrator
      * stays.
      *
@@ -48,6 +49,9 @@ class DeleteUser
             || Task::query()->where(fn ($query) => $query
                 ->where('assigned_to', $user->id)
                 ->orWhere('created_by', $user->id)
-                ->orWhere('completed_by', $user->id))->exists();
+                ->orWhere('completed_by', $user->id))->exists()
+            || CalendarEvent::query()->where(fn ($query) => $query
+                ->where('created_by', $user->id)
+                ->orWhereHas('attendees', fn ($attendees) => $attendees->whereKey($user->id)))->exists();
     }
 }

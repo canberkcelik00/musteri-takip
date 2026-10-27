@@ -22,7 +22,7 @@ return [
     'invitation_not_sent' => 'Kullanıcı kaydedildi ama davet e-postası gönderilemedi (:message). Satırdan daveti yeniden gönderebilirsiniz.',
     'invitation_invalid' => 'Bu davet bağlantısı geçerli değil: süresi dolmuş, daha yeni bir davet gönderilmiş ya da kullanılmış olabilir. Yöneticiden yeni davet isteyin.',
     'own_account' => 'Kendi hesabınızı pasifleştiremez, silemez ya da rolünü değiştiremezsiniz.',
-    'has_records' => 'Bu kullanıcının kayıtları var (ödeme, borç, teklif ya da iş); silmek yerine pasifleştirin.',
+    'has_records' => 'Bu kullanıcının kayıtları var (ödeme, borç, teklif, iş ya da takvim etkinliği); silmek yerine pasifleştirin.',
     'edit' => 'Kullanıcıyı düzenle',
     'updated' => 'Kullanıcı güncellendi.',
     'email_fixed' => 'E-posta adresi değiştirilemez.',

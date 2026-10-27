@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Calendar\CreateCalendarEvent;
 use App\Actions\Charges\CancelCharge;
 use App\Actions\Contacts\CreateContact;
 use App\Actions\Customers\ArchiveCustomer;
@@ -13,6 +14,7 @@ use App\Actions\Payments\RecordPayment;
 use App\Actions\Tasks\CompleteTask;
 use App\Actions\Tasks\CreateTask;
 use App\Enums\Currency;
+use App\Enums\EventRepeat;
 use App\Enums\ServiceType;
 use App\Models\CatalogService;
 use App\Models\Charge;
@@ -61,6 +63,7 @@ class SampleDataSeeder extends Seeder
         private ArchiveCustomer $archiveCustomer,
         private CreateTask $createTask,
         private CompleteTask $completeTask,
+        private CreateCalendarEvent $createCalendarEvent,
     ) {}
 
     public function run(): void
@@ -86,6 +89,7 @@ class SampleDataSeeder extends Seeder
             $this->seedKayaMatbaa();
             $this->seedGunesTekstil();
             $this->seedTasks();
+            $this->seedCalendarEvents();
         } finally {
             Carbon::setTestNow($previousTestNow);
         }
@@ -112,6 +116,45 @@ class SampleDataSeeder extends Seeder
 
         $done = $this->task($user, 'Alan adı yönlendirmesini düzelt', $logi, $this->today->subDays(4));
         $this->completeTask->handle($user, $done);
+    }
+
+    /**
+     * A few calendar events around today (timed, all-day, weekly), all created by the first user; nothing is made while
+     * there is no user yet.
+     */
+    private function seedCalendarEvents(): void
+    {
+        $user = User::query()->orderBy('id')->first();
+
+        if ($user === null) {
+            return;
+        }
+
+        $logi = Customer::query()->where('short_name', 'Logi')->firstOrFail();
+        $yildiz = Customer::query()->where('short_name', 'Yıldız Mobilya')->firstOrFail();
+
+        $this->createCalendarEvent->handle($user, [
+            'title' => 'Logi toplantısı',
+            'starts_on' => $this->today,
+            'start_time' => '14:00',
+            'end_time' => '15:00',
+            'customer_id' => $logi->id,
+            'location' => 'Ofis',
+            'remind_minutes' => 30,
+        ]);
+        $this->createCalendarEvent->handle($user, [
+            'title' => 'Yıldız Mobilya sunum günü',
+            'starts_on' => $this->today->addDays(2),
+            'all_day' => true,
+            'customer_id' => $yildiz->id,
+        ]);
+        $this->createCalendarEvent->handle($user, [
+            'title' => 'Haftalık ekip toplantısı',
+            'starts_on' => $this->today->startOfWeek(),
+            'start_time' => '10:00',
+            'end_time' => '10:30',
+            'repeat' => EventRepeat::Weekly,
+        ]);
     }
 
     private function task(User $user, string $title, ?Customer $customer, ?CarbonImmutable $dueDate, ?string $notes = null): Task

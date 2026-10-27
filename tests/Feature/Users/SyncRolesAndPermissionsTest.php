@@ -29,7 +29,27 @@ it('gives each role the permissions of its enum mapping', function () {
     expect(RoleModel::findByName('admin')->permissions->pluck('name')->sort()->values()->all())
         ->toBe(collect(Permission::cases())->map->value->sort()->values()->all())
         ->and(RoleModel::findByName('developer')->permissions->pluck('name')->sort()->values()->all())
-        ->toBe(['customers.manage', 'services.view', 'tasks.manage']);
+        ->toBe(['calendar.manage', 'customers.manage', 'services.view', 'tasks.manage']);
+});
+
+it('gives calendar.manage to the existing developer role once when the permission is new, and never takes it back', function () {
+    app(SyncRolesAndPermissions::class)->handle();
+
+    $developer = RoleModel::findByName('developer');
+    $developer->revokePermissionTo(Permission::CalendarManage->value);
+    PermissionModel::findByName(Permission::CalendarManage->value)->delete();
+
+    app(SyncRolesAndPermissions::class)->handle();
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect($developer->fresh()->hasPermissionTo(Permission::CalendarManage->value))->toBeTrue()
+        ->and(PermissionModel::where('name', Permission::CalendarManage->value)->count())->toBe(1);
+
+    $developer->revokePermissionTo(Permission::CalendarManage->value);
+
+    app(SyncRolesAndPermissions::class)->handle();
+
+    expect($developer->fresh()->hasPermissionTo(Permission::CalendarManage->value))->toBeFalse();
 });
 
 it('gives a permission added later to the existing developer role once, and never takes it back', function () {
