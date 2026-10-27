@@ -557,6 +557,65 @@ Karar (kullanıcı, U-32): ödeme kısayolları, güçlü arama ve akış kısal
 
 **Faz 14 bittiğinde:** Ödeme almak, müşteri bulmak ve iş girmek daha az yazma ve tıkla yapılıyor; hiçbir yeni iş kuralı eklenmedi.
 
+## Faz 15 – Takvim
+
+Karar (kullanıcı, U-38): gün/hafta/ay/liste görünümlü Takvim sayfası; elle girilen etkinlikler, sistemdeki tarihler ve kayda geçen olaylar tek ekranda. Tasarım: [takvim taslağı](https://claude.ai/artifact/S3s1gtvjgj87edJ1p4Qtqq); uygulama taslağın birebir aynısıdır. Her görev ayrı oturumda yapılır.
+
+- [x] **G-15.0 Dokümanlar** — Bağımlılık: G-14.5
+  - Yapıldı: PRD "Takvim (Faz 15)" ve yetki satırı, DATA_MODEL takvim tabloları, UI.md (menü 8 öğe, sekmeler, Takvim ve Etkinlik penceresi ekran kuralları, kahverengi kare, hedef tıklar), DECISIONS U-38, bu faz.
+- [ ] **G-15.1 Veri katmanı ve Action'lar** — Bağımlılık: G-15.0
+  - Yapılacak: `calendar_events`, `calendar_event_user`, `calendar_event_reminders` migration'ları; `CalendarEvent` modeli/factory/örnek veri; `EventRepeat` enum'u; `Permission::CalendarManage` (Yazılımcı varsayılanında açık, `SyncRolesAndPermissions` mevcut yerleşik role bir kez verir, T-167); `CreateCalendarEvent`/`UpdateCalendarEvent`/`DeleteCalendarEvent` (açık `User $actor`); `CalendarEventInviteMail` (senkron); müşteri ve kullanıcı silme kurallarına etkinlik.
+  - Kabul: Bitiş başlangıçtan önce olamaz; tüm günde saat alanları boş kalır; pasif kullanıcı katılan olamaz; kendini ekleyene e-posta gitmez, e-posta hatası kaydı geri almaz; etkinliği olan müşteri ve kullanıcı silinmez; yeni izin mevcut Yazılımcı'ya bir kez verilir, sonradan kaldırılırsa geri gelmez, sync iki kez çalışınca kayıt artmaz (testli).
+- [ ] **G-15.2 Takvim birleştiricisi** — Bağımlılık: G-15.1
+  - Yapılacak: `ListCalendarEntries` Action'ı ve `CalendarEntry` DTO'su, `CalendarCategory` enum'u: görünür aralık, kullanıcı, kategori süzgeci ve "Yalnız benimkiler" alır; etkinlikler (tekrarlar aralıkta açılır), hizmet bitişi, açık borç vadesi, teklif geçerlilik sonu, açık iş bitişi, ödeme, teklif gönderimi ve iş bitti kayıtlarını kaynak başına tek sorguyla listeler.
+  - Kabul: Europe/Istanbul gün sınırları (`travelTo`); haftalık ve aylık tekrar (ayın 31'i, kısa aylar); `repeat_until` sonrası tekrar yok; `money.view` yoksa vade, ödeme ve teklif tablolarına sorgu çalışmaz; sorgu sayısı kayıt sayısıyla artmaz (testli).
+- [ ] **G-15.3 Takvim sayfası** — Bağımlılık: G-15.2
+  - Yapılacak: `/calendar` (Hafta, Gün, Ay, Liste; adreste görünüm/tarih/süzgeç), `calendar.css`, `--mt-nav-brown`, menüde 3. sıra ve yeni dar ekran sekmeleri, `lang/tr/calendar.php`, kayda tıklayınca ilgili pencere. Görünüm taslağın 1, 2, 3 ve 5 numaralı panolarıyla aynıdır.
+  - Kabul: Görünüm ve tarih adresten okunur; süzgeç ve "Yalnız benimkiler" çalışır; yazılımcı tutar, vade, ödeme ve teklif görmez; menü 8 öğe, sekme çubuğu yeni sırada; yeni token kontrastı ölçülür; simgesiz düğme ve etiketsiz ok yok (testli); açık ve koyu temada taslakla görsel karşılaştırma (kullanıcı).
+- [ ] **G-15.4 Etkinlik penceresi** — Bağımlılık: G-15.3
+  - Yapılacak: `EditCalendarEvent` penceresi (`calendar.manage`), 15 dakikalık `x-ui.time-input`, süre hapları, "Tüm gün", katılanlar, hatırlatma, tekrar; ayrıntı panelinde Düzenle · Müşteri kartı · Sil (onaylı `delete-calendar-event`).
+  - Kabul: Pencere izni her istekte denetlenir; varsayılan tarih/saat (tıklanan dilim ya da sonraki tam saat); hap hesapları; tüm gün saatleri gizler ve boşaltır; tekrarlayan etkinlikte düzenleme bütün seriye uygulanır (testli).
+- [ ] **G-15.5 Hatırlatmalar** — Bağımlılık: G-15.1
+  - Yapılacak: `SendEventReminders` Action'ı ve `app:send-event-reminders` komutu; `routes/console.php`'de her dakika, `withoutOverlapping`, bekleyen yayında atlanır; `CalendarEventReminderMail`.
+  - Kabul: İki çalışma iki e-posta göndermez; 15 dakika gecikmeli çalışma yine gönderir; başlangıcı geçmiş etkinliğe gönderim olmaz; haftalık seride her hafta ayrı gönderilir (testli, `travelTo`).
+- [ ] **G-15.6 Müşteri kartında etkinlikler** — Bağımlılık: G-15.4
+  - Yapılacak: Kartta "Yaklaşan etkinlikler" (en çok 5), "Etkinlik ekle" (müşteri dolu), "Takvimde gör".
+  - Kabul: Geçmiş etkinlik görünmez; sorgu artışı tek sorgu (testli).
+
+**Faz 15 bittiğinde:** Etkinlikler gün gün, saat saat takvime girilir; vadeler, bitişler, ödemeler ve işler aynı ekranda görünür; hatırlatma e-postayla gelir.
+
+## Faz 16 – Alan adı ve site araçları
+
+Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kontroller; menüde ayrı sayfa yok. Mevcut `CheckCloudflareDomains`/`NameserverLookup` kalıbı kullanılır, yeni Composer paketi eklenmez. Her görev ayrı oturumda yapılır.
+
+- [x] **G-16.0 Dokümanlar** — Bağımlılık: G-15.0
+  - Yapıldı (G-15.0 ile birlikte): PRD "Alan adı ve site araçları (Faz 16)", DATA_MODEL önbellek alanları ve `site_incidents`, UI.md (kontrol penceresi, arama satırı, Bugün bölümleri), DECISIONS U-39, bu faz.
+- [ ] **G-16.1 Ortak sorgu katmanı** — Bağımlılık: G-16.0
+  - Yapılacak: `DnsLookup`, `TlsCertificateLookup`, `HttpProbe`, `RegistrationLookup` (RDAP + `.tr` TRABİS); hepsi okunamazsa `null` döner, testte sahte sürüm bağlanır.
+  - Kabul: Her sorgu okunamayınca istisna atmaz; ayrıştırıcılar sahte yanıtla doğrulanır (testli).
+- [ ] **G-16.2 Alan adı kontrol penceresi** — Bağımlılık: G-16.1, G-15.3
+  - Yapılacak: `CheckDomain` penceresi (DNS sekmesi canlı), Ctrl+K satırı, Alan adları kartında "Kontrol et".
+  - Kabul: Geçersiz alan adı reddedilir; okunamayan sorgu "Okunamadı" yazar; yazılımcı açabilir (testli).
+- [ ] **G-16.3 SSL denetleyici** — Bağımlılık: G-16.2
+  - Yapılacak: `ssl_expires_at`/`ssl_checked_at`, `CheckSslCertificates` + `app:check-ssl` (günde bir, süre bütçeli), Bugün'de "SSL 14 gün içinde bitiyor", takvimde amber uyarı.
+  - Kabul: İdempotent; yarıda kalan iş sonraki çalışmada tamamlanır; alan adı değişince alanlar boşalır (testli).
+- [ ] **G-16.4 WHOIS** — Bağımlılık: G-16.2
+  - Yapılacak: `registration_*` alanları, penceredeki WHOIS sekmesi, hizmet bitişiyle 7 günden fazla fark uyarısı.
+  - Kabul: RDAP ve `.tr` yanıtları sahte veriyle ayrıştırılır; fark uyarısı doğru çıkar (testli).
+- [ ] **G-16.5 Hosting–alan adı eşleşme denetimi** — Bağımlılık: G-16.2
+  - Yapılacak: `points_to_server`/`points_checked_at`, kontrol Action'ı ve komutu, Bugün'de "Başka yere taşınmış görünen hostingler".
+  - Kabul: Cloudflare'de sonuç bilinmiyor kalır; sunucusuz kalem atlanır; idempotent (testli).
+- [ ] **G-16.6 Site taraması ve olay kaydı** — Bağımlılık: G-16.2, G-15.2
+  - Yapılacak: `site_incidents`, `site_failures`/`site_checked_at`, `ProbeSites` + `app:probe-sites` (15 dakikada bir), Bugün'de "Kapalı siteler", günlük özete bölüm, takvimde kırmızı "kapandı" ve yeşil "açıldı" kayıtları.
+  - Kabul: Tek hata olay açmaz; açık olay ikinci kez açılmaz; kapanış süresi doğru; özet e-postasında görünür (testli).
+- [ ] **G-16.7 SPF / DKIM / DMARC** — Bağımlılık: G-16.2
+  - Yapılacak: Penceredeki E-posta sekmesi; eksik veya hatalı her kayıt için Türkçe çözüm cümlesi.
+  - Kabul: Üç kaydın her durumu (var, yok, hatalı) doğru raporlanır (testli).
+- [ ] **K-16.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-16.3
+  - Yapılacak: Canlı sunucuda `dns_get_record`, dışarı 443 ve port 43 (TRABİS) bağlantılarının çalıştığını doğrula; kapalıysa `.tr` WHOIS boş kalır.
+
+**Faz 16 bittiğinde:** Bir alan adı yazılınca durumu tek pencerede görülür; kapanan site, biten sertifika ve taşınmış hosting kendiliğinden Bugün'e düşer.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

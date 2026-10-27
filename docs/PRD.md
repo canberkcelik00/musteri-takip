@@ -276,6 +276,7 @@ Uygulamayı 1 yönetici ve 2-3 yazılımcı kullanır. İki yerleşik rol vardı
 | Kullanıcılar (davet, rol, pasifleştirme) | Evet | Hayır |
 | İşler: oluşturma, atama, bitirme (Faz 13) | Evet | Evet |
 | Bugün sayfası | Evet, tamamı | Evet, parasız: yalnız bana atanan işler ve kota uyarıları |
+| Takvim: etkinlik ekleme ve görme (Faz 15) | Evet | Evet, parasız: borç vadesi, ödeme ve teklif kayıtları görünmez |
 
 **Kurallar**
 
@@ -306,6 +307,37 @@ Müşteri talepleri ve ekip içi yapılacaklar WhatsApp'ta kaybolmasın diye tek
 - **Görünüm:** İşler ekranı (varsayılan: bana atanan, açık), müşteri kartında "İşler" bölümü ve Bugün'de "Bana atanan işler" bölümü. Süzgeçler: kişi (Bana atanan / Herkes), durum (Açık / Bitti), müşteri, gecikmiş.
 - **Bugün herkesin açılış sayfasıdır:** Dört sayı, borç satırları ve ücretsiz kararlar `money.view`; kota uyarıları `services.view`; "Bana atanan işler" `tasks.manage` ister. İzni olmayan bölümün verisi hiç okunmaz. Zamanlayıcı uyarısı `settings.manage` ister.
 - Özet e-postası (günlük özet) işleri içermez.
+
+## Takvim (Faz 15)
+
+Gün, hafta ve ay görünümlü tek bir takvim sayfası vardır. Tasarım: [takvim taslağı](https://claude.ai/artifact/S3s1gtvjgj87edJ1p4Qtqq); uygulama taslağın birebir aynısıdır. Takvim **üç kaynağı** tek ekranda birleştirir; yalnız birincisi yeni bir kayıttır.
+
+1. **Elle girilen etkinlikler** (`calendar_events`): toplantı, arama, teslim. Saatli ya da tüm gün. Alanlar: başlık (zorunlu), tarih (zorunlu), başlangıç ve bitiş saati (tüm günde boş), müşteri (isteğe bağlı), yer, katılanlar (kullanıcılar), hatırlatma, tekrar, not.
+2. **Sistemdeki tarihler** (saklanmaz, hesaplanır; tüm gün olarak görünür): hizmet ve alan adı bitişi, açık borç vadesi, gönderilmiş teklifin geçerlilik sonu, açık işin bitiş tarihi. Tıklayınca kaydın kendi penceresi açılır; takvimden değiştirilmez.
+3. **Kayda geçen olaylar** (geçmiş, değiştirilemez): ödeme alındı (`payments.created_at`), teklif gönderildi (`quotes.sent_at`), iş bitirildi (`tasks.completed_at`) ve Faz 16'dan site kapandı / açıldı ile SSL / alan adı süresi yaklaşıyor uyarıları.
+
+**Kurallar**
+
+- **Yetki:** Herkes takvimi görür ve etkinlik ekler, düzenler, siler (`calendar.manage`, iki rolde varsayılan açık; sayfanın kendisi izin istemez). Yazılımcı para kayıtlarını (borç vadesi, ödeme, teklif) takvimde de görmez; bu kaynakların verisi hiç okunmaz.
+- **Saatler** Europe/Istanbul; tarih gg.aa.yyyy, saat 24 saatlik. Bitiş, başlangıçtan önce olamaz. Tüm gün etkinlikte saat alanları boştur.
+- **Tekrar:** Tekrarlamaz · Her hafta · Her ay; bitiş tarihi isteğe bağlı. Tekrarlar saklanmaz, görünür aralık için açılır. Ayın 29-31'inde başlayan aylık etkinlik kısa aylarda ayın son günü görünür. Düzenleme ve silme bütün seriye uygulanır; tek bir tekrar ayrı düzenlenmez.
+- **Katılanlar:** Etkin kullanıcılar eklenebilir. Katılan kişiye senkron davet e-postası gider; kişi kendini eklediğinde gitmez; gönderilemezse etkinlik yine kaydedilir ve uyarı gösterilir. Etkinlik katılanın takviminde de görünür.
+- **Hatırlatma:** Başlangıçtan önce seçilen süre (15 dk, 30 dk, 1 saat, 1 gün) e-postayla bildirilir. Zamanlanmış iş en sık 15 dakikada bir çalışır; e-posta en çok 15 dakika geç gelir, her tekrar için bir kez gider, başlangıcı geçmiş etkinliğe gitmez. Hatırlatma tüm katılanlara ve etkinliği oluşturana gider.
+- **Müşteriye bağlı etkinlik** müşteri kartında da listelenir. Etkinliği olan müşteri silinmez, arşivlenir; etkinliği oluşturan kullanıcı silinmez, pasifleştirilir.
+- **Süzgeç:** Kategori çipleri (Etkinlikler, İşler, Hizmet bitişleri, Borç vadeleri, Ödemeler, Teklifler, Uyarılar) ve "Yalnız benimkiler" (oluşturduğum, katıldığım etkinlikler ve bana atanan işler).
+- **Kapsam dışı:** dış takvimlerle (Google, Outlook) eşitleme, davetliden yanıt (kabul/red), tek tekrarı ayrı düzenleme, kaynak ve oda yönetimi.
+
+## Alan adı ve site araçları (Faz 16)
+
+Küçük, tek amaçlı kontroller; müşteri hizmetlerinin alan adları üzerinde çalışır ve panelden tıklanarak kullanılır. Menüde ayrı sayfaları yoktur: Ctrl+K'ya alan adı yazınca "Alan adını kontrol et" satırı, müşteri kartındaki alan adı satırında "Kontrol et" bulunur ve ikisi de aynı pencereyi açar (sekmeler: DNS · SSL · WHOIS · E-posta). `services.view` izni gerekir (yazılımcı kullanır).
+
+- **DNS:** A, AAAA, MX, NS, TXT ve CNAME kayıtları anlık sorulur, saklanmaz.
+- **SSL denetleyici:** Sertifikanın bitiş tarihi günde bir arka planda okunur ve saklanır; 14 gün içinde bitenler Bugün'de ve takvimde uyarı olur.
+- **WHOIS:** Alan adının kayıt bitiş tarihi ve kayıt şirketi RDAP ile (`.tr` için TRABİS WHOIS ile) okunur ve saklanır; hizmetin bitiş tarihiyle 7 günden fazla fark varsa uyarı satırı gösterilir. Okunamayan sorgu "Okunamadı" yazar, hata olarak ele alınmaz.
+- **Hosting–alan adı eşleşmesi:** Hosting kaleminin alan adının A kaydı, bağlı sunucunun IP adresleriyle karşılaştırılır; eşleşmeyenler Bugün'de "Başka yere taşınmış görünen hostingler" bölümünde (`services.view`) çıkar. Cloudflare'e bağlı alan adlarında sonuç "bilinmiyor" kalır, yanlış alarm verilmez.
+- **Site taraması ve olay kaydı:** Aktif hosting alan adlarına 15 dakikada bir HTTP isteği atılır. Ardışık 2 hata "site kapandı" olayını açar; ilk başarılı yanıt olayı kapatır ("açıldı", süre hesaplanır). Anında e-posta gitmez; olay Bugün'de "Kapalı siteler" bölümünde, takvimde ve günlük özet e-postasında görünür.
+- **E-posta kayıtları:** SPF, DKIM (`default._domainkey`, cPanel varsayılanı) ve DMARC kayıtları denetlenir; eksik ya da hatalı her kayıt için tek cümlelik Türkçe çözüm önerisi verilir.
+- **Kurallar:** Dış sorgu zaman aşımına uğrarsa ya da okunamazsa sonuç "bilinmiyor" olur; hiçbir kontrol borç, hizmet veya ödeme kaydını değiştirmez. Arka plan işleri idempotenttir ve süre bütçelidir (yapılmamış olanı sonraki çalışmada yapar). Yeni Composer paketi eklenmez.
 
 ## Veri modeli
 

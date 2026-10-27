@@ -42,21 +42,22 @@ Araştırmadan (başta Nielsen Norman Group'un uygulama tasarımı bulguları) b
 
 ## 3. Bilgi mimarisi (menü)
 
-Menü en fazla yedi ana öğe taşır ve sıklık sırasıyla dizilir (Faz 13'te "altı" sınırı kullanıcı kararıyla yediye çıktı, U-26).
+Menü en fazla sekiz ana öğe taşır ve sıklık sırasıyla dizilir (Faz 13'te "altı" sınırı kullanıcı kararıyla yediye, Faz 15'te Takvim için sekize çıktı, U-26, U-38).
 
 | Sıra | Öğe | İçerik |
 | --- | --- | --- |
 | 1 | **Bugün** | Açılış sayfası: yapılacaklar ve özet sayılar |
 | 2 | **Müşteriler** | Liste ve kartlar |
-| 3 | **İşler** | İş listesi (Faz 13, U-26) |
-| 4 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
-| 5 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
-| 6 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
-| 7 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar, Roller (en altta; Faz 12, yalnız yönetici; kullanıcı satırından ad/rol düzenleme ve silme, rol satırından yetki kutuları penceresi açılır) |
+| 3 | **Takvim** | Gün, hafta, ay ve liste görünümü; etkinlikler ve sistem tarihleri (Faz 15, U-38) |
+| 4 | **İşler** | İş listesi (Faz 13, U-26) |
+| 5 | **Teklifler** | Teklif listesi (Faz 6, U-23) |
+| 6 | **Tahsilat** | "Açık borçlar" ve "Ödemeler" aynı grupta |
+| 7 | **Katalog** | Hizmetler, Paketler (grup, kapalı başlar) |
+| 8 | **Ayarlar** | Genel ayarlar, Ödeme yöntemleri, Sunucular (Faz 8), Kullanıcılar, Roller (en altta; Faz 12, yalnız yönetici; kullanıcı satırından ad/rol düzenleme ve silme, rol satırından yetki kutuları penceresi açılır) |
 
-**Yazılımcının menüsü (Faz 12, T-157; Faz 13'te genişledi, U-26):** **Bugün**, **Müşteriler** ve **İşler** görünür. Teklifler, Tahsilat, Katalog ve Ayarlar menüde yoktur; adresle açılırsa 403 verir. `/` herkesin açılış sayfasıdır (yazılımcı artık yönlendirilmez); yazılımcının Bugün'ünde para yoktur (aşağıda "Bugün"). Alt sekme çubuğu: Bugün · Müşteriler · İşler · Menü. Yöneticinin alt sekme çubuğu (aşağıdaki dar ekran kuralı): Bugün · Müşteriler · İşler · Borçlar · Menü. Üst çubukta "Ödeme al" gösterilmez; "Yeni müşteri" kalır. Müşteri kartında tutar, borç, ödeme ve teklif içeren hiçbir alan görünmez; hizmetler ad, alan adı, sunucu ve bitiş tarihiyle fiyatsız listelenir. Müşteri listesinde açık borç/bakiye sütunu gizlidir.
+**Yazılımcının menüsü (Faz 12, T-157; Faz 13'te genişledi, U-26; Faz 15'te Takvim eklendi, U-38):** **Bugün**, **Müşteriler**, **Takvim** ve **İşler** görünür. Teklifler, Tahsilat, Katalog ve Ayarlar menüde yoktur; adresle açılırsa 403 verir. `/` herkesin açılış sayfasıdır (yazılımcı artık yönlendirilmez); yazılımcının Bugün'ünde para yoktur (aşağıda "Bugün"). Alt sekme çubuğu herkeste aynıdır (Faz 15): Bugün · Müşteriler · Takvim · İşler · Menü (aşağıdaki dar ekran kuralı); yöneticinin eski "Borçlar" sekmesi kalktı, Açık borçlar "Menü"den açılır. Üst çubukta "Ödeme al" gösterilmez; "Yeni müşteri" kalır. Müşteri kartında tutar, borç, ödeme ve teklif içeren hiçbir alan görünmez; hizmetler ad, alan adı, sunucu ve bitiş tarihiyle fiyatsız listelenir. Müşteri listesinde açık borç/bakiye sütunu gizlidir.
 
-**Dar ekranda (`lg` altında):** Kenar menünün yerine altta sekme çubuğu durur: Bugün · Müşteriler · İşler · Açık borçlar · Menü ("Menü" tam menüyü kayan panelde açar). Aktif sekme vurgulu mavidir (T-130).
+**Dar ekranda (`lg` altında):** Kenar menünün yerine altta sekme çubuğu durur: Bugün · Müşteriler · Takvim · İşler · Menü ("Menü" tam menüyü kayan panelde açar; Faz 15'te "Açık borçlar" sekmesi kalktı). Aktif sekme vurgulu mavidir (T-130).
 
 **Üst çubuk (her sayfada aynı yerde):**
 
@@ -128,6 +129,36 @@ Menü en fazla yedi ana öğe taşır ve sıklık sırasıyla dizilir (Faz 13'te
 - **İş penceresi:** Başlık, Müşteri (aranabilir, arşivsizler; müşteri kartından açılınca dolu), Atanan (etkin kullanıcılar, varsayılan oturumdaki kişi), Bitiş tarihi, Not. Mevcut işte altta adlandırılmış bölüm: "… tarafından oluşturuldu / bitirildi", "Bitti" / "Yeniden aç" ve ayrı, kırmızı, onaylı "Sil". Atama başkasınaysa e-posta gider; gönderilemezse iş kaydedilir ve uyarı gösterilir.
 - **Tarih hapları (Faz 14, U-32):** Bitiş tarihi alanının altında "Bugün · Yarın · Haftaya" hapları (Haftaya = bugünden 7 gün sonra); tıklanınca alan dolar.
 - **Müşteri kartında "İşler" bölümü:** Sağ sütunda İlgili kişiler'in üstünde, `tasks.manage` olana görünür. Müşterinin açık işleri (en çok 5; başlık, atanan, bitiş rozeti, "Bitti"), başlıkta ikincil "İş ekle" (müşteri dolu gelir), altta "Tümü ve bitenler" bağlantısı (İşler ekranını müşteriye ve Herkes'e süzer).
+
+### Takvim (Faz 15, U-38)
+
+Referans: [takvim taslağı](https://claude.ai/artifact/S3s1gtvjgj87edJ1p4Qtqq); uygulama taslağın birebir aynısıdır, ölçü ve dizilim oradan alınır.
+
+- **Üst:** Başlık "Takvim", altında tarih aralığı ("26 Ekim – 1 Kasım 2026", ayda "Ekim 2026"); sağda Önceki · **Bugün** · Sonraki, bölümlü denetim **Gün · Hafta · Ay · Liste** ve dolu mavi **"Etkinlik ekle"**. Taslakta bu düğme birincil çizildiği için birincil düğme kuralının (§4) bilinçli bir istisnasıdır (U-38): Takvim'de sayfanın ana işi birincil görünür, üst çubuktaki "Ödeme al" yerinde kalır. Ok düğmelerinin erişilebilir adı vardır ("Önceki hafta" vb.).
+- **Süzgeç çipleri:** Etkinlikler (mavi), İşler (pembe), Hizmet bitişleri (çivit), Borç vadeleri (mor), Ödemeler (yeşil), Teklifler (turuncu), Uyarılar (kırmızı) ve "Yalnız benimkiler". Hepsi açık başlar, çipe tıklamak kategoriyi kapatır. Yazılımcıda Borç vadeleri, Ödemeler ve Teklifler çipi yoktur.
+- **Hafta:** Gün başlıkları (bugün mavi daire), "Tüm gün" satırı (sistem tarihleri ve tüm gün etkinlikler), 00:00–24:00 saat ızgarası; açılışta 08:00 görünür, satır 52 px. "Şu an" çizgisi kırmızı ve yalnız bugünün sütunundadır. Hafta sonu sütunları soluk gölgeli. Boş saat dilimine tıklamak o saatle dolu "Etkinlik ekle" penceresini açar.
+- **Gün:** Sol geniş saat ızgarası, sağ dar sütun: küçük ay takvimi, seçili etkinliğin ayrıntısı (Müşteri, Yer, Katılanlar, Hatırlatma, Not; **Düzenle · Müşteri kartı · Sil**; Sil kırmızı, ayrı ve onaylı) ve "Bugün kayda geçenler" listesi (ödeme, teklif gönderimi, iş bitti, site kapandı/açıldı; saatiyle).
+- **Ay:** Pazartesi başlar; günde en çok 3 satır, fazlası "+N daha" (tıklayınca o günün Gün görünümü). Önceki/sonraki ayın günleri soluk; bugün mavi daire.
+- **Liste:** Telefon panosundaki gün gün liste: gün başlığı ("Bugün · Salı 27 Ekim", "Yarın · …"), her satırda saat ("Tüm gün" ya da başlangıç/bitiş), sol kenarda kategori renginde 4 px çubuk, başlık ve altında soluk ayrıntı. Dar ekranda (`md` altı) varsayılan görünüm Liste'dir; üstte 7 günlük şerit (bugün mavi daire, olayı olan günün altında nokta).
+- **Kategori rengi** menü karesinin rengidir; sistem tarihleri soluk dolgulu şerit (çivit, mor, turuncu, pembe), saatli etkinlik ve kayda geçen olaylar renkli nokta + saat + başlık. Uyarılarda durum renkleri: site kapandı kırmızı, SSL/alan adı yaklaşıyor amber (rozet tokenları).
+- **Tıklamak:** Etkinlik ayrıntıyı açar (Düzenle ayrıntıdadır). Sistem kaydı kendi penceresini açar: iş `EditTask`, ödeme ödeme ayrıntısı, teklif teklif penceresi, borç ödeme alma; hizmet bitişi müşteri kartına gider. Sistem kayıtları takvimden değiştirilmez.
+- **Adres:** Görünüm, tarih, kategori süzgeci ve "Yalnız benimkiler" adreste tutulur; yenileyince ya da bağlantı paylaşılınca aynı görünüm gelir.
+- Boş gün/aralık: Liste'de "Bu aralıkta kayıt yok".
+
+### Etkinlik penceresi (Faz 15, U-38)
+
+- 640 px form penceresi (§6); başlık "Etkinlik ekle" / "Etkinliği düzenle", sağ üstte "Kapat"; altta "Vazgeç" ve birincil "Kaydet".
+- **Alanlar sırayla:** Başlık; Tarih · Başlangıç · Bitiş (üç sütun); süre hapları **30 dk · 1 saat · 2 saat** (bitişi başlangıçtan hesaplar, seçili hap mavi) ve sağda **"Tüm gün"** anahtarı (açılınca saat alanları ve haplar gizlenir); Müşteri (aranabilir, isteğe bağlı; altında "İsteğe bağlı; seçilirse müşteri kartında da görünür.") · Yer; Katılanlar (ad jetonları, "Kişi ekle…", × ile çıkarma; altında "Katılanlar e-posta alır ve etkinliği kendi takviminde görür."); Hatırlatma · Tekrar (iki seçim kutusu); Not.
+- **Varsayılanlar:** Tıklanan saat dilimi ya da bir sonraki tam saat; süre 1 saat; hatırlatma "30 dakika önce · e-posta"; tekrar "Tekrarlamaz"; katılan olarak oturumdaki kişi. Saat girişi 15 dakikalık adımlıdır.
+- **Tekrarlayan etkinlikte** düzenleme ve silme bütün seriye uygulanır; pencerede bu bir cümleyle belirtilir.
+- Etkinlik penceresinde Sil yoktur; silme ayrıntı panelinden onayla yapılır.
+- **Müşteri kartında "Yaklaşan etkinlikler"** (G-15.6): sağ sütunda İşler'in altında; en çok 5 (tarih, saat, başlık), başlıkta ikincil "Etkinlik ekle" (müşteri dolu gelir), altta "Takvimde gör".
+
+### Alan adı kontrol penceresi (Faz 16, U-39)
+
+- **Açılış yerleri:** Ctrl+K'ya alan adına benzeyen terim yazılınca sonuçların başında "Alan adını kontrol et: logi.com.tr" satırı; müşteri kartındaki Alan adları kartında her satırda ikincil, metinli "Kontrol et". Menüde ayrı sayfa yoktur.
+- **Pencere:** 640 px; başlıkta alan adı; iOS bölümlü denetim **DNS · SSL · WHOIS · E-posta**. Her sekme okunamayan sorguda "Okunamadı" yazar (kırmızı hata değil). WHOIS'te hizmet bitişiyle 7 günden fazla fark varsa amber uyarı satırı; E-posta sekmesinde her eksik kayıt için tek cümlelik çözüm.
+- **Bugün'e eklenen bölümler** (yalnız ilgili izinle; sorun yokken görünmez): "Kapalı siteler" (site adı, ne zamandır kapalı), "SSL 14 gün içinde bitiyor", "Başka yere taşınmış görünen hostingler"; hepsinde satıra tıklamak müşteri kartını açar.
 
 ### Ödeme penceresi ve bildirim (Faz 14, U-32)
 
@@ -203,7 +234,7 @@ Metin tokenları cam dolgunun (üç dolgu) beş zemin renginin her biri üstünd
 
 - **Tema:** Açık tema varsayılan; koyu tema kullanıcı menüsünden seçilebilir. Koyu tema gerçek siyah zeminli, #1C1C1E kartlıdır.
 - **Renk:** Marka rengi #ff3800 yalnızca logo simgesinde; durum renkleriyle karışmaması için düğmede ve menüde kullanılmaz. Filament primary Apple mavisi: birincil düğme ve etkileşim öğeleri (bağlantı, onay kutusu); marka veya durum rengi değildir. Durum renkleri sabit ve başka işte kullanılmaz: kırmızı (danger) = gecikmiş/tehlikeli, turuncu (warning = Amber) = yaklaşan/kısmi, yeşil (success) = ödendi, gri (gray) = pasif/kapalı: iptal, arşiv, taslak teklif ve reddedilmiş teklif (U-24). Normal durum (vadesi uzak açık borç, bitişi uzak aktif hizmet) rozetsiz düz metindir; info kullanılmaz. "Yaklaşan": borçta 7 gün içinde vadesi gelen, hizmette ayarlardaki yenileme gün sayısı içinde bitecek; tanım modelde tek yerde durur. Yeşil anahtar (açık durum) iOS yeşilidir; ödendi rozetinin yeşilinden ayrı bir iştir ve yalnız anahtarda kullanılır.
-- **Menü:** Kenar menü sayfa zemini renginde, sağında ince çizgi. Her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi): Bugün mavi, Müşteriler çivit, İşler pembe, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri. Üzerine gelinen satır açık gri, seçili satır soluk beyaz dolgu ve kalın yazıdır (T-147; eski düz tasarımdaki mavi dolgu tarihçedir); seçili satırın karesi yarı saydam beyaz olur.
+- **Menü:** Kenar menü sayfa zemini renginde, sağında ince çizgi. Her öğenin solunda renkli yuvarlak köşeli kare ve içinde beyaz simge durur (iOS Ayarlar gibi): Bugün mavi, Müşteriler çivit, Takvim kahverengi (`--mt-nav-brown`; Faz 15), İşler pembe, Teklifler turuncu, Açık borçlar mor (kırmızı değil, gecikmiş rengiyle karışmasın), Ödemeler yeşil, Katalog deniz mavisi, Ayarlar gri. Üzerine gelinen satır açık gri, seçili satır soluk beyaz dolgu ve kalın yazıdır (T-147; eski düz tasarımdaki mavi dolgu tarihçedir); seçili satırın karesi yarı saydam beyaz olur.
 - **Simge işlemleri (Kural 5'in istisnası):** WhatsApp, ara, e-posta, siteyi aç ve kopyala yazısız, simgeli düğmedir; ipucu ve erişilebilir ad Türkçe, `lang/tr`'den gelir.
 - **Yazı tipi (T-148):** SF Pro web'de lisanslı değildir; yığın `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI'`: Apple cihazlarda SF, diğerlerinde paketlenmiş Inter. Arama alanında solda büyüteç, doluyken sağda yuvarlak temizle düğmesi; odak halkası 3 px yumuşak (`--mt-focus-ring`).
 - **Avatar:** Müşteri adının solunda, kısa adın iki baş harfi (Türkçe büyük harf) ve müşteriye sabit bir renk; süstür, ekran okuyucudan gizlidir.
@@ -275,6 +306,9 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Sunucunun bayi toplamını ve bütün hesaplarını görmek | 1 ("Kullanım" sütununa tıklamak) |
 | Katalogdaki hizmetten teklif hazırlayıp göndermek | 1 (Teklif oluştur) + alıcı + 1 (Kaydet) + 1 (Gönder) + 1 (Gönder penceresinde onay) |
 | Gönderilmiş teklifi kabul etmek | 1 (Kabul et) + 1 (pencerede onay; tarih ve kısa ad varsayılanlarla gelir) |
+| Takvime etkinlik girmek (Faz 15) | 1 (Etkinlik ekle) + başlık + 1 (Kaydet); boş saat dilimine tıklamak tarih ve saati doldurur |
+| Haftanın/günün programını görmek (Faz 15) | 1 (Takvim) |
+| Alan adının DNS/SSL/WHOIS durumuna bakmak (Faz 16) | `Ctrl+K` + alan adı + 1 |
 
 ## 8. Şu anki panelden farklar
 

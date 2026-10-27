@@ -289,7 +289,7 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | invited_at | timestamp | Hayır | Son davetin gönderildiği an; imzalı bağlantı bununla eşleşmezse geçersizdir |
 | deactivated_at | timestamp | Hayır | Dolu = pasif; para kaydında adı geçen kullanıcı silinmez (G-12.6), pasifleştirilir |
 
-**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`, `tasks.manage` (Faz 13)); rol-izin eşlemesi veritabanındadır (Roller ekranından yönetilir, T-165); `SyncRolesAndPermissions` izinleri ve yerleşik rolleri idempotent kurar. `roles.label` (nullable): yerleşik rolün yönetici tarafından verilen görünen adı; boşsa `enums.role.*` çevirisi gösterilir, `name` kodun bulduğu sabit ad olarak kalır (T-166).
+**Roller ve izinler:** `spatie/laravel-permission` tabloları (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`). Roller `Role` enum'u (`Admin`, `Developer`), izinler `Permission` enum'u (`money.view`, `money.manage`, `customers.manage`, `services.view`, `services.manage`, `quotes.manage`, `catalog.manage`, `settings.manage`, `users.manage`, `tasks.manage` (Faz 13), `calendar.manage` (Faz 15)); rol-izin eşlemesi veritabanındadır (Roller ekranından yönetilir, T-165); `SyncRolesAndPermissions` izinleri ve yerleşik rolleri idempotent kurar. `roles.label` (nullable): yerleşik rolün yönetici tarafından verilen görünen adı; boşsa `enums.role.*` çevirisi gösterilir, `name` kodun bulduğu sabit ad olarak kalır (T-166).
 
 **quotes** tablosuna `accepted_by` (FK users, nullable) eklenir: teklifi kabul eden; boş = sistem / önceki kayıt.
 
@@ -309,6 +309,51 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 | completed_at | timestamp | Hayır | Dolu = Bitti; durum saklanmaz |
 
 İndeksler: (`assigned_to`, `completed_at`) ve (`customer_id`, `completed_at`). Açık, gecikmiş ve "bugün" durumları `completed_at` ve `due_date`'ten hesaplanır. Liste sırası: bitiş tarihi olanlar tarih sırasıyla önce (gecikmişler en üstte), tarihsizler sonda.
+
+## Takvim (Faz 15)
+
+**calendar_events** (model `CalendarEvent`; `Event` adı Laravel'in Event sınıfıyla karışacağı için kullanılmaz)
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| title | string | Evet | En çok 255 karakter |
+| starts_on | date | Evet | Tekrarlayan etkinlikte serinin ilk günü |
+| start_time | time | Hayır | `all_day` doluyken boş |
+| end_time | time | Hayır | `start_time`'dan sonra olmalı |
+| all_day | boolean | Evet | Varsayılan yanlış |
+| customer_id | FK customers | Hayır | `restrictOnDelete`; müşteriye bağlı etkinliği olan müşteri silinmez, arşivlenir |
+| location | string | Hayır | |
+| notes | text | Hayır | |
+| remind_minutes | unsigned integer | Hayır | Başlangıçtan kaç dakika önce; boş = hatırlatma yok |
+| repeat | string (enum `EventRepeat`) | Evet | `none`, `weekly`, `monthly`; varsayılan `none` |
+| repeat_until | date | Hayır | Boş = süresiz; seri bu tarihten (dahil) sonra çıkmaz |
+| created_by | FK users | Evet | `restrictOnDelete`; etkinliği oluşturan kullanıcı silinmez, pasifleştirilir |
+
+İndeksler: (`starts_on`) ve (`customer_id`, `starts_on`). Görünür aralığa düşen tekrarlar saklanmaz, sorguda açılır.
+
+**calendar_event_user** (katılanlar): `calendar_event_id` (FK, cascade) + `user_id` (FK, `restrictOnDelete`), ikisi birlikte benzersiz.
+
+**calendar_event_reminders**: gönderilen hatırlatmaların kaydı. `calendar_event_id` (FK, cascade), `occurs_on` (date, hatırlatılan tekrarın günü), `sent_at` (timestamp); (`calendar_event_id`, `occurs_on`) benzersiz. Satır yoksa hatırlatma gönderilmemiştir; zamanlanmış iş gönderip satırı yazar, böylece iki çalışma iki e-posta üretmez.
+
+**Takvimin okuduğu diğer tablolar (yeni alan yok, hepsi hesaplanır):** `customer_service_items`/`customer_services` (bitiş), `charges` (açık borç vadesi), `quotes` (`valid_until`, `sent_at`), `tasks` (`due_date`, `completed_at`), `payments` (`created_at`), `site_incidents` (Faz 16).
+
+## Alan adı ve site araçları (Faz 16)
+
+**customer_service_items** tablosuna eklenenler (alan adı kaleminin son kontrol sonuçları; kalemin alan adı değişince hepsi boşaltılır, T-169 kalıbı):
+
+| Alan | Tür | Not |
+| --- | --- | --- |
+| ssl_expires_at | timestamp, boş olabilir | Sertifikanın bitişi; boş = okunamadı ya da HTTPS yok (G-16.3) |
+| ssl_checked_at | timestamp, boş olabilir | Son SSL denemesi; günde bir denenir |
+| registration_expires_at | date, boş olabilir | WHOIS/RDAP kayıt bitişi (G-16.4) |
+| registrar | string, boş olabilir | Kayıt şirketi |
+| registration_checked_at | timestamp, boş olabilir | Son WHOIS denemesi |
+| points_to_server | boolean, boş olabilir | A kaydı bağlı sunucunun IP'lerinden biri mi; boş = bilinmiyor (Cloudflare, sunucusuz, okunamadı) (G-16.5) |
+| points_checked_at | timestamp, boş olabilir | Son eşleşme denemesi |
+| site_failures | unsigned integer | Ardışık başarısız site yoklaması sayısı; varsayılan 0 (G-16.6) |
+| site_checked_at | timestamp, boş olabilir | Son site yoklaması |
+
+**site_incidents** (G-16.6): `customer_service_item_id` (FK, cascade), `domain` (string, olay anındaki alan adı), `started_at` (timestamp), `ended_at` (timestamp, boş = hâlâ kapalı), `reason` (string, boş olabilir; HTTP durumu ya da bağlantı hatası). Açık olay (`ended_at` boş) alan adı başına en çok bir tanedir. Olay silinmez; geçmiştir.
 
 ## Ayarlar
 
