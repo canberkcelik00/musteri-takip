@@ -139,7 +139,7 @@ it('gives each domain an "open the site" link and a copy button, and none to a v
         ->not->toContain('https://bad domain');
 });
 
-it('marks only the domains found on Cloudflare with a cloud sign', function () {
+it('marks only the domains found on Cloudflare with the Cloudflare logo', function () {
     $customer = Customer::factory()->create();
     $onCloudflare = uiCardService($customer, ['name' => 'Bulutta'], 'bulut.com.tr');
     $onCloudflare->items()->first()->forceFill(['is_cloudflare' => true])->save();
@@ -149,10 +149,11 @@ it('marks only the domains found on Cloudflare with a cloud sign', function () {
     $html = uiCard($customer)->html();
 
     expect(substr_count($html, 'class="ui-domain-badge"'))->toBe(1)
+        ->and(substr_count($html, 'M16.5088 16.8447'))->toBe(1)
         ->and($html)->toContain('aria-label="'.e(__('customer_services.on_cloudflare')).'"');
 });
 
-it('draws no cloud sign when the domains component gets no Cloudflare list', function () {
+it('draws no Cloudflare logo when the domains component gets no Cloudflare list', function () {
     $html = Blade::render('<x-ui.domains :domains="[\'logi.com.tr\']" />');
 
     expect($html)->not->toContain('ui-domain-badge');

@@ -143,7 +143,7 @@
 
 .ui-domain-badge {
     display: inline-flex;
-    width: 20px;
+    width: 22px;
     height: 20px;
     align-items: center;
     justify-content: center;
@@ -151,8 +151,8 @@
 }
 
 .ui-domain-badge svg {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
 }
 
 .ui-whatsapp {

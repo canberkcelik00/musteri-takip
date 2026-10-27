@@ -4,7 +4,7 @@
     A service's domains, each with two icon-only controls, "open the site" (new tab) and "copy" (docs/UI.md §2 Kural 5
     exception). Their names are the tooltip and the aria-label; a click on them does not open the row. A domain that is
     not a plain host name gets no "open" control, so a typed value can never become an odd address.
-    A domain in `cloudflare` gets a cloud mark after its name: a status sign, not a control (U-28).
+    A domain in `cloudflare` gets the Cloudflare logo after its name: a status sign, not a control (U-28).
 --}}
 @foreach ($domains as $domain)
     <span class="ui-domain" x-data="{ copied: false }">
@@ -14,7 +14,7 @@
                 class="ui-domain-badge"
                 role="img"
                 aria-label="{{ __('customer_services.on_cloudflare') }}"
-            ><x-heroicon-s-cloud aria-hidden="true" /></span></x-ui.tooltip>
+            ><x-ui.cloudflare-icon /></span></x-ui.tooltip>
         @endif
         @if (preg_match('/^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$/', $domain) === 1)
             <x-ui.tooltip :label="__('customer_services.open_site')"><a
