@@ -23,7 +23,7 @@ class BuildServiceCardSummaries
 
     /**
      * @param  Collection<int, CustomerService>  $services  with `items.server` loaded
-     * @return array<int, list<array{item: int, details: string|null, usage: array{read: bool, cells: array<string, string>, stale: string|null, domains: list<string>}|null, badge: array{text: string, tone: string}|null, suspended: bool}>> keyed by service id
+     * @return array<int, list<array{item: int, details: string|null, usage: string|null, badge: array{text: string, tone: string}|null, suspended: bool}>> keyed by service id
      */
     public function handle(Collection $services): array
     {
@@ -42,12 +42,7 @@ class BuildServiceCardSummaries
                 return [
                     'item' => $item->id,
                     'details' => $this->details($item),
-                    'usage' => $report === null ? null : [
-                        'read' => $report->hasData(),
-                        'cells' => $report->cardCells(),
-                        'stale' => $report->staleNote(),
-                        'domains' => $this->domains($item, $report),
-                    ],
+                    'usage' => $report?->cardSummary(),
                     'badge' => $badge === null ? null : ['text' => $badge['text'], 'tone' => StatusBadges::toneOfColor($badge['level']->getColor())],
                     'suspended' => $report !== null && isset($suspended[LinkedAccounts::keyOf($item->server_id, LinkedAccounts::usernameOf($item))]),
                 ];
@@ -55,18 +50,6 @@ class BuildServiceCardSummaries
         }
 
         return $summaries;
-    }
-
-    /**
-     * The domains tied to the account: the item's own domain, then the others the refresh read from it.
-     *
-     * @return list<string>
-     */
-    private function domains(CustomerServiceItem $item, UsageReport $report): array
-    {
-        $own = $item->details['domain'] ?? null;
-
-        return array_values(array_unique(array_filter([...(filled($own) ? [$own] : []), ...$report->domains])));
     }
 
     /**

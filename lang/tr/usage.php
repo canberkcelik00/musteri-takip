@@ -58,7 +58,6 @@ return [
     'badge_mailboxes' => ':count e-posta :level',
     'badge_more' => ':count sorun daha',
     'summary_mailboxes' => ':count e-posta',
-    'card_heading' => 'Hosting kullanımı',
     'card_stale' => ':at verisi',
     'summary_none' => 'Kullanım henüz okunmadı',
     'other_domains' => 'Hesaptaki diğer alan adları: :domains',

@@ -102,38 +102,32 @@ final readonly class UsageReport
     }
 
     /**
-     * The cells of the customer card's usage table, keyed by resource id in the table's column order: disk,
-     * monthly traffic, e-mail accounts and databases as "1,2 GB / 5 GB". Resources the server did not report
-     * are left out.
-     *
-     * @return array<string, string>
+     * The usage line of the customer card's service row: "Disk 1,2 GB / 5 GB · Aylık trafik 40 GB / 100 GB ·
+     * E-posta hesabı 4 / 10 · Veritabanı 2". Resources the server did not report are left out; after a failed
+     * refresh the time of the shown data is appended.
      */
-    public function cardCells(): array
+    public function cardSummary(): string
     {
+        if (! $this->hasData()) {
+            return __('usage.summary_none');
+        }
+
         $meters = collect([...$this->gauges, ...$this->counters])->keyBy('id');
-        $cells = [];
+        $parts = [];
 
         foreach (['disk_usage', 'bandwidth', 'email_accounts', 'mysql_databases'] as $id) {
             $meter = $meters->get($id);
 
             if ($meter instanceof UsageMeter) {
-                $cells[$id] = $meter->usageText();
+                $parts[] = $meter->label.' '.$meter->usageText();
             }
         }
 
-        return $cells;
-    }
-
-    /**
-     * "15.06.2026 08:30 verisi" after a failed refresh (the cells show the older data), otherwise null.
-     */
-    public function staleNote(): ?string
-    {
-        if ($this->failedAt === null || $this->refreshedAt === null || ! $this->failedAt->greaterThan($this->refreshedAt)) {
-            return null;
+        if ($this->failedAt !== null && $this->refreshedAt !== null && $this->failedAt->greaterThan($this->refreshedAt)) {
+            $parts[] = __('usage.card_stale', ['at' => $this->refreshedAt->format('d.m.Y H:i')]);
         }
 
-        return __('usage.card_stale', ['at' => $this->refreshedAt->format('d.m.Y H:i')]);
+        return $parts === [] ? __('usage.summary_none') : implode(' · ', $parts);
     }
 
     /**

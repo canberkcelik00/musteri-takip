@@ -30,6 +30,17 @@
             @if ($line['details'])
                 <span class="ui-sub-line">{{ $line['details'] }}</span>
             @endif
+            @if ($line['usage'] !== null)
+                <x-ui.link-button :block="true" class="ui-sub-line" x-on:click="{!! Js::openWindow('view-usage', ['item' => $line['item']]) !!}">{{ $line['usage'] }}</x-ui.link-button>
+            @endif
+            @if ($line['suspended'])
+                <x-ui.badge tone="gray">{{ __('usage.account_suspended') }}</x-ui.badge>
+            @endif
+            @if ($line['badge'])
+                <x-ui.link-button :block="true" x-on:click="{!! Js::openWindow('view-usage', ['item' => $line['item']]) !!}">
+                    <x-ui.badge :tone="$line['badge']['tone']">{{ $line['badge']['text'] }}</x-ui.badge>
+                </x-ui.link-button>
+            @endif
         @endforeach
     </td>
     <td class="ui-from-md">{{ Carbon::parse($service->end_date)->format('d.m.Y') }}</td>
