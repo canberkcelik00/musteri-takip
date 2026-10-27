@@ -539,7 +539,7 @@ Karar (kullanıcı, U-32): ödeme kısayolları, güçlü arama ve akış kısal
 
 - [x] **G-14.0 Dokümanlar** — Bağımlılık: G-13.4
   - Yapıldı: bu faz, UI.md (arama, ödeme penceresi, bildirim, kart, iş penceresi, hedef tık sayıları, simge istisnası), DECISIONS U-32.
-- [ ] **G-14.1 Ödeme penceresi: borçtan açılış ve "tamamı" hapı** — Bağımlılık: G-14.0
+- [x] **G-14.1 Ödeme penceresi: borçtan açılış ve "tamamı" hapı** — Bağımlılık: G-14.0
   - Yapılacak: `RecordPayment::mount` `?int $charge` alır (müşteriye ait açık borçsa tutar kalanla, para birimi borçla dolar; dağıtım o borca yapılır); tutar altında "Açık borcun tamamı" hapı (toplam Action'da hesaplanır); Bugün, kart ve Açık borçlar çağrıları borç kimliğini geçirir.
   - Kabul: Borçtan açılınca tutar ve para birimi dolu, Kaydet borcu kapatır; başka müşterinin veya kapanmış borç verilirse tutar boş kalır; hap doğru toplamı gösterir, para birimleri toplanmaz; yetkisiz kullanıcı pencereyi açamaz (testli).
 - [ ] **G-14.2 Bildirimde "Geri al"** — Bağımlılık: G-14.0

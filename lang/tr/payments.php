@@ -22,6 +22,7 @@ return [
     'recent_heading' => 'Son ödemeler',
     'view_all' => 'Tüm ödemeler',
     'show_allocations' => 'Dağıtımı göster ve değiştir',
+    'fill_open_total' => 'Açık borcun tamamı: :amount',
     'allocations_helper' => 'Tutarlar önce belirttiğiniz borçlara düşer; kalan kısım en eski vadeli borçlardan devam eder.',
     'no_open_charges' => 'Bu para biriminde açık borç yok; ödemenin tamamı alacak bakiyesine eklenir.',
     'allocation_label' => ':description · vade :due_date · kalan :remaining',

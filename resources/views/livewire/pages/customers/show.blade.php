@@ -163,7 +163,7 @@
                                     @endif
                                 </td>
                                 <x-slot:actions>
-                                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'currency' => $charge->currency->value, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
+                                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'currency' => $charge->currency->value, 'fixed' => true, 'charge' => $charge->id]) !!}">{{ __('payments.record') }}</x-ui.button>
                                     @if ($whatsAppLinks[$charge->id] ?? null)
                                         <x-ui.tooltip :label="__('reminders.whatsapp.label')" class="ui-from-md">
                                             <a href="{{ $whatsAppLinks[$charge->id] }}" target="_blank" rel="noopener noreferrer" class="ui-btn ui-btn-icon ui-btn-sm ui-whatsapp" aria-label="{{ __('reminders.whatsapp.label') }}">@include('livewire.pages.customers.partials.whatsapp-icon')</a>

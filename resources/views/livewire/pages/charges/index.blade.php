@@ -78,7 +78,7 @@
                 </td>
                 <x-slot:actions>
                     @if ($isOpen)
-                        <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $charge->customer_id, 'currency' => $charge->currency->value]) !!}">{{ __('payments.record') }}</x-ui.button>
+                        <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $charge->customer_id, 'currency' => $charge->currency->value, 'charge' => $charge->id]) !!}">{{ __('payments.record') }}</x-ui.button>
                         <x-ui.button size="sm" class="ui-from-md" x-on:click="{!! Js::openWindow('edit-charge', ['charge' => $charge->id]) !!}">{{ __('charges.edit') }}</x-ui.button>
                     @endif
                 </x-slot:actions>

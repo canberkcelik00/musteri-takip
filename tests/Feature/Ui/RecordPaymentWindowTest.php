@@ -257,6 +257,92 @@ it('tells the customer has no open charge in the currency, in the preview', func
         ->assertSee(__('payments.no_open_charges'));
 });
 
+it('opens from a charge with its remaining amount and currency filled and the payment closes it', function () {
+    ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiOwingTwoCharges();
+    $hosting->update(['status' => ChargeStatus::Paid]);
+    $usd = Charge::factory()->for($customer)->create(['currency' => Currency::Usd, 'amount' => 12050, 'due_date' => '2026-06-20']);
+
+    // The domain is not the oldest open charge once the USD one is checked, so the window must steer the payment.
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id, 'currency' => 'USD', 'fixed' => true, 'charge' => $usd->id])
+        ->assertSet('amount', '120,50')
+        ->assertSet('currency', 'USD')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($usd->refresh()->status)->toBe(ChargeStatus::Paid)
+        ->and($domain->refresh()->allocatedAmount())->toBe(0);
+});
+
+it('puts the payment on the charge it was opened from even when an older charge is open', function () {
+    ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiOwingTwoCharges();
+
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id, 'charge' => $domain->id])
+        ->assertSet('amount', '400')
+        ->call('save');
+
+    expect($domain->refresh()->status)->toBe(ChargeStatus::Paid)
+        ->and($hosting->refresh()->allocatedAmount())->toBe(0);
+});
+
+it('uses the remaining amount of a partly paid charge', function () {
+    ['customer' => $customer, 'domain' => $domain] = logiOwingTwoCharges();
+    Livewire::test(RecordPayment::class)->set('customer_id', (string) $customer->id)->set('amount', '1.600')->call('save');
+
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id, 'charge' => $domain->id])
+        ->assertSet('amount', '300');
+});
+
+it('leaves the amount empty for a charge of another customer or one that is already paid', function () {
+    ['customer' => $customer, 'hosting' => $hosting] = logiOwingTwoCharges();
+    $other = Charge::factory()->for(Customer::factory()->create())->create(['amount' => 9900]);
+
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id, 'charge' => $other->id])
+        ->assertSet('amount', '')
+        ->assertSet('charge_id', null);
+
+    $hosting->update(['status' => ChargeStatus::Paid]);
+
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id, 'charge' => $hosting->id])
+        ->assertSet('amount', '');
+});
+
+it('takes the customer from the charge when none is given', function () {
+    ['customer' => $customer, 'domain' => $domain] = logiOwingTwoCharges();
+
+    Livewire::test(RecordPayment::class, ['charge' => $domain->id])
+        ->assertSet('customer_id', (string) $customer->id)
+        ->assertSet('amount', '400');
+});
+
+it('shows the whole open debt pill in the chosen currency and fills the amount from it', function () {
+    ['customer' => $customer, 'hosting' => $hosting, 'domain' => $domain] = logiOwingTwoCharges();
+    Charge::factory()->for($customer)->create(['currency' => Currency::Usd, 'amount' => 5000, 'due_date' => '2026-06-18']);
+
+    Livewire::test(RecordPayment::class)
+        ->assertDontSee('Açık borcun tamamı')
+        ->set('customer_id', (string) $customer->id)
+        ->assertSee('Açık borcun tamamı: 1.900 TL')
+        ->call('fillOpenTotal')
+        ->assertSet('amount', '1.900')
+        ->set('currency', 'USD')
+        ->assertSee('Açık borcun tamamı: 50 USD')
+        ->assertDontSee('1.900 TL');
+
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id])
+        ->call('fillOpenTotal')
+        ->call('save');
+
+    expect($hosting->refresh()->status)->toBe(ChargeStatus::Paid)
+        ->and($domain->refresh()->status)->toBe(ChargeStatus::Paid);
+});
+
+it('hides the pill when the customer owes nothing in the currency', function () {
+    $customer = Customer::factory()->create();
+
+    Livewire::test(RecordPayment::class, ['customer' => $customer->id])
+        ->assertDontSee('Açık borcun tamamı');
+});
+
 it('does not let the browser unfix the customer', function () {
     $customer = Customer::factory()->create();
 

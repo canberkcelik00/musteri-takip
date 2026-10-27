@@ -151,7 +151,7 @@ it('moves the subject, date and state under the customer name below md', functio
 it('opens the payment window from an overdue or due-soon row with the customer and the currency', function () {
     $overdue = Charge::factory()->create(['due_date' => '2026-06-01', 'currency' => Currency::Usd]);
 
-    expect(Livewire::test(Today::class)->html())->toContain("name: 'record-payment', params: { customer: {$overdue->customer_id}, currency: 'USD' }");
+    expect(Livewire::test(Today::class)->html())->toContain("name: 'record-payment', params: { customer: {$overdue->customer_id}, currency: 'USD', charge: {$overdue->id} }");
 });
 
 it('does not list an archived customer\'s overdue charge', function () {

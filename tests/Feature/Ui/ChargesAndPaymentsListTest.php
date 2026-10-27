@@ -210,7 +210,7 @@ describe('charge list', function () {
         $html = Livewire::test(ChargesIndex::class)->html();
 
         expect($html)
-            ->toContain("name: 'record-payment', params: { customer: {$open->customer_id}, currency: 'TRY' }")
+            ->toContain("name: 'record-payment', params: { customer: {$open->customer_id}, currency: 'TRY', charge: {$open->id} }")
             ->toContain("name: 'edit-charge', params: { charge: {$open->id} }");
 
         $paid = Livewire::test(ChargesIndex::class)->set('status', 'paid')->html();

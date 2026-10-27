@@ -324,7 +324,7 @@ it('lists only the open charges, oldest due date first, with "Ödeme al" and the
 
     expect(strpos($html, 'Hosting'))->toBeLessThan(strpos($html, 'Alan adı'))
         ->and($html)->toContain("name: 'edit-charge', params: { charge: {$first->id} }")
-        ->toContain("name: 'record-payment', params: { customer: {$customer->id}, currency: 'TRY', fixed: true }")
+        ->toContain("name: 'record-payment', params: { customer: {$customer->id}, currency: 'TRY', fixed: true, charge: ")
         ->toContain('href="'.e(Links::customerCharges($customer)).'"');
 });
 

@@ -5,6 +5,7 @@ namespace App\Livewire\Windows;
 use App\Actions\Payments\RecordPayment as RecordPaymentAction;
 use App\Actions\Payments\SuggestPaymentAllocations;
 use App\Actions\Payments\SuggestPaymentDefaults;
+use App\Actions\Payments\SumOpenCharges;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Exceptions\InvalidPaymentAllocation;
@@ -51,16 +52,56 @@ class RecordPayment extends Component
     /** @var array<int|string, string> Typed amounts keyed by charge id. */
     public array $allocations = [];
 
-    public function mount(?int $customer = null, ?string $currency = null, bool $fixed = false): void
+    /** The charge the window was opened from; it gets the payment first while it is still open. */
+    #[Locked]
+    public ?int $charge_id = null;
+
+    public function mount(?int $customer = null, ?string $currency = null, bool $fixed = false, ?int $charge = null): void
     {
+        $fromCharge = $charge === null ? null : Charge::query()->withSum('allocations', 'amount')->find($charge);
+
+        if ($fromCharge !== null && (
+            $fromCharge->status !== ChargeStatus::Open
+            || $fromCharge->remainingAmount() <= 0
+            || ($customer !== null && $customer !== $fromCharge->customer_id)
+        )) {
+            $fromCharge = null;
+        }
+
+        $customer ??= $fromCharge?->customer_id;
+
         $this->fixed = $fixed && $customer !== null;
         $this->customer_id = $customer === null ? '' : (string) $customer;
 
         $defaults = app(SuggestPaymentDefaults::class)->handle($this->customer());
 
-        $this->currency = (Currency::tryFrom((string) $currency) ?? $defaults['currency'])->value;
+        $this->currency = ($fromCharge->currency ?? Currency::tryFrom((string) $currency) ?? $defaults['currency'])->value;
         $this->payment_method_id = $defaults['payment_method_id'] === null ? '' : (string) $defaults['payment_method_id'];
         $this->paid_on = today()->toDateString();
+
+        if ($fromCharge !== null) {
+            $this->charge_id = $fromCharge->id;
+            $this->amount = Money::formatAmount($fromCharge->remainingAmount());
+        }
+    }
+
+    /**
+     * The "whole open debt" pill: the amount becomes everything the customer owes in the chosen currency.
+     */
+    public function fillOpenTotal(): void
+    {
+        $customer = $this->customer();
+
+        if ($customer === null) {
+            return;
+        }
+
+        $total = app(SumOpenCharges::class)->handle($customer, Currency::tryFrom($this->currency) ?? Currency::Try);
+
+        if ($total > 0) {
+            $this->amount = Money::formatAmount($total);
+            $this->refreshAllocations();
+        }
     }
 
     public function updatedCustomerId(): void
@@ -105,7 +146,7 @@ class RecordPayment extends Component
                 'paid_on' => $this->paid_on,
                 'payment_method_id' => (int) $this->payment_method_id,
                 'note' => trim($this->note) === '' ? null : trim($this->note),
-            ], $this->show_allocations ? $this->manualAllocations() : []);
+            ], $this->show_allocations ? $this->manualAllocations() : $this->preferredAllocation((int) MoneyAmountRule::minorUnits($this->amount)));
         } catch (InvalidPaymentAllocation $exception) {
             $this->addError('amount', $exception->getMessage());
 
@@ -163,7 +204,42 @@ class RecordPayment extends Component
             'currencyLabel' => $currency->getLabel(),
             'charges' => $this->show_allocations && $customer !== null ? $this->openCharges($customer, $currency) : collect(),
             'summary' => $this->show_allocations ? $this->previewSummary() : '',
+            'openTotal' => $customer === null ? null : new Money(app(SumOpenCharges::class)->handle($customer, $currency), $currency),
         ]);
+    }
+
+    /**
+     * The charge the window was opened from, as long as it still fits the chosen customer and currency.
+     */
+    private function targetCharge(): ?Charge
+    {
+        if ($this->charge_id === null) {
+            return null;
+        }
+
+        $charge = Charge::query()->withSum('allocations', 'amount')->find($this->charge_id);
+
+        if ($charge === null
+            || (string) $charge->customer_id !== $this->customer_id
+            || $charge->currency->value !== $this->currency
+            || $charge->status !== ChargeStatus::Open
+            || $charge->remainingAmount() <= 0) {
+            return null;
+        }
+
+        return $charge;
+    }
+
+    /**
+     * The opening charge takes the payment first, up to what it still owes; the rest follows the usual order.
+     *
+     * @return array<int, int> Amounts in minor units keyed by charge id.
+     */
+    private function preferredAllocation(int $amount): array
+    {
+        $charge = $amount > 0 ? $this->targetCharge() : null;
+
+        return $charge === null ? [] : [$charge->id => min($amount, $charge->remainingAmount())];
     }
 
     private function customer(): ?Customer
@@ -230,7 +306,7 @@ class RecordPayment extends Component
         try {
             $suggested = $amount === null || $amount <= 0
                 ? []
-                : app(SuggestPaymentAllocations::class)->handle($customer, $currency, $amount);
+                : app(SuggestPaymentAllocations::class)->handle($customer, $currency, $amount, $this->preferredAllocation($amount));
         } catch (InvalidPaymentAllocation) {
             $suggested = [];
         }

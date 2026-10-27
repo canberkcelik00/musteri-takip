@@ -11,7 +11,12 @@
             </div>
         @endunless
 
-        <x-ui.money-input :label="__('payments.amount')" wire:model.live.blur="amount" :suffix="$currencyLabel" autofocus />
+        <div class="flex flex-col gap-2">
+            <x-ui.money-input :label="__('payments.amount')" wire:model.live.blur="amount" :suffix="$currencyLabel" autofocus />
+            @if ($openTotal !== null && $openTotal->amount > 0)
+                <div><x-ui.chip wire:click="fillOpenTotal">{{ __('payments.fill_open_total', ['amount' => $openTotal->format()]) }}</x-ui.chip></div>
+            @endif
+        </div>
         <x-ui.select :label="__('money.currency')" wire:model.live="currency" :options="$currencies" />
         <x-ui.date-input :label="__('payments.paid_on')" wire:model="paid_on" />
         <x-ui.select :label="__('payments.payment_method')" wire:model="payment_method_id" :options="$methods" />

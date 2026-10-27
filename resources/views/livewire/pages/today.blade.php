@@ -128,7 +128,7 @@
                                 <x-ui.button size="sm" :href="Links::servers()">{{ __('today.go_to_server') }}</x-ui.button>
                             @elseif ($row['type'] === 'charge')
                                 @unless ($row['customer']->isArchived())
-                                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value]) !!}">{{ __('payments.record') }}</x-ui.button>
+                                    <x-ui.button size="sm" x-on:click="{!! Js::openWindow('record-payment', ['customer' => $row['charge']->customer_id, 'currency' => $row['charge']->currency->value, 'charge' => $row['charge']->id]) !!}">{{ __('payments.record') }}</x-ui.button>
                                     @if ($row['whatsapp'])
                                         <x-ui.tooltip :label="__('reminders.whatsapp.label')" class="ui-from-md">
                                             <a href="{{ $row['whatsapp'] }}" target="_blank" rel="noopener noreferrer" class="ui-btn ui-btn-icon ui-btn-sm ui-whatsapp" aria-label="{{ __('reminders.whatsapp.label') }}">@include('livewire.pages.customers.partials.whatsapp-icon')</a>
