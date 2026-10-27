@@ -256,6 +256,7 @@ return array(
     'App\\Models\\Task' => $baseDir . '/app/Models/Task.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
+    'App\\Rules\\PcloudUrl' => $baseDir . '/app/Rules/PcloudUrl.php',
     'App\\Support\\Avatar' => $baseDir . '/app/Support/Avatar.php',
     'App\\Support\\ByteSize' => $baseDir . '/app/Support/ByteSize.php',
     'App\\Support\\DigestSchedule' => $baseDir . '/app/Support/DigestSchedule.php',

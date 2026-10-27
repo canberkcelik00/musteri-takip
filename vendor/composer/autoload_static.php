@@ -795,6 +795,7 @@ class ComposerStaticInit45cfd8cb52957bc24f8f738bc9daa754
         'App\\Models\\Task' => __DIR__ . '/../..' . '/app/Models/Task.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Rules\\PcloudUrl' => __DIR__ . '/../..' . '/app/Rules/PcloudUrl.php',
         'App\\Support\\Avatar' => __DIR__ . '/../..' . '/app/Support/Avatar.php',
         'App\\Support\\ByteSize' => __DIR__ . '/../..' . '/app/Support/ByteSize.php',
         'App\\Support\\DigestSchedule' => __DIR__ . '/../..' . '/app/Support/DigestSchedule.php',
