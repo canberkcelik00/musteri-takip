@@ -554,9 +554,6 @@ Karar (kullanıcı, U-32): ödeme kısayolları, güçlü arama ve akış kısal
 - [x] **G-14.5 İş penceresinde tarih hapları** — Bağımlılık: G-14.0
   - Yapılacak: Bitiş tarihinin altında "Bugün · Yarın · Haftaya" hapları.
   - Kabul: Üç hap doğru tarihi yazar (`travelTo`, Europe/Istanbul) (testli).
-- [ ] **G-14.6 Müşteri kartında "Durumu kopyala"** — Bağımlılık: G-14.1
-  - Yapılacak: `BuildCustomerStatement` Action'ı (`lang/tr` metni, `Money` biçimi); başlıkta `money.view` olana kopyala simgesi.
-  - Kabul: Metin açık borçları vade sırasıyla ve para birimi başına toplamla içerir; borç yoksa "Açık borç yok" yazar; yazılımcı simgeyi görmez (testli).
 
 **Faz 14 bittiğinde:** Ödeme almak, müşteri bulmak ve iş girmek daha az yazma ve tıkla yapılıyor; hiçbir yeni iş kuralı eklenmedi.
 
