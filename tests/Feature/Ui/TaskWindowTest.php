@@ -39,6 +39,21 @@ it('creates a task for myself by default without e-mail', function () {
     Mail::assertNothingSent();
 });
 
+it('fills the due date from the today, tomorrow and next-week pills by Istanbul days', function () {
+    // 21:30 UTC is already the next day in Istanbul.
+    $this->travelTo(Carbon\Carbon::parse('2026-12-31 21:30:00', 'UTC'));
+
+    Livewire::actingAs($this->me)->test(EditTask::class)
+        ->call('pickDueDate', 'today')
+        ->assertSet('dueDate', '2027-01-01')
+        ->call('pickDueDate', 'tomorrow')
+        ->assertSet('dueDate', '2027-01-02')
+        ->call('pickDueDate', 'next-week')
+        ->assertSet('dueDate', '2027-01-08')
+        ->call('pickDueDate', 'someday')
+        ->assertSet('dueDate', '2027-01-08');
+});
+
 it('assigns a task to a colleague and e-mails them', function () {
     Mail::fake();
 

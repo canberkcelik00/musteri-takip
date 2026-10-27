@@ -7,7 +7,14 @@
         <div class="is-full"><x-ui.input :label="__('tasks.title')" wire:model="title" maxlength="255" required autofocus /></div>
         <div class="is-full"><x-ui.select :label="__('tasks.customer')" wire:model="customerId" :options="$customers" :searchable="true" /></div>
         <x-ui.select :label="__('tasks.assignee')" wire:model="assignedTo" :options="$assignees" />
-        <x-ui.date-input :label="__('tasks.due_date')" wire:model="dueDate" />
+        <div class="flex flex-col gap-2">
+            <x-ui.date-input :label="__('tasks.due_date')" wire:model="dueDate" />
+            <div class="flex gap-2">
+                <x-ui.chip wire:click="pickDueDate('today')" :on="$dueDate === today()->format('Y-m-d')">{{ __('tasks.pick_today') }}</x-ui.chip>
+                <x-ui.chip wire:click="pickDueDate('tomorrow')" :on="$dueDate === today()->addDay()->format('Y-m-d')">{{ __('tasks.pick_tomorrow') }}</x-ui.chip>
+                <x-ui.chip wire:click="pickDueDate('next-week')" :on="$dueDate === today()->addDays(7)->format('Y-m-d')">{{ __('tasks.pick_next_week') }}</x-ui.chip>
+            </div>
+        </div>
         <div class="is-full"><x-ui.input type="textarea" :label="__('tasks.notes')" wire:model="notes" maxlength="5000" /></div>
 
         @if ($record !== null)

@@ -93,6 +93,19 @@ class EditTask extends Component
         $this->dispatch('notify', message: __('tasks.updated'));
     }
 
+    /**
+     * The due-date pills: today, tomorrow or a week from today (Europe/Istanbul days); anything else is ignored.
+     */
+    public function pickDueDate(string $when): void
+    {
+        $this->dueDate = match ($when) {
+            'today' => today()->format('Y-m-d'),
+            'tomorrow' => today()->addDay()->format('Y-m-d'),
+            'next-week' => today()->addDays(7)->format('Y-m-d'),
+            default => $this->dueDate,
+        };
+    }
+
     public function complete(CompleteTask $completeTask): void
     {
         $completeTask->handle($this->actor(), Task::query()->findOrFail($this->taskId));
