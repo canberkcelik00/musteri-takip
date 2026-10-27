@@ -124,7 +124,7 @@ it('adds nothing to the service row without other domains', function () {
 
     Livewire::test(Show::class, ['customer' => $service->customer])
         ->assertSee('logi.com.tr')
-        ->assertDontSee(__('customer_services.more_domains', ['count' => 1]));
+        ->assertDontSee('+'.__('customer_services.more_domains', ['count' => 1]));
 });
 
 it('lists the other domains in the usage window', function () {

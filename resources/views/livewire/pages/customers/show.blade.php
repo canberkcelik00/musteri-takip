@@ -35,11 +35,6 @@
                 @if (filled($customer->legal_title))
                     <p class="ui-subtitle is-tight">{{ $customer->legal_title }}</p>
                 @endif
-                @if ($domains !== [])
-                    <p class="ui-strip-domains">
-                        <x-ui.domains :domains="$domains" :cloudflare="$cloudflareDomains" />
-                    </p>
-                @endif
                 @if ($customer->isArchived())
                     <x-ui.badge class="mt-1">{{ __('archive.status_archived') }}</x-ui.badge>
                 @endif
@@ -265,6 +260,16 @@
 
         {{-- Information column --}}
         <div class="ui-stack">
+            @if ($domains !== [])
+                <x-ui.card tag="section" class="ui-domains-card">
+                    <div class="ui-card-head">
+                        <h2>{{ __('customer_services.domains_heading') }}</h2>
+                        <span class="ui-muted">{{ __('customer_services.domains_count', ['count' => count($domains)]) }}</span>
+                    </div>
+                    <x-ui.domains :domains="$domains" :cloudflare="$cloudflareDomains" />
+                </x-ui.card>
+            @endif
+
             @can('tasks.manage')
                 <x-ui.card tag="section">
                     <div class="ui-card-head">

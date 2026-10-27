@@ -46,6 +46,7 @@
     --mt-whatsapp: #0b5e33;
     --mt-pcloud: #0a6a9e;
     --mt-cloudflare: #b84e00;
+    --mt-cloudflare-soft: rgba(184, 78, 0, 0.12);
     --mt-danger-text: #920012;
     --mt-danger-bg: rgba(255, 59, 48, 0.12);
     --mt-danger-hover-bg: rgba(255, 59, 48, 0.2);
@@ -148,6 +149,7 @@
     --mt-whatsapp: #30d158;
     --mt-pcloud: #4cc3ff;
     --mt-cloudflare: #f6821f;
+    --mt-cloudflare-soft: rgba(246, 130, 31, 0.16);
     --mt-danger-text: #ffb4af;
     --mt-danger-bg: rgba(255, 69, 58, 0.18);
     --mt-danger-hover-bg: rgba(255, 69, 58, 0.28);

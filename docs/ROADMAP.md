@@ -382,6 +382,9 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.12 Müşteri kartı sadeleştirme** — Bağımlılık: G-9.11 (kullanıcı kararı U-30)
   - Yapılacak: Hizmet satırından sunucu/cPanel bilgisi, kullanım satırı ve alan adları kalkar (kota eşiği ve askı rozetleri kalır); aktif hizmetlerin bütün alan adları (ek/park dahil, tekrarsız) başlık şeridinde, Cloudflare logosu ve "siteyi aç"/"kopyala" simgeleriyle; başlıkta tek "Müşteriyi düzenle" düğmesi, Fatura bilgileri kartındaki "Düzenle" kalkar.
   - Kabul: Başlıkta tüm aktif hizmet alan adları, tekrarsız ve büyük/küçük harf duyarsız; iptal edilmiş hizmetin alan adı yok; alan adı yoksa satır yok; logo yalnız Cloudflare'deki alan adında; satırda alan adı, "+N alan adı", kullanım ve bilgi satırı yok; eşik ve askı rozetleri kalır ve Kullanım penceresini açar; "Müşteriyi düzenle" tek ve başlıkta, arşivli müşteride de var (testli).
+- [x] **G-9.13 Alan adları kartı** — Bağımlılık: G-9.12 (kullanıcı kararı U-31)
+  - Yapılacak: Aktif hizmetlerin bütün alan adları başlık şeridinden kalkar; sağ sütunun en üstünde "Alan adları (N)" kartında alt alta satırlarda durur (siteyi aç, kopyala); Cloudflare işareti logo ve "Cloudflare" yazılı turuncu hap olur.
+  - Kabul: Kartta tüm aktif hizmet alan adları (ek/park dahil, tekrarsız, büyük/küçük harf duyarsız) ve "N alan adı" sayacı; iptal edilmiş hizmetin alan adı yok; alan adı yoksa kart yok; başlıkta alan adı yok; kart Görevler ve İlgili kişiler'in üstünde; hap yalnız Cloudflare'e bağlı alan adında, görünür "Cloudflare" yazısıyla ve "Cloudflare'e bağlı" erişilebilir adıyla; arşivli müşteride ve yazılımcıda kart var (testli).
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 

@@ -71,13 +71,6 @@
     overflow-wrap: anywhere;
 }
 
-.ui-strip-domains {
-    margin: 4px 0 0;
-    font-size: var(--mt-text-sm);
-    color: var(--mt-text-muted);
-    overflow-wrap: anywhere;
-}
-
 .ui-amounts {
     display: flex;
     flex-wrap: wrap;
@@ -125,9 +118,21 @@
 }
 
 .ui-domain {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 2px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mt-divider);
+}
+
+.ui-domain:last-child {
+    border-bottom: 0;
+}
+
+.ui-domain-name {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .ui-icon-link {
@@ -150,16 +155,21 @@
 
 .ui-domain-badge {
     display: inline-flex;
-    width: 22px;
-    height: 20px;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
+    margin-right: 4px;
+    padding: 1px 8px 1px 5px;
+    border-radius: var(--mt-radius-pill);
+    background: var(--mt-cloudflare-soft);
     color: var(--mt-cloudflare);
+    font-size: var(--mt-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .ui-domain-badge svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
 }
 
 .ui-whatsapp {

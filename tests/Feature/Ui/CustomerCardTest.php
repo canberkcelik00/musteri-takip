@@ -58,6 +58,26 @@ function uiCard(Customer $customer)
     return Livewire::test(Show::class, ['customer' => $customer]);
 }
 
+/**
+ * The header strip's markup, up to the card grid.
+ */
+function uiCardHeader(string $html): string
+{
+    $start = strpos($html, 'class="ui-strip');
+
+    return substr($html, $start, strpos($html, 'ui-card-grid') - $start);
+}
+
+/**
+ * The Domains card's markup, up to its closing tag; empty when the card is not drawn.
+ */
+function uiCardDomains(string $html): string
+{
+    $start = strpos($html, 'ui-domains-card');
+
+    return $start === false ? '' : substr($html, $start, strpos($html, '</section>', $start) - $start);
+}
+
 it('is reachable from the customer list and needs a signed-in user', function () {
     $customer = Customer::factory()->create(['short_name' => 'Logi', 'legal_title' => 'Logitech Ltd.']);
 
@@ -180,7 +200,7 @@ it('draws no Cloudflare logo when the domains component gets no Cloudflare list'
     expect($html)->not->toContain('ui-domain-badge');
 });
 
-it('lists every domain of the active services in the header, other account domains included, without duplicates', function () {
+it('lists every domain of the active services in the Domains card, other account domains included, without duplicates', function () {
     $customer = Customer::factory()->create();
     $service = uiCardService($customer, [], 'logi.com.tr');
     $service->items()->first()->forceFill(['remote_domains' => ['ikinci.com', 'logi.net', 'logi.com.tr']])->save();
@@ -188,32 +208,70 @@ it('lists every domain of the active services in the header, other account domai
     uiCardService($customer, ['name' => 'İptal', 'status' => CustomerServiceStatus::Cancelled], 'iptal.com');
 
     $html = uiCard($customer)->html();
-    $header = substr($html, strpos($html, 'ui-strip-domains'), strpos($html, 'ui-card-grid') - strpos($html, 'ui-strip-domains'));
+    $card = uiCardDomains($html);
 
-    expect(substr_count($header, 'class="ui-domain-name"'))->toBe(3)
-        ->and($header)->toContain('>logi.com.tr<')->toContain('>ikinci.com<')->toContain('>logi.net<')
-        ->and($html)->not->toContain('iptal.com')
-        ->and($html)->not->toContain(__('customer_services.more_domains', ['count' => 2]));
+    expect(substr_count($card, 'class="ui-domain-name"'))->toBe(3)
+        ->and($card)->toContain('>logi.com.tr<')->toContain('>ikinci.com<')->toContain('>logi.net<')
+        ->and($card)->toContain(__('customer_services.domains_heading'))
+        ->and($card)->toContain(__('customer_services.domains_count', ['count' => 3]))
+        ->and($html)->not->toContain('iptal.com');
 });
 
-it('draws the domain line in the header only when an active service has a domain', function () {
+it('draws the Domains card only when an active service has a domain', function () {
     $customer = Customer::factory()->create();
     uiCardService($customer)->items()->first()->update(['details' => []]);
 
-    expect(uiCard($customer)->html())->not->toContain('ui-strip-domains');
+    expect(uiCard($customer)->html())->not->toContain('ui-domains-card');
 });
 
-it('puts the open and copy controls and the Cloudflare logo on the header domains', function () {
+it('keeps the domains out of the header', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, [], 'logi.com.tr');
+
+    $header = uiCardHeader(uiCard($customer)->html());
+
+    expect($header)->not->toContain('ui-domain')->not->toContain('logi.com.tr');
+});
+
+it('puts the open and copy controls and the Cloudflare pill on the Domains card rows', function () {
     $customer = Customer::factory()->create();
     uiCardService($customer, ['name' => 'Bulutta'], 'bulut.com.tr')->items()->first()->forceFill(['is_cloudflare' => true])->save();
     uiCardService($customer, ['name' => 'Degil'], 'degil.com.tr');
 
-    $html = uiCard($customer)->html();
-    $header = substr($html, strpos($html, 'ui-strip-domains'), strpos($html, 'ui-card-grid') - strpos($html, 'ui-strip-domains'));
+    $card = uiCardDomains(uiCard($customer)->html());
 
-    expect($header)->toContain('href="https://bulut.com.tr"')->toContain('href="https://degil.com.tr"')
-        ->and(substr_count($header, 'class="ui-domain-badge"'))->toBe(1)
-        ->and(substr_count($header, __('customer_services.copy_domain')))->toBeGreaterThanOrEqual(2);
+    expect($card)->toContain('href="https://bulut.com.tr"')->toContain('href="https://degil.com.tr"')
+        ->and(substr_count($card, 'class="ui-domain-badge"'))->toBe(1)
+        ->and(substr_count($card, __('customer_services.copy_domain')))->toBeGreaterThanOrEqual(2)
+        ->and($card)->toMatch('/<\/svg>\s*'.preg_quote(__('customer_services.cloudflare'), '/').'\s*<\/span>/');
+});
+
+it('puts the Domains card first in the information column, above Tasks and Contacts', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, [], 'logi.com.tr');
+
+    $html = uiCard($customer)->html();
+    $domains = strpos($html, 'ui-domains-card');
+
+    expect($domains)->not->toBeFalse()
+        ->and($domains)->toBeLessThan(strpos($html, '<h2>'.e(__('tasks.plural')).'</h2>'))
+        ->and($domains)->toBeLessThan(strpos($html, '<h2>'.e(__('contacts.plural')).'</h2>'));
+});
+
+it('shows the Domains card to a developer, who sees no money', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, [], 'logi.com.tr');
+    $this->actingAs(User::factory()->developer()->create());
+
+    expect(uiCardDomains(uiCard($customer)->html()))->toContain('>logi.com.tr<');
+});
+
+it('shows the Domains card to an archived customer too', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, [], 'logi.com.tr');
+    $customer->archive();
+
+    expect(uiCardDomains(uiCard($customer->fresh())->html()))->toContain('>logi.com.tr<');
 });
 
 it('keeps the domains out of the service rows', function () {
