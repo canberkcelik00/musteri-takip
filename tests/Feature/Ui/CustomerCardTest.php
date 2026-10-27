@@ -180,14 +180,49 @@ it('draws no Cloudflare logo when the domains component gets no Cloudflare list'
     expect($html)->not->toContain('ui-domain-badge');
 });
 
-it('shows "+N alan adı" for the other domains of a linked account', function () {
+it('lists every domain of the active services in the header, other account domains included, without duplicates', function () {
     $customer = Customer::factory()->create();
     $service = uiCardService($customer, [], 'logi.com.tr');
-    $service->items()->first()->forceFill(['remote_domains' => ['ikinci.com', 'logi.net']])->save();
+    $service->items()->first()->forceFill(['remote_domains' => ['ikinci.com', 'logi.net', 'logi.com.tr']])->save();
+    uiCardService($customer, ['name' => 'İkinci'], 'Ikinci.com');
+    uiCardService($customer, ['name' => 'İptal', 'status' => CustomerServiceStatus::Cancelled], 'iptal.com');
 
-    expect($service->fresh()->otherDomains())->toHaveCount(2);
+    $html = uiCard($customer)->html();
+    $header = substr($html, strpos($html, 'ui-strip-domains'), strpos($html, 'ui-card-grid') - strpos($html, 'ui-strip-domains'));
 
-    uiCard($customer)->assertSee('+'.__('customer_services.more_domains', ['count' => 2]));
+    expect(substr_count($header, 'class="ui-domain-name"'))->toBe(3)
+        ->and($header)->toContain('>logi.com.tr<')->toContain('>ikinci.com<')->toContain('>logi.net<')
+        ->and($html)->not->toContain('iptal.com')
+        ->and($html)->not->toContain(__('customer_services.more_domains', ['count' => 2]));
+});
+
+it('draws the domain line in the header only when an active service has a domain', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer)->items()->first()->update(['details' => []]);
+
+    expect(uiCard($customer)->html())->not->toContain('ui-strip-domains');
+});
+
+it('puts the open and copy controls and the Cloudflare logo on the header domains', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, ['name' => 'Bulutta'], 'bulut.com.tr')->items()->first()->forceFill(['is_cloudflare' => true])->save();
+    uiCardService($customer, ['name' => 'Degil'], 'degil.com.tr');
+
+    $html = uiCard($customer)->html();
+    $header = substr($html, strpos($html, 'ui-strip-domains'), strpos($html, 'ui-card-grid') - strpos($html, 'ui-strip-domains'));
+
+    expect($header)->toContain('href="https://bulut.com.tr"')->toContain('href="https://degil.com.tr"')
+        ->and(substr_count($header, 'class="ui-domain-badge"'))->toBe(1)
+        ->and(substr_count($header, __('customer_services.copy_domain')))->toBeGreaterThanOrEqual(2);
+});
+
+it('keeps the domains out of the service rows', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, [], 'logi.com.tr');
+
+    $html = uiCard($customer)->html();
+
+    expect(substr_count($html, 'class="ui-domain-name"'))->toBe(1);
 });
 
 it('marks a service ending soon with an amber badge and a plain one with none', function () {
@@ -346,14 +381,33 @@ it('renders a contact without a title, phone or e-mail', function () {
     uiCard($customer)->assertSee('Ayşe')->assertDontSee('tel:', false)->assertDontSee('mailto:', false);
 });
 
-it('shows billing details and notes with dashes for the empty ones, and the edit link', function () {
+it('shows billing details and notes with dashes for the empty ones', function () {
     $customer = Customer::factory()->create(['legal_title' => 'Logitech Ltd.', 'tax_office' => 'Kadıköy', 'tax_number' => null, 'billing_address' => 'Moda cad. 5', 'notes' => 'VIP müşteri']);
 
     uiCard($customer)
         ->assertSee('Kadıköy')
         ->assertSee('Moda cad. 5')
-        ->assertSee('VIP müşteri')
-        ->assertSee("name: 'edit-customer', params: { customer: {$customer->id} }", false);
+        ->assertSee('VIP müşteri');
+});
+
+it('has one "Müşteriyi düzenle" button in the header and no edit link on the billing card, archived customers included', function () {
+    $customer = Customer::factory()->create();
+
+    $html = uiCard($customer)->html();
+
+    expect(substr_count($html, "name: 'edit-customer', params: { customer: {$customer->id} }"))->toBe(1)
+        ->and($html)->toContain('>'.__('customers.edit').'<');
+
+    $header = substr($html, 0, strpos($html, 'ui-card-grid'));
+
+    expect($header)->toContain("name: 'edit-customer'");
+
+    $customer->archive();
+
+    $archived = uiCard($customer->fresh())->html();
+
+    expect(substr_count($archived, "name: 'edit-customer'"))->toBe(1)
+        ->and(substr($archived, 0, strpos($archived, 'ui-card-grid')))->toContain("name: 'edit-customer'");
 });
 
 it('offers archive and, for a customer nothing depends on, delete at the bottom', function () {
@@ -532,7 +586,7 @@ it('draws the card surfaces as panes and leaves the blur to the bars and menus',
 describe('service summary', function () {
     $gb = 1024 * 1024 * 1024;
 
-    it('always shows the usage of a linked account, healthy or not, and opens the usage window from it', function () use ($gb) {
+    it('shows no usage line for a healthy linked account and no badge either', function () use ($gb) {
         $customer = Customer::factory()->create();
         $server = Server::factory()->whm()->create();
         $service = UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id]);
@@ -543,42 +597,44 @@ describe('service summary', function () {
             UsageScenario::resource('mysql_databases', 2, 5),
             UsageScenario::resource('ftp_accounts', 1, 5),
         ]);
-        $item = $service->items()->firstOrFail();
 
         $html = uiCard($customer)
-            ->assertSee(__('usage.resource.disk_usage').' 2 GB / 5 GB')
-            ->assertSee(__('usage.resource.bandwidth').' 10 GB · '.__('servers.unlimited'))
-            ->assertSee(__('usage.resource.email_accounts').' 4 / 10')
-            ->assertSee(__('usage.resource.mysql_databases').' 2 / 5')
-            ->assertDontSee(__('usage.resource.ftp_accounts'))
+            ->assertDontSee(__('usage.resource.disk_usage').' 2 GB / 5 GB')
+            ->assertDontSee(__('usage.resource.email_accounts').' 4 / 10')
+            ->assertDontSee(__('usage.summary_none'))
             ->html();
 
-        expect($html)->toContain("name: 'view-usage', params: { item: {$item->id} }")
+        expect($html)->not->toContain("name: 'view-usage'")
             ->and($html)->not->toContain('ui-badge-amber');
     });
 
-    it('adds the threshold badge to the usage line', function () {
+    it('adds the threshold badge to the row, opening the usage window', function () {
         $customer = Customer::factory()->create();
         $server = Server::factory()->whm()->create();
-        UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id]);
+        $service = UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id]);
         UsageScenario::usage($server, 'logi');
+        $item = $service->items()->firstOrFail();
 
-        uiCard($customer)->assertSee(__('usage.badge_resource', ['resource' => __('usage.resource.disk_usage'), 'percent' => 94]));
+        $html = uiCard($customer)
+            ->assertSee(__('usage.badge_resource', ['resource' => __('usage.resource.disk_usage'), 'percent' => 94]))
+            ->html();
+
+        expect($html)->toContain("name: 'view-usage', params: { item: {$item->id} }");
     });
 
-    it('says the usage was not read yet and shows the time of old data after a failed refresh', function () use ($gb) {
+    it('never says the usage was not read yet and never shows the time of old data', function () use ($gb) {
         $customer = Customer::factory()->create();
         $server = Server::factory()->whm()->create();
         UsageScenario::linkedService($server, 'yeni', ['customer_id' => $customer->id]);
 
-        uiCard($customer)->assertSee(__('usage.summary_none'));
+        uiCard($customer)->assertDontSee(__('usage.summary_none'));
 
         UsageScenario::usage($server, 'yeni', [UsageScenario::resource('disk_usage', $gb, 5 * $gb, true)], [
             'refreshed_at' => '2026-06-15 08:30:00',
             'failed_at' => '2026-06-15 09:30:00',
         ]);
 
-        uiCard($customer)->assertSee(__('usage.card_stale', ['at' => '15.06.2026 08:30']));
+        uiCard($customer)->assertDontSee(__('usage.card_stale', ['at' => '15.06.2026 08:30']));
     });
 
     it('marks a suspended WHM account and leaves a running one alone', function () {
@@ -597,7 +653,7 @@ describe('service summary', function () {
         uiCard($other)->assertDontSee(__('usage.account_suspended'));
     });
 
-    it('shows the other details of a service and never its license key', function () {
+    it('shows neither the other details of a service nor its license key', function () {
         $customer = Customer::factory()->create();
         $service = CustomerService::factory()
             ->for($customer)
@@ -606,16 +662,16 @@ describe('service summary', function () {
         $service->items()->first()->forceFill(['details' => ['quantity' => 3], 'license_key' => 'SECRET-KEY-123'])->save();
 
         uiCard($customer)
-            ->assertSee(__('enums.service_type_details.license.customer.quantity').': 3')
+            ->assertDontSee(__('enums.service_type_details.license.customer.quantity').': 3')
             ->assertDontSee(__('usage.summary_none'))
             ->assertDontSee('SECRET-KEY-123');
     });
 
-    it('shows the server detail of an unlinked hosting service but no usage line', function () {
+    it('shows no server detail and no usage line for an unlinked hosting service', function () {
         $customer = Customer::factory()->create();
         uiCardService($customer, [], 'logi.com.tr')->items()->first()->update(['details' => ['domain' => 'logi.com.tr', 'server' => 'Eski Sunucu']]);
 
-        uiCard($customer)->assertSee('Eski Sunucu')->assertDontSee(__('usage.summary_none'));
+        uiCard($customer)->assertDontSee('Eski Sunucu')->assertDontSee(__('usage.summary_none'));
     });
 
     it('shows no usage line for a cancelled service', function () use ($gb) {

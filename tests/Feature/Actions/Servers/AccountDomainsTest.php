@@ -106,15 +106,16 @@ it('leaves out the item\'s own domain, whatever its case', function () {
         ->and((new CustomerServiceItem)->otherDomains())->toBe([]);
 });
 
-it('says on the service row how many other domains the account has', function () {
+it('lists the other domains of the account in the customer card header instead of counting them on the row', function () {
     $server = Server::factory()->whm()->create();
     $service = UsageScenario::linkedService($server, 'logi', domain: 'logi.com.tr');
     $service->items()->firstOrFail()->forceFill(['remote_domains' => ['logi.com.tr', 'ikinci.com', 'logi.net']])->save();
 
     Livewire::test(Show::class, ['customer' => $service->customer])
         ->assertSee('logi.com.tr')
-        ->assertSee('+'.__('customer_services.more_domains', ['count' => 2]))
-        ->assertDontSee('ikinci.com');
+        ->assertSee('ikinci.com')
+        ->assertSee('logi.net')
+        ->assertDontSee('+'.__('customer_services.more_domains', ['count' => 2]));
 });
 
 it('adds nothing to the service row without other domains', function () {

@@ -108,9 +108,20 @@ class Show extends Component
 
         /** @var Collection<int, CustomerService> $services */
         $services = $customer->customerServices;
+        $activeServices = $services->where('status', CustomerServiceStatus::Active)->values();
 
         return view('livewire.pages.customers.show', [
-            'activeServices' => $services->where('status', CustomerServiceStatus::Active)->values(),
+            'activeServices' => $activeServices,
+            'domains' => $activeServices
+                ->flatMap(fn (CustomerService $service): array => [...$service->domains(), ...$service->otherDomains()])
+                ->unique(fn (string $domain): string => mb_strtolower($domain))
+                ->values()
+                ->all(),
+            'cloudflareDomains' => $activeServices
+                ->flatMap(fn (CustomerService $service): array => $service->cloudflareDomains())
+                ->unique()
+                ->values()
+                ->all(),
             'cancelledServices' => $services->where('status', CustomerServiceStatus::Cancelled)->values(),
             'whatsAppLinks' => $customer->charges->mapWithKeys(fn ($charge): array => [$charge->id => $whatsApp->handle($charge)]),
             'summaries' => app(BuildServiceCardSummaries::class)->handle($services),

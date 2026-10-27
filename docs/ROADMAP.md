@@ -379,6 +379,9 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.11 pCloud klasörü bağlantısı** — Bağımlılık: G-9.9 (kullanıcı kararı U-29)
   - Yapılacak: `customers.pcloud_url` alanı; "Müşteriyi düzenle" penceresinde "pCloud klasörü" alanı (yalnız pCloud adresi, `PcloudUrl` kuralı); müşteri kartı başlık şeridinde "Ödeme al" / "Hizmet ekle" yanında pCloud simgeli düğme, bağlantıyı yeni sekmede açar. API, yükleme ve token yok.
   - Kabul: pcloud.com / pcloud.link ve alt alan adları kabul, http / benzer host / başka site / düz metin / kullanıcı bilgili adres ret; kayıt, boşaltınca `null` ve hatada eski değerin kalması; düğmenin yalnız bağlantı doluyken çıkması, `href`, `target="_blank"`, `rel="noopener noreferrer"` ve erişilebilir ad; arşivli müşteride düğmenin kalması, para/hizmet düğmelerinin kalkması (testli).
+- [x] **G-9.12 Müşteri kartı sadeleştirme** — Bağımlılık: G-9.11 (kullanıcı kararı U-30)
+  - Yapılacak: Hizmet satırından sunucu/cPanel bilgisi, kullanım satırı ve alan adları kalkar (kota eşiği ve askı rozetleri kalır); aktif hizmetlerin bütün alan adları (ek/park dahil, tekrarsız) başlık şeridinde, Cloudflare logosu ve "siteyi aç"/"kopyala" simgeleriyle; başlıkta tek "Müşteriyi düzenle" düğmesi, Fatura bilgileri kartındaki "Düzenle" kalkar.
+  - Kabul: Başlıkta tüm aktif hizmet alan adları, tekrarsız ve büyük/küçük harf duyarsız; iptal edilmiş hizmetin alan adı yok; alan adı yoksa satır yok; logo yalnız Cloudflare'deki alan adında; satırda alan adı, "+N alan adı", kullanım ve bilgi satırı yok; eşik ve askı rozetleri kalır ve Kullanım penceresini açar; "Müşteriyi düzenle" tek ve başlıkta, arşivli müşteride de var (testli).
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 

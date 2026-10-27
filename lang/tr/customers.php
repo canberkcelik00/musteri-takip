@@ -32,7 +32,7 @@ return [
     'create' => 'Yeni müşteri',
     'create_heading' => 'Yeni müşteri',
     'created' => 'Müşteri eklendi.',
-    'edit' => 'Düzenle',
+    'edit' => 'Müşteriyi düzenle',
     'edit_heading' => 'Müşteriyi düzenle',
     'updated' => 'Müşteri güncellendi.',
     'empty_heading' => 'Henüz müşteri yok',

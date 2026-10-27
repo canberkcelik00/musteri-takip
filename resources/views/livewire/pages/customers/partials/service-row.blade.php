@@ -5,8 +5,6 @@
 
     $cancelled = $service->status === CustomerServiceStatus::Cancelled;
     $endingSoon = $service->isEndingSoon($leadDays);
-    $domains = $service->domains();
-    $others = count($service->otherDomains());
     $statusLabel = ! $cancelled && $endingSoon ? __('customer_services.ending_soon') : $service->status->getLabel();
     $statusTone = $cancelled ? 'gray' : ($endingSoon ? 'amber' : null);
 @endphp
@@ -18,21 +16,10 @@
         @else
             <span class="ui-cell-title">{{ $service->name }}</span>
         @endcan
-        @if ($domains !== [])
-            <span class="ui-sub-line">
-                <x-ui.domains :domains="$domains" :cloudflare="$service->cloudflareDomains()" />@if ($others > 0) +{{ __('customer_services.more_domains', ['count' => $others]) }}@endif
-            </span>
-        @endif
         @if ($statusTone)
             <span class="ui-below-xl"><x-ui.badge :tone="$statusTone">{{ $statusLabel }}</x-ui.badge></span>
         @endif
         @foreach ($summary as $line)
-            @if ($line['details'])
-                <span class="ui-sub-line">{{ $line['details'] }}</span>
-            @endif
-            @if ($line['usage'] !== null)
-                <x-ui.link-button :block="true" class="ui-sub-line" x-on:click="{!! Js::openWindow('view-usage', ['item' => $line['item']]) !!}">{{ $line['usage'] }}</x-ui.link-button>
-            @endif
             @if ($line['suspended'])
                 <x-ui.badge tone="gray">{{ __('usage.account_suspended') }}</x-ui.badge>
             @endif
