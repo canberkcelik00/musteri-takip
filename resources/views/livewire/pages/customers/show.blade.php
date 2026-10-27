@@ -93,6 +93,54 @@
                 @endif
             </x-ui.card>
 
+            @php
+                $usageRows = $activeServices->flatMap(fn ($service) => collect($summaries[$service->id] ?? [])
+                    ->filter(fn (array $line): bool => $line['usage'] !== null)
+                    ->map(fn (array $line): array => $line + ['service' => $service->name]));
+                $usageColumns = [
+                    ['key' => 'account', 'label' => __('customer_services.name')],
+                    ...collect(['disk_usage', 'bandwidth', 'email_accounts', 'mysql_databases'])
+                        ->map(fn (string $id): array => ['key' => $id, 'label' => __('usage.resource.'.$id), 'from' => 'lg'])->all(),
+                ];
+            @endphp
+            @if ($usageRows->isNotEmpty())
+                <x-ui.card tag="section" flush>
+                    <div class="ui-card-head"><h2>{{ __('usage.card_heading') }}</h2></div>
+                    <x-ui.table :columns="$usageColumns" :card="false">
+                        @foreach ($usageRows as $line)
+                            @php $usage = $line['usage']; @endphp
+                            <x-ui.row wire:key="usage-{{ $line['item'] }}">
+                                <td>
+                                    <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('view-usage', ['item' => $line['item']]) !!}">{{ $line['service'] }}</x-ui.link-button>
+                                    @if ($usage['domains'] !== [])
+                                        <span class="ui-sub-line"><x-ui.domains :domains="$usage['domains']" /></span>
+                                    @endif
+                                    @if (! $usage['read'])
+                                        <span class="ui-sub-line">{{ __('usage.summary_none') }}</span>
+                                    @else
+                                        @foreach ($usage['cells'] as $id => $text)
+                                            <span class="ui-sub-line ui-below-lg">{{ __('usage.resource.'.$id) }}: {{ $text }}</span>
+                                        @endforeach
+                                    @endif
+                                    @if ($usage['stale'])
+                                        <span class="ui-sub-line">{{ $usage['stale'] }}</span>
+                                    @endif
+                                    @if ($line['suspended'])
+                                        <x-ui.badge tone="gray">{{ __('usage.account_suspended') }}</x-ui.badge>
+                                    @endif
+                                    @if ($line['badge'])
+                                        <x-ui.badge :tone="$line['badge']['tone']">{{ $line['badge']['text'] }}</x-ui.badge>
+                                    @endif
+                                </td>
+                                @foreach (['disk_usage', 'bandwidth', 'email_accounts', 'mysql_databases'] as $id)
+                                    <td class="ui-from-lg">{{ $usage['cells'][$id] ?? __('money.empty') }}</td>
+                                @endforeach
+                            </x-ui.row>
+                        @endforeach
+                    </x-ui.table>
+                </x-ui.card>
+            @endif
+
             @if ($cancelledServices->isNotEmpty())
                 <x-ui.card tag="details" flush class="ui-details">
                     <summary>{{ __('customers.cancelled_services', ['count' => $cancelledServices->count()]) }}</summary>

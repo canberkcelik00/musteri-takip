@@ -504,10 +504,11 @@ describe('service summary', function () {
         $item = $service->items()->firstOrFail();
 
         $html = uiCard($customer)
-            ->assertSee(__('usage.resource.disk_usage').' 2 GB / 5 GB')
-            ->assertSee(__('usage.resource.bandwidth').' 10 GB · '.__('servers.unlimited'))
-            ->assertSee(__('usage.resource.email_accounts').' 4 / 10')
-            ->assertSee(__('usage.resource.mysql_databases').' 2 / 5')
+            ->assertSee(__('usage.card_heading'))
+            ->assertSee('2 GB / 5 GB')
+            ->assertSee('10 GB · '.__('servers.unlimited'))
+            ->assertSee('4 / 10')
+            ->assertSee('2 / 5')
             ->assertDontSee(__('usage.resource.ftp_accounts'))
             ->html();
 
@@ -582,6 +583,16 @@ describe('service summary', function () {
         UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id, 'status' => CustomerServiceStatus::Cancelled]);
         UsageScenario::usage($server, 'logi', [UsageScenario::resource('disk_usage', $gb, 5 * $gb, true)]);
 
-        uiCard($customer)->assertDontSee(__('usage.resource.disk_usage').' 1 GB')->assertDontSee(__('usage.summary_none'));
+        uiCard($customer)->assertDontSee(__('usage.card_heading'))->assertDontSee(__('usage.summary_none'));
+    });
+
+    it('shows the domains tied to the account in the usage table', function () {
+        $customer = Customer::factory()->create();
+        $server = Server::factory()->whm()->create();
+        $service = UsageScenario::linkedService($server, 'logi', ['customer_id' => $customer->id], 'logi.com.tr');
+        $service->items()->firstOrFail()->forceFill(['remote_domains' => ['ek-alan.com']])->save();
+        UsageScenario::usage($server, 'logi');
+
+        uiCard($customer)->assertSee('logi.com.tr')->assertSee('ek-alan.com');
     });
 });

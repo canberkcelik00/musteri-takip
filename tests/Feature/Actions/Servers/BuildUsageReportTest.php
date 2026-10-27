@@ -59,9 +59,9 @@ it('writes the card summary in a fixed order, skips what the server did not repo
 
     $report = app(BuildUsageReport::class)->handle($service->items()->firstOrFail()->load('server'));
 
-    expect($report?->cardSummary())->toBe(implode(' · ', [
-        __('usage.resource.disk_usage').' 2 GB / 5 GB',
-        __('usage.resource.email_accounts').' 4 / 10',
-        __('usage.resource.mysql_databases').' 2 · '.__('servers.unlimited'),
-    ]));
+    expect($report?->cardCells())->toBe([
+        'disk_usage' => '2 GB / 5 GB',
+        'email_accounts' => '4 / 10',
+        'mysql_databases' => '2 · '.__('servers.unlimited'),
+    ]);
 });
