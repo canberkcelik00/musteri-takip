@@ -20,7 +20,7 @@
         @endcan
         @if ($domains !== [])
             <span class="ui-sub-line">
-                <x-ui.domains :domains="$domains" />@if ($others > 0) +{{ __('customer_services.more_domains', ['count' => $others]) }}@endif
+                <x-ui.domains :domains="$domains" :cloudflare="$service->cloudflareDomains()" />@if ($others > 0) +{{ __('customer_services.more_domains', ['count' => $others]) }}@endif
             </span>
         @endif
         @if ($statusTone)

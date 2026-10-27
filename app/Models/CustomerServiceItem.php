@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * `details` keeps only the keys of the current type (ServiceType::customerDetailKeys());
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ServiceType $type
  * @property array<string, mixed>|null $details
  * @property list<string>|null $remote_domains written by the usage refresh, never by a form
+ * @property bool|null $is_cloudflare written by the DNS check, never by a form; null = not checked yet (T-169)
+ * @property Carbon|null $dns_checked_at last DNS check attempt, a failed one included
  * @property string|null $license_key
  */
 #[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
@@ -30,6 +33,11 @@ class CustomerServiceItem extends Model
         static::saving(function (CustomerServiceItem $item): void {
             if ($item->details !== null) {
                 $item->details = $item->type->onlyCustomerDetails($item->details);
+            }
+
+            if ($item->exists && $item->isDirty('details') && self::domainOf($item->details) !== self::domainOf($item->getOriginal('details'))) {
+                $item->is_cloudflare = null;
+                $item->dns_checked_at = null;
             }
         });
     }
@@ -61,6 +69,16 @@ class CustomerServiceItem extends Model
     }
 
     /**
+     * The item's domain, trimmed and lower case; an empty string when it has none.
+     *
+     * @param  array<string, mixed>|null  $details
+     */
+    private static function domainOf(?array $details): string
+    {
+        return mb_strtolower(trim((string) ($details['domain'] ?? '')));
+    }
+
+    /**
      * The other domains of the hosting account this item is linked to: the main, addon and
      * parked domains the server reported at the last usage refresh (T-119), without the item's
      * own domain. Empty for an item that is not linked or was never refreshed.
@@ -88,6 +106,8 @@ class CustomerServiceItem extends Model
             'type' => ServiceType::class,
             'details' => 'array',
             'remote_domains' => 'array',
+            'is_cloudflare' => 'boolean',
+            'dns_checked_at' => 'datetime',
             'license_key' => 'encrypted',
         ];
     }

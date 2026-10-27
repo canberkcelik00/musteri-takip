@@ -19,6 +19,7 @@ use App\Models\ServerUsage;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\Ui\Links;
+use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as RoleModel;
 use Tests\Fixtures\UsageScenario;
@@ -136,6 +137,25 @@ it('gives each domain an "open the site" link and a copy button, and none to a v
         ->toContain('rel="noopener noreferrer"')
         ->toContain(__('customer_services.copy_domain'))
         ->not->toContain('https://bad domain');
+});
+
+it('marks only the domains found on Cloudflare with a cloud sign', function () {
+    $customer = Customer::factory()->create();
+    $onCloudflare = uiCardService($customer, ['name' => 'Bulutta'], 'bulut.com.tr');
+    $onCloudflare->items()->first()->forceFill(['is_cloudflare' => true])->save();
+    uiCardService($customer, ['name' => 'Degil'], 'degil.com.tr')->items()->first()->forceFill(['is_cloudflare' => false])->save();
+    uiCardService($customer, ['name' => 'Bilinmiyor'], 'bilinmiyor.com.tr');
+
+    $html = uiCard($customer)->html();
+
+    expect(substr_count($html, 'class="ui-domain-badge"'))->toBe(1)
+        ->and($html)->toContain('aria-label="'.e(__('customer_services.on_cloudflare')).'"');
+});
+
+it('draws no cloud sign when the domains component gets no Cloudflare list', function () {
+    $html = Blade::render('<x-ui.domains :domains="[\'logi.com.tr\']" />');
+
+    expect($html)->not->toContain('ui-domain-badge');
 });
 
 it('shows "+N alan adı" for the other domains of a linked account', function () {

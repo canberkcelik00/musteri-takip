@@ -373,6 +373,9 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.9 Müşteri kartında hizmet özeti** — Bağımlılık: G-9.4, G-9.7 (kullanıcı kararı U-27)
   - Yapılacak: Kart hizmet satırı sunucuya bağlı kalemin kullanımını (disk, aylık trafik, e-posta, veritabanı) her zaman soluk, tıklanabilir satırda gösterir (tıklayınca Kullanım penceresi); eşik rozeti ve askıdaki WHM hesabı için "Askıda" rozeti yanında durur; hizmetin diğer bilgileri (alan adı dışındaki `details`) soluk satırda; `BuildServiceCardSummaries` Action'ı, `UsageReport::cardSummary()`.
   - Kabul: Sağlıklı hesapta kullanım satırı var, rozet yok; eşik aşılınca ikisi birlikte; okunmamış ve başarısız yenileme metinleri; askı rozeti; bilgi satırı ve lisans anahtarının görünmemesi; bağlı olmayan ve iptal edilen hizmette kullanım satırı yok; sorgu sayısı bağlı hesap sayısından bağımsız (testli).
+- [x] **G-9.10 Cloudflare'e bağlı alan adları** — Bağımlılık: G-9.9 (kullanıcı kararı U-28)
+  - Yapılacak: Zamanlayıcıda `app:check-domain-dns` (24 saatte bir, süre bütçeli): aktif hizmetlerin alan adlarının NS kaydı `*.ns.cloudflare.com` ise `customer_service_items.is_cloudflare` true olur (`dns_checked_at` son deneme); müşteri kartının hizmet satırında alan adının yanında bulut simgesi ("Cloudflare'e bağlı" ipucu ve erişilebilir ad). Başka yerde gösterim yok.
+  - Kabul: Cloudflare NS / başka NS / NS yok; alt alan adında üst ada çıkma; okunamayınca eski cevabın kalması ve denemenin sayılması; 24 saat kuralı; aynı alan adının tek sorgusu; iptal edilmiş hizmet, boş ve host adı olmayan değerlerin atlanması; süre bütçesi ve kalanın sonraki çalışmada yapılması; alan adı değişince cevabın sıfırlanması; zamanlayıcı kaydı; kartta yalnız Cloudflare'e bağlı alan adında simge (testli).
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 

@@ -32,6 +32,12 @@ Schedule::command('app:send-digest')
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
 
+// Looks up which domains point to Cloudflare, within a time budget; what does not fit waits for the next run.
+Schedule::command('app:check-domain-dns')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
 // Reads the usage of the linked hosting accounts, within a time budget; what does not fit waits for the next run.
 Schedule::command('app:refresh-server-usage')
     ->everyMinute()

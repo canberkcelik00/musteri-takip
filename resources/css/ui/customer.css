@@ -141,6 +141,20 @@
     height: 14px;
 }
 
+.ui-domain-badge {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    color: var(--mt-cloudflare);
+}
+
+.ui-domain-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
 .ui-whatsapp {
     color: var(--mt-whatsapp);
 }

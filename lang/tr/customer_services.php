@@ -80,6 +80,7 @@ return [
     'more_domains' => ':count alan adı',
     'open_site' => 'Siteyi aç',
     'copy_domain' => 'Alan adını kopyala',
+    'on_cloudflare' => "Cloudflare'e bağlı",
     'empty_heading' => 'Henüz hizmet yok',
     'empty_description' => 'Bu müşteriye hosting, alan adı gibi bir hizmet ekleyin; borçlar kendiliğinden oluşur.',
     'delete' => 'Sil',

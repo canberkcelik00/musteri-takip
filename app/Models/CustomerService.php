@@ -139,6 +139,25 @@ class CustomerService extends Model
     }
 
     /**
+     * The domains of this service's items the DNS check found on Cloudflare (T-169), distinct, in
+     * the order of {@see self::domains()}. Uses the loaded `items` relation when available.
+     *
+     * @return list<string>
+     */
+    public function cloudflareDomains(): array
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+
+        return $items
+            ->filter(fn (CustomerServiceItem $item): bool => $item->is_cloudflare === true)
+            ->pluck('details.domain')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * Distinct domain names from this service's items (customer_service_items.details->domain),
      * in the order first seen (T-66). Uses the loaded `items` relation when available, so
      * relation manager tables that eager-load it do not query per row. The single place this
