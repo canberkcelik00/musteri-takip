@@ -10,6 +10,7 @@ use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Exceptions\InvalidPaymentAllocation;
 use App\Livewire\Concerns\AuthorizesPermission;
+use App\Livewire\PaymentUndo;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
@@ -157,7 +158,11 @@ class RecordPayment extends Component
 
         $this->dispatch(self::PAYMENTS_CHANGED_EVENT);
         $this->dispatch('close-window');
-        $this->dispatch('notify', message: $this->resultMessage($allocated, $payment->amount - $allocated, $currency));
+        $this->dispatch(
+            'notify',
+            message: $this->resultMessage($allocated, $payment->amount - $allocated, $currency),
+            action: ['label' => __('payments.undo'), 'event' => PaymentUndo::UNDO_EVENT, 'params' => ['payment' => $payment->id]],
+        );
     }
 
     /**

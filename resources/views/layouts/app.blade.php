@@ -51,5 +51,8 @@
 
     <x-ui.toast />
     @livewire(\App\Livewire\WindowHost::class)
+    @can('money.manage')
+        @livewire(\App\Livewire\PaymentUndo::class)
+    @endcan
 </body>
 </html>

@@ -545,6 +545,13 @@
     color: var(--mt-danger-text);
 }
 
+.ui-toast-action {
+    margin-left: var(--mt-space-3);
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 /* ---- Dropdown ---- */
 
 .ui-dropdown {
