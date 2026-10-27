@@ -1,0 +1,1 @@
+<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M12.2 4C9.5 4 7.3 5.8 6.6 8.2 3.9 8.5 2 10.6 2 13.2 2 16 4.2 18.2 7 18.2h10.3c2.6 0 4.7-2.1 4.7-4.7 0-2.4-1.8-4.4-4.1-4.7C17.2 6 14.9 4 12.2 4ZM10 8.6h2.6a2.9 2.9 0 0 1 0 5.8H11.5v2H10V8.6Zm1.5 1.4v3h1.1a1.5 1.5 0 0 0 0-3h-1.1Z"/></svg>

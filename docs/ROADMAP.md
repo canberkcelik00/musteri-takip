@@ -376,6 +376,9 @@ Hedef: Sunucuya bağlı hosting hesaplarının disk, trafik, e-posta kutusu kota
 - [x] **G-9.10 Cloudflare'e bağlı alan adları** — Bağımlılık: G-9.9 (kullanıcı kararı U-28)
   - Yapılacak: Zamanlayıcıda `app:check-domain-dns` (24 saatte bir, süre bütçeli): aktif hizmetlerin alan adlarının NS kaydı `*.ns.cloudflare.com` ise `customer_service_items.is_cloudflare` true olur (`dns_checked_at` son deneme); müşteri kartının hizmet satırında alan adının yanında Cloudflare logosu ("Cloudflare'e bağlı" ipucu ve erişilebilir ad). Başka yerde gösterim yok.
   - Kabul: Cloudflare NS / başka NS / NS yok; alt alan adında üst ada çıkma; okunamayınca eski cevabın kalması ve denemenin sayılması; 24 saat kuralı; aynı alan adının tek sorgusu; iptal edilmiş hizmet, boş ve host adı olmayan değerlerin atlanması; süre bütçesi ve kalanın sonraki çalışmada yapılması; alan adı değişince cevabın sıfırlanması; zamanlayıcı kaydı; kartta yalnız Cloudflare'e bağlı alan adında simge (testli).
+- [x] **G-9.11 pCloud klasörü bağlantısı** — Bağımlılık: G-9.9 (kullanıcı kararı U-29)
+  - Yapılacak: `customers.pcloud_url` alanı; "Müşteriyi düzenle" penceresinde "pCloud klasörü" alanı (yalnız pCloud adresi, `PcloudUrl` kuralı); müşteri kartı başlık şeridinde "Ödeme al" / "Hizmet ekle" yanında pCloud simgeli düğme, bağlantıyı yeni sekmede açar. API, yükleme ve token yok.
+  - Kabul: pcloud.com / pcloud.link ve alt alan adları kabul, http / benzer host / başka site / düz metin / kullanıcı bilgili adres ret; kayıt, boşaltınca `null` ve hatada eski değerin kalması; düğmenin yalnız bağlantı doluyken çıkması, `href`, `target="_blank"`, `rel="noopener noreferrer"` ve erişilebilir ad; arşivli müşteride düğmenin kalması, para/hizmet düğmelerinin kalkması (testli).
 
 **Faz 9 bittiğinde:** Kotası dolmak üzere olan hesaplar kullanıcı bakmadan e-posta, özet ve Bugün ile haber verir; kota uygulama ve askıya alma parkta kalır.
 

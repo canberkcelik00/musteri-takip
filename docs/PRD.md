@@ -48,6 +48,7 @@ Her müşterinin benzersiz bir kısa adı ve en az bir, tam olarak bir birincil 
 | Vergi dairesi / no | Hayır | Ünvanla birlikte |
 | Fatura adresi | Hayır |  |
 | Notlar | Hayır | Serbest metin |
+| pCloud klasörü | Hayır | Müşterinin pCloud klasörünün paylaşım bağlantısı; kartta pCloud simgesiyle yeni sekmede açılır. Yalnız pCloud adresleri kabul edilir |
 
 Müşteri şahıs da olabilir; bu durumda ünvan boş kalır.
 

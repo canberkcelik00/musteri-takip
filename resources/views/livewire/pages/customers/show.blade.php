@@ -56,16 +56,23 @@
             </dl>
         @endif
 
-        @unless ($customer->isArchived())
+        @if (! $customer->isArchived() || filled($customer->pcloud_url))
             <div class="ui-strip-actions">
-                @can('money.manage')
-                    <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
-                @endcan
-                @can('services.manage')
-                    <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
-                @endcan
+                @unless ($customer->isArchived())
+                    @can('money.manage')
+                        <x-ui.button x-on:click="{!! Js::openWindow('record-payment', ['customer' => $customer->id, 'fixed' => true]) !!}">{{ __('payments.record') }}</x-ui.button>
+                    @endcan
+                    @can('services.manage')
+                        <x-ui.button x-on:click="{!! Js::openWindow('assign-service', ['customer' => $customer->id]) !!}">{{ __('customer_services.assign') }}</x-ui.button>
+                    @endcan
+                @endunless
+                @if (filled($customer->pcloud_url))
+                    <x-ui.tooltip :label="__('customers.pcloud_open')">
+                        <a href="{{ $customer->pcloud_url }}" target="_blank" rel="noopener noreferrer" class="ui-btn ui-btn-icon ui-pcloud" aria-label="{{ __('customers.pcloud_open') }}">@include('livewire.pages.customers.partials.pcloud-icon')</a>
+                    </x-ui.tooltip>
+                @endif
             </div>
-        @endunless
+        @endif
     </section>
 
     <div class="ui-card-grid">

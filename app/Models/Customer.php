@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property-read bool|null $has_overdue Only set when loaded via CustomersTable::withSummaries() (T-66).
  */
-#[Fillable(['short_name', 'legal_title', 'tax_office', 'tax_number', 'billing_address', 'notes'])]
+#[Fillable(['short_name', 'legal_title', 'tax_office', 'tax_number', 'billing_address', 'notes', 'pcloud_url'])]
 class Customer extends Model
 {
     /** @use HasFactory<CustomerFactory> */

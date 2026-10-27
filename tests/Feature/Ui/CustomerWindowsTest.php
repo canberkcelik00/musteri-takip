@@ -83,6 +83,33 @@ describe('edit customer window', function () {
         expect($customer->fresh()->legal_title)->toBe('Yeni Ünvan')->and($customer->fresh()->tax_office)->toBeNull();
     });
 
+    it('saves a pCloud link, clears it when left empty and rejects other addresses', function () {
+        $customer = Customer::factory()->create();
+
+        Livewire::test(EditCustomer::class, ['customer' => $customer->id])
+            ->assertSet('pcloud_url', '')
+            ->set('pcloud_url', 'https://u.pcloud.link/publink/show?code=XZabc')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        expect($customer->fresh()->pcloud_url)->toBe('https://u.pcloud.link/publink/show?code=XZabc');
+
+        Livewire::test(EditCustomer::class, ['customer' => $customer->id])
+            ->assertSet('pcloud_url', 'https://u.pcloud.link/publink/show?code=XZabc')
+            ->set('pcloud_url', 'https://drive.google.com/drive/folders/1')
+            ->call('save')
+            ->assertHasErrors('pcloud_url');
+
+        expect($customer->fresh()->pcloud_url)->toBe('https://u.pcloud.link/publink/show?code=XZabc');
+
+        Livewire::test(EditCustomer::class, ['customer' => $customer->id])
+            ->set('pcloud_url', '  ')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        expect($customer->fresh()->pcloud_url)->toBeNull();
+    });
+
     it('lets the customer keep its own short name but not take another one', function () {
         $customer = Customer::factory()->create(['short_name' => 'Logi']);
         Customer::factory()->create(['short_name' => 'Başka']);

@@ -164,6 +164,15 @@
     height: 18px;
 }
 
+.ui-pcloud {
+    color: var(--mt-pcloud);
+}
+
+.ui-pcloud svg {
+    width: 18px;
+    height: 18px;
+}
+
 .ui-below-xl {
     display: block;
     margin-top: 2px;

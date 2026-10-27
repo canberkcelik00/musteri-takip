@@ -153,6 +153,27 @@ it('marks only the domains found on Cloudflare with the Cloudflare logo', functi
         ->and($html)->toContain('aria-label="'.e(__('customer_services.on_cloudflare')).'"');
 });
 
+it('shows the pCloud button only when the customer has a link, archived customers included', function () {
+    $customer = Customer::factory()->create();
+
+    expect(uiCard($customer)->html())->not->toContain('ui-pcloud');
+
+    $customer->update(['pcloud_url' => 'https://u.pcloud.link/publink/show?code=XZabc']);
+
+    $html = uiCard($customer)->html();
+
+    expect($html)->toContain('href="https://u.pcloud.link/publink/show?code=XZabc"')
+        ->and($html)->toContain('target="_blank"')
+        ->and($html)->toContain('rel="noopener noreferrer"')
+        ->and($html)->toContain('aria-label="'.e(__('customers.pcloud_open')).'"');
+
+    $customer->archive();
+
+    $html = uiCard($customer->fresh())->html();
+
+    expect($html)->toContain('ui-pcloud')->and($html)->not->toContain(__('payments.record'));
+});
+
 it('draws no Cloudflare logo when the domains component gets no Cloudflare list', function () {
     $html = Blade::render('<x-ui.domains :domains="[\'logi.com.tr\']" />');
 

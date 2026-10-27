@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Customer;
+use App\Rules\PcloudUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Locked;
@@ -32,6 +33,8 @@ class EditCustomer extends Component
 
     public string $notes = '';
 
+    public string $pcloud_url = '';
+
     public function mount(int $customer): void
     {
         $record = Customer::query()->findOrFail($customer);
@@ -43,6 +46,7 @@ class EditCustomer extends Component
         $this->tax_number = (string) $record->tax_number;
         $this->billing_address = (string) $record->billing_address;
         $this->notes = (string) $record->notes;
+        $this->pcloud_url = (string) $record->pcloud_url;
     }
 
     public function save(): void
@@ -56,6 +60,7 @@ class EditCustomer extends Component
             'tax_number' => $this->nullIfBlank($this->tax_number),
             'billing_address' => $this->nullIfBlank($this->billing_address),
             'notes' => $this->nullIfBlank($this->notes),
+            'pcloud_url' => $this->nullIfBlank($this->pcloud_url),
         ]);
 
         $this->dispatch('customers-changed');
@@ -75,6 +80,7 @@ class EditCustomer extends Component
             'tax_number' => ['nullable', 'string', 'max:255'],
             'billing_address' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
+            'pcloud_url' => ['nullable', 'string', 'max:255', new PcloudUrl],
         ];
     }
 
@@ -90,6 +96,7 @@ class EditCustomer extends Component
             'tax_number' => __('customers.tax_number'),
             'billing_address' => __('customers.billing_address'),
             'notes' => __('customers.notes'),
+            'pcloud_url' => __('customers.pcloud_url'),
         ];
     }
 

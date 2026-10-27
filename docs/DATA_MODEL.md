@@ -25,6 +25,7 @@ Her tablonun alanları, türleri ve kısıtları. İş kurallarının kaynağı 
 | tax_number | string | Hayır | |
 | billing_address | text | Hayır | |
 | notes | text | Hayır | |
+| pcloud_url | string | Hayır | Müşterinin pCloud klasörünün paylaşım bağlantısı; yalnız https ve `pcloud.com` / `pcloud.link` (alt alan adları dahil) |
 | archived_at | timestamp | Hayır | |
 
 **contacts**

@@ -1,14 +1,14 @@
 {
-  "../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2": {
+  "node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2": {
     "file": "assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2",
-    "src": "../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2"
+    "src": "node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2"
   },
-  "../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2": {
+  "node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2": {
     "file": "assets/inter-latin-wght-normal-Dx4kXJAl.woff2",
-    "src": "../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2"
+    "src": "node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2"
   },
   "resources/css/ui.css": {
-    "file": "assets/ui-DEStvCjD.css",
+    "file": "assets/ui-CNu3Thbp.css",
     "name": "ui",
     "names": [
       "ui.css"
