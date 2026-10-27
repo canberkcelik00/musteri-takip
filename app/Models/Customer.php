@@ -105,6 +105,51 @@ class Customer extends Model
     #[Scope]
     protected function search(Builder $query, string $term): void
     {
+        $digits = self::phoneDigits($term);
+
+        if ($digits !== null) {
+            $query->where(function (Builder $query) use ($term, $digits): void {
+                $query
+                    ->where(fn (Builder $query) => $this->searchWords($query, $term))
+                    ->orWhereHas('contacts', fn (Builder $contacts) => $contacts->whereRaw(
+                        "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '(', ''), ')', ''), '+', '') LIKE ?",
+                        ['%'.$digits.'%'],
+                    ));
+            });
+
+            return;
+        }
+
+        $this->searchWords($query, $term);
+    }
+
+    /**
+     * The digits of a term that looks like a phone number ("0532 123 45 67", "+90 532 123 45 67"), without the
+     * leading "0" or country code "90", so every way of writing a number finds the same contact; null when the term
+     * is something else or too short to be a number.
+     */
+    private static function phoneDigits(string $term): ?string
+    {
+        if (preg_match('/^\+?[\d\s().-]+$/u', trim($term)) !== 1) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D/', '', $term) ?? '';
+
+        if (strlen($digits) >= 12 && str_starts_with($digits, '90')) {
+            $digits = substr($digits, 2);
+        }
+
+        $digits = ltrim($digits, '0');
+
+        return strlen($digits) >= 4 ? $digits : null;
+    }
+
+    /**
+     * @param  Builder<static>  $query
+     */
+    private function searchWords(Builder $query, string $term): void
+    {
         $words = array_filter(preg_split('/\s+/u', trim($term)) ?: []);
 
         foreach ($words as $word) {

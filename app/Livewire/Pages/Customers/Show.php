@@ -11,6 +11,7 @@ use App\Enums\Permission;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Support\Settings;
+use App\Support\Ui\RecentCustomers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +33,8 @@ class Show extends Component
     public function mount(Customer $customer): void
     {
         $this->customer = $customer;
+
+        RecentCustomers::remember($customer);
     }
 
     /**

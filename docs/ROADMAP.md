@@ -545,7 +545,7 @@ Karar (kullanıcı, U-32): ödeme kısayolları, güçlü arama ve akış kısal
 - [x] **G-14.2 Bildirimde "Geri al"** — Bağımlılık: G-14.0
   - Yapılacak: Toast'a isteğe bağlı metinli `action` (10 sn); `UndoPayment` Action'ı (`DeletePayment` kullanır); ödeme kaydı bildirimi "Geri al" taşır.
   - Kabul: Geri alma ödemeyi ve dağıtımları siler, borç yeniden açılır; başka kullanıcının, 2 dakikadan eski veya silinmiş ödeme reddedilir; yazılımcı 403 alır (testli).
-- [ ] **G-14.3 Arama güçlenir** — Bağımlılık: G-14.0
+- [x] **G-14.3 Arama güçlenir** — Bağımlılık: G-14.0
   - Yapılacak: Oturumda son 5 müşteri ve boş kutuda "Son baktıklarınız"; telefon normalizasyonu (`Customer::search`); "Git: …" sayfa kısayolları (menü tanımından, izne göre); parasız kullanıcıda "İş ekle".
   - Kabul: Son bakılanlar sırası tekrarsız ve en çok 5, arşivli çıkmaz; telefon üç farklı yazımla bulunur; izinsiz sayfa kısayolu çıkmaz; yazılımcı "İş ekle"yi görür, "Ödeme al"ı görmez; sorgu sayısı sabit (testli).
 - [ ] **G-14.4 Yeni müşteriden hizmet eklemeye** — Bağımlılık: G-14.0

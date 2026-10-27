@@ -25,6 +25,7 @@ use App\Models\Server;
 use App\Models\ServerUsage;
 use App\Models\User;
 use App\Support\Settings;
+use App\Support\Ui\RecentCustomers;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\Fixtures\UsageScenario;
@@ -166,6 +167,9 @@ function perfScreens(Customer $card): array
 it('runs the same number of queries for a few hundred customers as for a handful', function () {
     $shared = perfSeed(0, 5);
     $card = Customer::query()->where('short_name', 'Firma 001')->firstOrFail();
+
+    // The top bar lists the customers opened last in both passes, so its one query is measured in both.
+    RecentCustomers::remember($card);
 
     $small = [];
     foreach (perfScreens($card) as $name => [$screen]) {

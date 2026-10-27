@@ -1,8 +1,10 @@
 @php
     use App\Support\Ui\Links;
 
-    $results = $this->results;
     $filled = mb_strlen(trim($query)) >= \App\Livewire\Topbar\Search::MIN_LENGTH;
+    $customers = $filled ? $this->results : $this->recents;
+    $pages = $this->pages;
+    $showBox = $filled || $customers->isNotEmpty();
 @endphp
 
 {{--
@@ -31,9 +33,26 @@
         aria-label="{{ __('ui.search.label') }}"
         autocomplete="off"
     >
-        @if ($filled)
+        @if ($showBox)
             <div class="ui-search-results ui-glass ui-glass-menu" x-ref="results" x-show="open" x-cloak>
-                @forelse ($results as $customer)
+                @foreach ($pages as $page)
+                    <div
+                        class="ui-search-result"
+                        wire:key="page-{{ $loop->index }}"
+                        x-on:keydown.arrow-down.prevent="$focus.wrap().next()"
+                        x-on:keydown.arrow-up.prevent="$focus.wrap().previous()"
+                    >
+                        <a href="{{ $page['url'] }}" wire:navigate>
+                            <span class="ui-cell-title">{{ __('ui.search.go', ['page' => $page['label']]) }}</span>
+                        </a>
+                    </div>
+                @endforeach
+
+                @unless ($filled)
+                    <div class="ui-option-empty">{{ __('ui.search.recent') }}</div>
+                @endunless
+
+                @forelse ($customers as $customer)
                     <div
                         class="ui-search-result"
                         wire:key="result-{{ $customer->id }}"
@@ -47,7 +66,7 @@
                                 @php
                                     $details = array_filter([
                                         $customer->legal_title,
-                                        implode(', ', array_slice($customer->domains(), 0, 3)),
+                                        $customer->relationLoaded('customerServices') ? implode(', ', array_slice($customer->domains(), 0, 3)) : null,
                                         $customer->isArchived() ? __('archive.status_archived') : null,
                                     ]);
                                 @endphp
@@ -56,17 +75,24 @@
                                 @endif
                             </span>
                         </a>
-                        @can('money.manage')
-                            @unless ($customer->isArchived())
+                        @unless ($customer->isArchived())
+                            @can('money.manage')
                                 <x-ui.button
                                     size="sm"
                                     x-on:click="open = false; expanded = false; $dispatch('open-window', { name: 'record-payment', params: { customer: {{ $customer->id }} } })"
                                 >{{ __('payments.record') }}</x-ui.button>
-                            @endunless
-                        @endcan
+                            @elsecan('tasks.manage')
+                                <x-ui.button
+                                    size="sm"
+                                    x-on:click="open = false; expanded = false; $dispatch('open-window', { name: 'edit-task', params: { customer: {{ $customer->id }} } })"
+                                >{{ __('tasks.add') }}</x-ui.button>
+                            @endcan
+                        @endunless
                     </div>
                 @empty
-                    <div class="ui-option-empty">{{ __('ui.search.empty') }}</div>
+                    @if ($filled && $pages === [])
+                        <div class="ui-option-empty">{{ __('ui.search.empty') }}</div>
+                    @endif
                 @endforelse
             </div>
         @endif

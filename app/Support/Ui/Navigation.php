@@ -56,6 +56,39 @@ final class Navigation
     }
 
     /**
+     * The pages the user may open whose menu name starts with the term ("işl" → İşler), for the search's "Git: …"
+     * rows. Turkish dotted and dotless i are folded by hand because mb_strtolower turns "İ" into two code points.
+     *
+     * @return list<array{label: string, url: string}>
+     */
+    public static function matching(string $term, ?string $currentUrl = null): array
+    {
+        $needle = self::fold($term);
+        $matches = [];
+
+        if ($needle === '') {
+            return $matches;
+        }
+
+        foreach (self::entries($currentUrl) as $entry) {
+            foreach (isset($entry['items']) ? $entry['items'] : [$entry] as $item) {
+                $label = __($item['label']);
+
+                if (str_starts_with(self::fold($label), $needle)) {
+                    $matches[] = ['label' => $label, 'url' => $item['url']];
+                }
+            }
+        }
+
+        return $matches;
+    }
+
+    private static function fold(string $text): string
+    {
+        return mb_strtolower(strtr(trim($text), ['İ' => 'i', 'I' => 'ı']));
+    }
+
+    /**
      * The items that also appear in the bottom tab bar.
      *
      * @return list<array{label: string, icon: string, color: string, url: string, active: bool, tab: ?string}>

@@ -83,6 +83,8 @@ return [
         'label' => 'Müşteri ara',
         'placeholder' => 'Müşteri veya alan adı ara (Ctrl+K)',
         'empty' => 'Eşleşen müşteri yok',
+        'recent' => 'Son baktıklarınız',
+        'go' => 'Git: :page',
         'clear' => 'Aramayı temizle',
     ],
     'date' => [
