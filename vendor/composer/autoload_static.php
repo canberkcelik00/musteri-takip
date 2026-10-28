@@ -596,6 +596,7 @@ class ComposerStaticInit45cfd8cb52957bc24f8f738bc9daa754
         'App\\Actions\\Domains\\CheckDomainDns' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckDomainDns.php',
         'App\\Actions\\Domains\\CheckDomainEmail' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckDomainEmail.php',
         'App\\Actions\\Domains\\CheckDomainRegistration' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckDomainRegistration.php',
+        'App\\Actions\\Domains\\CheckDomainSsl' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckDomainSsl.php',
         'App\\Actions\\Domains\\CheckHostingPoints' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckHostingPoints.php',
         'App\\Actions\\Domains\\CheckRegistrations' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckRegistrations.php',
         'App\\Actions\\Domains\\CheckSslCertificates' => __DIR__ . '/../..' . '/app/Actions/Domains/CheckSslCertificates.php',

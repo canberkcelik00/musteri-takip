@@ -57,6 +57,7 @@ return array(
     'App\\Actions\\Domains\\CheckDomainDns' => $baseDir . '/app/Actions/Domains/CheckDomainDns.php',
     'App\\Actions\\Domains\\CheckDomainEmail' => $baseDir . '/app/Actions/Domains/CheckDomainEmail.php',
     'App\\Actions\\Domains\\CheckDomainRegistration' => $baseDir . '/app/Actions/Domains/CheckDomainRegistration.php',
+    'App\\Actions\\Domains\\CheckDomainSsl' => $baseDir . '/app/Actions/Domains/CheckDomainSsl.php',
     'App\\Actions\\Domains\\CheckHostingPoints' => $baseDir . '/app/Actions/Domains/CheckHostingPoints.php',
     'App\\Actions\\Domains\\CheckRegistrations' => $baseDir . '/app/Actions/Domains/CheckRegistrations.php',
     'App\\Actions\\Domains\\CheckSslCertificates' => $baseDir . '/app/Actions/Domains/CheckSslCertificates.php',
