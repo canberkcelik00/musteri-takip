@@ -61,9 +61,35 @@
                 @endif
             </div>
 
-            @foreach (['ssl', 'mail'] as $tab)
-                <p x-show="tab === '{{ $tab }}'" x-cloak class="ui-note ui-mt-3">{{ __('domain_check.coming_soon') }}</p>
-            @endforeach
+            <div x-show="tab === 'mail'" x-cloak x-effect="if (tab === 'mail') $wire.loadMail()" class="ui-mt-3">
+                @if (! $mailLoaded)
+                    <p class="ui-hint" role="status">{{ __('domain_check.loading') }}</p>
+                @else
+                    @foreach (['spf', 'dkim', 'dmarc'] as $record)
+                        @php($row = $mail[$record] ?? null)
+                        @php($ok = $row !== null && $row['status'] === \App\Enums\EmailCheckStatus::Ok)
+                        <h4 class="ui-form-section">{{ __('domain_check.mail.'.$record.'.title') }}</h4>
+                        @if ($row === null || $row['status'] === \App\Enums\EmailCheckStatus::Unreadable)
+                            <p class="ui-hint">{{ __('domain_check.unreadable') }}</p>
+                        @else
+                            @if ($row['record'] !== null)
+                                <ul class="ui-mailboxes">
+                                    <li><span class="ui-mailbox-address">{{ $row['record'] }}</span></li>
+                                </ul>
+                            @endif
+                            @if ($ok && $row['reason'] === null)
+                                <p class="ui-hint">{{ __('domain_check.mail.ok') }}</p>
+                            @elseif ($ok)
+                                <p class="ui-hint">{{ __('domain_check.mail.'.$record.'.'.$row['reason']) }}</p>
+                            @else
+                                <p class="ui-note" role="alert">{{ __('domain_check.mail.'.$record.'.'.$row['reason']) }}</p>
+                            @endif
+                        @endif
+                    @endforeach
+                @endif
+            </div>
+
+            <p x-show="tab === 'ssl'" x-cloak class="ui-note ui-mt-3">{{ __('domain_check.coming_soon') }}</p>
         </div>
     @endif
 

@@ -3,8 +3,10 @@
 namespace App\Livewire\Windows;
 
 use App\Actions\Domains\CheckDomainDns;
+use App\Actions\Domains\CheckDomainEmail;
 use App\Actions\Domains\CheckDomainRegistration;
 use App\Enums\DnsRecordType;
+use App\Enums\EmailCheckStatus;
 use App\Livewire\Concerns\AuthorizesPermission;
 use App\Support\Dns\HostName;
 use Illuminate\Contracts\View\View;
@@ -13,9 +15,9 @@ use Livewire\Component;
 
 /**
  * The read-only "Alan adını kontrol et" window (docs/UI.md "Alan adı kontrol penceresi"): the one window the
- * Ctrl+K row and the card's "Kontrol et" open. The DNS and WHOIS tabs are live; the DNS lookups run after the window is on
- * screen (`wire:init`), the WHOIS one when its tab is first opened, and both again on "Yeniden sorgula". It only calls
- * CheckDomainDns and CheckDomainRegistration and saves nothing.
+ * Ctrl+K row and the card's "Kontrol et" open. The DNS, WHOIS and E-posta tabs are live; the DNS lookups run after the
+ * window is on screen (`wire:init`), the WHOIS and e-posta ones when their tab is first opened, and all again on
+ * "Yeniden sorgula". It only calls CheckDomainDns, CheckDomainRegistration and CheckDomainEmail and saves nothing.
  */
 class CheckDomain extends Component
 {
@@ -35,6 +37,11 @@ class CheckDomain extends Component
 
     /** @var array{expires_on: string|null, registrar: string|null, stored: bool, nameservers: list<string>, nameservers_differ: bool, mismatches: list<array{customer: string, service_end: string, days: int}>}|null */
     public ?array $registration = null;
+
+    public bool $mailLoaded = false;
+
+    /** @var array<string, array{status: EmailCheckStatus, record: string|null, reason: string|null}> */
+    public array $mail = [];
 
     public function mount(string $domain): void
     {
@@ -64,6 +71,18 @@ class CheckDomain extends Component
         $this->readRegistration();
     }
 
+    /**
+     * The E-posta tab reads on first use, like the WHOIS one.
+     */
+    public function loadMail(): void
+    {
+        if ($this->host === null || $this->mailLoaded) {
+            return;
+        }
+
+        $this->readMail();
+    }
+
     public function refresh(): void
     {
         $this->load();
@@ -71,6 +90,16 @@ class CheckDomain extends Component
         if ($this->registrationLoaded) {
             $this->readRegistration();
         }
+
+        if ($this->mailLoaded) {
+            $this->readMail();
+        }
+    }
+
+    private function readMail(): void
+    {
+        $this->mail = app(CheckDomainEmail::class)->handle((string) $this->host) ?? [];
+        $this->mailLoaded = true;
     }
 
     private function readRegistration(): void

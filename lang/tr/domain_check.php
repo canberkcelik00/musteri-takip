@@ -20,6 +20,29 @@ return [
     'stored_answer' => 'Şu an okunamadı; en son okunan bilgi gösteriliyor.',
     'mismatch' => ':customer · hizmet bitişi :service ile alan adı kaydı arasında :days gün fark var.',
     'coming_soon' => 'Bu sekme henüz hazır değil.',
+    'mail' => [
+        'ok' => 'Kayıt doğru görünüyor.',
+        'spf' => [
+            'title' => 'SPF',
+            'missing' => 'SPF kaydı yok. Alan adının TXT kayıtlarına "v=spf1 +a +mx ~all" gibi bir kayıt ekleyin; yoksa gönderilen e-postalar spam klasörüne düşebilir.',
+            'multiple' => 'Birden fazla SPF kaydı var; alıcılar hepsini geçersiz sayar. Tek bir "v=spf1" kaydında birleştirin.',
+            'open' => 'SPF kaydı herkese gönderme izni veriyor ("+all" ya da yalın "all"). Sonunu "~all" ya da "-all" yapın.',
+            'no_all' => 'SPF kaydı "all" ile bitmiyor. Sonuna "~all" (ya da katı olması için "-all") ekleyin.',
+        ],
+        'dkim' => [
+            'title' => 'DKIM',
+            'missing' => '"default" seçicisinde DKIM kaydı yok. cPanel\'de E-posta Teslimi bölümünden DKIM\'i etkinleştirin; kayıt başka bir seçiciyle yayınlanıyorsa bu uyarıyı yok sayabilirsiniz.',
+            'empty_key' => 'DKIM kaydındaki açık anahtar (p=) boş; anahtar iptal edilmiş. cPanel\'de DKIM\'i yeniden oluşturup kaydı güncelleyin.',
+        ],
+        'dmarc' => [
+            'title' => 'DMARC',
+            'missing' => 'DMARC kaydı yok. "_dmarc" adına "v=DMARC1; p=none; rua=mailto:adres@alanadi.com" gibi bir TXT kaydı ekleyin.',
+            'multiple' => 'Birden fazla DMARC kaydı var; alıcılar hepsini yok sayar. Tek kayıt bırakın.',
+            'no_policy' => 'DMARC kaydında politika (p=) yok. "p=none", "p=quarantine" ya da "p=reject" ekleyin.',
+            'bad_policy' => 'DMARC politikası (p=) geçersiz. Değer none, quarantine ya da reject olmalı.',
+            'monitoring' => 'Politika "none": yalnız izleme yapılıyor, sahte e-postalar engellenmiyor. Her şey düzgün çalışınca "quarantine" ya da "reject" yapın.',
+        ],
+    ],
     'type' => [
         'a' => 'A',
         'aaaa' => 'AAAA',

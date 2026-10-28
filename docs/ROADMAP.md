@@ -608,7 +608,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.6 Site taraması ve olay kaydı** — Bağımlılık: G-16.2, G-15.2
   - Yapılacak: `site_incidents`, `site_failures`/`site_checked_at`, `ProbeSites` + `app:probe-sites` (15 dakikada bir), Bugün'de "Kapalı siteler", günlük özete bölüm, takvimde kırmızı "kapandı" ve yeşil "açıldı" kayıtları.
   - Kabul: Tek hata olay açmaz; açık olay ikinci kez açılmaz; kapanış süresi doğru; özet e-postasında görünür (testli).
-- [ ] **G-16.7 SPF / DKIM / DMARC** — Bağımlılık: G-16.2
+- [x] **G-16.7 SPF / DKIM / DMARC** — Bağımlılık: G-16.2
   - Yapılacak: Penceredeki E-posta sekmesi; eksik veya hatalı her kayıt için Türkçe çözüm cümlesi.
   - Kabul: Üç kaydın her durumu (var, yok, hatalı) doğru raporlanır (testli).
 - [ ] **K-16.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-16.3
