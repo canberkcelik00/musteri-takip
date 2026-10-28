@@ -89,8 +89,8 @@ class Today extends Component
             'canSeeMoney' => $canSeeMoney,
             'stats' => $summary !== null ? $this->stats($summary) : null,
             'rows' => $this->rows($tasks, $whatsApp),
-            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'] + $tasks['ssl']['total'],
-            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0 && $tasks['ssl']['total'] === 0,
+            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'] + $tasks['ssl']['total'] + $tasks['moved']['total'],
+            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0 && $tasks['ssl']['total'] === 0 && $tasks['moved']['total'] === 0,
             'more' => array_values(array_filter([
                 ['label' => __('today.section_overdue'), 'url' => route('app.charges.index', ['onlyOverdue' => 1, 'hideArchived' => 1]), 'count' => $tasks['overdue']['total'], 'hidden' => $tasks['overdue']['total'] > count($tasks['overdue']['items'])],
                 ['label' => __('today.section_due_soon'), 'url' => route('app.charges.index', ['dueSoon' => 1, 'hideArchived' => 1]), 'count' => $tasks['due_soon']['total'], 'hidden' => $tasks['due_soon']['total'] > count($tasks['due_soon']['items'])],
@@ -99,6 +99,7 @@ class Today extends Component
             ], fn (array $section): bool => $section['hidden'])),
             'quotaMore' => $tasks['quota']['total'] - count($tasks['quota']['items']),
             'sslMore' => $tasks['ssl']['total'] - count($tasks['ssl']['items']),
+            'movedMore' => $tasks['moved']['total'] - count($tasks['moved']['items']),
             'charges' => $charges->keyBy('id'),
         ])->title(__('navigation.today'));
     }
@@ -256,6 +257,21 @@ class Today extends Component
                     default => __('today.ssl_days_left', ['count' => $days]),
                 },
                 'tone' => $days <= 0 ? 'red' : 'amber',
+                'amount' => __('money.empty'),
+            ];
+        }
+
+        foreach ($tasks['moved']['items'] as $item) {
+            $domain = (string) ($item->details['domain'] ?? '');
+
+            $rows[] = [
+                'type' => 'moved',
+                'domain' => HostName::normalize($domain) ?? $domain,
+                'customer' => $item->customerService->customer,
+                'subject' => __('today.moved_subject', ['domain' => $domain]),
+                'date' => __('money.empty'),
+                'status' => __('today.moved_status'),
+                'tone' => 'amber',
                 'amount' => __('money.empty'),
             ];
         }

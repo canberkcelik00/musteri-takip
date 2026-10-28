@@ -34,6 +34,9 @@ return [
     'ssl_days_left' => ':count gün kaldı',
     'ssl_today' => 'Bugün bitiyor',
     'ssl_expired' => 'Süresi doldu',
+    'section_moved' => 'Başka yere taşınmış görünen hostingler',
+    'moved_subject' => 'Hosting alan adı · :domain',
+    'moved_status' => 'Başka yere işaret ediyor',
     'empty' => 'Bugün yapılacak bir şey yok',
     'view_all' => 'Tümünü gör (:count)',
 ];

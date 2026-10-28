@@ -602,7 +602,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.4 WHOIS** — Bağımlılık: G-16.2
   - Yapılacak: `registration_*` alanları, penceredeki WHOIS sekmesi, hizmet bitişiyle 7 günden fazla fark uyarısı.
   - Kabul: RDAP ve `.tr` yanıtları sahte veriyle ayrıştırılır; fark uyarısı doğru çıkar (testli).
-- [ ] **G-16.5 Hosting–alan adı eşleşme denetimi** — Bağımlılık: G-16.2
+- [x] **G-16.5 Hosting–alan adı eşleşme denetimi** — Bağımlılık: G-16.2
   - Yapılacak: `points_to_server`/`points_checked_at`, kontrol Action'ı ve komutu, Bugün'de "Başka yere taşınmış görünen hostingler".
   - Kabul: Cloudflare'de sonuç bilinmiyor kalır; sunucusuz kalem atlanır; idempotent (testli).
 - [ ] **G-16.6 Site taraması ve olay kaydı** — Bağımlılık: G-16.2, G-15.2

@@ -25,6 +25,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $registration_expires_at day the domain registration ends, written by the WHOIS check, never by a form (G-16.4)
  * @property string|null $registrar who holds the registration, written by the WHOIS check
  * @property Carbon|null $registration_checked_at last WHOIS check attempt, a failed one included
+ * @property bool|null $points_to_server whether the domain's A record is one of the linked server's addresses, written by the hosting check, never by a form; null = unknown (Cloudflare, unreadable) (G-16.5)
+ * @property Carbon|null $points_checked_at last hosting check attempt, a failed one included
  * @property string|null $license_key
  */
 #[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
@@ -48,6 +50,11 @@ class CustomerServiceItem extends Model
                 $item->registration_expires_at = null;
                 $item->registrar = null;
                 $item->registration_checked_at = null;
+            }
+
+            if ($item->exists && ($item->isDirty('server_id') || ($item->isDirty('details') && self::domainOf($item->details) !== self::domainOf($item->getOriginal('details'))))) {
+                $item->points_to_server = null;
+                $item->points_checked_at = null;
             }
         });
     }
@@ -122,6 +129,8 @@ class CustomerServiceItem extends Model
             'ssl_checked_at' => 'datetime',
             'registration_expires_at' => 'date',
             'registration_checked_at' => 'datetime',
+            'points_to_server' => 'boolean',
+            'points_checked_at' => 'datetime',
             'license_key' => 'encrypted',
         ];
     }
