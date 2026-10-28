@@ -73,6 +73,7 @@
     --mt-nav-green: #2e9d4b;
     --mt-nav-teal: #2a8fa3;
     --mt-nav-pink: #d63a6a;
+    --mt-nav-brown: #a2845e;
     --mt-nav-gray: #7c7c82;
     --mt-on-nav: #ffffff;
 
@@ -101,11 +102,13 @@
     --mt-space-5: 22px;
     --mt-space-6: 28px;
 
+    --mt-text-2xs: 11px;
     --mt-text-xs: 12px;
     --mt-text-sm: 13px;
     --mt-text-base: 14px;
     --mt-text-md: 15px;
     --mt-text-lg: 17px;
+    --mt-text-title: 20px;
     --mt-text-xl: 26px;
     --mt-text-display: 34px;
 }

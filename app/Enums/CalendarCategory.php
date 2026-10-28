@@ -23,6 +23,23 @@ enum CalendarCategory: string
     }
 
     /**
+     * The colour of the category's dot and strip: the name of a menu square (`--mt-nav-*`) or of a badge tone.
+     */
+    public function color(): string
+    {
+        return match ($this) {
+            self::Event => 'blue',
+            self::Task => 'pink',
+            self::ServiceEnd => 'indigo',
+            self::ChargeDue => 'purple',
+            self::Payment => 'green',
+            self::Quote => 'orange',
+            self::AlertDown => 'red',
+            self::AlertSoon => 'amber',
+        };
+    }
+
+    /**
      * Charges, payments and quotes carry money, so a user without `money.view` never has them read.
      */
     public function needsMoney(): bool

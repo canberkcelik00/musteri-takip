@@ -93,6 +93,7 @@ dataset('ui opaque pairs', [
     'menu green' => ['mt-on-nav', 'mt-nav-green', 3.0],
     'menu teal' => ['mt-on-nav', 'mt-nav-teal', 3.0],
     'menu pink' => ['mt-on-nav', 'mt-nav-pink', 3.0],
+    'menu brown' => ['mt-on-nav', 'mt-nav-brown', 3.0],
     'menu gray' => ['mt-on-nav', 'mt-nav-gray', 3.0],
 ]);
 

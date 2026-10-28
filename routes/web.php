@@ -5,6 +5,7 @@ use App\Http\Controllers\App\QuotePdfController;
 use App\Livewire\Pages\Auth\AcceptInvitation;
 use App\Livewire\Pages\Auth\Login;
 use App\Livewire\Pages\Auth\Profile;
+use App\Livewire\Pages\Calendar\Index as CalendarIndex;
 use App\Livewire\Pages\Catalog\Packages as CatalogPackages;
 use App\Livewire\Pages\Catalog\Services as CatalogServices;
 use App\Livewire\Pages\Charges\Index as ChargesIndex;
@@ -31,6 +32,7 @@ Route::name('app.')->group(function (): void {
         Route::livewire('/profile', Profile::class)->name('profile');
         Route::livewire('/customers', CustomersIndex::class)->name('customers.index');
         Route::livewire('/customers/{customer}', CustomersShow::class)->name('customers.show');
+        Route::livewire('/calendar', CalendarIndex::class)->name('calendar');
         Route::livewire('/tasks', TasksIndex::class)->middleware('can:tasks.manage')->name('tasks.index');
         Route::livewire('/charges', ChargesIndex::class)->middleware('can:money.view')->name('charges.index');
         Route::livewire('/payments', PaymentsIndex::class)->middleware('can:money.view')->name('payments.index');

@@ -58,13 +58,13 @@ it('shows an empty state with an icon, and the icon can be swapped', function ()
     expect(Blade::render('<x-ui.empty-state heading="Yok" icon="document-magnifying-glass" />'))->toContain('ui-empty-icon');
 });
 
-it('leaves no one-off inline style in the screens but the progress bar width', function () {
+it('leaves no one-off inline style in the screens but the progress bar width and the calendar geometry', function () {
     $offenders = [];
 
     foreach (['livewire', 'components/ui'] as $folder) {
         foreach (File::allFiles(resource_path("views/{$folder}")) as $file) {
             foreach (file($file->getPathname()) as $number => $line) {
-                if (str_contains($line, ' style="') && ! str_contains($line, 'ui-bar-fill')) {
+                if (str_contains($line, ' style="') && ! str_contains($line, 'ui-bar-fill') && ! str_contains($line, 'data-geometry')) {
                     $offenders[] = $file->getRelativePathname().':'.($number + 1);
                 }
             }

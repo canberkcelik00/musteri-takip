@@ -8,6 +8,7 @@ return [
         'close_menu' => 'Menüyü kapat',
         'today' => 'Bugün',
         'customers' => 'Müşteriler',
+        'calendar' => 'Takvim',
         'tasks' => 'İşler',
         'quotes' => 'Teklifler',
         'collections' => 'Tahsilat',
@@ -25,8 +26,8 @@ return [
         'tab_bar' => 'Ana gezinme',
         'tab_today' => 'Bugün',
         'tab_customers' => 'Müşteriler',
+        'tab_calendar' => 'Takvim',
         'tab_tasks' => 'İşler',
-        'tab_charges' => 'Borçlar',
         'tab_menu' => 'Menü',
     ],
     'user_menu' => [

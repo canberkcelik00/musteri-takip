@@ -189,10 +189,10 @@ it('re-applies the saved theme and glass choice after every wire:navigate', func
     expect($html)->toContain('mtApplyAppearance')->toContain('livewire:navigating')->toContain('livewire:navigated');
 });
 
-it('puts İşler after Müşteriler in the menu and between Müşteriler and Borçlar in the tab bar', function () {
+it('puts Takvim after Müşteriler and İşler after it, in the menu and in the tab bar', function () {
     $labels = collect(Navigation::entries(route('app.today')))->flatMap(fn (array $entry): array => $entry['items'] ?? [$entry])->pluck('label')->all();
 
-    expect(array_slice($labels, 0, 3))->toBe(['ui.nav.today', 'ui.nav.customers', 'ui.nav.tasks'])
+    expect(array_slice($labels, 0, 4))->toBe(['ui.nav.today', 'ui.nav.customers', 'ui.nav.calendar', 'ui.nav.tasks'])
         ->and(collect(Navigation::tabs(route('app.today')))->pluck('tab')->all())
-        ->toBe(['ui.nav.tab_today', 'ui.nav.tab_customers', 'ui.nav.tab_tasks', 'ui.nav.tab_charges']);
+        ->toBe(['ui.nav.tab_today', 'ui.nav.tab_customers', 'ui.nav.tab_calendar', 'ui.nav.tab_tasks']);
 });

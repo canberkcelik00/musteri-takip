@@ -569,7 +569,7 @@ Karar (kullanıcı, U-38): gün/hafta/ay/liste görünümlü Takvim sayfası; el
 - [x] **G-15.2 Takvim birleştiricisi** — Bağımlılık: G-15.1
   - Yapılacak: `ListCalendarEntries` Action'ı ve `CalendarEntry` DTO'su, `CalendarCategory` enum'u: görünür aralık, kullanıcı, kategori süzgeci ve "Yalnız benimkiler" alır; etkinlikler (tekrarlar aralıkta açılır), hizmet bitişi, açık borç vadesi, teklif geçerlilik sonu, açık iş bitişi, ödeme, teklif gönderimi ve iş bitti kayıtlarını kaynak başına tek sorguyla listeler.
   - Kabul: Europe/Istanbul gün sınırları (`travelTo`); haftalık ve aylık tekrar (ayın 31'i, kısa aylar); `repeat_until` sonrası tekrar yok; `money.view` yoksa vade, ödeme ve teklif tablolarına sorgu çalışmaz; sorgu sayısı kayıt sayısıyla artmaz (testli).
-- [ ] **G-15.3 Takvim sayfası** — Bağımlılık: G-15.2
+- [x] **G-15.3 Takvim sayfası** — Bağımlılık: G-15.2
   - Yapılacak: `/calendar` (Hafta, Gün, Ay, Liste; adreste görünüm/tarih/süzgeç), `calendar.css`, `--mt-nav-brown`, menüde 3. sıra ve yeni dar ekran sekmeleri, `lang/tr/calendar.php`, kayda tıklayınca ilgili pencere. Görünüm taslağın 1, 2, 3 ve 5 numaralı panolarıyla aynıdır.
   - Kabul: Görünüm ve tarih adresten okunur; süzgeç ve "Yalnız benimkiler" çalışır; yazılımcı tutar, vade, ödeme ve teklif görmez; menü 8 öğe, sekme çubuğu yeni sırada; yeni token kontrastı ölçülür; simgesiz düğme ve etiketsiz ok yok (testli); açık ve koyu temada taslakla görsel karşılaştırma (kullanıcı).
 - [ ] **G-15.4 Etkinlik penceresi** — Bağımlılık: G-15.3
