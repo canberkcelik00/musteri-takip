@@ -135,7 +135,7 @@
                                         </x-ui.tooltip>
                                     @endif
                                 @endunless
-                            @elseif (in_array($row['type'], ['ssl', 'moved'], true))
+                            @elseif (in_array($row['type'], ['ssl', 'moved', 'down'], true))
                                 <x-ui.button size="sm" x-on:click="{!! Js::openWindow('check-domain', ['domain' => $row['domain']]) !!}">{{ __('domain_check.check') }}</x-ui.button>
                             @elseif ($row['type'] === 'quota')
                                 <x-ui.button size="sm" x-on:click="{!! Js::openWindow('view-usage', ['item' => $row['item_id']]) !!}">{{ __('usage.view') }}</x-ui.button>
@@ -150,7 +150,7 @@
                 @endforeach
             </x-ui.table>
 
-            @if ($more !== [] || $quotaMore > 0 || $sslMore > 0 || $movedMore > 0)
+            @if ($more !== [] || $quotaMore > 0 || $sslMore > 0 || $movedMore > 0 || $downMore > 0)
                 <div class="ui-more">
                     @foreach ($more as $section)
                         <a href="{{ $section['url'] }}">{{ $section['label'] }}: {{ __('today.view_all', ['count' => $section['count']]) }}</a>
@@ -163,6 +163,9 @@
                     @endif
                     @if ($movedMore > 0)
                         <span>{{ __('today.section_moved') }}: {{ __('today.quota_more', ['count' => $movedMore]) }}</span>
+                    @endif
+                    @if ($downMore > 0)
+                        <span>{{ __('today.section_down') }}: {{ __('today.quota_more', ['count' => $downMore]) }}</span>
                     @endif
                 </div>
             @endif

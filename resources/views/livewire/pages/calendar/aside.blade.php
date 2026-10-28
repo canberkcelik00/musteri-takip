@@ -79,7 +79,7 @@
         @forelse ($records as $entry)
             <div class="cal-log" wire:key="record-{{ $entry->key }}">
                 <time>{{ $entry->start }}</time>
-                <span><span class="cal-dot cal-c-{{ $entry->category->color() }}" aria-hidden="true"></span>{{ $entry->title }}@if ($entry->detail) · {{ $entry->detail }}@endif</span>
+                <span><span class="cal-dot cal-c-{{ $entry->color() }}" aria-hidden="true"></span>{{ $entry->title }}@if ($entry->detail) · {{ $entry->detail }}@endif</span>
             </div>
         @empty
             <p class="cal-log-empty">{{ __('calendar.nothing_day') }}</p>

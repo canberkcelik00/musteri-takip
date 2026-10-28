@@ -62,6 +62,12 @@ Schedule::command('app:check-hosting-points')
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
 
+// Asks the sites of active hostings whether they answer; a domain is asked every 15 minutes, within a time budget (G-16.6).
+Schedule::command('app:probe-sites')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
 // Reads the usage of the linked hosting accounts, within a time budget; what does not fit waits for the next run.
 Schedule::command('app:refresh-server-usage')
     ->everyMinute()

@@ -605,7 +605,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.5 Hosting–alan adı eşleşme denetimi** — Bağımlılık: G-16.2
   - Yapılacak: `points_to_server`/`points_checked_at`, kontrol Action'ı ve komutu, Bugün'de "Başka yere taşınmış görünen hostingler".
   - Kabul: Cloudflare'de sonuç bilinmiyor kalır; sunucusuz kalem atlanır; idempotent (testli).
-- [ ] **G-16.6 Site taraması ve olay kaydı** — Bağımlılık: G-16.2, G-15.2
+- [x] **G-16.6 Site taraması ve olay kaydı** — Bağımlılık: G-16.2, G-15.2
   - Yapılacak: `site_incidents`, `site_failures`/`site_checked_at`, `ProbeSites` + `app:probe-sites` (15 dakikada bir), Bugün'de "Kapalı siteler", günlük özete bölüm, takvimde kırmızı "kapandı" ve yeşil "açıldı" kayıtları.
   - Kabul: Tek hata olay açmaz; açık olay ikinci kez açılmaz; kapanış süresi doğru; özet e-postasında görünür (testli).
 - [ ] **G-16.7 SPF / DKIM / DMARC** — Bağımlılık: G-16.2

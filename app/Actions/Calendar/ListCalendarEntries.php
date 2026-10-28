@@ -14,11 +14,13 @@ use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
 use App\Models\Payment;
 use App\Models\Quote;
+use App\Models\SiteIncident;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\Calendar\CalendarEntry;
 use App\Support\Calendar\EventOccurrences;
 use App\Support\Money;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -63,6 +65,10 @@ class ListCalendarEntries
 
         if ($systemDates && $wants(CalendarCategory::AlertSoon) && $user->can(Permission::ServicesView->value)) {
             $entries = $entries->concat($this->sslExpiries($from, $to));
+        }
+
+        if ($systemDates && $wants(CalendarCategory::AlertDown) && $user->can(Permission::ServicesView->value)) {
+            $entries = $entries->concat($this->siteIncidents($from, $to));
         }
 
         if ($systemDates && $seesMoney && $wants(CalendarCategory::ChargeDue)) {
@@ -227,6 +233,63 @@ class ListCalendarEntries
                 url: route('app.customers.show', $item->customerService->customer_id),
             ))
             ->all();
+    }
+
+    /**
+     * A site that stopped answering shows in red at the moment the incident opened, and in green at the moment it
+     * answered again (G-16.6); both are records of what happened, never dates ahead.
+     *
+     * @return list<CalendarEntry>
+     */
+    private function siteIncidents(Carbon $from, Carbon $to): array
+    {
+        $end = $to->copy()->endOfDay();
+
+        $incidents = SiteIncident::query()
+            ->with('item.customerService.customer:id,short_name')
+            ->where(fn (Builder $query): Builder => $query
+                ->whereBetween('started_at', [$from, $end])
+                ->orWhereBetween('ended_at', [$from, $end]))
+            ->whereHas('item.customerService.customer', fn (Builder $customers): Builder => $customers->scopes(['notArchived']))
+            ->get();
+
+        $entries = [];
+
+        foreach ($incidents as $incident) {
+            $customer = $incident->item->customerService->customer;
+            $url = route('app.customers.show', $customer->id);
+
+            if ($incident->started_at->between($from, $end)) {
+                $entries[] = new CalendarEntry(
+                    key: 'site-down:'.$incident->id,
+                    category: CalendarCategory::AlertDown,
+                    title: __('calendar.entry.site_down', ['domain' => $incident->domain]),
+                    date: $incident->started_at->copy()->startOfDay(),
+                    allDay: false,
+                    start: $incident->started_at->format('H:i'),
+                    detail: implode(' · ', array_filter([$customer->short_name, $incident->reason])),
+                    recorded: true,
+                    url: $url,
+                );
+            }
+
+            if ($incident->ended_at !== null && $incident->ended_at->between($from, $end)) {
+                $entries[] = new CalendarEntry(
+                    key: 'site-up:'.$incident->id,
+                    category: CalendarCategory::AlertDown,
+                    title: __('calendar.entry.site_up', ['domain' => $incident->domain]),
+                    date: $incident->ended_at->copy()->startOfDay(),
+                    allDay: false,
+                    start: $incident->ended_at->format('H:i'),
+                    detail: implode(' · ', [$customer->short_name, __('calendar.entry.site_down_for', ['duration' => $incident->started_at->diffForHumans($incident->ended_at, CarbonInterface::DIFF_ABSOLUTE)])]),
+                    recorded: true,
+                    url: $url,
+                    tone: 'green',
+                );
+            }
+        }
+
+        return $entries;
     }
 
     /**

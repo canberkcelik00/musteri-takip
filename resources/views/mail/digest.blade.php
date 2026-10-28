@@ -6,7 +6,9 @@
     $overdue = $digest['overdue'];
     $missingEmail = $digest['missing_reminder_email'];
     $quotaAlerts = $digest['quota_alerts'];
+    $downSites = $digest['down_sites'];
     $counts = collect([
+        'down_sites' => $downSites->count(),
         'new_charges' => $newCharges->count(),
         'free_decisions' => $freeDecisions->count(),
         'overdue' => $overdue->count(),
@@ -20,6 +22,24 @@
 <x-mail::digest-message>
 <p class="dg-title">{{ __('digest.title.'.$frequency->value) }} – {{ $date->format('d.m.Y') }}</p>
 <p class="dg-summary">{{ $counts->implode(' · ') }}</p>
+
+@if ($downSites->isNotEmpty())
+<p class="dg-heading">{{ __('digest.down_sites') }} ({{ $downSites->count() }})</p>
+<table class="dg-table" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.customer') }}</th>
+<th class="dg-th" width="40%" style="width: 40%;">{{ __('digest.column.site') }}</th>
+<th class="dg-th" width="30%" style="width: 30%;">{{ __('digest.column.down_since') }}</th>
+</tr>
+@foreach ($downSites as $incident)
+<tr>
+<td class="dg-td"><a href="{{ $customerUrl($incident->item->customerService->customer_id) }}">{{ $incident->item->customerService->customer->short_name }}</a></td>
+<td class="dg-td">{{ $incident->domain }}@if ($incident->reason)<span class="dg-note" style="color: #55555b;">{{ $incident->reason }}</span>@endif</td>
+<td class="dg-td dg-nowrap">{{ $incident->started_at->format('d.m.Y H:i') }}</td>
+</tr>
+@endforeach
+</table>
+@endif
 
 @if ($newCharges->isNotEmpty())
 <p class="dg-heading">{{ __('digest.new_charges') }} ({{ $newCharges->count() }})</p>

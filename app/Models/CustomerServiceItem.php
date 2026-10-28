@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -27,6 +28,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $registration_checked_at last WHOIS check attempt, a failed one included
  * @property bool|null $points_to_server whether the domain's A record is one of the linked server's addresses, written by the hosting check, never by a form; null = unknown (Cloudflare, unreadable) (G-16.5)
  * @property Carbon|null $points_checked_at last hosting check attempt, a failed one included
+ * @property int $site_failures failed site probes in a row, written by the site probe, never by a form (G-16.6)
+ * @property Carbon|null $site_checked_at last site probe attempt
  * @property string|null $license_key
  */
 #[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
@@ -56,7 +59,20 @@ class CustomerServiceItem extends Model
                 $item->points_to_server = null;
                 $item->points_checked_at = null;
             }
+
+            if ($item->exists && $item->isDirty('details') && self::domainOf($item->details) !== self::domainOf($item->getOriginal('details'))) {
+                $item->site_failures = 0;
+                $item->site_checked_at = null;
+            }
         });
+    }
+
+    /**
+     * @return HasMany<SiteIncident, $this>
+     */
+    public function siteIncidents(): HasMany
+    {
+        return $this->hasMany(SiteIncident::class);
     }
 
     /**
@@ -131,6 +147,8 @@ class CustomerServiceItem extends Model
             'registration_checked_at' => 'datetime',
             'points_to_server' => 'boolean',
             'points_checked_at' => 'datetime',
+            'site_failures' => 'integer',
+            'site_checked_at' => 'datetime',
             'license_key' => 'encrypted',
         ];
     }

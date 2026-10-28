@@ -14,7 +14,9 @@ return [
     'overdue' => 'Vadesi geçmiş borçlar',
     'missing_reminder_email' => 'Hatırlatma gönderilemedi: birincil kişinin geçerli e-postası yok',
     'quota_alerts' => 'Kotası dolmak üzere olanlar',
+    'down_sites' => 'Kapalı siteler',
     'count' => [
+        'down_sites' => ':count site kapalı',
         'quota_alerts' => ':count kota uyarısı',
         'missing_reminder_email' => ':count hatırlatma gönderilemedi',
         'new_charges' => ':count yeni borç',
@@ -29,6 +31,8 @@ return [
         'ends' => 'Bitiş',
         'remaining' => 'Kalan',
         'overdue' => 'Gecikme',
+        'site' => 'Site',
+        'down_since' => 'Kapandığı an',
     ],
     'total' => 'Toplam',
     'remaining' => 'Kalan :amount',

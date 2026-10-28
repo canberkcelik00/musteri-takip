@@ -9,6 +9,7 @@ use App\Enums\Permission;
 use App\Models\Charge;
 use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
+use App\Models\SiteIncident;
 use App\Models\Task;
 use App\Models\User;
 use Closure;
@@ -20,7 +21,7 @@ use Illuminate\Support\Collection as SupportCollection;
  * The "Yapılacaklar" sections of the "Bugün" page (docs/UI.md §5), in priority order: overdue
  * charges (oldest due date first), charges due within 7 days, then free services awaiting a
  * continuation decision, then the user's own open tasks (Faz 13), then hosting quota warnings (Faz 9), then
- * certificates that end within 14 days or already ended (G-16.3), then hostings whose domain points elsewhere (G-16.5).
+ * certificates that end within 14 days or already ended (G-16.3), then hostings whose domain points elsewhere (G-16.5), then sites that are down (G-16.6).
  * A section the user may not see (money.view, tasks.manage, services.view) comes back empty and runs no query.
  * Each section is capped at $limit rows; `total` is the full count of the underlying list so a "Tümünü gör"
  * link can show how many more there are.
@@ -43,6 +44,7 @@ class ListTodayTasks
      *     quota: array{items: SupportCollection<int, UsageAlert>, total: int},
      *     ssl: array{items: Collection<int, CustomerServiceItem>, total: int},
      *     moved: array{items: Collection<int, CustomerServiceItem>, total: int},
+     *     down: array{items: Collection<int, SiteIncident>, total: int},
      * }
      */
     public function handle(User $user, int $limit = 10): array
@@ -71,6 +73,29 @@ class ListTodayTasks
             'moved' => $user->can(Permission::ServicesView->value)
                 ? $this->movedSection($limit)
                 : ['items' => new Collection, 'total' => 0],
+            'down' => $user->can(Permission::ServicesView->value)
+                ? $this->downSection($limit)
+                : ['items' => new Collection, 'total' => 0],
+        ];
+    }
+
+    /**
+     * Sites that stopped answering and have not answered since (G-16.6): open incidents of active services of customers
+     * not archived, the longest down first.
+     *
+     * @return array{items: Collection<int, SiteIncident>, total: int}
+     */
+    private function downSection(int $limit): array
+    {
+        $query = fn (): Builder => SiteIncident::query()
+            ->open()
+            ->whereHas('item.customerService', fn (Builder $services): Builder => $services
+                ->where('status', CustomerServiceStatus::Active)
+                ->whereHas('customer', fn (Builder $customers): Builder => $customers->scopes(['notArchived'])));
+
+        return [
+            'items' => $query()->with('item.customerService.customer')->orderBy('started_at')->orderBy('id')->limit($limit)->get(),
+            'total' => $query()->count(),
         ];
     }
 

@@ -3,6 +3,15 @@
 @endphp
 {{ config('app.name') }}
 {{ __('digest.title.'.$frequency->value) }} – {{ $date->format('d.m.Y') }}
+@if ($digest['down_sites']->isNotEmpty())
+
+{{ __('digest.down_sites') }} ({{ $digest['down_sites']->count() }})
+@foreach ($digest['down_sites'] as $incident)
+- {{ $incident->item->customerService->customer->short_name }} | {{ $incident->domain }} | {{ __('digest.column.down_since') }} {{ $incident->started_at->format('d.m.Y H:i') }}@if ($incident->reason) | {{ $incident->reason }}@endif
+
+  {{ $customerUrl($incident->item->customerService->customer_id) }}
+@endforeach
+@endif
 @if ($digest['new_charges']->isNotEmpty())
 
 {{ __('digest.new_charges') }} ({{ $digest['new_charges']->count() }})

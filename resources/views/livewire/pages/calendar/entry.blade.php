@@ -9,7 +9,7 @@
     $mode = $mode ?? 'chip';
     $withDetail = $withDetail ?? false;
     $placed = $placed ?? null;
-    $color = $entry->category->color();
+    $color = $entry->color();
     $tag = $entry->url !== null ? 'a' : 'button';
     $time = $entry->start === null ? null : $entry->start.($entry->end !== null ? ' – '.$entry->end : '');
     $isSelected = $selected === $entry->key;

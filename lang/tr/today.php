@@ -37,6 +37,9 @@ return [
     'section_moved' => 'Başka yere taşınmış görünen hostingler',
     'moved_subject' => 'Hosting alan adı · :domain',
     'moved_status' => 'Başka yere işaret ediyor',
+    'section_down' => 'Kapalı siteler',
+    'down_subject' => 'Site yanıt vermiyor · :domain',
+    'down_status' => ':duration kapalı',
     'empty' => 'Bugün yapılacak bir şey yok',
     'view_all' => 'Tümünü gör (:count)',
 ];

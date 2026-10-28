@@ -17,6 +17,7 @@ use App\Models\Task;
 use App\Support\Dns\HostName;
 use App\Support\Money;
 use App\Support\Ui\Links;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
@@ -89,8 +90,8 @@ class Today extends Component
             'canSeeMoney' => $canSeeMoney,
             'stats' => $summary !== null ? $this->stats($summary) : null,
             'rows' => $this->rows($tasks, $whatsApp),
-            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'] + $tasks['ssl']['total'] + $tasks['moved']['total'],
-            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0 && $tasks['ssl']['total'] === 0 && $tasks['moved']['total'] === 0,
+            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'] + $tasks['ssl']['total'] + $tasks['moved']['total'] + $tasks['down']['total'],
+            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0 && $tasks['ssl']['total'] === 0 && $tasks['moved']['total'] === 0 && $tasks['down']['total'] === 0,
             'more' => array_values(array_filter([
                 ['label' => __('today.section_overdue'), 'url' => route('app.charges.index', ['onlyOverdue' => 1, 'hideArchived' => 1]), 'count' => $tasks['overdue']['total'], 'hidden' => $tasks['overdue']['total'] > count($tasks['overdue']['items'])],
                 ['label' => __('today.section_due_soon'), 'url' => route('app.charges.index', ['dueSoon' => 1, 'hideArchived' => 1]), 'count' => $tasks['due_soon']['total'], 'hidden' => $tasks['due_soon']['total'] > count($tasks['due_soon']['items'])],
@@ -100,6 +101,7 @@ class Today extends Component
             'quotaMore' => $tasks['quota']['total'] - count($tasks['quota']['items']),
             'sslMore' => $tasks['ssl']['total'] - count($tasks['ssl']['items']),
             'movedMore' => $tasks['moved']['total'] - count($tasks['moved']['items']),
+            'downMore' => $tasks['down']['total'] - count($tasks['down']['items']),
             'charges' => $charges->keyBy('id'),
         ])->title(__('navigation.today'));
     }
@@ -154,7 +156,7 @@ class Today extends Component
 
     /**
      * The sections as the rows of one table, in priority order (overdue, due soon, free services awaiting a decision,
-     * hosting quota warnings).
+     * own tasks, sites that are down, hosting quota warnings, certificates, moved hostings).
      *
      * @param  array<string, mixed>  $tasks
      * @return list<array<string, mixed>>
@@ -199,6 +201,19 @@ class Today extends Component
                 'date' => $task->due_date?->format('d.m.Y') ?? __('money.empty'),
                 'status' => $this->taskStatusLabel($task),
                 'tone' => $task->isOverdue() ? 'red' : ($task->isDueToday() ? 'amber' : null),
+                'amount' => __('money.empty'),
+            ];
+        }
+
+        foreach ($tasks['down']['items'] as $incident) {
+            $rows[] = [
+                'type' => 'down',
+                'domain' => $incident->domain,
+                'customer' => $incident->item->customerService->customer,
+                'subject' => __('today.down_subject', ['domain' => $incident->domain]),
+                'date' => $incident->started_at->format('d.m.Y H:i'),
+                'status' => __('today.down_status', ['duration' => $incident->started_at->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE)]),
+                'tone' => 'red',
                 'amount' => __('money.empty'),
             ];
         }

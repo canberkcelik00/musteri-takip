@@ -32,7 +32,17 @@ final readonly class CalendarEntry
         public array $params = [],
         public ?string $url = null,
         public ?int $eventId = null,
+        public ?string $tone = null,
     ) {}
+
+    /**
+     * The colour of the entry's dot and strip: its own `tone` (a site that is up again is green though it belongs to
+     * the alert category), else the category's.
+     */
+    public function color(): string
+    {
+        return $this->tone ?? $this->category->color();
+    }
 
     public function isEditable(): bool
     {

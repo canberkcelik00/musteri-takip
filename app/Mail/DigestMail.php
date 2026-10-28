@@ -6,6 +6,7 @@ use App\Actions\Servers\UsageAlert;
 use App\Enums\DigestFrequency;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use App\Models\SiteIncident;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -20,7 +21,7 @@ use Illuminate\Support\Collection as SupportCollection;
 class DigestMail extends Mailable
 {
     /**
-     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>}  $digest
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>, down_sites: Collection<int, SiteIncident>}  $digest
      */
     public function __construct(
         public readonly array $digest,

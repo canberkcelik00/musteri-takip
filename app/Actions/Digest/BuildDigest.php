@@ -7,8 +7,10 @@ use App\Actions\Servers\ListUsageAlerts;
 use App\Actions\Servers\UsageAlert;
 use App\Enums\AllocationSource;
 use App\Enums\ChargeStatus;
+use App\Enums\CustomerServiceStatus;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use App\Models\SiteIncident;
 use App\Support\Settings;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +31,7 @@ use Illuminate\Support\Collection as SupportCollection;
  *   overdue section (ListTodayTasks).
  * - quota_alerts: hosting resources at or above the usage warning threshold right now
  *   ({@see ListUsageAlerts}), fullest first, whether or not they were e-mailed before.
+ * - down_sites: sites down right now, from the site probe (G-16.6).
  * - missing_reminder_email: renewal charges whose customer reminder cannot be sent for lack of a
  *   valid primary contact address; only while the reminders are on.
  */
@@ -40,7 +43,7 @@ class BuildDigest
     ) {}
 
     /**
-     * @return array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>}
+     * @return array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>, down_sites: Collection<int, SiteIncident>}
      */
     public function handle(CarbonInterface $since, CarbonInterface $now): array
     {
@@ -50,11 +53,12 @@ class BuildDigest
             'overdue' => $this->overdue(),
             'missing_reminder_email' => $this->missingReminderEmail(),
             'quota_alerts' => $this->listUsageAlerts->handle(),
+            'down_sites' => $this->downSites(),
         ];
     }
 
     /**
-     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>}  $digest
+     * @param  array{new_charges: Collection<int, Charge>, free_decisions: Collection<int, CustomerService>, overdue: Collection<int, Charge>, missing_reminder_email: Collection<int, Charge>, quota_alerts: SupportCollection<int, UsageAlert>, down_sites: Collection<int, SiteIncident>}  $digest
      */
     public static function isEmpty(array $digest): bool
     {
@@ -62,7 +66,28 @@ class BuildDigest
             && $digest['free_decisions']->isEmpty()
             && $digest['overdue']->isEmpty()
             && $digest['missing_reminder_email']->isEmpty()
-            && $digest['quota_alerts']->isEmpty();
+            && $digest['quota_alerts']->isEmpty()
+            && $digest['down_sites']->isEmpty();
+    }
+
+    /**
+     * Sites that are down right now (G-16.6): open incidents of active services of customers not archived, the longest
+     * down first, whether or not they were in an earlier digest. No e-mail goes out when a site goes down; this is where
+     * it is reported.
+     *
+     * @return Collection<int, SiteIncident>
+     */
+    private function downSites(): Collection
+    {
+        return SiteIncident::query()
+            ->open()
+            ->whereHas('item.customerService', fn (Builder $services): Builder => $services
+                ->where('status', CustomerServiceStatus::Active)
+                ->whereHas('customer', fn (Builder $customers): Builder => $customers->notArchived()))
+            ->with('item.customerService.customer')
+            ->orderBy('started_at')
+            ->orderBy('id')
+            ->get();
     }
 
     /**
