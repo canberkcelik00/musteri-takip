@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
 use App\Models\User;
+use App\Support\Dns\NameserverLookup;
 use App\Support\Dns\Registration;
 use App\Support\Dns\RegistrationLookup;
 use Carbon\CarbonImmutable;
@@ -39,13 +40,32 @@ function fakeRegistrations(array $answers): object
             $this->asked[] = $domain;
             $answer = $this->answers[$domain] ?? null;
 
-            return $answer === null ? null : new Registration($answer[0] === null ? null : CarbonImmutable::parse($answer[0]), $answer[1]);
+            return $answer === null ? null : new Registration($answer[0] === null ? null : CarbonImmutable::parse($answer[0]), $answer[1], $answer[2] ?? []);
         }
     };
 
     app()->instance(RegistrationLookup::class, $lookup);
 
     return $lookup;
+}
+
+/**
+ * Replaces the live NS reader: the same answer for every host (null = the lookup failed).
+ *
+ * @param  list<string>|null  $answer
+ */
+function fakeLiveNameservers(?array $answer): void
+{
+    app()->instance(NameserverLookup::class, new class($answer) extends NameserverLookup
+    {
+        /** @param  list<string>|null  $answer */
+        public function __construct(private readonly ?array $answer) {}
+
+        public function nameserversOf(string $host): ?array
+        {
+            return $this->answer;
+        }
+    });
 }
 
 /**
@@ -66,6 +86,7 @@ function domainServiceItem(?string $domain, array $serviceAttributes = [], ?Serv
 
 beforeEach(function () {
     $this->travelTo('2026-06-15 10:00:00');
+    fakeLiveNameservers(null);
 });
 
 describe('check', function () {
@@ -245,6 +266,49 @@ describe('window', function () {
 
         $component->call('loadRegistration')->call('refresh');
         expect($lookup->asked)->toHaveCount(2);
+    });
+});
+
+describe('nameservers', function () {
+    it('lists the registry name servers and finds no difference when DNS answers the same', function () {
+        fakeRegistrations(['logi.com.tr' => ['2027-03-04', null, ['ns1.logi.net', 'ns2.logi.net']]]);
+        fakeLiveNameservers(['ns2.logi.net', 'ns1.logi.net']);
+
+        $result = app(CheckDomainRegistration::class)->handle('logi.com.tr');
+
+        expect($result['nameservers'])->toBe(['ns1.logi.net', 'ns2.logi.net'])->and($result['nameservers_differ'])->toBeFalse();
+    });
+
+    it('warns when DNS answers with other name servers', function () {
+        $this->actingAs(User::factory()->admin()->create());
+        fakeRegistrations(['logi.com.tr' => ['2027-03-04', null, ['ns1.logi.net']]]);
+        fakeLiveNameservers(['anna.ns.cloudflare.com']);
+
+        Livewire::test(CheckDomain::class, ['domain' => 'logi.com.tr'])
+            ->call('loadRegistration')
+            ->assertSee('ns1.logi.net')
+            ->assertSee(__('domain_check.nameservers_differ'));
+    });
+
+    it('never warns when either side is unknown', function (?array $live, array $registered) {
+        fakeRegistrations(['logi.com.tr' => ['2027-03-04', null, $registered]]);
+        fakeLiveNameservers($live);
+
+        expect(app(CheckDomainRegistration::class)->handle('logi.com.tr')['nameservers_differ'])->toBeFalse();
+    })->with([
+        'DNS failed' => [null, ['ns1.logi.net']],
+        'DNS has none' => [[], ['ns1.logi.net']],
+        'registry lists none' => [['ns1.logi.net'], []],
+    ]);
+
+    it('shows no name servers from the stored answer', function () {
+        fakeRegistrations([]);
+        fakeLiveNameservers(['ns1.logi.net']);
+        domainServiceItem('logi.com.tr')->forceFill(['registration_expires_at' => '2027-03-04'])->saveQuietly();
+
+        $result = app(CheckDomainRegistration::class)->handle('logi.com.tr');
+
+        expect($result['stored'])->toBeTrue()->and($result['nameservers'])->toBe([])->and($result['nameservers_differ'])->toBeFalse();
     });
 });
 

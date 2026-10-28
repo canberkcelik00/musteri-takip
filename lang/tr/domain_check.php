@@ -15,6 +15,8 @@ return [
     'no_record' => 'Kayıt yok',
     'registration_ends' => 'Kayıt bitişi',
     'registrar' => 'Kayıt kuruluşu',
+    'nameserver' => 'Ad sunucusu',
+    'nameservers_differ' => 'Kayıttaki ad sunucuları ile DNS\'in şu an yanıt verdiği ad sunucuları farklı; değişiklik henüz yayılmamış ya da alan adı başka yere taşınmış olabilir.',
     'stored_answer' => 'Şu an okunamadı; en son okunan bilgi gösteriliyor.',
     'mismatch' => ':customer · hizmet bitişi :service ile alan adı kaydı arasında :days gün fark var.',
     'coming_soon' => 'Bu sekme henüz hazır değil.',

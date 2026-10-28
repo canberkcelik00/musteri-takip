@@ -6,6 +6,7 @@ use App\Enums\CustomerServiceStatus;
 use App\Enums\ServiceType;
 use App\Models\CustomerServiceItem;
 use App\Support\Dns\HostName;
+use App\Support\Dns\NameserverLookup;
 use App\Support\Dns\RegistrationLookup;
 use Illuminate\Support\Carbon;
 
@@ -19,11 +20,14 @@ class CheckDomainRegistration
     /** A registration end this many days or more away from the service end is reported. */
     public const int MISMATCH_DAYS = 7;
 
-    public function __construct(private readonly RegistrationLookup $lookup) {}
+    public function __construct(
+        private readonly RegistrationLookup $lookup,
+        private readonly NameserverLookup $nameservers,
+    ) {}
 
     /**
-     * @return array{expires_on: string|null, registrar: string|null, stored: bool, mismatches: list<array{customer: string, service_end: string, days: int}>}|null
-     *                                                                                                                                                              null when the host is not valid; expires_on and registrar are both null when nothing could be read
+     * @return array{expires_on: string|null, registrar: string|null, stored: bool, nameservers: list<string>, nameservers_differ: bool, mismatches: list<array{customer: string, service_end: string, days: int}>}|null
+     *                                                                                                                                                                                                                   null when the host is not valid; expires_on and registrar are both null when nothing could be read; nameservers are only ever read live
      */
     public function handle(string $domain): ?array
     {
@@ -44,6 +48,7 @@ class CheckDomainRegistration
         $stored = false;
         $expiresOn = $registration?->expiresOn?->toDateString();
         $registrar = $registration?->registrar;
+        $nameservers = $registration->nameservers ?? [];
 
         if ($registration === null) {
             $known = $items->filter(fn (CustomerServiceItem $item): bool => $item->registration_expires_at !== null || $item->registrar !== null)->first();
@@ -59,8 +64,36 @@ class CheckDomainRegistration
             'expires_on' => $expiresOn,
             'registrar' => $registrar,
             'stored' => $stored,
+            'nameservers' => $nameservers,
+            'nameservers_differ' => $this->nameserversDiffer($host, $nameservers),
             'mismatches' => $expiresOn === null ? [] : $this->mismatches($items->all(), $expiresOn),
         ];
+    }
+
+    /**
+     * Whether the registry's name servers differ from the ones DNS answers with; false when either side is
+     * unknown, so an unreadable answer never raises the warning.
+     *
+     * @param  list<string>  $registered
+     */
+    private function nameserversDiffer(string $host, array $registered): bool
+    {
+        if ($registered === []) {
+            return false;
+        }
+
+        $live = $this->nameservers->nameserversOf($host);
+
+        if ($live === null || $live === []) {
+            return false;
+        }
+
+        $registered = array_values(array_unique($registered));
+        $live = array_values(array_unique($live));
+        sort($registered);
+        sort($live);
+
+        return $registered !== $live;
     }
 
     /**

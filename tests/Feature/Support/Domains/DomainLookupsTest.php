@@ -139,9 +139,11 @@ it('parses an RDAP answer', function () {
             ['roles' => ['registrant'], 'vcardArray' => ['vcard', [['fn', [], 'text', 'Someone']]]],
             ['roles' => ['registrar'], 'vcardArray' => ['vcard', [['version', [], 'text', '4.0'], ['fn', [], 'text', 'Example Registrar, Inc.']]]],
         ],
+        'nameservers' => [['ldhName' => 'NS1.Example.NET'], ['ldhName' => 'ns2.example.net.'], ['ldhName' => 'ns1.example.net']],
     ]);
 
     expect($registration->expiresOn->toDateString())->toBe('2027-03-01')
+        ->and($registration->nameservers)->toBe(['ns1.example.net', 'ns2.example.net'])
         ->and($registration->registrar)->toBe('Example Registrar, Inc.')
         ->and((new RegistrationLookup)->parseRdap(['events' => [['eventAction' => 'registration', 'eventDate' => '2015-03-01']]]))->toBeNull()
         ->and((new RegistrationLookup)->parseRdap([]))->toBeNull();
@@ -173,6 +175,7 @@ TXT;
 
     expect($registration->expiresOn->toDateString())->toBe('2026-11-04')
         ->and($registration->registrar)->toBe('Example Bilişim A.Ş.')
+        ->and($registration->nameservers)->toBe(['ns1.logi.com.tr'])
         ->and((new RegistrationLookup)->parseTrWhois('No match found for "nope.com.tr".'))->toBeNull();
 });
 

@@ -81,7 +81,15 @@ class RegistrationLookup
             }
         }
 
-        return $expiresOn === null && $registrar === null ? null : new Registration($expiresOn, $registrar);
+        $nameservers = [];
+
+        foreach ((array) ($data['nameservers'] ?? []) as $nameserver) {
+            if (is_array($nameserver) && is_string($nameserver['ldhName'] ?? null)) {
+                $nameservers[] = $this->nameserverName($nameserver['ldhName']);
+            }
+        }
+
+        return $expiresOn === null && $registrar === null ? null : new Registration($expiresOn, $registrar, $this->cleanNameservers($nameservers));
     }
 
     /**
@@ -101,7 +109,15 @@ class RegistrationLookup
             $registrar = trim($match[1]) ?: null;
         }
 
-        return $expiresOn === null && $registrar === null ? null : new Registration($expiresOn, $registrar);
+        $nameservers = [];
+
+        if (preg_match('/^\*\* Domain Servers:\s*\R((?:.+\R?)*)/m', $text, $match) === 1) {
+            foreach (preg_split('/\R/', $match[1]) ?: [] as $line) {
+                $nameservers[] = $this->nameserverName(strtok(trim($line), " \t") ?: '');
+            }
+        }
+
+        return $expiresOn === null && $registrar === null ? null : new Registration($expiresOn, $registrar, $this->cleanNameservers($nameservers));
     }
 
     /**
@@ -171,6 +187,20 @@ class RegistrationLookup
         $day = DateTimeImmutable::createFromFormat('!'.$format, $date);
 
         return $day === false ? null : CarbonImmutable::instance($day);
+    }
+
+    private function nameserverName(string $name): string
+    {
+        return mb_strtolower(rtrim(trim($name), '.'));
+    }
+
+    /**
+     * @param  list<string>  $names
+     * @return list<string>
+     */
+    private function cleanNameservers(array $names): array
+    {
+        return array_values(array_unique(array_filter($names, fn (string $name): bool => $name !== '')));
     }
 
     private function vcardName(mixed $vcard): ?string

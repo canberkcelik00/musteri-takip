@@ -33,7 +33,7 @@ class CheckDomain extends Component
 
     public bool $registrationLoaded = false;
 
-    /** @var array{expires_on: string|null, registrar: string|null, stored: bool, mismatches: list<array{customer: string, service_end: string, days: int}>}|null */
+    /** @var array{expires_on: string|null, registrar: string|null, stored: bool, nameservers: list<string>, nameservers_differ: bool, mismatches: list<array{customer: string, service_end: string, days: int}>}|null */
     public ?array $registration = null;
 
     public function mount(string $domain): void

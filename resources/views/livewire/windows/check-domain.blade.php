@@ -44,7 +44,13 @@
                     <ul class="ui-mailboxes">
                         <li><span class="ui-mailbox-address">{{ __('domain_check.registration_ends') }}: {{ $registration['expires_on'] === null ? '—' : \Illuminate\Support\Carbon::parse($registration['expires_on'])->format('d.m.Y') }}</span></li>
                         <li><span class="ui-mailbox-address">{{ __('domain_check.registrar') }}: {{ $registration['registrar'] ?? '—' }}</span></li>
+                        @foreach ($registration['nameservers'] as $nameserver)
+                            <li><span class="ui-mailbox-address">{{ __('domain_check.nameserver') }}: {{ $nameserver }}</span></li>
+                        @endforeach
                     </ul>
+                    @if ($registration['nameservers_differ'])
+                        <p class="ui-note ui-mt-3" role="alert">{{ __('domain_check.nameservers_differ') }}</p>
+                    @endif
                     @if ($registration['stored'])
                         <p class="ui-hint">{{ __('domain_check.stored_answer') }}</p>
                     @endif
