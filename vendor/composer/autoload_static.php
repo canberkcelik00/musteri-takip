@@ -665,6 +665,7 @@ class ComposerStaticInit45cfd8cb52957bc24f8f738bc9daa754
         'App\\Actions\\Tasks\\CompleteTask' => __DIR__ . '/../..' . '/app/Actions/Tasks/CompleteTask.php',
         'App\\Actions\\Tasks\\CreateTask' => __DIR__ . '/../..' . '/app/Actions/Tasks/CreateTask.php',
         'App\\Actions\\Tasks\\DeleteTask' => __DIR__ . '/../..' . '/app/Actions/Tasks/DeleteTask.php',
+        'App\\Actions\\Tasks\\ParseQuickTask' => __DIR__ . '/../..' . '/app/Actions/Tasks/ParseQuickTask.php',
         'App\\Actions\\Tasks\\ReopenTask' => __DIR__ . '/../..' . '/app/Actions/Tasks/ReopenTask.php',
         'App\\Actions\\Tasks\\SendTaskAssignedMail' => __DIR__ . '/../..' . '/app/Actions/Tasks/SendTaskAssignedMail.php',
         'App\\Actions\\Tasks\\UpdateTask' => __DIR__ . '/../..' . '/app/Actions/Tasks/UpdateTask.php',

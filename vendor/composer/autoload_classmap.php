@@ -126,6 +126,7 @@ return array(
     'App\\Actions\\Tasks\\CompleteTask' => $baseDir . '/app/Actions/Tasks/CompleteTask.php',
     'App\\Actions\\Tasks\\CreateTask' => $baseDir . '/app/Actions/Tasks/CreateTask.php',
     'App\\Actions\\Tasks\\DeleteTask' => $baseDir . '/app/Actions/Tasks/DeleteTask.php',
+    'App\\Actions\\Tasks\\ParseQuickTask' => $baseDir . '/app/Actions/Tasks/ParseQuickTask.php',
     'App\\Actions\\Tasks\\ReopenTask' => $baseDir . '/app/Actions/Tasks/ReopenTask.php',
     'App\\Actions\\Tasks\\SendTaskAssignedMail' => $baseDir . '/app/Actions/Tasks/SendTaskAssignedMail.php',
     'App\\Actions\\Tasks\\UpdateTask' => $baseDir . '/app/Actions/Tasks/UpdateTask.php',
