@@ -11,6 +11,7 @@ use App\Enums\CustomerServiceStatus;
 use App\Enums\Permission;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Support\Dns\HostName;
 use App\Support\Settings;
 use App\Support\Ui\RecentCustomers;
 use Illuminate\Contracts\View\View;
@@ -120,6 +121,7 @@ class Show extends Component
             'activeServices' => $activeServices,
             'domains' => $activeServices
                 ->flatMap(fn (CustomerService $service): array => [...$service->domains(), ...$service->otherDomains()])
+                ->filter(fn (string $domain): bool => HostName::normalize($domain) !== null)
                 ->unique(fn (string $domain): string => mb_strtolower($domain))
                 ->values()
                 ->all(),

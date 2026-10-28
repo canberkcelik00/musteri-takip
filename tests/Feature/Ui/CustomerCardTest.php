@@ -220,6 +220,19 @@ it('lists every domain of the active services in the Domains card, other account
         ->and($html)->not->toContain('iptal.com');
 });
 
+it('keeps a site name that is not a domain out of the Domains card', function () {
+    $customer = Customer::factory()->create();
+    uiCardService($customer, ['name' => 'Bakım'], 'Armador');
+    uiCardService($customer, ['name' => 'Hosting'], 'b6g08.webshell.online');
+
+    $card = uiCardDomains(uiCard($customer)->html());
+
+    expect(substr_count($card, 'class="ui-domain-name"'))->toBe(1)
+        ->and($card)->toContain('>b6g08.webshell.online<')
+        ->and($card)->not->toContain('Armador')
+        ->and($card)->toContain(__('customer_services.domains_count', ['count' => 1]));
+});
+
 it('draws the Domains card only when an active service has a domain', function () {
     $customer = Customer::factory()->create();
     uiCardService($customer)->items()->first()->update(['details' => []]);
