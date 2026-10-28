@@ -177,3 +177,62 @@ it('forbids the delete confirmation without the permission', function () {
 
     Livewire::actingAs($this->me)->test(Confirm::class, ['action' => 'delete-task', 'id' => $task->id])->assertForbidden();
 });
+
+it('opens filled from a pasted WhatsApp message and saves it as a task', function () {
+    Mail::fake();
+    $customer = Customer::factory()->create(['short_name' => 'Mavi Ofis']);
+    $message = "[28.10.2026 14:32] Ahmet: Mavi Ofis sitesinde banner değişsin\nRengi mavi olsun";
+
+    Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => $message])
+        ->assertSet('title', 'Mavi Ofis sitesinde banner değişsin')
+        ->assertSet('notes', $message)
+        ->assertSet('customerId', (string) $customer->id)
+        ->assertSet('assignedTo', (string) $this->me->id)
+        ->assertSee(__('tasks.matched_from', ['sign' => 'Mavi Ofis']))
+        ->call('save')
+        ->assertHasNoErrors()
+        ->assertDispatched('close-window');
+
+    $task = Task::query()->firstOrFail();
+
+    expect($task->title)->toBe('Mavi Ofis sitesinde banner değişsin')
+        ->and($task->customer_id)->toBe($customer->id)
+        ->and($task->created_by)->toBe($this->me->id);
+    Mail::assertNothingSent();
+});
+
+it('e-mails a colleague when a pasted task is assigned to them', function () {
+    Mail::fake();
+
+    Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => 'Forma bak'])
+        ->set('assignedTo', (string) $this->colleague->id)
+        ->call('save');
+
+    Mail::assertSent(TaskAssignedMail::class, fn (TaskAssignedMail $mail): bool => $mail->hasTo($this->colleague->email));
+});
+
+it('leaves the customer empty and shows no hint when the pasted message matches none', function () {
+    Customer::factory()->create(['short_name' => 'Mavi Ofis']);
+
+    Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => 'Banner değişsin'])
+        ->assertSet('title', 'Banner değişsin')
+        ->assertSet('notes', '')
+        ->assertSet('customerId', '')
+        ->assertDontSee(__('tasks.matched_from', ['sign' => '']));
+});
+
+it('puts the paste listener in the page only for a user who can manage tasks', function () {
+    $this->actingAs($this->me)->get(route('app.profile'))->assertOk()->assertSee('x-on:paste.window', false);
+
+    RoleModel::findByName('developer')->revokePermissionTo(Permission::TasksManage->value);
+
+    $this->actingAs(User::query()->findOrFail($this->me->id))->get(route('app.profile'))->assertOk()->assertDontSee('x-on:paste.window', false);
+});
+
+it('does not open the task window from a paste without the permission', function () {
+    RoleModel::findByName('developer')->revokePermissionTo(Permission::TasksManage->value);
+
+    Livewire::actingAs($this->me)->test(WindowHost::class)
+        ->dispatch('open-window', name: 'edit-task', params: ['pasted' => 'Banner değişsin'])
+        ->assertSet('name', null);
+});

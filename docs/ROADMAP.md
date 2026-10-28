@@ -628,7 +628,7 @@ Karar (kullanıcı, U-40): bilgisayardaki WhatsApp'ta mesajı kopyala → paneld
 - [x] **G-17.1 `ParseQuickTask` Action'ı** — Bağımlılık: G-17.0
   - Yapılacak: `app/Actions/Tasks/ParseQuickTask.php`: metinden başlık, not, müşteri ve eşleşme işaretini çıkarır (PRD "Mesajdan iş"); veritabanına yazmaz; en çok 5 alan adı, 3 telefon ve 3 gönderen denenir.
   - Kabul: Başlık ilk satırdan gelir, uzun başlık kısaltılır; iki WhatsApp öneki biçimi temizlenir; tek kısa satırda not boş kalır; müşteri alan adı, telefon (farklı yazımlarda), gönderen adı ve kısa adla bulunur; iki müşteriyle eşleşince boş kalır; arşivli müşteri seçilmez; 5000 karakterden uzun metin kırpılır; boş metin boş başlık döndürür (testli).
-- [ ] **G-17.2 Ctrl+V ile pencere** — Bağımlılık: G-17.1
+- [x] **G-17.2 Ctrl+V ile pencere** — Bağımlılık: G-17.1
   - Yapılacak: Yerleşim dosyasında `tasks.manage` olana yapıştırma dinleyicisi (yazı kutusunda, pencere açıkken ve boş panoda çalışmaz); `EditTask::mount`'a `pasted` parametresi ve "Mesajdan bulundu (…)" ipucu; "İş ekle" düğmesi ve boş liste ipuçları; `lang/tr/tasks.php` anahtarları.
   - Kabul: `pasted` ile pencere alanları dolu açılır; kayıt iş oluşturur ve oluşturanı saklar; başkasına atamada e-posta gider; eşleşme yoksa müşteri boş kalır; izni olmayan rolde pencere açılmaz ve sayfada dinleyici yoktur; izinli kullanıcının sayfasında dinleyici vardır (testli).
 - [ ] **K-17.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-17.2

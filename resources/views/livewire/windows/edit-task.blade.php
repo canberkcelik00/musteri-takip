@@ -5,7 +5,11 @@
 <x-ui.window :title="$record === null ? __('tasks.create') : __('tasks.edit')" submit="save">
     <div class="ui-form">
         <div class="is-full"><x-ui.input :label="__('tasks.title')" wire:model="title" maxlength="255" required autofocus /></div>
-        <div class="is-full"><x-ui.select :label="__('tasks.customer')" wire:model="customerId" :options="$customers" :searchable="true" /></div>
+        <div class="is-full"><x-ui.select :label="__('tasks.customer')" wire:model="customerId" :options="$customers" :searchable="true" />
+            @if ($matchedBy !== null && $customerId !== '')
+                <p class="ui-hint">{{ __('tasks.matched_from', ['sign' => $matchedBy]) }}</p>
+            @endif
+        </div>
         <x-ui.select :label="__('tasks.assignee')" wire:model="assignedTo" :options="$assignees" />
         <div class="flex flex-col gap-2">
             <x-ui.date-input :label="__('tasks.due_date')" wire:model="dueDate" />

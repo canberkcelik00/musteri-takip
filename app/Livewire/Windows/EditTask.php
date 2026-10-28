@@ -4,6 +4,7 @@ namespace App\Livewire\Windows;
 
 use App\Actions\Tasks\CompleteTask;
 use App\Actions\Tasks\CreateTask;
+use App\Actions\Tasks\ParseQuickTask;
 use App\Actions\Tasks\ReopenTask;
 use App\Actions\Tasks\UpdateTask;
 use App\Exceptions\InvalidTask;
@@ -38,12 +39,29 @@ class EditTask extends Component
 
     public string $dueDate = '';
 
-    public function mount(?int $task = null, ?int $customer = null): void
+    /** The sign that found the customer in a pasted message, shown as a hint under the customer field. */
+    #[Locked]
+    public ?string $matchedBy = null;
+
+    /**
+     * `$pasted` is a message pasted with Ctrl+V (Faz 17): it fills the title, the notes and, when exactly one customer
+     * is recognised, the customer.
+     */
+    public function mount(ParseQuickTask $parseQuickTask, ?int $task = null, ?int $customer = null, ?string $pasted = null): void
     {
         $this->assignedTo = (string) $this->actor()->id;
 
         if ($task === null) {
             $this->customerId = $customer !== null ? (string) Customer::query()->findOrFail($customer)->id : '';
+
+            if ($pasted !== null && $customer === null) {
+                $parsed = $parseQuickTask->handle($pasted);
+
+                $this->title = $parsed['title'];
+                $this->notes = (string) $parsed['notes'];
+                $this->customerId = (string) $parsed['customer_id'];
+                $this->matchedBy = $parsed['customer_id'] === null ? null : $parsed['matched_by'];
+            }
 
             return;
         }

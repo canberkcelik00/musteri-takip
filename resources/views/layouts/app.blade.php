@@ -9,7 +9,19 @@
     @include('layouts.partials.head')
 </head>
 <body>
-    <div x-data="{ menu: false }" x-on:keydown.escape.window="menu = false">
+    <div
+        x-data="{ menu: false }"
+        x-on:keydown.escape.window="menu = false"
+        @can('tasks.manage')
+            x-on:paste.window="
+                if ($event.target.closest?.('input, textarea, select, [contenteditable]') || document.querySelector('.ui-window-layer')) { return }
+                const text = $event.clipboardData?.getData('text/plain') ?? ''
+                if (text.trim() === '') { return }
+                $event.preventDefault()
+                $dispatch('open-window', { name: 'edit-task', params: { pasted: text } })
+            "
+        @endcan
+    >
         @include('layouts.partials.sidebar')
 
         <div class="ui-scrim" x-show="menu" x-cloak x-on:click="menu = false"></div>
@@ -24,7 +36,7 @@
                     @endcan
                     <x-ui.button class="ui-topbar-new" x-on:click="$dispatch('open-window', { name: 'create-customer' })">{{ __('navigation.new_customer') }}</x-ui.button>
                     @can('tasks.manage')
-                        <x-ui.button class="ui-topbar-new" x-on:click="$dispatch('open-window', { name: 'edit-task' })">{{ __('navigation.new_task') }}</x-ui.button>
+                        <x-ui.button class="ui-topbar-new" title="{{ __('tasks.paste_hint') }}" x-on:click="$dispatch('open-window', { name: 'edit-task' })">{{ __('navigation.new_task') }}</x-ui.button>
                     @endcan
                 </div>
                 @include('layouts.partials.user-menu')
