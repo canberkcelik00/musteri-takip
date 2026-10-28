@@ -590,7 +590,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 
 - [x] **G-16.0 Dokümanlar** — Bağımlılık: G-15.0
   - Yapıldı (G-15.0 ile birlikte): PRD "Alan adı ve site araçları (Faz 16)", DATA_MODEL önbellek alanları ve `site_incidents`, UI.md (kontrol penceresi, arama satırı, Bugün bölümleri), DECISIONS U-39, bu faz.
-- [ ] **G-16.1 Ortak sorgu katmanı** — Bağımlılık: G-16.0
+- [x] **G-16.1 Ortak sorgu katmanı** — Bağımlılık: G-16.0
   - Yapılacak: `DnsLookup`, `TlsCertificateLookup`, `HttpProbe`, `RegistrationLookup` (RDAP + `.tr` TRABİS); hepsi okunamazsa `null` döner, testte sahte sürüm bağlanır.
   - Kabul: Her sorgu okunamayınca istisna atmaz; ayrıştırıcılar sahte yanıtla doğrulanır (testli).
 - [ ] **G-16.2 Alan adı kontrol penceresi** — Bağımlılık: G-16.1, G-15.3
