@@ -35,7 +35,27 @@
                 @endif
             </div>
 
-            @foreach (['ssl', 'whois', 'mail'] as $tab)
+            <div x-show="tab === 'whois'" x-cloak x-effect="if (tab === 'whois') $wire.loadRegistration()" class="ui-mt-3">
+                @if (! $registrationLoaded)
+                    <p class="ui-hint" role="status">{{ __('domain_check.loading') }}</p>
+                @elseif ($registration === null || ($registration['expires_on'] === null && $registration['registrar'] === null))
+                    <p class="ui-hint">{{ __('domain_check.unreadable') }}</p>
+                @else
+                    <ul class="ui-mailboxes">
+                        <li><span class="ui-mailbox-address">{{ __('domain_check.registration_ends') }}: {{ $registration['expires_on'] === null ? '—' : \Illuminate\Support\Carbon::parse($registration['expires_on'])->format('d.m.Y') }}</span></li>
+                        <li><span class="ui-mailbox-address">{{ __('domain_check.registrar') }}: {{ $registration['registrar'] ?? '—' }}</span></li>
+                    </ul>
+                    @if ($registration['stored'])
+                        <p class="ui-hint">{{ __('domain_check.stored_answer') }}</p>
+                    @endif
+                    @foreach ($registration['mismatches'] as $mismatch)
+                        @php($serviceEnd = \Illuminate\Support\Carbon::parse($mismatch['service_end'])->format('d.m.Y'))
+                        <p class="ui-note ui-mt-3" role="alert">{{ __('domain_check.mismatch', ['customer' => $mismatch['customer'], 'service' => $serviceEnd, 'days' => $mismatch['days']]) }}</p>
+                    @endforeach
+                @endif
+            </div>
+
+            @foreach (['ssl', 'mail'] as $tab)
                 <p x-show="tab === '{{ $tab }}'" x-cloak class="ui-note ui-mt-3">{{ __('domain_check.coming_soon') }}</p>
             @endforeach
         </div>
@@ -43,7 +63,7 @@
 
     <x-slot:footer>
         @if ($host !== null)
-            <x-ui.button wire:click="load" class="ui-mr-auto">{{ __('domain_check.refresh') }}</x-ui.button>
+            <x-ui.button wire:click="refresh" class="ui-mr-auto">{{ __('domain_check.refresh') }}</x-ui.button>
         @endif
         <x-ui.button x-on:click="$dispatch('close-window')">{{ __('actions.close') }}</x-ui.button>
     </x-slot:footer>

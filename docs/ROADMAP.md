@@ -599,7 +599,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.3 SSL denetleyici** — Bağımlılık: G-16.2
   - Yapılacak: `ssl_expires_at`/`ssl_checked_at`, `CheckSslCertificates` + `app:check-ssl` (günde bir, süre bütçeli), Bugün'de "SSL 14 gün içinde bitiyor", takvimde amber uyarı.
   - Kabul: İdempotent; yarıda kalan iş sonraki çalışmada tamamlanır; alan adı değişince alanlar boşalır (testli).
-- [ ] **G-16.4 WHOIS** — Bağımlılık: G-16.2
+- [x] **G-16.4 WHOIS** — Bağımlılık: G-16.2
   - Yapılacak: `registration_*` alanları, penceredeki WHOIS sekmesi, hizmet bitişiyle 7 günden fazla fark uyarısı.
   - Kabul: RDAP ve `.tr` yanıtları sahte veriyle ayrıştırılır; fark uyarısı doğru çıkar (testli).
 - [ ] **G-16.5 Hosting–alan adı eşleşme denetimi** — Bağımlılık: G-16.2

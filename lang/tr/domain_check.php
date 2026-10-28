@@ -13,6 +13,10 @@ return [
     'refresh' => 'Yeniden sorgula',
     'unreadable' => 'Okunamadı',
     'no_record' => 'Kayıt yok',
+    'registration_ends' => 'Kayıt bitişi',
+    'registrar' => 'Kayıt kuruluşu',
+    'stored_answer' => 'Şu an okunamadı; en son okunan bilgi gösteriliyor.',
+    'mismatch' => ':customer · hizmet bitişi :service ile alan adı kaydı arasında :days gün fark var.',
     'coming_soon' => 'Bu sekme henüz hazır değil.',
     'type' => [
         'a' => 'A',

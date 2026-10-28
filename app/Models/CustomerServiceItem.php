@@ -22,6 +22,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $dns_checked_at last DNS check attempt, a failed one included
  * @property Carbon|null $ssl_expires_at written by the SSL check, never by a form; null = not read yet (G-16.3)
  * @property Carbon|null $ssl_checked_at last SSL check attempt, a failed one included
+ * @property Carbon|null $registration_expires_at day the domain registration ends, written by the WHOIS check, never by a form (G-16.4)
+ * @property string|null $registrar who holds the registration, written by the WHOIS check
+ * @property Carbon|null $registration_checked_at last WHOIS check attempt, a failed one included
  * @property string|null $license_key
  */
 #[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
@@ -42,6 +45,9 @@ class CustomerServiceItem extends Model
                 $item->dns_checked_at = null;
                 $item->ssl_expires_at = null;
                 $item->ssl_checked_at = null;
+                $item->registration_expires_at = null;
+                $item->registrar = null;
+                $item->registration_checked_at = null;
             }
         });
     }
@@ -114,6 +120,8 @@ class CustomerServiceItem extends Model
             'dns_checked_at' => 'datetime',
             'ssl_expires_at' => 'datetime',
             'ssl_checked_at' => 'datetime',
+            'registration_expires_at' => 'date',
+            'registration_checked_at' => 'datetime',
             'license_key' => 'encrypted',
         ];
     }

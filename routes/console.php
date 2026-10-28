@@ -50,6 +50,12 @@ Schedule::command('app:check-ssl')
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
 
+// Reads the registration end and the registrar of the domains not read for 24 hours, within a time budget (G-16.4).
+Schedule::command('app:check-registration')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
 // Reads the usage of the linked hosting accounts, within a time budget; what does not fit waits for the next run.
 Schedule::command('app:refresh-server-usage')
     ->everyMinute()
