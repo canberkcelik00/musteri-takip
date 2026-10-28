@@ -16,4 +16,14 @@ return [
     'mail_location' => 'Yer',
     'mail_button' => 'Takvimi aç',
     'all_day' => 'Tüm gün',
+
+    'entry' => [
+        'task_done' => 'İş bitti: :title',
+        'service_end' => ':service bitiyor',
+        'charge_due' => ':customer · Borç vadesi',
+        'remaining' => 'Kalan :amount',
+        'payment' => 'Ödeme alındı: :customer',
+        'quote_valid' => 'Teklif :number · Geçerlilik sonu',
+        'quote_sent' => 'Teklif gönderildi: :number',
+    ],
 ];

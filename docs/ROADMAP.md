@@ -566,7 +566,7 @@ Karar (kullanıcı, U-38): gün/hafta/ay/liste görünümlü Takvim sayfası; el
 - [x] **G-15.1 Veri katmanı ve Action'lar** — Bağımlılık: G-15.0
   - Yapılacak: `calendar_events`, `calendar_event_user`, `calendar_event_reminders` migration'ları; `CalendarEvent` modeli/factory/örnek veri; `EventRepeat` enum'u; `Permission::CalendarManage` (Yazılımcı varsayılanında açık, `SyncRolesAndPermissions` mevcut yerleşik role bir kez verir, T-167); `CreateCalendarEvent`/`UpdateCalendarEvent`/`DeleteCalendarEvent` (açık `User $actor`); `CalendarEventInviteMail` (senkron); müşteri ve kullanıcı silme kurallarına etkinlik.
   - Kabul: Bitiş başlangıçtan önce olamaz; tüm günde saat alanları boş kalır; pasif kullanıcı katılan olamaz; kendini ekleyene e-posta gitmez, e-posta hatası kaydı geri almaz; etkinliği olan müşteri ve kullanıcı silinmez; yeni izin mevcut Yazılımcı'ya bir kez verilir, sonradan kaldırılırsa geri gelmez, sync iki kez çalışınca kayıt artmaz (testli).
-- [ ] **G-15.2 Takvim birleştiricisi** — Bağımlılık: G-15.1
+- [x] **G-15.2 Takvim birleştiricisi** — Bağımlılık: G-15.1
   - Yapılacak: `ListCalendarEntries` Action'ı ve `CalendarEntry` DTO'su, `CalendarCategory` enum'u: görünür aralık, kullanıcı, kategori süzgeci ve "Yalnız benimkiler" alır; etkinlikler (tekrarlar aralıkta açılır), hizmet bitişi, açık borç vadesi, teklif geçerlilik sonu, açık iş bitişi, ödeme, teklif gönderimi ve iş bitti kayıtlarını kaynak başına tek sorguyla listeler.
   - Kabul: Europe/Istanbul gün sınırları (`travelTo`); haftalık ve aylık tekrar (ayın 31'i, kısa aylar); `repeat_until` sonrası tekrar yok; `money.view` yoksa vade, ödeme ve teklif tablolarına sorgu çalışmaz; sorgu sayısı kayıt sayısıyla artmaz (testli).
 - [ ] **G-15.3 Takvim sayfası** — Bağımlılık: G-15.2

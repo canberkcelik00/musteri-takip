@@ -93,6 +93,17 @@ return [
         'monthly' => 'Her ay',
     ],
 
+    'calendar_category' => [
+        'event' => 'Etkinlikler',
+        'task' => 'İşler',
+        'service_end' => 'Hizmet bitişleri',
+        'charge_due' => 'Borç vadeleri',
+        'payment' => 'Ödemeler',
+        'quote' => 'Teklifler',
+        'alert_down' => 'Site kapandı',
+        'alert_soon' => 'Süre yaklaşıyor',
+    ],
+
     'server_type' => [
         'whm' => 'WHM (reseller)',
         'cpanel' => 'cPanel',
