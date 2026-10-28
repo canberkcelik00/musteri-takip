@@ -89,6 +89,24 @@ abstract class ServerApiClient implements RemoteServerApi
     }
 
     /**
+     * Every `ip` value found anywhere in an API answer that is a public IPv4 address, each once.
+     *
+     * @return list<string>
+     */
+    protected static function publicAddresses(mixed $data): array
+    {
+        $addresses = [];
+
+        array_walk_recursive($data, function (mixed $value, int|string $key) use (&$addresses): void {
+            if ($key === 'ip' && is_string($value) && filter_var(trim($value), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+                $addresses[] = trim($value);
+            }
+        });
+
+        return array_values(array_unique($addresses));
+    }
+
+    /**
      * Main, addon and parked domains of the account, lower case, main first (no sub domains);
      * null when this kind of connection does not give them or the call failed, so the usage
      * read never fails for the domains.

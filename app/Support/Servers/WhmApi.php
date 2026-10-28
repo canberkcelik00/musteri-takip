@@ -50,6 +50,17 @@ class WhmApi extends ServerApiClient
         ), array_filter($rows, fn (mixed $row): bool => is_array($row) && isset($row['user']))));
     }
 
+    public function siteAddresses(): array
+    {
+        $rows = $this->request('json-api/listaccts?api.version=1')['data']['acct'] ?? null;
+
+        if (! is_array($rows)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        }
+
+        return self::publicAddresses($rows);
+    }
+
     public function domainsOf(RemoteAccount $account): array
     {
         $query = http_build_query([

@@ -5,10 +5,12 @@ namespace App\Actions\Domains;
 use App\Enums\CustomerServiceStatus;
 use App\Enums\DnsRecordType;
 use App\Enums\ServiceType;
+use App\Exceptions\RemoteServerError;
 use App\Models\CustomerServiceItem;
 use App\Models\Server;
 use App\Support\Dns\DnsLookup;
 use App\Support\Dns\HostName;
+use App\Support\Servers\ServerApiClient;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -16,7 +18,7 @@ use Illuminate\Support\Collection;
 /**
  * Find out whether the domain of a hosting item still points to the server the item is linked to
  * (G-16.5, same pattern as {@see CheckSslCertificates}): the A records of the domain are compared with
- * the addresses of the server's host name. Only domains not tried for 24 hours are looked at, never
+ * the addresses the server reports for its sites and those of its host name. Only domains not tried for 24 hours are looked at, never
  * tried first, then the oldest attempt. A failed read counts as an attempt but keeps the earlier answer.
  *
  * Only active hosting items linked to a server and known not to be on Cloudflare are checked: behind
@@ -50,10 +52,14 @@ class CheckHostingPoints
 
             $serverAddresses[$first->server_id] ??= $this->serverAddresses($first->server);
             $domainAddresses = $this->dns->records((string) $this->domainOf($first), DnsRecordType::A);
+            ['known' => $known, 'reported' => $reported] = $serverAddresses[$first->server_id];
 
-            $points = $serverAddresses[$first->server_id] === null || $domainAddresses === null || $domainAddresses === []
-                ? null
-                : array_intersect($domainAddresses, $serverAddresses[$first->server_id]) !== [];
+            $points = match (true) {
+                $domainAddresses === null || $domainAddresses === [] => null,
+                array_intersect($domainAddresses, $known) !== [] => true,
+                $reported => false,
+                default => null,
+            };
 
             CustomerServiceItem::query()->whereIn('id', $items->modelKeys())->update(
                 $points === null
@@ -108,22 +114,28 @@ class CheckHostingPoints
     }
 
     /**
-     * The IPv4 addresses of the server: its host name when that is one already, else the A records of
-     * the host name. Null when they cannot be read.
+     * The IPv4 addresses the sites of the server may be served from: the addresses the server itself
+     * reports for its accounts, plus its host name (as it is when it is an address, else its A
+     * records). `reported` is true only when the server reported addresses: the host name is often
+     * the server's main address while the sites sit on a shared or dedicated one, so without the
+     * server's own list a domain that matches nothing is not known to point elsewhere.
      *
-     * @return list<string>|null
+     * @return array{known: list<string>, reported: bool}
      */
-    private function serverAddresses(Server $server): ?array
+    private function serverAddresses(Server $server): array
     {
-        $hostname = mb_strtolower(trim($server->hostname));
-
-        if (filter_var($hostname, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
-            return [$hostname];
+        try {
+            $reported = ServerApiClient::for($server)->siteAddresses();
+        } catch (RemoteServerError) {
+            $reported = [];
         }
 
-        $addresses = $this->dns->records($hostname, DnsRecordType::A);
+        $hostname = mb_strtolower(trim($server->hostname));
+        $own = filter_var($hostname, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false
+            ? [$hostname]
+            : $this->dns->records($hostname, DnsRecordType::A) ?? [];
 
-        return $addresses === null || $addresses === [] ? null : $addresses;
+        return ['known' => array_values(array_unique([...$reported, ...$own])), 'reported' => $reported !== []];
     }
 
     private function domainOf(CustomerServiceItem $item): ?string

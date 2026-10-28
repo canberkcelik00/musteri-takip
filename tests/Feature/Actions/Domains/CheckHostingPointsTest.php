@@ -16,6 +16,8 @@ use App\Models\Server;
 use App\Models\User;
 use App\Support\Dns\DnsLookup;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 
@@ -49,6 +51,34 @@ function fakeARecords(array $answers): object
     return $lookup;
 }
 
+/**
+ * Replaces the server APIs: WHM lists one account per address in `$addresses`, cPanel one domain per
+ * address; null makes both calls fail. Earlier fakes are dropped (the first matching one would win).
+ *
+ * @param  list<string>|null  $addresses
+ */
+function fakeSiteAddresses(?array $addresses): void
+{
+    Http::swap(new HttpFactory(app('events')));
+
+    if ($addresses === null) {
+        Http::fake(['*' => Http::response('', 500)]);
+
+        return;
+    }
+
+    $accounts = array_map(fn (string $ip, int $index): array => ['user' => "hesap{$index}", 'domain' => "site{$index}.example", 'ip' => $ip], $addresses, array_keys($addresses));
+
+    Http::fake([
+        '*/json-api/listaccts*' => Http::response(['data' => ['acct' => $accounts], 'metadata' => ['result' => 1]]),
+        '*/execute/DomainInfo/domains_data*' => Http::response(['status' => 1, 'data' => [
+            'main_domain' => ['domain' => 'ana.example', 'ip' => $addresses[0] ?? ''],
+            'addon_domains' => array_map(fn (string $ip): array => ['domain' => 'ek.example', 'ip' => $ip], $addresses),
+            'parked_domains' => [],
+        ]]),
+    ]);
+}
+
 function pointsItem(?string $domain, ?Server $server, array $serviceAttributes = [], ?bool $cloudflare = false, ?Customer $customer = null): CustomerServiceItem
 {
     $service = CustomerService::factory()
@@ -66,6 +96,7 @@ function pointsItem(?string $domain, ?Server $server, array $serviceAttributes =
 beforeEach(function () {
     $this->travelTo('2026-06-15 10:00:00');
     $this->server = Server::factory()->create(['hostname' => 'Sunucu.Example.com']);
+    fakeSiteAddresses([]);
 });
 
 describe('check', function () {
@@ -80,13 +111,66 @@ describe('check', function () {
             ->and([$result->checked, $result->failed, $result->remaining])->toBe([1, 0, 0]);
     });
 
-    it('says a domain does not point to the server when no address matches', function () {
-        fakeARecords(['sunucu.example.com' => ['10.0.0.1'], 'logi.com.tr' => ['203.0.113.9']]);
+    it('says a domain does not point to the server when no address the server reports matches', function () {
+        fakeSiteAddresses(['185.1.1.10']);
+        fakeARecords(['sunucu.example.com' => ['185.1.1.1'], 'logi.com.tr' => ['203.0.113.9']]);
         $item = pointsItem('logi.com.tr', $this->server);
 
         app(CheckHostingPoints::class)->handle();
 
         expect($item->refresh()->points_to_server)->toBeFalse();
+    });
+
+    it('counts a site on a shared address of the server as pointing to it, though the host name has another', function (string $type) {
+        fakeSiteAddresses(['185.1.1.10', '185.1.1.11', '10.0.0.5']);
+        fakeARecords(['sunucu.example.com' => ['185.1.1.1'], 'logi.com.tr' => ['185.1.1.11']]);
+        $server = Server::factory()->{$type}()->create(['hostname' => 'sunucu.example.com']);
+        $item = pointsItem('logi.com.tr', $server);
+
+        app(CheckHostingPoints::class)->handle();
+
+        expect($item->refresh()->points_to_server)->toBeTrue();
+    })->with(['whm', 'cpanel']);
+
+    it('never says a domain points elsewhere when the server reports no public address', function (?array $reported) {
+        fakeSiteAddresses($reported);
+        fakeARecords(['sunucu.example.com' => ['185.1.1.1'], 'logi.com.tr' => ['203.0.113.9']]);
+        $item = pointsItem('logi.com.tr', $this->server);
+
+        $result = app(CheckHostingPoints::class)->handle();
+
+        expect($item->refresh()->points_to_server)->toBeNull()
+            ->and($item->points_checked_at)->not->toBeNull()
+            ->and($result->failed)->toBe(1);
+    })->with([
+        'server unreachable' => [null],
+        'no addresses' => [[]],
+        'only local addresses (NAT)' => [['10.0.0.5', '192.168.1.2']],
+    ]);
+
+    it('forgets the "points elsewhere" answers of the old rule once, so they are checked again', function () {
+        $moved = pointsItem('tasindi.example', $this->server);
+        $moved->forceFill(['points_to_server' => false, 'points_checked_at' => '2026-06-15 03:00:00'])->saveQuietly();
+        $here = pointsItem('burada.example', $this->server);
+        $here->forceFill(['points_to_server' => true, 'points_checked_at' => '2026-06-15 03:00:00'])->saveQuietly();
+
+        (require base_path('database/migrations/2026_11_01_100000_recheck_hosting_points.php'))->up();
+
+        expect($moved->refresh()->points_to_server)->toBeNull()
+            ->and($moved->points_checked_at)->toBeNull()
+            ->and($here->refresh()->points_to_server)->toBeTrue()
+            ->and($here->points_checked_at)->not->toBeNull();
+    });
+
+    it('asks the server for its addresses once per run', function () {
+        fakeSiteAddresses(['185.1.1.10']);
+        fakeARecords(['sunucu.example.com' => ['185.1.1.1'], 'bir.example' => ['185.1.1.10'], 'iki.example' => ['185.1.1.10']]);
+        pointsItem('bir.example', $this->server);
+        pointsItem('iki.example', $this->server);
+
+        app(CheckHostingPoints::class)->handle();
+
+        Http::assertSentCount(1);
     });
 
     it('takes a server host name that already is an address as it is', function () {

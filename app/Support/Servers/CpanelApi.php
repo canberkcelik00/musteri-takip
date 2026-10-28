@@ -42,6 +42,17 @@ class CpanelApi extends ServerApiClient
         ), array_values($domains));
     }
 
+    public function siteAddresses(): array
+    {
+        $data = $this->request('execute/DomainInfo/domains_data')['data'] ?? null;
+
+        if (! is_array($data)) {
+            throw RemoteServerError::because(RemoteServerErrorReason::InvalidResponse);
+        }
+
+        return self::publicAddresses($data);
+    }
+
     public function domainsOf(RemoteAccount $account): array
     {
         return [$account->domain];

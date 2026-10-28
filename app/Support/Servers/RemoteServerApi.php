@@ -45,6 +45,17 @@ interface RemoteServerApi
     public function usageOf(RemoteAccount $account): RemoteAccountUsage;
 
     /**
+     * The public IPv4 addresses the sites of the server are served from, as the server reports them
+     * (WHM: the address of every account; cPanel: the address of every domain). Private and reserved
+     * addresses (a server behind NAT reports its local ones) are left out. Read-only.
+     *
+     * @return list<string>
+     *
+     * @throws RemoteServerError
+     */
+    public function siteAddresses(): array;
+
+    /**
      * The totals of the whole reseller (WHM only; a cPanel connection is a single account).
      *
      * @throws RemoteServerError
