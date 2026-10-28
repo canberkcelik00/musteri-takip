@@ -5,11 +5,7 @@
 <x-ui.window :title="$record === null ? __('tasks.create') : __('tasks.edit')" submit="save">
     <div class="ui-form">
         <div class="is-full"><x-ui.input :label="__('tasks.title')" wire:model="title" maxlength="255" required autofocus /></div>
-        <div class="is-full"><x-ui.select :label="__('tasks.customer')" wire:model="customerId" :options="$customers" :searchable="true" />
-            @if ($matchedBy !== null && $customerId !== '')
-                <p class="ui-hint">{{ __('tasks.matched_from', ['sign' => $matchedBy]) }}</p>
-            @endif
-        </div>
+        <div class="is-full"><x-ui.select :label="__('tasks.customer')" wire:model="customerId" :options="$customers" :searchable="true" /></div>
         <x-ui.select :label="__('tasks.assignee')" wire:model="assignedTo" :options="$assignees" />
         <div class="flex flex-col gap-2">
             <x-ui.date-input :label="__('tasks.due_date')" wire:model="dueDate" />
@@ -19,7 +15,16 @@
                 <x-ui.chip wire:click="pickDueDate('next-week')" :on="$dueDate === today()->addDays(7)->format('Y-m-d')">{{ __('tasks.pick_next_week') }}</x-ui.chip>
             </div>
         </div>
-        <div class="is-full"><x-ui.input type="textarea" :label="__('tasks.notes')" wire:model="notes" maxlength="5000" /></div>
+        {{-- A paste into the notes is cleaned by the server and added under them (U-41). --}}
+        <div
+            class="is-full"
+            x-on:paste="
+                const text = $event.clipboardData?.getData('text/plain') ?? ''
+                if ($event.target.tagName !== 'TEXTAREA' || text.trim() === '') { return }
+                $event.preventDefault()
+                $wire.appendPasted(text)
+            "
+        ><x-ui.input type="textarea" :label="__('tasks.notes')" wire:model="notes" maxlength="5000" /></div>
 
         @if ($record !== null)
             <div class="ui-actions-section is-full">

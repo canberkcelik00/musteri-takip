@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Windows;
 
+use App\Actions\Tasks\CleanPastedText;
 use App\Actions\Tasks\CompleteTask;
 use App\Actions\Tasks\CreateTask;
-use App\Actions\Tasks\ParseQuickTask;
 use App\Actions\Tasks\ReopenTask;
 use App\Actions\Tasks\UpdateTask;
 use App\Exceptions\InvalidTask;
@@ -39,29 +39,17 @@ class EditTask extends Component
 
     public string $dueDate = '';
 
-    /** The sign that found the customer in a pasted message, shown as a hint under the customer field. */
-    #[Locked]
-    public ?string $matchedBy = null;
-
     /**
-     * `$pasted` is a message pasted with Ctrl+V (Faz 17): it fills the title, the notes and, when exactly one customer
-     * is recognised, the customer.
+     * `$pasted` is a text pasted with Ctrl+V outside any field (Faz 17, U-41): it only fills the notes, cleaned; the
+     * title and the customer stay for the user.
      */
-    public function mount(ParseQuickTask $parseQuickTask, ?int $task = null, ?int $customer = null, ?string $pasted = null): void
+    public function mount(CleanPastedText $cleanPastedText, ?int $task = null, ?int $customer = null, ?string $pasted = null): void
     {
         $this->assignedTo = (string) $this->actor()->id;
 
         if ($task === null) {
             $this->customerId = $customer !== null ? (string) Customer::query()->findOrFail($customer)->id : '';
-
-            if ($pasted !== null && $customer === null) {
-                $parsed = $parseQuickTask->handle($pasted);
-
-                $this->title = $parsed['title'];
-                $this->notes = (string) $parsed['notes'];
-                $this->customerId = (string) $parsed['customer_id'];
-                $this->matchedBy = $parsed['customer_id'] === null ? null : $parsed['matched_by'];
-            }
+            $this->notes = $pasted !== null ? $cleanPastedText->handle($pasted) : '';
 
             return;
         }
@@ -109,6 +97,21 @@ class EditTask extends Component
         $this->dispatch('tasks-changed');
         $this->dispatch('close-window');
         $this->dispatch('notify', message: __('tasks.updated'));
+    }
+
+    /**
+     * A text pasted into the notes field is cleaned and added under the notes, so scattered messages gather in one task.
+     */
+    public function appendPasted(CleanPastedText $cleanPastedText, string $text): void
+    {
+        $cleaned = $cleanPastedText->handle($text);
+
+        if ($cleaned === '') {
+            return;
+        }
+
+        $notes = rtrim($this->notes);
+        $this->notes = mb_substr($notes === '' ? $cleaned : $notes."\n".$cleaned, 0, CleanPastedText::MAX_LENGTH);
     }
 
     /**

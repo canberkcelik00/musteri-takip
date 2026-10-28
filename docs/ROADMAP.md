@@ -621,7 +621,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 
 ## Faz 17 – WhatsApp'tan hızlı iş
 
-Karar (kullanıcı, U-40): bilgisayardaki WhatsApp'ta mesajı kopyala → panelde `Ctrl+V` → `Enter` ile iş aç; iletmek kadar kolay olmalı. Yeni pencere, tablo ya da alan yok; mevcut `edit-task` penceresi ve `CreateTask` kullanılır. Telefonda paylaşım, `Ctrl+J`/pano izni ve WhatsApp Business API kapsam dışı. Her görev ayrı oturumda yapılır.
+Karar (kullanıcı, U-40, U-41): bilgisayardaki WhatsApp'ta mesajı kopyala → panelde `Ctrl+V` (metin temizlenip yalnız Not'a gelir) → başlık yaz → `Enter` ile iş aç; iletmek kadar kolay olmalı. Yeni pencere, tablo ya da alan yok; mevcut `edit-task` penceresi ve `CreateTask` kullanılır. Telefonda paylaşım, `Ctrl+J`/pano izni ve WhatsApp Business API kapsam dışı. Her görev ayrı oturumda yapılır.
 
 - [x] **G-17.0 Dokümanlar** — Bağımlılık: G-16.8
   - Yapılacak: PRD "Mesajdan iş (Faz 17)", UI.md (yapıştırarak açılış, boş liste ipucu, hedef tık satırı), DECISIONS U-40, bu faz.
@@ -631,10 +631,13 @@ Karar (kullanıcı, U-40): bilgisayardaki WhatsApp'ta mesajı kopyala → paneld
 - [x] **G-17.2 Ctrl+V ile pencere** — Bağımlılık: G-17.1
   - Yapılacak: Yerleşim dosyasında `tasks.manage` olana yapıştırma dinleyicisi (yazı kutusunda, pencere açıkken ve boş panoda çalışmaz); `EditTask::mount`'a `pasted` parametresi ve "Mesajdan bulundu (…)" ipucu; "İş ekle" düğmesi ve boş liste ipuçları; `lang/tr/tasks.php` anahtarları.
   - Kabul: `pasted` ile pencere alanları dolu açılır; kayıt iş oluşturur ve oluşturanı saklar; başkasına atamada e-posta gider; eşleşme yoksa müşteri boş kalır; izni olmayan rolde pencere açılmaz ve sayfada dinleyici yoktur; izinli kullanıcının sayfasında dinleyici vardır (testli).
-- [ ] **K-17.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-17.2
-  - Yapılacak: Windows'taki WhatsApp'ta tek mesajı, sonra birden çok mesajı kopyalayıp panelde `Ctrl+V` → `Enter` ile iş aç; arama kutusuna yapıştırınca pencerenin açılmadığını (normal yapıştırma) kontrol et.
+- [x] **G-17.3 Yapıştırılan metin yalnız Not'a (U-41)** — Bağımlılık: G-17.2
+  - Yapılacak: `ParseQuickTask` yerine `CleanPastedText` (önekleri atar, boş satırları sıkıştırır, çok kişide konuşan değişince adı yazar); `Ctrl+V` yalnız Not'u doldurur, başlık ve müşteri boş gelir, "Mesajdan bulundu" ipucu kalkar; Not alanına yapıştırma temizlenip notun altına eklenir (`EditTask::appendPasted`).
+  - Kabul: İki önek biçimi atılır; tek kişide ad yazılmaz, çok kişide konuşan değişince yazılır; boş satırlar teke iner; öneksiz metin değişmez; 5000 karakter sınırı; `Ctrl+V`'de not dolu, başlık ve müşteri boş gelir; başlıksız kayıt reddedilir, başlıkla kaydedilir; Not'a ikinci yapıştırma alta eklenir (testli).
+- [ ] **K-17.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-17.3
+  - Yapılacak: Windows'taki WhatsApp'ta tek mesajı, sonra birden çok mesajı kopyalayıp panelde `Ctrl+V`, başlık ve `Enter` ile iş aç; notun temiz geldiğini, pencerede Not'a ikinci yapıştırmanın alta eklendiğini kontrol et; arama kutusuna yapıştırınca pencerenin açılmadığını (normal yapıştırma) kontrol et.
 
-**Faz 17 bittiğinde:** WhatsApp'tan gelen bir talep, mesajı kopyalayıp `Ctrl+V` ve `Enter`'a basarak yazmadan İşler'e düşer.
+**Faz 17 bittiğinde:** WhatsApp'tan gelen bir talep, mesajı kopyalayıp `Ctrl+V`'ye basınca temizlenmiş not olarak pencereye gelir; kısa bir başlık ve `Enter` ile İşler'e düşer.
 
 ## Faz 7 ve sonrası
 

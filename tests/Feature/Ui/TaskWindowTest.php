@@ -178,25 +178,32 @@ it('forbids the delete confirmation without the permission', function () {
     Livewire::actingAs($this->me)->test(Confirm::class, ['action' => 'delete-task', 'id' => $task->id])->assertForbidden();
 });
 
-it('opens filled from a pasted WhatsApp message and saves it as a task', function () {
-    Mail::fake();
-    $customer = Customer::factory()->create(['short_name' => 'Mavi Ofis']);
-    $message = "[28.10.2026 14:32] Ahmet: Mavi Ofis sitesinde banner değişsin\nRengi mavi olsun";
+it('opens with only the notes filled, cleaned, from a pasted message', function () {
+    Customer::factory()->create(['short_name' => 'Mavi Ofis']);
+    $message = "[19:49, 26.10.2026] W Müşteri: Mavi Ofis sitesinde banner değişsin\n[19:50, 26.10.2026] W Müşteri: rengi mavi olsun";
 
     Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => $message])
-        ->assertSet('title', 'Mavi Ofis sitesinde banner değişsin')
-        ->assertSet('notes', $message)
-        ->assertSet('customerId', (string) $customer->id)
-        ->assertSet('assignedTo', (string) $this->me->id)
-        ->assertSee(__('tasks.matched_from', ['sign' => 'Mavi Ofis']))
+        ->assertSet('notes', "Mavi Ofis sitesinde banner değişsin\nrengi mavi olsun")
+        ->assertSet('title', '')
+        ->assertSet('customerId', '')
+        ->assertSet('assignedTo', (string) $this->me->id);
+});
+
+it('saves a pasted task once a title is written and refuses it without one', function () {
+    Mail::fake();
+
+    $component = Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => '[19:49, 26.10.2026] W Müşteri: banner değişsin'])
         ->call('save')
-        ->assertHasNoErrors()
-        ->assertDispatched('close-window');
+        ->assertHasErrors(['title' => 'required']);
+
+    expect(Task::query()->count())->toBe(0);
+
+    $component->set('title', 'Banner')->call('save')->assertHasNoErrors()->assertDispatched('close-window');
 
     $task = Task::query()->firstOrFail();
 
-    expect($task->title)->toBe('Mavi Ofis sitesinde banner değişsin')
-        ->and($task->customer_id)->toBe($customer->id)
+    expect($task->title)->toBe('Banner')
+        ->and($task->notes)->toBe('banner değişsin')
         ->and($task->created_by)->toBe($this->me->id);
     Mail::assertNothingSent();
 });
@@ -205,20 +212,27 @@ it('e-mails a colleague when a pasted task is assigned to them', function () {
     Mail::fake();
 
     Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => 'Forma bak'])
+        ->set('title', 'Form')
         ->set('assignedTo', (string) $this->colleague->id)
         ->call('save');
 
     Mail::assertSent(TaskAssignedMail::class, fn (TaskAssignedMail $mail): bool => $mail->hasTo($this->colleague->email));
 });
 
-it('leaves the customer empty and shows no hint when the pasted message matches none', function () {
-    Customer::factory()->create(['short_name' => 'Mavi Ofis']);
+it('adds a text pasted into the notes under them, cleaned', function () {
+    Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => '[19:49, 26.10.2026] W Müşteri: banner değişsin'])
+        ->call('appendPasted', "[19:55, 26.10.2026] W Müşteri: bir de form\n\n\n")
+        ->assertSet('notes', "banner değişsin\nbir de form")
+        ->call('appendPasted', '  ')
+        ->assertSet('notes', "banner değişsin\nbir de form");
+});
 
-    Livewire::actingAs($this->me)->test(EditTask::class, ['pasted' => 'Banner değişsin'])
-        ->assertSet('title', 'Banner değişsin')
-        ->assertSet('notes', '')
-        ->assertSet('customerId', '')
-        ->assertDontSee(__('tasks.matched_from', ['sign' => '']));
+it('fills an empty notes field from a paste into it and keeps the notes within 5000 characters', function () {
+    Livewire::actingAs($this->me)->test(EditTask::class)
+        ->call('appendPasted', 'ilk parça')
+        ->assertSet('notes', 'ilk parça')
+        ->call('appendPasted', str_repeat('a', 6000))
+        ->tap(fn ($component) => expect(mb_strlen($component->get('notes')))->toBe(5000));
 });
 
 it('puts the paste listener in the page only for a user who can manage tasks', function () {

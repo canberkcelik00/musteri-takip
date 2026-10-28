@@ -304,11 +304,11 @@ Müşteri talepleri ve ekip içi yapılacaklar WhatsApp'ta kaybolmasın diye tek
 - **Geçmiş korunur:** İşi olan müşteri silinmez, arşivlenir. İşi olan (atanmış, oluşturmuş ya da bitirmiş) kullanıcı silinmez, pasifleştirilir.
 - **Pasif kullanıcı:** Yeni atamada seçilemez; açık işleri adının yanında "(pasif)" ile görünür.
 - **Arşivlenmiş müşterinin işleri** listede kalır, müşteri adı soluk ve "Arşiv" rozetiyle görünür; arşivli müşteriye yeni iş açılamaz.
-- **Mesajdan iş (Faz 17, U-40):** WhatsApp'tan gelen bir mesaj kopyalanıp panelde yapıştırılınca (`tasks.manage` izni olan kullanıcı, yazı kutusunun dışında) "Yeni iş" penceresi dolu açılır; yeni alan ya da tablo yoktur, kayıt mevcut iş oluşturma kuralıyla yapılır. Ayrıştırma kuralları:
-  - **Başlık:** Başındaki WhatsApp önekinden (`[28.10.2026 14:32] Ad:` ve `[14:32, 28.10.2026] Ad:`) arındırılmış ilk dolu satır; boşlukları tekleştirilir, 100 karakteri aşarsa kelime sınırında kısaltılıp sonuna "…" eklenir.
-  - **Not:** Metnin tamamı (en çok 5000 karakter). Metin tek kısa satırsa ve başlıkla aynıysa not boş kalır.
-  - **Müşteri:** Yalnız arşivsiz müşteriler arasından; metindeki alan adı, metindeki ya da gönderenin telefonu (boşluk, tire, parantez ve baştaki 0 / +90'dan bağımsız), gönderen adının ilgili kişi adıyla tam eşleşmesi ve müşteri kısa adının metinde ayrı bir kelime olarak (en az 3 harf) geçmesi işaretlerinden çıkan müşteri **tek ise** seçilir. Hiç ya da birden çok müşteri çıkarsa müşteri boş kalır.
-  - Atanan kişi, e-posta ve yetki kuralları olduğu gibi geçerlidir. Ayrıştırma hiçbir kayıt yazmaz; kayıt yalnız kullanıcı "Kaydet"e basınca (ya da `Enter`) oluşur.
+- **Mesajdan iş (Faz 17, U-40, U-41):** WhatsApp'tan gelen bir mesaj kopyalanıp panelde yapıştırılınca (`tasks.manage` izni olan kullanıcı, yazı kutusunun dışında) "Yeni iş" penceresi açılır; yeni alan ya da tablo yoktur, kayıt mevcut iş oluşturma kuralıyla yapılır.
+  - **Not:** Yapıştırılan metin yalnız nota, temizlenerek yazılır: satır başındaki WhatsApp öneki (`[28.10.2026 14:32] Ad:` ve `[14:32, 28.10.2026] Ad:`) atılır, satır sonu boşlukları kırpılır, art arda boş satırlar teke iner; birden çok kişi konuşuyorsa konuşan değiştiği satırın başına `Ad:` yazılır, tek kişiyse ad yazılmaz; en çok 5000 karakter.
+  - **Başlık** boş gelir, kullanıcı yazar (zorunlu); **müşteri** tahmin edilmez, boş gelir.
+  - Pencere açıkken Not alanına yapıştırılan metin de aynı kurallarla temizlenip notun altına eklenir.
+  - Atanan kişi, e-posta ve yetki kuralları olduğu gibi geçerlidir. Temizleme hiçbir kayıt yazmaz; kayıt yalnız kullanıcı "Kaydet"e basınca (ya da `Enter`) oluşur.
 - **Görünüm:** İşler ekranı (varsayılan: bana atanan, açık), müşteri kartında "İşler" bölümü ve Bugün'de "Bana atanan işler" bölümü. Süzgeçler: kişi (Bana atanan / Herkes), durum (Açık / Bitti), müşteri, gecikmiş.
 - **Bugün herkesin açılış sayfasıdır:** Dört sayı, borç satırları ve ücretsiz kararlar `money.view`; kota uyarıları `services.view`; "Bana atanan işler" `tasks.manage` ister. İzni olmayan bölümün verisi hiç okunmaz. Zamanlayıcı uyarısı `settings.manage` ister.
 - Özet e-postası (günlük özet) işleri içermez.

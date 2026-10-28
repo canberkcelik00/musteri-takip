@@ -53,6 +53,5 @@ return [
     'card_empty' => 'Bu müşterinin açık işi yok.',
     'empty_heading' => 'İş yok',
     'empty_description' => 'Yeni bir iş ekleyerek başlayın. WhatsApp mesajını kopyalayıp panelde Ctrl+V\'ye basmak da yeter.',
-    'matched_from' => 'Mesajdan bulundu (:sign)',
     'paste_hint' => 'WhatsApp mesajını kopyalayıp panelde Ctrl+V\'ye basın',
 ];
