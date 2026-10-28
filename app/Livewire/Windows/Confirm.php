@@ -32,7 +32,11 @@ class Confirm extends Component
 
     public function mount(string $action, int $id): void
     {
-        $this->authorizePermission(Confirmations::permission($action));
+        $permission = Confirmations::permission($action);
+
+        if ($permission !== null) {
+            $this->authorizePermission($permission);
+        }
 
         Confirmations::describe($action, $id);
 

@@ -49,6 +49,11 @@ return [
         'monthly' => 'Aylık',
     ],
 
+    'mcp_access' => [
+        'read' => 'Yalnız okuma',
+        'read_write' => 'Okuma ve yazma',
+    ],
+
     'allocation_source' => [
         'payment' => 'Ödeme',
         'credit_balance' => 'Alacak bakiyesi',

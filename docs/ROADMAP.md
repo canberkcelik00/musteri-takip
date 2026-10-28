@@ -645,7 +645,7 @@ Karar (kullanıcı, U-42, T-188): uygulama `/mcp` adresinde bir MCP sunucusu aç
 
 - [x] **G-18.0 Dokümanlar** — Bağımlılık: G-17.3
   - Yapılacak: PRD "Claude erişimi (Faz 18)", DATA_MODEL `personal_access_tokens`, UI.md "Profil: Claude erişimi", DECISIONS U-42 ve T-188, bu faz.
-- [ ] **G-18.1 Altyapı ve token yönetimi** — Bağımlılık: G-18.0
+- [x] **G-18.1 Altyapı ve token yönetimi** — Bağımlılık: G-18.0
   - Yapılacak: `laravel/mcp` ve `laravel/sanctum` `require`'a (kullanıcı onayı T-188); Sanctum migration'ı, `User`'a `HasApiTokens`; `routes/ai.php` içinde `Mcp::web('/mcp', …)` (`auth:sanctum`, `active`, `throttle:mcp`); `RateLimiter::for('mcp')` token başına 60/dk; `CreateMcpToken` (ad, yetki `mcp:read` / `mcp:read`+`mcp:write`, 90 gün, düz metni bir kez döner) ve `RevokeMcpToken` (yalnız kendi token'ı) Action'ları; `DeactivateUser` token'ları siler; Profil'de "Claude erişimi" kartı (UI.md); `mcp` günlük kanalı; `lang/tr` anahtarları.
   - Kabul: Token'sız, yanlış, süresi dolmuş ya da iptal edilmiş token'la 401; pasif kullanıcının token'ı çalışmaz; geçerli token'la `initialize` ve `tools/list` başarılı; sınır aşılınca 429; yalnız panel oturumuyla (çerez) MCP'ye girilemez; veritabanında token düz metni yok; token 90 gün sonra çalışmaz; kullanıcı başkasının token'ını iptal edemez; pasifleştirme token'ları siler; Profil'de token bir kez gösterilir ve listede ad, yetki, son kullanım, bitiş görünür (testli).
 - [ ] **G-18.2 Okuma araçları** — Bağımlılık: G-18.1

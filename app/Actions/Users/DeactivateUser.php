@@ -9,8 +9,8 @@ use App\Models\User;
 class DeactivateUser
 {
     /**
-     * Block the user from signing in; an open session ends on the next request. An administrator cannot
-     * deactivate themself, and the last active administrator stays active.
+     * Block the user from signing in; an open session ends on the next request and their Claude access tokens are
+     * deleted (U-42). An administrator cannot deactivate themself, and the last active administrator stays active.
      *
      * @throws InvalidUserChange
      */
@@ -25,5 +25,6 @@ class DeactivateUser
         }
 
         $user->forceFill(['deactivated_at' => $user->deactivated_at ?? now()])->save();
+        $user->tokens()->delete();
     }
 }

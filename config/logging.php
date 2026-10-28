@@ -73,6 +73,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Claude access (U-42): who called which tool, when and with which token.
+        'mcp' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mcp.log'),
+            'level' => 'info',
+            'max_files' => 90,
+            'replace_placeholders' => true,
+        ],
+
         'monthly' => [
             'driver' => 'monthly',
             'path' => storage_path('logs/laravel.log'),

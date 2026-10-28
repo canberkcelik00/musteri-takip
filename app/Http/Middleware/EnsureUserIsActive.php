@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\User;
 use Closure;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,11 +12,18 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureUserIsActive
 {
     /**
-     * End the session of a user who was deactivated while signed in.
+     * End the session of a user who was deactivated while signed in. A token request (Claude access, U-42) has no
+     * session and is refused as unauthenticated.
+     *
+     * @throws AuthenticationException
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
+
+        if ($user instanceof User && ! $user->isActive() && ! $request->hasSession()) {
+            throw new AuthenticationException;
+        }
 
         if ($user instanceof User && ! $user->isActive()) {
             Auth::guard()->logout();

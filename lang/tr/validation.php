@@ -168,6 +168,8 @@ return [
         'name' => 'ad',
         'email' => 'e-posta adresi',
         'password' => 'şifre',
+        'token_name' => 'ad',
+        'token_access' => 'yetki',
     ],
 
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Support\Ui;
 
+use App\Actions\Account\RevokeMcpToken;
 use App\Actions\Calendar\DeleteCalendarEvent;
 use App\Actions\CatalogServices\DeleteCatalogService;
 use App\Actions\Contacts\DeleteContact;
@@ -35,6 +36,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Permission\Models\Role as RoleModel;
 
 /**
@@ -66,14 +68,15 @@ final class Confirmations
             'delete-user' => ['heading' => __('users.delete_heading'), 'description' => __('users.delete_description'), 'label' => __('users.delete'), 'danger' => true],
             'delete-task' => ['heading' => __('tasks.delete_heading'), 'description' => __('tasks.delete_description'), 'label' => __('tasks.delete'), 'danger' => true],
             'delete-calendar-event' => ['heading' => __('calendar.delete_heading'), 'description' => __('calendar.delete_description'), 'label' => __('calendar.delete'), 'danger' => true],
+            'revoke-mcp-token' => ['heading' => __('mcp.revoke_heading', ['name' => self::ownToken($id)?->name]), 'description' => __('mcp.revoke_description'), 'label' => __('mcp.revoke'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
 
     /**
-     * The permission a user needs to be asked, and to confirm, the action.
+     * The permission a user needs to be asked, and to confirm, the action; none for revoking one's own Claude token.
      */
-    public static function permission(string $action): Permission
+    public static function permission(string $action): ?Permission
     {
         return match ($action) {
             'archive-customer', 'unarchive-customer', 'delete-customer', 'delete-contact' => Permission::CustomersManage,
@@ -87,6 +90,7 @@ final class Confirmations
             'delete-user', 'delete-role' => Permission::UsersManage,
             'delete-task' => Permission::TasksManage,
             'delete-calendar-event' => Permission::CalendarManage,
+            'revoke-mcp-token' => null,
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -124,6 +128,7 @@ final class Confirmations
             'delete-role' => self::deleteRole($id),
             'delete-task' => self::deleteTask($id),
             'delete-calendar-event' => self::deleteCalendarEvent($id),
+            'revoke-mcp-token' => self::revokeMcpToken($id),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -322,5 +327,30 @@ final class Confirmations
         app(ArchivePaymentMethod::class)->handle(PaymentMethod::query()->findOrFail($id));
 
         return ['message' => __('archive.archived'), 'event' => 'payment-methods-changed', 'redirect' => null];
+    }
+
+    /**
+     * Only the signed-in user's own token can be revoked (see RevokeMcpToken).
+     *
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function revokeMcpToken(int $id): array
+    {
+        $user = Auth::user();
+        assert($user instanceof User);
+
+        app(RevokeMcpToken::class)->handle($user, $id);
+
+        return ['message' => __('mcp.revoked'), 'event' => 'mcp-tokens-changed', 'redirect' => null];
+    }
+
+    /**
+     * One of the signed-in user's own Claude tokens, so the question never names someone else's.
+     */
+    private static function ownToken(int $id): ?PersonalAccessToken
+    {
+        $user = Auth::user();
+
+        return $user instanceof User ? $user->tokens()->whereKey($id)->first() : null;
     }
 }
