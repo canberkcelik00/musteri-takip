@@ -15,6 +15,14 @@ return [
     'mail_customer' => 'Müşteri',
     'mail_location' => 'Yer',
     'mail_button' => 'Takvimi aç',
+    'reminder_mail' => [
+        'subject' => 'Hatırlatma: :title · :when',
+        'body' => 'Etkinlik yaklaşıyor.',
+    ],
+    'reminder_command' => [
+        'summary' => 'Etkinlik hatırlatması: :sent gönderildi, :skipped atlandı (katılan yok), :failed gönderilemedi.',
+        'failed' => ':count etkinlik hatırlatması gönderilemedi; sonraki çalışmada yeniden denenecek.',
+    ],
     'all_day' => 'Tüm gün',
 
     'title' => 'Takvim',

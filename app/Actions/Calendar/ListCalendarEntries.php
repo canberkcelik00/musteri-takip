@@ -16,6 +16,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\Calendar\CalendarEntry;
+use App\Support\Calendar\EventOccurrences;
 use App\Support\Money;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -103,7 +104,7 @@ class ListCalendarEntries
         $entries = [];
 
         foreach ($events as $event) {
-            foreach ($this->occurrences($event, $from, $to) as $date) {
+            foreach ((new EventOccurrences)->between($event, $from, $to) as $date) {
                 $entries[] = new CalendarEntry(
                     key: 'event:'.$event->id.':'.$date->toDateString(),
                     category: CalendarCategory::Event,
@@ -119,48 +120,6 @@ class ListCalendarEntries
         }
 
         return $entries;
-    }
-
-    /**
-     * The days of one event inside the range. A monthly event keeps the day of its first date and falls on the last
-     * day of a shorter month (31 January, 28 February, 31 March). The n-th month is counted from the first date, so a
-     * short month does not move the later ones.
-     *
-     * @return list<Carbon>
-     */
-    private function occurrences(CalendarEvent $event, Carbon $from, Carbon $to): array
-    {
-        $first = $event->starts_on->copy()->startOfDay();
-        $last = $event->repeat_until !== null && $event->repeat_until->lt($to) ? $event->repeat_until->copy()->startOfDay() : $to;
-
-        if (! $event->repeats()) {
-            return $first->between($from, $to) ? [$first] : [];
-        }
-
-        $days = [];
-        $step = 0;
-
-        if ($event->repeat === EventRepeat::Weekly) {
-            $step = max(0, intdiv((int) $first->diffInDays($from, false), 7));
-
-            for ($day = $first->copy()->addWeeks($step); $day->lte($last); $day = $first->copy()->addWeeks(++$step)) {
-                if ($day->gte($from)) {
-                    $days[] = $day;
-                }
-            }
-
-            return $days;
-        }
-
-        $step = max(0, ($from->year - $first->year) * 12 + $from->month - $first->month - 1);
-
-        for ($day = $first->copy()->addMonthsNoOverflow($step); $day->lte($last); $day = $first->copy()->addMonthsNoOverflow(++$step)) {
-            if ($day->gte($from)) {
-                $days[] = $day;
-            }
-        }
-
-        return $days;
     }
 
     /**

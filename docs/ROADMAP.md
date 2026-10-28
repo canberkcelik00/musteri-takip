@@ -575,7 +575,7 @@ Karar (kullanıcı, U-38): gün/hafta/ay/liste görünümlü Takvim sayfası; el
 - [x] **G-15.4 Etkinlik penceresi** — Bağımlılık: G-15.3
   - Yapılacak: `EditCalendarEvent` penceresi (`calendar.manage`), 15 dakikalık `x-ui.time-input`, süre hapları, "Tüm gün", katılanlar, hatırlatma, tekrar; ayrıntı panelinde Düzenle · Müşteri kartı · Sil (onaylı `delete-calendar-event`).
   - Kabul: Pencere izni her istekte denetlenir; varsayılan tarih/saat (tıklanan dilim ya da sonraki tam saat); hap hesapları; tüm gün saatleri gizler ve boşaltır; tekrarlayan etkinlikte düzenleme bütün seriye uygulanır (testli).
-- [ ] **G-15.5 Hatırlatmalar** — Bağımlılık: G-15.1
+- [x] **G-15.5 Hatırlatmalar** — Bağımlılık: G-15.1
   - Yapılacak: `SendEventReminders` Action'ı ve `app:send-event-reminders` komutu; `routes/console.php`'de her dakika, `withoutOverlapping`, bekleyen yayında atlanır; `CalendarEventReminderMail`.
   - Kabul: İki çalışma iki e-posta göndermez; 15 dakika gecikmeli çalışma yine gönderir; başlangıcı geçmiş etkinliğe gönderim olmaz; haftalık seride her hafta ayrı gönderilir (testli, `travelTo`).
 - [ ] **G-15.6 Müşteri kartında etkinlikler** — Bağımlılık: G-15.4

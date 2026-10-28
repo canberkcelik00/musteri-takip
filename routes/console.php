@@ -32,6 +32,12 @@ Schedule::command('app:send-digest')
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
 
+// E-mails the attendees of the calendar events whose reminder time has come; an event that already started is not reminded.
+Schedule::command('app:send-event-reminders')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
 // Looks up which domains point to Cloudflare, within a time budget; what does not fit waits for the next run.
 Schedule::command('app:check-domain-dns')
     ->everyMinute()
