@@ -8,6 +8,7 @@ use App\Livewire\Windows\Confirm;
 use App\Livewire\Windows\Contact;
 use App\Livewire\Windows\CreateCustomer;
 use App\Livewire\Windows\CreateQuote;
+use App\Livewire\Windows\EditCalendarEvent;
 use App\Livewire\Windows\EditCatalogService;
 use App\Livewire\Windows\EditCharge;
 use App\Livewire\Windows\EditCustomer;
@@ -70,6 +71,7 @@ return [
         'edit-user' => 'users.manage',
         'edit-role' => 'users.manage',
         'edit-task' => 'tasks.manage',
+        'edit-calendar-event' => 'calendar.manage',
     ],
 
     /*
@@ -108,6 +110,7 @@ return [
         'edit-user' => EditUser::class,
         'edit-role' => EditRole::class,
         'edit-task' => EditTask::class,
+        'edit-calendar-event' => EditCalendarEvent::class,
         'confirm' => Confirm::class,
     ],
 

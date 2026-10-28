@@ -1,5 +1,6 @@
 @php
     use App\Livewire\Pages\Calendar\Index;
+    use App\Support\Ui\Js;
 @endphp
 
 <div class="cal-page">
@@ -9,6 +10,10 @@
             <x-ui.button wire:click="goToday">{{ __('calendar.today') }}</x-ui.button>
             <button type="button" class="ui-btn ui-btn-icon" wire:click="next" aria-label="{{ __('calendar.next.'.$viewName) }}"><x-heroicon-m-chevron-right class="cal-icon" aria-hidden="true" /></button>
             <x-ui.segmented wire:model.live="view" :options="$views" aria-label="{{ __('calendar.view_label') }}" />
+            @if ($canManage)
+                {{-- The calendar's one filled button, kept on purpose next to the views (docs/DECISIONS.md U-38). --}}
+                <x-ui.button variant="primary" x-on:click="{!! Js::openWindow('edit-calendar-event', ['date' => $anchor->toDateString()]) !!}">{{ __('calendar.add') }}</x-ui.button>
+            @endif
         </div>
     </x-ui.page-header>
 

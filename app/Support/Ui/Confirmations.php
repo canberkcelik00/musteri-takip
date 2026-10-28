@@ -2,6 +2,7 @@
 
 namespace App\Support\Ui;
 
+use App\Actions\Calendar\DeleteCalendarEvent;
 use App\Actions\CatalogServices\DeleteCatalogService;
 use App\Actions\Contacts\DeleteContact;
 use App\Actions\Customers\ArchiveCustomer;
@@ -19,6 +20,7 @@ use App\Actions\Servers\DeleteServer;
 use App\Actions\Tasks\DeleteTask;
 use App\Actions\Users\DeleteUser;
 use App\Enums\Permission;
+use App\Models\CalendarEvent;
 use App\Models\CatalogService;
 use App\Models\Contact;
 use App\Models\Customer;
@@ -63,6 +65,7 @@ final class Confirmations
             'delete-role' => ['heading' => __('roles.delete_heading'), 'description' => __('roles.delete_description'), 'label' => __('roles.delete'), 'danger' => true],
             'delete-user' => ['heading' => __('users.delete_heading'), 'description' => __('users.delete_description'), 'label' => __('users.delete'), 'danger' => true],
             'delete-task' => ['heading' => __('tasks.delete_heading'), 'description' => __('tasks.delete_description'), 'label' => __('tasks.delete'), 'danger' => true],
+            'delete-calendar-event' => ['heading' => __('calendar.delete_heading'), 'description' => __('calendar.delete_description'), 'label' => __('calendar.delete'), 'danger' => true],
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -83,6 +86,7 @@ final class Confirmations
             'archive-server', 'unarchive-server', 'delete-server' => Permission::SettingsManage,
             'delete-user', 'delete-role' => Permission::UsersManage,
             'delete-task' => Permission::TasksManage,
+            'delete-calendar-event' => Permission::CalendarManage,
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -119,6 +123,7 @@ final class Confirmations
             'delete-user' => self::deleteUser($id),
             'delete-role' => self::deleteRole($id),
             'delete-task' => self::deleteTask($id),
+            'delete-calendar-event' => self::deleteCalendarEvent($id),
             default => throw new InvalidArgumentException("Unknown confirmation [{$action}]."),
         };
     }
@@ -293,6 +298,18 @@ final class Confirmations
         app(DeleteTask::class)->handle(Task::query()->findOrFail($id));
 
         return ['message' => __('tasks.deleted'), 'event' => 'tasks-changed', 'redirect' => null];
+    }
+
+    /**
+     * Deleting an event takes its whole series with it.
+     *
+     * @return array{message: string, event: string, redirect: ?string, tone?: string}
+     */
+    private static function deleteCalendarEvent(int $id): array
+    {
+        app(DeleteCalendarEvent::class)->handle(CalendarEvent::query()->findOrFail($id));
+
+        return ['message' => __('calendar.deleted'), 'event' => 'calendar-changed', 'redirect' => null];
     }
 
     /**

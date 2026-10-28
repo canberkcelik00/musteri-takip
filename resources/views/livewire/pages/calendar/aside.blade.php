@@ -1,6 +1,7 @@
 {{-- The day view's side column: a small month, the selected event's detail, and what was recorded that day. --}}
 @php
     use App\Support\Avatar;
+    use App\Support\Ui\Js;
 @endphp
 <aside class="cal-aside">
     <div class="ui-pane cal-mini">
@@ -59,8 +60,14 @@
                 @endif
             </dl>
             <div class="cal-detail-actions">
+                @if ($canManage)
+                    <x-ui.button x-on:click="{!! Js::openWindow('edit-calendar-event', ['event' => $event->id]) !!}">{{ __('calendar.detail.edit') }}</x-ui.button>
+                @endif
                 @if ($event->customer)
                     <x-ui.button :href="route('app.customers.show', $event->customer)" wire:navigate>{{ __('calendar.detail.customer_card') }}</x-ui.button>
+                @endif
+                @if ($canManage)
+                    <x-ui.button variant="danger" x-on:click="{!! Js::openWindow('confirm', ['action' => 'delete-calendar-event', 'id' => $event->id]) !!}">{{ __('calendar.delete') }}</x-ui.button>
                 @endif
                 <x-ui.button wire:click="closeDetail">{{ __('calendar.detail.close') }}</x-ui.button>
             </div>

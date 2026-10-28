@@ -37,7 +37,13 @@
                 @endfor
             </div>
             @foreach ($columns as $column)
-                <div @class(['cal-col', 'cal-lines', 'is-weekend' => $column['weekend'], 'is-today' => $column['today']])>
+                {{-- An empty slot opens the event window on that day and hour (the hour is read from the click's height). --}}
+                <div @class(['cal-col', 'cal-lines', 'is-weekend' => $column['weekend'], 'is-today' => $column['today']])
+                    @if ($canManage)
+                        x-data
+                        x-on:click.self="$dispatch('open-window', { name: 'edit-calendar-event', params: { date: '{{ $column['date']->toDateString() }}', time: String(Math.min(23, Math.floor($event.offsetY / parseFloat(getComputedStyle($el).getPropertyValue('--cal-hour'))))).padStart(2, '0') + ':00' } })"
+                    @endif
+                >
                     @foreach ($column['placed'] as $placed)
                         @include('livewire.pages.calendar.entry', ['entry' => $placed['entry'], 'mode' => 'block', 'placed' => $placed])
                     @endforeach

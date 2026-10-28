@@ -488,6 +488,7 @@ class Index extends Component
             'miniTitle' => $this->miniAnchor()->locale('tr')->isoFormat('MMMM YYYY'),
             'detail' => $view === self::VIEW_DAY ? $this->detail() : null,
             'anchor' => $anchor,
+            'canManage' => $this->actor()->can(Permission::CalendarManage->value),
             'empty' => $entries === [],
         ])->title(__('calendar.title'));
     }

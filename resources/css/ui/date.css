@@ -12,6 +12,13 @@
     padding: 10px;
 }
 
+.ui-time-panel {
+    width: auto;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 6px;
+}
+
 .ui-date-head {
     display: flex;
     align-items: center;

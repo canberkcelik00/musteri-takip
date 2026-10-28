@@ -572,7 +572,7 @@ Karar (kullanıcı, U-38): gün/hafta/ay/liste görünümlü Takvim sayfası; el
 - [x] **G-15.3 Takvim sayfası** — Bağımlılık: G-15.2
   - Yapılacak: `/calendar` (Hafta, Gün, Ay, Liste; adreste görünüm/tarih/süzgeç), `calendar.css`, `--mt-nav-brown`, menüde 3. sıra ve yeni dar ekran sekmeleri, `lang/tr/calendar.php`, kayda tıklayınca ilgili pencere. Görünüm taslağın 1, 2, 3 ve 5 numaralı panolarıyla aynıdır.
   - Kabul: Görünüm ve tarih adresten okunur; süzgeç ve "Yalnız benimkiler" çalışır; yazılımcı tutar, vade, ödeme ve teklif görmez; menü 8 öğe, sekme çubuğu yeni sırada; yeni token kontrastı ölçülür; simgesiz düğme ve etiketsiz ok yok (testli); açık ve koyu temada taslakla görsel karşılaştırma (kullanıcı).
-- [ ] **G-15.4 Etkinlik penceresi** — Bağımlılık: G-15.3
+- [x] **G-15.4 Etkinlik penceresi** — Bağımlılık: G-15.3
   - Yapılacak: `EditCalendarEvent` penceresi (`calendar.manage`), 15 dakikalık `x-ui.time-input`, süre hapları, "Tüm gün", katılanlar, hatırlatma, tekrar; ayrıntı panelinde Düzenle · Müşteri kartı · Sil (onaylı `delete-calendar-event`).
   - Kabul: Pencere izni her istekte denetlenir; varsayılan tarih/saat (tıklanan dilim ya da sonraki tam saat); hap hesapları; tüm gün saatleri gizler ve boşaltır; tekrarlayan etkinlikte düzenleme bütün seriye uygulanır (testli).
 - [ ] **G-15.5 Hatırlatmalar** — Bağımlılık: G-15.1
