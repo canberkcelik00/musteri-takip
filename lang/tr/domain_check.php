@@ -19,7 +19,12 @@ return [
     'nameservers_differ' => 'Kayıttaki ad sunucuları ile DNS\'in şu an yanıt verdiği ad sunucuları farklı; değişiklik henüz yayılmamış ya da alan adı başka yere taşınmış olabilir.',
     'stored_answer' => 'Şu an okunamadı; en son okunan bilgi gösteriliyor.',
     'mismatch' => ':customer · hizmet bitişi :service ile alan adı kaydı arasında :days gün fark var.',
-    'coming_soon' => 'Bu sekme henüz hazır değil.',
+    'ssl_ends' => 'Sertifika bitişi',
+    'ssl_issuer' => 'Veren kuruluş',
+    'ssl_subject' => 'Sertifika adı',
+    'ssl_left' => 'Sertifikanın bitmesine :days gün var.',
+    'ssl_soon' => 'Sertifika :days gün içinde bitiyor; yenilenmesi gerekiyor.',
+    'ssl_expired' => 'Sertifikanın süresi :days gün önce doldu; site tarayıcılarda uyarı gösterir.',
     'mail' => [
         'ok' => 'Kayıt doğru görünüyor.',
         'spf' => [

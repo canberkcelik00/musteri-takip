@@ -89,7 +89,33 @@
                 @endif
             </div>
 
-            <p x-show="tab === 'ssl'" x-cloak class="ui-note ui-mt-3">{{ __('domain_check.coming_soon') }}</p>
+            <div x-show="tab === 'ssl'" x-cloak x-effect="if (tab === 'ssl') $wire.loadSsl()" class="ui-mt-3">
+                @if (! $sslLoaded)
+                    <p class="ui-hint" role="status">{{ __('domain_check.loading') }}</p>
+                @elseif ($ssl === null)
+                    <p class="ui-hint">{{ __('domain_check.unreadable') }}</p>
+                @else
+                    <ul class="ui-mailboxes">
+                        <li><span class="ui-mailbox-address">{{ __('domain_check.ssl_ends') }}: {{ \Illuminate\Support\Carbon::parse($ssl['expires_on'])->format('d.m.Y') }}</span></li>
+                        @if ($ssl['issuer'] !== null)
+                            <li><span class="ui-mailbox-address">{{ __('domain_check.ssl_issuer') }}: {{ $ssl['issuer'] }}</span></li>
+                        @endif
+                        @if ($ssl['subject'] !== null)
+                            <li><span class="ui-mailbox-address">{{ __('domain_check.ssl_subject') }}: {{ $ssl['subject'] }}</span></li>
+                        @endif
+                    </ul>
+                    @if ($ssl['days_left'] < 0)
+                        <p class="ui-note ui-mt-3" role="alert">{{ __('domain_check.ssl_expired', ['days' => abs($ssl['days_left'])]) }}</p>
+                    @elseif ($ssl['days_left'] <= \App\Actions\Today\ListTodayTasks::SSL_WARNING_DAYS)
+                        <p class="ui-note ui-mt-3" role="alert">{{ __('domain_check.ssl_soon', ['days' => $ssl['days_left']]) }}</p>
+                    @else
+                        <p class="ui-hint">{{ __('domain_check.ssl_left', ['days' => $ssl['days_left']]) }}</p>
+                    @endif
+                    @if ($ssl['stored'])
+                        <p class="ui-hint">{{ __('domain_check.stored_answer') }}</p>
+                    @endif
+                @endif
+            </div>
         </div>
     @endif
 

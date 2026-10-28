@@ -5,6 +5,7 @@ namespace App\Livewire\Windows;
 use App\Actions\Domains\CheckDomainDns;
 use App\Actions\Domains\CheckDomainEmail;
 use App\Actions\Domains\CheckDomainRegistration;
+use App\Actions\Domains\CheckDomainSsl;
 use App\Enums\DnsRecordType;
 use App\Enums\EmailCheckStatus;
 use App\Livewire\Concerns\AuthorizesPermission;
@@ -15,9 +16,10 @@ use Livewire\Component;
 
 /**
  * The read-only "Alan adını kontrol et" window (docs/UI.md "Alan adı kontrol penceresi"): the one window the
- * Ctrl+K row and the card's "Kontrol et" open. The DNS, WHOIS and E-posta tabs are live; the DNS lookups run after the
- * window is on screen (`wire:init`), the WHOIS and e-posta ones when their tab is first opened, and all again on
- * "Yeniden sorgula". It only calls CheckDomainDns, CheckDomainRegistration and CheckDomainEmail and saves nothing.
+ * Ctrl+K row and the card's "Kontrol et" open. All four tabs are live; the DNS lookups run after the
+ * window is on screen (`wire:init`), the SSL, WHOIS and e-posta ones when their tab is first opened, and all again on
+ * "Yeniden sorgula". It only calls CheckDomainDns, CheckDomainSsl, CheckDomainRegistration and CheckDomainEmail and
+ * saves nothing.
  */
 class CheckDomain extends Component
 {
@@ -42,6 +44,11 @@ class CheckDomain extends Component
 
     /** @var array<string, array{status: EmailCheckStatus, record: string|null, reason: string|null}> */
     public array $mail = [];
+
+    public bool $sslLoaded = false;
+
+    /** @var array{expires_on: string, days_left: int, issuer: string|null, subject: string|null, stored: bool}|null */
+    public ?array $ssl = null;
 
     public function mount(string $domain): void
     {
@@ -83,9 +90,25 @@ class CheckDomain extends Component
         $this->readMail();
     }
 
+    /**
+     * The SSL tab reads on first use, like the WHOIS one.
+     */
+    public function loadSsl(): void
+    {
+        if ($this->host === null || $this->sslLoaded) {
+            return;
+        }
+
+        $this->readSsl();
+    }
+
     public function refresh(): void
     {
         $this->load();
+
+        if ($this->sslLoaded) {
+            $this->readSsl();
+        }
 
         if ($this->registrationLoaded) {
             $this->readRegistration();
@@ -94,6 +117,12 @@ class CheckDomain extends Component
         if ($this->mailLoaded) {
             $this->readMail();
         }
+    }
+
+    private function readSsl(): void
+    {
+        $this->ssl = app(CheckDomainSsl::class)->handle((string) $this->host);
+        $this->sslLoaded = true;
     }
 
     private function readMail(): void

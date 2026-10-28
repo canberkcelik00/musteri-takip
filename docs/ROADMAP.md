@@ -611,7 +611,10 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.7 SPF / DKIM / DMARC** — Bağımlılık: G-16.2
   - Yapılacak: Penceredeki E-posta sekmesi; eksik veya hatalı her kayıt için Türkçe çözüm cümlesi.
   - Kabul: Üç kaydın her durumu (var, yok, hatalı) doğru raporlanır (testli).
-- [ ] **K-16.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-16.3
+- [x] **G-16.8 SSL sekmesi** — Bağımlılık: G-16.3
+  - Yapılacak: Penceredeki SSL sekmesi; bitiş tarihi, veren, kalan gün; canlı okunamazsa saklanan bitiş.
+  - Kabul: Kalan gün doğru, süresi dolan negatif; okunamazsa saklanan değer işaretli gösterilir; yazılımcı açabilir (testli).
+- [x] **K-16.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-16.3
   - Yapılacak: Canlı sunucuda `dns_get_record`, dışarı 443 ve port 43 (TRABİS) bağlantılarının çalıştığını doğrula; kapalıysa `.tr` WHOIS boş kalır.
 
 **Faz 16 bittiğinde:** Bir alan adı yazılınca durumu tek pencerede görülür; kapanan site, biten sertifika ve taşınmış hosting kendiliğinden Bugün'e düşer.
