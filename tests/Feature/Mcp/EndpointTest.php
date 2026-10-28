@@ -53,7 +53,8 @@ it('answers initialize and tools/list with a valid token', function () {
 
     mcpCall($token, 'tools/list')
         ->assertOk()
-        ->assertJsonPath('result.tools', []);
+        ->assertJsonPath('result.tools.0.name', 'today-summary')
+        ->assertJsonCount(7, 'result.tools');
 });
 
 it('records when a token was last used', function () {

@@ -3,6 +3,7 @@
 namespace App\Livewire\Pages\Tasks;
 
 use App\Actions\Tasks\CompleteTask;
+use App\Actions\Tasks\FilterTasks;
 use App\Actions\Tasks\ReopenTask;
 use App\Enums\Permission;
 use App\Livewire\Concerns\AuthorizesPermission;
@@ -118,37 +119,17 @@ class Index extends Component
      */
     private function filtered(): Builder
     {
-        $query = Task::query();
-
-        if ($this->who !== self::WHO_ALL) {
-            $query->assignedTo($this->actor());
-        }
-
-        match ($this->status) {
-            self::STATUS_OPEN => $query->open(),
-            self::STATUS_DONE => $query->completed(),
-            default => null,
-        };
-
-        if ($this->onlyOverdue) {
-            $query->overdue();
-        }
-
-        if (ctype_digit($this->customer)) {
-            $query->where('customer_id', (int) $this->customer);
-        }
-
-        $term = trim($this->search);
-
-        if ($term !== '') {
-            $query->where(function (Builder $query) use ($term): void {
-                $query->where('title', 'like', "%{$term}%")
-                    ->orWhere('notes', 'like', "%{$term}%")
-                    ->orWhereHas('customer', fn (Builder $customers) => $customers->where('short_name', 'like', "%{$term}%"));
-            });
-        }
-
-        return $query;
+        return app(FilterTasks::class)->handle(
+            assignee: $this->who !== self::WHO_ALL ? $this->actor() : null,
+            completed: match ($this->status) {
+                self::STATUS_OPEN => false,
+                self::STATUS_DONE => true,
+                default => null,
+            },
+            onlyOverdue: $this->onlyOverdue,
+            customerId: ctype_digit($this->customer) ? (int) $this->customer : null,
+            search: $this->search,
+        );
     }
 
     /**

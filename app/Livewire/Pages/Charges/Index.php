@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\Charges;
 
+use App\Actions\Charges\FilterCharges;
 use App\Actions\Charges\SumRemainingByCurrency;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
@@ -97,46 +98,16 @@ class Index extends Component
      */
     private function filtered(): Builder
     {
-        $query = Charge::query()->with('customer');
-
-        if (in_array($this->status, array_column(ChargeStatus::cases(), 'value'), true)) {
-            $query->where('status', $this->status);
-        }
-
-        if ($this->onlyOverdue) {
-            $query->overdue();
-        }
-
-        if ($this->dueThisMonth) {
-            $query->dueThisMonth();
-        }
-
-        if ($this->dueSoon) {
-            $query->dueSoon();
-        }
-
-        if ($this->hideArchived) {
-            $query->unarchivedCustomer();
-        }
-
-        if (Currency::tryFrom($this->currency) !== null) {
-            $query->where('currency', $this->currency);
-        }
-
-        if (ctype_digit($this->customer)) {
-            $query->where('customer_id', (int) $this->customer);
-        }
-
-        $term = trim($this->search);
-
-        if ($term !== '') {
-            $query->where(function (Builder $query) use ($term): void {
-                $query->where('description', 'like', "%{$term}%")
-                    ->orWhereHas('customer', fn (Builder $customers) => $customers->where('short_name', 'like', "%{$term}%"));
-            });
-        }
-
-        return $query;
+        return app(FilterCharges::class)->handle(
+            status: ChargeStatus::tryFrom($this->status),
+            onlyOverdue: $this->onlyOverdue,
+            dueThisMonth: $this->dueThisMonth,
+            dueSoon: $this->dueSoon,
+            hideArchived: $this->hideArchived,
+            currency: Currency::tryFrom($this->currency),
+            customerId: ctype_digit($this->customer) ? (int) $this->customer : null,
+            search: $this->search,
+        )->with('customer');
     }
 
     /**

@@ -2,6 +2,13 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\CustomerCard;
+use App\Mcp\Tools\ListCalendar;
+use App\Mcp\Tools\ListCharges;
+use App\Mcp\Tools\ListPayments;
+use App\Mcp\Tools\ListTasks;
+use App\Mcp\Tools\SearchCustomers;
+use App\Mcp\Tools\TodaySummary;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -17,7 +24,13 @@ use Laravel\Mcp\Server\Attributes\Version;
 class MusteriTakipServer extends Server
 {
     protected array $tools = [
-        //
+        TodaySummary::class,
+        SearchCustomers::class,
+        CustomerCard::class,
+        ListCharges::class,
+        ListPayments::class,
+        ListTasks::class,
+        ListCalendar::class,
     ];
 
     protected array $resources = [

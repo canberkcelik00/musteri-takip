@@ -20,4 +20,5 @@ return [
     'revoke_heading' => '":name" token\'ı iptal edilsin mi?',
     'revoke_description' => 'Bu bilgisayardaki Claude bağlantısı çalışmaz.',
     'revoked' => 'Token iptal edildi.',
+    'calendar_range' => 'Tarih aralığı en çok :days gün olabilir.',
 ];
