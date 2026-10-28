@@ -75,7 +75,7 @@ class CheckDomainEmail
     private function dkim(string $host): array
     {
         $name = self::DKIM_SELECTOR.'._domainkey.'.$host;
-        $records = $this->dns->records($name, DnsRecordType::Txt);
+        $records = $this->txt($name, $host);
 
         if ($records === null) {
             return $this->result(EmailCheckStatus::Unreadable);
@@ -99,7 +99,7 @@ class CheckDomainEmail
      */
     private function dmarc(string $host): array
     {
-        $found = $this->txtStarting('_dmarc.'.$host, 'v=dmarc1');
+        $found = $this->txtStarting('_dmarc.'.$host, 'v=dmarc1', $host);
 
         if ($found === null) {
             return $this->result(EmailCheckStatus::Unreadable);
@@ -129,15 +129,33 @@ class CheckDomainEmail
      *
      * @return list<string>|null
      */
-    private function txtStarting(string $name, string $tag): ?array
+    private function txtStarting(string $name, string $tag, ?string $domain = null): ?array
     {
-        $records = $this->dns->records($name, DnsRecordType::Txt);
+        $records = $this->txt($name, $domain ?? $name);
 
         if ($records === null) {
             return null;
         }
 
         return array_values(array_filter($records, fn (string $record): bool => str_starts_with(mb_strtolower(trim($record)), $tag)));
+    }
+
+    /**
+     * The TXT records of a name. PHP's `dns_get_record` answers `false` for a name that does not exist at all
+     * (`_dmarc.…`, `default._domainkey.…`) just as for a failed lookup; when the domain's own name servers
+     * do answer, such a name is simply empty, not unreadable.
+     *
+     * @return list<string>|null
+     */
+    private function txt(string $name, string $domain): ?array
+    {
+        $records = $this->dns->records($name, DnsRecordType::Txt);
+
+        if ($records !== null || $name === $domain) {
+            return $records;
+        }
+
+        return $this->dns->records($domain, DnsRecordType::Ns) ? [] : null;
     }
 
     /**
