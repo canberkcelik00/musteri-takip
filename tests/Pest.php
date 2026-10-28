@@ -1,7 +1,10 @@
 <?php
 
+use App\Actions\Account\CreateMcpToken;
 use App\Actions\Deploy\ArtisanRunner;
 use App\Actions\Deploy\DeployRelease;
+use App\Enums\McpAccess;
+use App\Mcp\Servers\MusteriTakipServer;
 use App\Models\Charge;
 use App\Models\Contact;
 use App\Models\CustomerService;
@@ -10,11 +13,22 @@ use BladeUI\Icons\IconsManifest;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
+use Laravel\Mcp\Server\Testing\PendingTestResponse;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+/**
+ * The Claude server (Faz 18) acting as the user, through a real token of the given access (as the endpoint does).
+ */
+function mcpAs(User $user, McpAccess $access = McpAccess::ReadOnly): PendingTestResponse
+{
+    app(CreateMcpToken::class)->handle($user, 'Ofis', $access);
+
+    return MusteriTakipServer::actingAs($user->withAccessToken($user->tokens()->latest('id')->firstOrFail()));
+}
 
 /**
  * The stylesheets of the glass interface (Faz 10), in the order ui.css imports them.

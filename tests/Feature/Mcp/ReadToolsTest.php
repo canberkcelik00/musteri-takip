@@ -24,18 +24,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Laravel\Mcp\Server\Testing\PendingTestResponse;
 use Spatie\Permission\Models\Role;
-
-/**
- * The Claude server acting as the user, through a real token of the given access (as the endpoint does).
- */
-function mcpAs(User $user, McpAccess $access = McpAccess::ReadOnly): PendingTestResponse
-{
-    app(CreateMcpToken::class)->handle($user, 'Ofis', $access);
-
-    return MusteriTakipServer::actingAs($user->withAccessToken($user->tokens()->latest('id')->firstOrFail()));
-}
 
 beforeEach(function () {
     $this->travelTo('2026-10-28 10:00');

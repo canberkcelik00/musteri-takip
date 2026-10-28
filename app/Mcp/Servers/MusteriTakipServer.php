@@ -2,11 +2,14 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\CompleteTask;
+use App\Mcp\Tools\CreateTask;
 use App\Mcp\Tools\CustomerCard;
 use App\Mcp\Tools\ListCalendar;
 use App\Mcp\Tools\ListCharges;
 use App\Mcp\Tools\ListPayments;
 use App\Mcp\Tools\ListTasks;
+use App\Mcp\Tools\RecordPayment;
 use App\Mcp\Tools\SearchCustomers;
 use App\Mcp\Tools\TodaySummary;
 use Laravel\Mcp\Server;
@@ -20,7 +23,7 @@ use Laravel\Mcp\Server\Attributes\Version;
  */
 #[Name('Müşteri Takip')]
 #[Version('1.0.0')]
-#[Instructions('Read the business data of a small web services company: customers, their services, charges, payments, tasks and the calendar. All amounts are per currency and are never added across currencies. Dates are in the Europe/Istanbul timezone.')]
+#[Instructions('Read the business data of a small web services company: customers, their services, charges, payments, tasks and the calendar. All amounts are per currency and are never added across currencies. Dates are in the Europe/Istanbul timezone. With a read and write token a few tools also add or finish a task and record a payment; nothing can be deleted, cancelled or undone here.')]
 class MusteriTakipServer extends Server
 {
     protected array $tools = [
@@ -31,6 +34,9 @@ class MusteriTakipServer extends Server
         ListPayments::class,
         ListTasks::class,
         ListCalendar::class,
+        CreateTask::class,
+        CompleteTask::class,
+        RecordPayment::class,
     ];
 
     protected array $resources = [
