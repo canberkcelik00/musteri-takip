@@ -639,6 +639,26 @@ Karar (kullanıcı, U-40, U-41): bilgisayardaki WhatsApp'ta mesajı kopyala → 
 
 **Faz 17 bittiğinde:** WhatsApp'tan gelen bir talep, mesajı kopyalayıp `Ctrl+V`'ye basınca temizlenmiş not olarak pencereye gelir; kısa bir başlık ve `Enter` ile İşler'e düşer.
 
+## Faz 18 – Claude erişimi (MCP)
+
+Karar (kullanıcı, U-42, T-188): uygulama `/mcp` adresinde bir MCP sunucusu açar; kullanıcı Profil'den ürettiği token'la bilgisayarındaki Claude Code'u bağlar. Araçlar yalnız mevcut Action'ları çağırır ve token sahibinin rol izinleriyle çalışır. Önce okuma, sonra sınırlı yazma; silme, iptal ve arşivleme aracı yok. Her görev ayrı oturumda yapılır.
+
+- [x] **G-18.0 Dokümanlar** — Bağımlılık: G-17.3
+  - Yapılacak: PRD "Claude erişimi (Faz 18)", DATA_MODEL `personal_access_tokens`, UI.md "Profil: Claude erişimi", DECISIONS U-42 ve T-188, bu faz.
+- [ ] **G-18.1 Altyapı ve token yönetimi** — Bağımlılık: G-18.0
+  - Yapılacak: `laravel/mcp` ve `laravel/sanctum` `require`'a (kullanıcı onayı T-188); Sanctum migration'ı, `User`'a `HasApiTokens`; `routes/ai.php` içinde `Mcp::web('/mcp', …)` (`auth:sanctum`, `active`, `throttle:mcp`); `RateLimiter::for('mcp')` token başına 60/dk; `CreateMcpToken` (ad, yetki `mcp:read` / `mcp:read`+`mcp:write`, 90 gün, düz metni bir kez döner) ve `RevokeMcpToken` (yalnız kendi token'ı) Action'ları; `DeactivateUser` token'ları siler; Profil'de "Claude erişimi" kartı (UI.md); `mcp` günlük kanalı; `lang/tr` anahtarları.
+  - Kabul: Token'sız, yanlış, süresi dolmuş ya da iptal edilmiş token'la 401; pasif kullanıcının token'ı çalışmaz; geçerli token'la `initialize` ve `tools/list` başarılı; sınır aşılınca 429; yalnız panel oturumuyla (çerez) MCP'ye girilemez; veritabanında token düz metni yok; token 90 gün sonra çalışmaz; kullanıcı başkasının token'ını iptal edemez; pasifleştirme token'ları siler; Profil'de token bir kez gösterilir ve listede ad, yetki, son kullanım, bitiş görünür (testli).
+- [ ] **G-18.2 Okuma araçları** — Bağımlılık: G-18.1
+  - Yapılacak: `app/Mcp/Tools/` altında `#[IsReadOnly]` araçlar: Bugün özeti (`SummarizeToday`, `ListTodayTasks`), müşteri arama (`Customer` arama kapsamı), müşteri kartı (hizmetler, ilgili kişiler, `SumOpenCharges`), borç listesi (açık/gecikmiş, `SumRemainingByCurrency`), ödeme listesi, iş listesi, takvim (`ListCalendarEntries`, en çok 92 gün). Her araç `shouldRegister()` ve `handle()` içinde izni denetler; yanıt elle seçilmiş alanlarla kurulur; listeler en çok 50 satır. Filtre mantığı yalnız bir Livewire tablosunda duruyorsa küçük bir Action'a taşınır, tablo da onu kullanır.
+  - Kabul: Her araç beklenen veriyi döner; izni olmayan rol aracı göremez ve çağıramaz (yazılımcı para araçlarını görmez, müşteri kartında borç yok); para birimleri ayrı döner, toplanmaz; arşivli müşteri varsayılan olarak gelmez; 50 satır sınırı; gizli alanlar (sunucu anahtarı, şifre, token) yanıtta yok; geçersiz girdi doğrulama hatası verir; çağrı `mcp` kanalına yazılır (testli).
+- [ ] **G-18.3 Sınırlı yazma araçları** — Bağımlılık: G-18.2
+  - Yapılacak: Yalnız `mcp:write` token'ında görünen araçlar: iş ekle (`CreateTask`), iş bitir (`CompleteTask`), ödeme kaydet (`RecordPayment`, otomatik dağıtım; tutar kuruş, para birimi ve ödeme yöntemi zorunlu). Girdiler `mcp` kanalına yazılır.
+  - Kabul: `mcp:read` token'ı yazma araçlarını göremez ve çağıramaz; izinsiz rol çağıramaz; kayıt paneldeki gibi oluşur (kim yaptı token sahibi, başkasına atamada e-posta gider); arşivli müşteriye iş açılamaz; hatalı tutar, para birimi ya da ödeme yöntemi reddedilir; silme/iptal aracı listede yok (testli).
+- [ ] **K-18.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-18.3
+  - Yapılacak: Yayından sonra Profil'den "Yalnız okuma" token'ı üret; Claude Code'da `claude mcp add --scope user --transport http musteri-takip https://<alan>/mcp --header "Authorization: Bearer <token>"` ile bağlan; Bugün özetini ve bir müşteri aramasını dene; token'ı iptal edip bağlantının kesildiğini gör. Token'ı proje dosyasına ya da commit'e yazma.
+
+**Faz 18 bittiğinde:** Kullanıcı Claude Code'a "bu ay vadesi gelen borçlar ne?" diye sorduğunda yanıt canlı veriden, rolünün izinleriyle gelir; isterse oradan iş açar ya da ödeme kaydeder.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.

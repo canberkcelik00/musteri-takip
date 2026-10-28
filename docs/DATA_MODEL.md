@@ -355,6 +355,21 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 
 **site_incidents** (G-16.6): `customer_service_item_id` (FK, cascade), `domain` (string, olay anındaki alan adı), `started_at` (timestamp), `ended_at` (timestamp, boş = hâlâ kapalı), `reason` (string, boş olabilir; HTTP durumu ya da bağlantı hatası). Açık olay (`ended_at` boş) alan adı başına en çok bir tanedir. Olay silinmez; geçmiştir.
 
+## Claude erişimi (Faz 18)
+
+**personal_access_tokens** (`laravel/sanctum` standart tablosu; MCP token'ları)
+
+| Alan | Tür | Zorunlu | Not |
+| --- | --- | --- | --- |
+| tokenable_type, tokenable_id | morph | Evet | Token sahibi; yalnız `User` |
+| name | string | Evet | Kullanıcının verdiği ad (örn. "Ev bilgisayarı") |
+| token | string(64), benzersiz | Evet | Token'ın SHA-256 özeti; düz metin saklanmaz |
+| abilities | text (JSON) | Hayır | `["mcp:read"]` ya da `["mcp:read","mcp:write"]` |
+| last_used_at | timestamp | Hayır | Son başarılı istek |
+| expires_at | timestamp | Hayır | Oluşturulmadan 90 gün sonra; dolunca token çalışmaz |
+
+Kullanıcı pasifleştirilince token'ları silinir. Token'ın kendisi geçmiş kaydı değildir; iptal edilen token satırı silinir.
+
 ## Ayarlar
 
 **settings** tablosu anahtar–değer olarak tutulur (`key` benzersiz string, `value` text).

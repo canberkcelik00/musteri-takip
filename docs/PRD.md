@@ -344,6 +344,35 @@ Küçük, tek amaçlı kontroller; müşteri hizmetlerinin alan adları üzerind
 - **E-posta kayıtları:** SPF, DKIM (`default._domainkey`, cPanel varsayılanı) ve DMARC kayıtları denetlenir; eksik ya da hatalı her kayıt için tek cümlelik Türkçe çözüm önerisi verilir.
 - **Kurallar:** Dış sorgu zaman aşımına uğrarsa ya da okunamazsa sonuç "bilinmiyor" olur; hiçbir kontrol borç, hizmet veya ödeme kaydını değiştirmez. Arka plan işleri idempotenttir ve süre bütçelidir (yapılmamış olanı sonraki çalışmada yapar). Yeni Composer paketi eklenmez.
 
+## Claude erişimi (Faz 18)
+
+Kullanıcı kendi bilgisayarındaki Claude Code'dan canlı uygulamaya bağlanıp soru sorar ("bu ay vadesi gelen borçlar ne?", "logi.com.tr kimin?") ve sınırlı işlem yapar. Uygulama `/mcp` adresinde bir MCP sunucusu açar; Claude bu sunucudaki **araçları** çağırır. Araçlar arayüzle aynı Action'ları çağırır, yani iş kuralları ve yetkiler arayüzdekiyle birebir aynıdır. Hostingde SSH olmadığından bağlantı yalnız HTTPS üzerindendir; sunucuda komut çalıştırma, dosya ya da veritabanına doğrudan erişim **yoktur**.
+
+**Token**
+
+- Her kullanıcı Profil'deki "Claude erişimi" bölümünden kendine token üretir: ad (örn. "Ev bilgisayarı") ve yetki (**Yalnız okuma** ya da **Okuma ve yazma**). Token düz metin olarak yalnız bir kez gösterilir; veritabanında yalnız özeti (hash) saklanır.
+- Token 90 gün geçerlidir; süresi dolan yenisiyle değiştirilir. Listede adı, yetkisi, oluşturulma ve son kullanım zamanı, bitiş tarihi görünür; kullanıcı kendi token'ını tek tıkla iptal eder, başkasınınkini göremez ve iptal edemez.
+- Pasifleştirilen kullanıcının bütün token'ları silinir; pasif kullanıcının token'ı çalışmaz.
+- Panel oturumu (tarayıcı çerezi) MCP'ye giriş açmaz; yalnız token geçerlidir. Token başına dakikada en çok 60 istek yapılır.
+
+**Yetki**
+
+- Token kullanıcının **rolünün izinleriyle** çalışır: izni olmayan araç Claude'a hiç listelenmez ve çağrılamaz. Yazılımcı parayı burada da görmez.
+- Yazma araçları yalnız "Okuma ve yazma" token'ında bulunur.
+- **Silme, iptal, arşivleme ve geri alma aracı yoktur**; bunlar yalnız panelden yapılır.
+
+**Araçlar**
+
+- **Okuma:** Bugün özeti (dört sayı ve yapılacaklar), müşteri arama (ad, alan adı, telefon; arşivliler istenirse), müşteri kartı (hizmetler, ilgili kişiler, açık borç), borç listesi (açık / gecikmiş, müşteri, tarih aralığı; para birimi başına toplam), ödeme listesi (tarih aralığı, müşteri), iş listesi (açık / bana atanan), takvim (en çok 92 günlük aralık). Listeler en çok 50 satır döner.
+- **Yazma (Okuma ve yazma token'ı):** iş ekleme, iş bitirme, ödeme kaydetme (otomatik dağıtım; elle dağıtım yok). Kayıtta "kim yaptı" token sahibidir; atama e-postası ve diğer kurallar paneldeki gibi işler.
+
+**Kurallar**
+
+- Araç yanıtı yalnız gereken alanları içerir; şifre, token, sunucu API anahtarı gibi gizli bilgiler hiçbir yanıtta bulunmaz. Para tutarları para birimi başına ayrı verilir, toplanmaz.
+- Her araç çağrısı ayrı bir günlük dosyasına yazılır (kullanıcı, token adı, araç, zaman); yazma araçlarında girilen değerler de yazılır.
+- **Veri çıkışı:** Araç yanıtındaki müşteri bilgileri kullanıcının Claude hesabına (Anthropic) gider. Bu, token'ı üreten kullanıcının bilinçli seçimidir; Profil'deki bölüm bunu tek cümleyle belirtir.
+- **Kapsam dışı:** claude.ai web/telefon bağlayıcısı (OAuth gerektirir), sunucuda komut ya da dosya işlemi, rapor dışa aktarma, silme/iptal araçları.
+
 ## Veri modeli
 
 Sistem 13 tablodan oluşur; bu bölüm tabloları ve aralarındaki ilişkiyi gösterir, alan detayları ayrı sekmededir. Parantez içindeki adlar kodda kullanılacak adlardır.
