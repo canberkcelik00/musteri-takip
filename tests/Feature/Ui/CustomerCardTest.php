@@ -1,11 +1,14 @@
 <?php
 
+use App\Actions\Calendar\ListCustomerEvents;
 use App\Actions\Payments\RecordPayment;
 use App\Enums\Currency;
 use App\Enums\CustomerServiceStatus;
+use App\Enums\EventRepeat;
 use App\Enums\Permission;
 use App\Enums\ServiceType;
 use App\Livewire\Pages\Customers\Show;
+use App\Models\CalendarEvent;
 use App\Models\CatalogService;
 use App\Models\Charge;
 use App\Models\Contact;
@@ -615,6 +618,92 @@ it('adds a constant number of queries for the tasks, however many there are', fu
 
     $large = Customer::factory()->create();
     Task::factory()->for($large)->count(8)->create();
+
+    expect($count($large))->toBe($count($small));
+});
+
+it('lists the upcoming events of the customer, soonest first, at most five, never a past or foreign one', function () {
+    $customer = Customer::factory()->create();
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Gecmis toplanti', 'starts_on' => '2026-06-14']);
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Bugunku sunum', 'starts_on' => '2026-06-15', 'start_time' => '14:00:00', 'end_time' => null]);
+    CalendarEvent::factory()->create(['title' => 'Baska musterinin etkinligi', 'starts_on' => '2026-06-16']);
+    CalendarEvent::factory()->for($customer)->count(5)->create(['starts_on' => '2026-09-01']);
+
+    uiCard($customer)
+        ->assertSee(__('calendar.card.heading'))
+        ->assertSee('Bugunku sunum')
+        ->assertSee('15.06.2026')
+        ->assertDontSee('Gecmis toplanti')
+        ->assertDontSee('Baska musterinin etkinligi')
+        ->assertSee(e(route('app.calendar', ['view' => 'list'])), false);
+
+    expect(app(ListCustomerEvents::class)->handle($customer))->toHaveCount(5);
+});
+
+it('shows a repeating event once, on its next day, until its end date', function () {
+    $customer = Customer::factory()->create();
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Haftalik gorusme', 'starts_on' => '2026-05-04', 'repeat' => EventRepeat::Weekly]);
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Biten seri', 'starts_on' => '2026-05-04', 'repeat' => EventRepeat::Weekly, 'repeat_until' => '2026-06-01']);
+
+    $upcoming = app(ListCustomerEvents::class)->handle($customer);
+
+    expect($upcoming)->toHaveCount(1)
+        ->and($upcoming[0]['event']->title)->toBe('Haftalik gorusme')
+        ->and($upcoming[0]['date']->toDateString())->toBe('2026-06-15');
+});
+
+it('opens the event window with the customer filled and offers "Etkinlik ekle" only for an unarchived customer', function () {
+    $customer = Customer::factory()->create();
+
+    expect(uiCard($customer)->html())->toContain("name: 'edit-calendar-event', params: { customer: {$customer->id} }");
+
+    $customer->archive();
+
+    uiCard($customer->fresh())->assertDontSee(__('calendar.add'));
+});
+
+it('refreshes after the event window changes an event', function () {
+    $customer = Customer::factory()->create();
+    $card = uiCard($customer)->assertSee(__('calendar.card.empty'));
+
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Yeni etkinlik', 'starts_on' => '2026-06-20']);
+
+    $card->dispatch('calendar-changed')->assertSee('Yeni etkinlik');
+});
+
+it('hides the events section from a role without the calendar permission', function () {
+    $customer = Customer::factory()->create();
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Gizli etkinlik', 'starts_on' => '2026-06-20']);
+    $this->actingAs(User::factory()->developer()->create());
+    RoleModel::findByName('developer')->revokePermissionTo(Permission::CalendarManage->value);
+
+    uiCard($customer)->assertDontSee('Gizli etkinlik')->assertDontSee(__('calendar.card.heading'));
+});
+
+it('shows a developer the events section without any money', function () {
+    $customer = Customer::factory()->create();
+    CalendarEvent::factory()->for($customer)->create(['title' => 'Yazilimci etkinligi', 'starts_on' => '2026-06-20']);
+    $this->actingAs(User::factory()->developer()->create());
+
+    uiCard($customer)->assertSee('Yazilimci etkinligi');
+});
+
+it('adds a constant number of queries for the events, however many there are', function () {
+    $count = function (Customer $customer): int {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        uiCard($customer);
+
+        return count(DB::getQueryLog());
+    };
+
+    uiCard(Customer::factory()->create());
+
+    $small = Customer::factory()->create();
+    CalendarEvent::factory()->for($small)->create(['starts_on' => '2026-07-01']);
+
+    $large = Customer::factory()->create();
+    CalendarEvent::factory()->for($large)->count(8)->create(['starts_on' => '2026-07-01']);
 
     expect($count($large))->toBe($count($small));
 });

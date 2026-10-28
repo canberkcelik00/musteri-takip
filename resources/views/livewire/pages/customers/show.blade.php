@@ -311,6 +311,31 @@
                 </x-ui.card>
             @endcan
 
+            @can('calendar.manage')
+                <x-ui.card tag="section">
+                    <div class="ui-card-head">
+                        <h2>{{ __('calendar.card.heading') }}</h2>
+                        @unless ($customer->isArchived())
+                            <x-ui.button size="sm" x-on:click="{!! Js::openWindow('edit-calendar-event', ['customer' => $customer->id]) !!}">{{ __('calendar.add') }}</x-ui.button>
+                        @endunless
+                    </div>
+
+                    @forelse ($upcomingEvents as $upcoming)
+                        <div class="ui-contact" wire:key="event-{{ $upcoming['event']->id }}">
+                            <x-ui.link-button class="ui-cell-title" x-on:click="{!! Js::openWindow('edit-calendar-event', ['event' => $upcoming['event']->id]) !!}">{{ $upcoming['event']->title }}</x-ui.link-button>
+                            <span class="ui-muted">
+                                {{ $fmt($upcoming['date']) }}
+                                · {{ $upcoming['event']->all_day ? __('calendar.all_day') : substr((string) $upcoming['event']->start_time, 0, 5) }}
+                            </span>
+                        </div>
+                    @empty
+                        <p class="ui-muted ui-m-0">{{ __('calendar.card.empty') }}</p>
+                    @endforelse
+
+                    <p class="ui-m-0 mt-3"><a href="{{ route('app.calendar', ['view' => 'list']) }}">{{ __('calendar.card.view_all') }}</a></p>
+                </x-ui.card>
+            @endcan
+
             <x-ui.card tag="section">
                 <div class="ui-card-head">
                     <h2>{{ __('contacts.plural') }}</h2>

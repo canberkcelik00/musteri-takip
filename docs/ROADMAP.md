@@ -578,7 +578,7 @@ Karar (kullanıcı, U-38): gün/hafta/ay/liste görünümlü Takvim sayfası; el
 - [x] **G-15.5 Hatırlatmalar** — Bağımlılık: G-15.1
   - Yapılacak: `SendEventReminders` Action'ı ve `app:send-event-reminders` komutu; `routes/console.php`'de her dakika, `withoutOverlapping`, bekleyen yayında atlanır; `CalendarEventReminderMail`.
   - Kabul: İki çalışma iki e-posta göndermez; 15 dakika gecikmeli çalışma yine gönderir; başlangıcı geçmiş etkinliğe gönderim olmaz; haftalık seride her hafta ayrı gönderilir (testli, `travelTo`).
-- [ ] **G-15.6 Müşteri kartında etkinlikler** — Bağımlılık: G-15.4
+- [x] **G-15.6 Müşteri kartında etkinlikler** — Bağımlılık: G-15.4
   - Yapılacak: Kartta "Yaklaşan etkinlikler" (en çok 5), "Etkinlik ekle" (müşteri dolu), "Takvimde gör".
   - Kabul: Geçmiş etkinlik görünmez; sorgu artışı tek sorgu (testli).
 

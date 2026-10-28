@@ -107,6 +107,11 @@ return [
         'series_hint' => 'Değişiklik bütün seriye uygulanır.',
         'notes' => 'Not',
     ],
+    'card' => [
+        'heading' => 'Yaklaşan etkinlikler',
+        'empty' => 'Yaklaşan etkinlik yok.',
+        'view_all' => 'Takvimde gör',
+    ],
     'records_today' => 'Bugün kayda geçenler',
     'records_day' => ':date günü kayda geçenler',
 

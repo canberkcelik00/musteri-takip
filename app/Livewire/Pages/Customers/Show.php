@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\Customers;
 
+use App\Actions\Calendar\ListCustomerEvents;
 use App\Actions\Reminders\BuildWhatsAppReminder;
 use App\Actions\Servers\BuildServiceCardSummaries;
 use App\Actions\Tasks\CompleteTask;
@@ -47,6 +48,7 @@ class Show extends Component
     #[On('contacts-changed')]
     #[On('quotes-changed')]
     #[On('tasks-changed')]
+    #[On('calendar-changed')]
     public function refresh(): void
     {
         $this->customer->refresh();
@@ -73,6 +75,7 @@ class Show extends Component
 
         $canSeeMoney = Auth::user()?->can(Permission::MoneyView->value) === true;
         $canSeeTasks = Auth::user()?->can(Permission::TasksManage->value) === true;
+        $canSeeEvents = Auth::user()?->can(Permission::CalendarManage->value) === true;
 
         $customer->load([
             'contacts' => fn ($contacts) => $contacts->orderByDesc('is_primary')->orderBy('name'),
@@ -134,6 +137,7 @@ class Show extends Component
             'inUse' => $customer->isInUse(),
             'canSeeMoney' => $canSeeMoney,
             'openTasks' => $canSeeTasks ? $customer->tasks()->open()->orderForList()->with('assignee')->limit(5)->get() : new Collection,
+            'upcomingEvents' => $canSeeEvents ? app(ListCustomerEvents::class)->handle($customer) : [],
         ])->title($customer->short_name);
     }
 }
