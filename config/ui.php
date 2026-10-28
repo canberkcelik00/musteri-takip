@@ -4,6 +4,7 @@ use App\Livewire\Windows\AcceptQuote;
 use App\Livewire\Windows\AssignService;
 use App\Livewire\Windows\CancelCharge;
 use App\Livewire\Windows\CancelService;
+use App\Livewire\Windows\CheckDomain;
 use App\Livewire\Windows\Confirm;
 use App\Livewire\Windows\Contact;
 use App\Livewire\Windows\CreateCustomer;
@@ -57,6 +58,7 @@ return [
         'cancel-service' => 'services.manage',
         'reactivate-service' => 'services.manage',
         'view-usage' => 'services.view',
+        'check-domain' => 'services.view',
         'quote' => 'quotes.manage',
         'create-quote' => 'quotes.manage',
         'send-quote' => 'quotes.manage',
@@ -96,6 +98,7 @@ return [
         'send-reminder' => SendReminder::class,
         'view-payment' => ViewPayment::class,
         'view-usage' => ViewUsage::class,
+        'check-domain' => CheckDomain::class,
         'quote' => OpenQuote::class,
         'create-quote' => CreateQuote::class,
         'send-quote' => SendQuote::class,

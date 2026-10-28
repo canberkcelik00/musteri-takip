@@ -1,9 +1,11 @@
 @php
+    use App\Support\Ui\Js;
     use App\Support\Ui\Links;
 
     $filled = mb_strlen(trim($query)) >= \App\Livewire\Topbar\Search::MIN_LENGTH;
     $customers = $filled ? $this->results : $this->recents;
     $pages = $this->pages;
+    $domain = $filled ? $this->domain : null;
     $showBox = $filled || $customers->isNotEmpty();
 @endphp
 
@@ -35,6 +37,19 @@
     >
         @if ($showBox)
             <div class="ui-search-results ui-glass ui-glass-menu" x-ref="results" x-show="open" x-cloak>
+                @if ($domain !== null)
+                    <div
+                        class="ui-search-result"
+                        wire:key="check-domain"
+                        x-on:keydown.arrow-down.prevent="$focus.wrap().next()"
+                        x-on:keydown.arrow-up.prevent="$focus.wrap().previous()"
+                    >
+                        <a href="#" x-on:click.prevent="open = false; expanded = false; {!! Js::openWindow('check-domain', ['domain' => $domain]) !!}">
+                            <span class="ui-cell-title">{{ __('domain_check.search_row', ['domain' => $domain]) }}</span>
+                        </a>
+                    </div>
+                @endif
+
                 @foreach ($pages as $page)
                     <div
                         class="ui-search-result"
@@ -90,7 +105,7 @@
                         @endunless
                     </div>
                 @empty
-                    @if ($filled && $pages === [])
+                    @if ($filled && $pages === [] && $domain === null)
                         <div class="ui-option-empty">{{ __('ui.search.empty') }}</div>
                     @endif
                 @endforelse

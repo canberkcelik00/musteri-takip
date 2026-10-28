@@ -593,7 +593,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.1 Ortak sorgu katmanı** — Bağımlılık: G-16.0
   - Yapılacak: `DnsLookup`, `TlsCertificateLookup`, `HttpProbe`, `RegistrationLookup` (RDAP + `.tr` TRABİS); hepsi okunamazsa `null` döner, testte sahte sürüm bağlanır.
   - Kabul: Her sorgu okunamayınca istisna atmaz; ayrıştırıcılar sahte yanıtla doğrulanır (testli).
-- [ ] **G-16.2 Alan adı kontrol penceresi** — Bağımlılık: G-16.1, G-15.3
+- [x] **G-16.2 Alan adı kontrol penceresi** — Bağımlılık: G-16.1, G-15.3
   - Yapılacak: `CheckDomain` penceresi (DNS sekmesi canlı), Ctrl+K satırı, Alan adları kartında "Kontrol et".
   - Kabul: Geçersiz alan adı reddedilir; okunamayan sorgu "Okunamadı" yazar; yazılımcı açabilir (testli).
 - [ ] **G-16.3 SSL denetleyici** — Bağımlılık: G-16.2

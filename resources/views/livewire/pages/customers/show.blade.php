@@ -266,7 +266,7 @@
                         <h2>{{ __('customer_services.domains_heading') }}</h2>
                         <span class="ui-muted">{{ __('customer_services.domains_count', ['count' => count($domains)]) }}</span>
                     </div>
-                    <x-ui.domains :domains="$domains" :cloudflare="$cloudflareDomains" />
+                    <x-ui.domains :domains="$domains" :cloudflare="$cloudflareDomains" :check="auth()->user()->can('services.view')" />
                 </x-ui.card>
             @endif
 

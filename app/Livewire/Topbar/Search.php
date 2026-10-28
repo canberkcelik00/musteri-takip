@@ -3,6 +3,7 @@
 namespace App\Livewire\Topbar;
 
 use App\Models\Customer;
+use App\Support\Dns\HostName;
 use App\Support\Ui\Navigation;
 use App\Support\Ui\RecentCustomers;
 use Illuminate\Contracts\View\View;
@@ -15,7 +16,8 @@ use Livewire\Component;
  * domain name or phone number (Customer::search). A result opens the customer's card; its "Ödeme al" opens the
  * payment window with the customer chosen (for a user without money access, "İş ekle" opens the task window).
  * An empty box lists the customers last opened, and a term that starts a menu name adds a "Git: …" row. Catalog,
- * packages and payment methods stay in their own lists.
+ * packages and payment methods stay in their own lists. A term that is a domain name starts the results with
+ * "Alan adını kontrol et: …", which opens the check window (Faz 16).
  */
 class Search extends Component
 {
@@ -78,6 +80,22 @@ class Search extends Component
     public function pages(): array
     {
         return mb_strlen(trim($this->query)) < self::MIN_LENGTH ? [] : Navigation::matching($this->query);
+    }
+
+    /**
+     * The term as a domain name for the "Alan adını kontrol et" row; null when it is not one (a bare word such as a
+     * customer name has no dot) or the user may not look at services.
+     */
+    #[Computed]
+    public function domain(): ?string
+    {
+        $term = trim($this->query);
+
+        if (! str_contains($term, '.') || ! auth()->user()?->can('services.view')) {
+            return null;
+        }
+
+        return HostName::normalize($term);
     }
 
     public function render(): View

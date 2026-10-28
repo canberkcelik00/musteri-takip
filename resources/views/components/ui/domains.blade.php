@@ -1,4 +1,4 @@
-@props(['domains', 'cloudflare' => []])
+@props(['domains', 'cloudflare' => [], 'check' => false])
 
 {{--
     A service's domains, one per row, each with two icon-only controls, "open the site" (new tab) and "copy" (docs/UI.md
@@ -35,5 +35,8 @@
             <x-heroicon-o-clipboard-document x-show="! copied" aria-hidden="true" />
             <x-heroicon-o-check x-show="copied" x-cloak aria-hidden="true" />
         </button></x-ui.tooltip>
+        @if ($check && ($host = \App\Support\Dns\HostName::normalize($domain)) !== null)
+            <x-ui.button size="sm" x-on:click.stop="{!! \App\Support\Ui\Js::openWindow('check-domain', ['domain' => $host]) !!}">{{ __('domain_check.check') }}</x-ui.button>
+        @endif
     </div>
 @endforeach
