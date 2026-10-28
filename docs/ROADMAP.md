@@ -625,7 +625,7 @@ Karar (kullanıcı, U-40): bilgisayardaki WhatsApp'ta mesajı kopyala → paneld
 
 - [x] **G-17.0 Dokümanlar** — Bağımlılık: G-16.8
   - Yapılacak: PRD "Mesajdan iş (Faz 17)", UI.md (yapıştırarak açılış, boş liste ipucu, hedef tık satırı), DECISIONS U-40, bu faz.
-- [ ] **G-17.1 `ParseQuickTask` Action'ı** — Bağımlılık: G-17.0
+- [x] **G-17.1 `ParseQuickTask` Action'ı** — Bağımlılık: G-17.0
   - Yapılacak: `app/Actions/Tasks/ParseQuickTask.php`: metinden başlık, not, müşteri ve eşleşme işaretini çıkarır (PRD "Mesajdan iş"); veritabanına yazmaz; en çok 5 alan adı, 3 telefon ve 3 gönderen denenir.
   - Kabul: Başlık ilk satırdan gelir, uzun başlık kısaltılır; iki WhatsApp öneki biçimi temizlenir; tek kısa satırda not boş kalır; müşteri alan adı, telefon (farklı yazımlarda), gönderen adı ve kısa adla bulunur; iki müşteriyle eşleşince boş kalır; arşivli müşteri seçilmez; 5000 karakterden uzun metin kırpılır; boş metin boş başlık döndürür (testli).
 - [ ] **G-17.2 Ctrl+V ile pencere** — Bağımlılık: G-17.1
