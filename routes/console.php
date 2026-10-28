@@ -44,6 +44,12 @@ Schedule::command('app:check-domain-dns')
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
 
+// Reads the SSL certificate expiry of the domains not read for 24 hours, within a time budget (G-16.3).
+Schedule::command('app:check-ssl')
+    ->everyMinute()
+    ->withoutOverlapping(60)
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
 // Reads the usage of the linked hosting accounts, within a time budget; what does not fit waits for the next run.
 Schedule::command('app:refresh-server-usage')
     ->everyMinute()

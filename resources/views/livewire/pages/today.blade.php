@@ -135,6 +135,8 @@
                                         </x-ui.tooltip>
                                     @endif
                                 @endunless
+                            @elseif ($row['type'] === 'ssl')
+                                <x-ui.button size="sm" x-on:click="{!! Js::openWindow('check-domain', ['domain' => $row['domain']]) !!}">{{ __('domain_check.check') }}</x-ui.button>
                             @elseif ($row['type'] === 'quota')
                                 <x-ui.button size="sm" x-on:click="{!! Js::openWindow('view-usage', ['item' => $row['item_id']]) !!}">{{ __('usage.view') }}</x-ui.button>
                             @elseif ($row['type'] === 'task')
@@ -148,13 +150,16 @@
                 @endforeach
             </x-ui.table>
 
-            @if ($more !== [] || $quotaMore > 0)
+            @if ($more !== [] || $quotaMore > 0 || $sslMore > 0)
                 <div class="ui-more">
                     @foreach ($more as $section)
                         <a href="{{ $section['url'] }}">{{ $section['label'] }}: {{ __('today.view_all', ['count' => $section['count']]) }}</a>
                     @endforeach
                     @if ($quotaMore > 0)
                         <span>{{ __('today.section_quota') }}: {{ __('today.quota_more', ['count' => $quotaMore]) }}</span>
+                    @endif
+                    @if ($sslMore > 0)
+                        <span>{{ __('today.section_ssl') }}: {{ __('today.quota_more', ['count' => $sslMore]) }}</span>
                     @endif
                 </div>
             @endif

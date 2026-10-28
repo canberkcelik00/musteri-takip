@@ -11,6 +11,7 @@ use App\Enums\QuoteStatus;
 use App\Models\CalendarEvent;
 use App\Models\Charge;
 use App\Models\CustomerService;
+use App\Models\CustomerServiceItem;
 use App\Models\Payment;
 use App\Models\Quote;
 use App\Models\Task;
@@ -58,6 +59,10 @@ class ListCalendarEntries
 
         if ($systemDates && $wants(CalendarCategory::ServiceEnd) && $user->can(Permission::ServicesView->value)) {
             $entries = $entries->concat($this->serviceEnds($from, $to));
+        }
+
+        if ($systemDates && $wants(CalendarCategory::AlertSoon) && $user->can(Permission::ServicesView->value)) {
+            $entries = $entries->concat($this->sslExpiries($from, $to));
         }
 
         if ($systemDates && $seesMoney && $wants(CalendarCategory::ChargeDue)) {
@@ -194,6 +199,32 @@ class ListCalendarEntries
                 allDay: true,
                 detail: implode(' · ', array_filter([$service->customer->short_name, ...$service->domains()])),
                 url: route('app.customers.show', $service->customer_id),
+            ))
+            ->all();
+    }
+
+    /**
+     * The day a certificate read by the SSL check ends (G-16.3), an amber warning (alert_soon).
+     *
+     * @return list<CalendarEntry>
+     */
+    private function sslExpiries(Carbon $from, Carbon $to): array
+    {
+        return CustomerServiceItem::query()
+            ->with('customerService.customer:id,short_name')
+            ->whereBetween('ssl_expires_at', [$from, $to->copy()->endOfDay()])
+            ->whereHas('customerService', fn (Builder $services): Builder => $services
+                ->where('status', CustomerServiceStatus::Active)
+                ->whereHas('customer', fn (Builder $customers): Builder => $customers->scopes(['notArchived'])))
+            ->get()
+            ->map(fn (CustomerServiceItem $item): CalendarEntry => new CalendarEntry(
+                key: 'ssl-end:'.$item->id,
+                category: CalendarCategory::AlertSoon,
+                title: __('calendar.entry.ssl_end', ['domain' => (string) ($item->details['domain'] ?? '')]),
+                date: $item->ssl_expires_at->copy()->startOfDay(),
+                allDay: true,
+                detail: $item->customerService->customer->short_name,
+                url: route('app.customers.show', $item->customerService->customer_id),
             ))
             ->all();
     }

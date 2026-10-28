@@ -596,7 +596,7 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 - [x] **G-16.2 Alan adı kontrol penceresi** — Bağımlılık: G-16.1, G-15.3
   - Yapılacak: `CheckDomain` penceresi (DNS sekmesi canlı), Ctrl+K satırı, Alan adları kartında "Kontrol et".
   - Kabul: Geçersiz alan adı reddedilir; okunamayan sorgu "Okunamadı" yazar; yazılımcı açabilir (testli).
-- [ ] **G-16.3 SSL denetleyici** — Bağımlılık: G-16.2
+- [x] **G-16.3 SSL denetleyici** — Bağımlılık: G-16.2
   - Yapılacak: `ssl_expires_at`/`ssl_checked_at`, `CheckSslCertificates` + `app:check-ssl` (günde bir, süre bütçeli), Bugün'de "SSL 14 gün içinde bitiyor", takvimde amber uyarı.
   - Kabul: İdempotent; yarıda kalan iş sonraki çalışmada tamamlanır; alan adı değişince alanlar boşalır (testli).
 - [ ] **G-16.4 WHOIS** — Bağımlılık: G-16.2

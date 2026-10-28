@@ -29,6 +29,11 @@ return [
     'go_to_server' => 'Sunucuya git',
     'quota_shared' => ':count müşteriyle paylaşılıyor',
     'quota_more' => ':count uyarı daha',
+    'section_ssl' => 'SSL 14 gün içinde bitiyor',
+    'ssl_subject' => 'SSL sertifikası · :domain',
+    'ssl_days_left' => ':count gün kaldı',
+    'ssl_today' => 'Bugün bitiyor',
+    'ssl_expired' => 'Süresi doldu',
     'empty' => 'Bugün yapılacak bir şey yok',
     'view_all' => 'Tümünü gör (:count)',
 ];

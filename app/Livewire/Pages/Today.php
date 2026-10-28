@@ -14,6 +14,7 @@ use App\Livewire\Concerns\AuthorizesPermission;
 use App\Models\Charge;
 use App\Models\Customer;
 use App\Models\Task;
+use App\Support\Dns\HostName;
 use App\Support\Money;
 use App\Support\Ui\Links;
 use Illuminate\Contracts\View\View;
@@ -88,8 +89,8 @@ class Today extends Component
             'canSeeMoney' => $canSeeMoney,
             'stats' => $summary !== null ? $this->stats($summary) : null,
             'rows' => $this->rows($tasks, $whatsApp),
-            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'],
-            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0,
+            'taskCount' => $tasks['overdue']['total'] + $tasks['due_soon']['total'] + $tasks['free_decisions']['row_total'] + $tasks['my_tasks']['total'] + $tasks['quota']['total'] + $tasks['ssl']['total'],
+            'isEmpty' => $tasks['overdue']['total'] === 0 && $tasks['due_soon']['total'] === 0 && $tasks['free_decisions']['total'] === 0 && $tasks['my_tasks']['total'] === 0 && $tasks['quota']['total'] === 0 && $tasks['ssl']['total'] === 0,
             'more' => array_values(array_filter([
                 ['label' => __('today.section_overdue'), 'url' => route('app.charges.index', ['onlyOverdue' => 1, 'hideArchived' => 1]), 'count' => $tasks['overdue']['total'], 'hidden' => $tasks['overdue']['total'] > count($tasks['overdue']['items'])],
                 ['label' => __('today.section_due_soon'), 'url' => route('app.charges.index', ['dueSoon' => 1, 'hideArchived' => 1]), 'count' => $tasks['due_soon']['total'], 'hidden' => $tasks['due_soon']['total'] > count($tasks['due_soon']['items'])],
@@ -97,6 +98,7 @@ class Today extends Component
                 ['label' => __('today.section_my_tasks'), 'url' => route('app.tasks.index'), 'count' => $tasks['my_tasks']['total'], 'hidden' => $tasks['my_tasks']['total'] > count($tasks['my_tasks']['items'])],
             ], fn (array $section): bool => $section['hidden'])),
             'quotaMore' => $tasks['quota']['total'] - count($tasks['quota']['items']),
+            'sslMore' => $tasks['ssl']['total'] - count($tasks['ssl']['items']),
             'charges' => $charges->keyBy('id'),
         ])->title(__('navigation.today'));
     }
@@ -233,6 +235,27 @@ class Today extends Component
                 'date' => __('money.empty'),
                 'status' => $alert->level->getLabel(),
                 'tone' => $tone,
+                'amount' => __('money.empty'),
+            ];
+        }
+
+        foreach ($tasks['ssl']['items'] as $item) {
+            $domain = (string) ($item->details['domain'] ?? '');
+            $expiresOn = $item->ssl_expires_at->copy()->startOfDay();
+            $days = (int) Carbon::today(config('app.timezone'))->diffInDays($expiresOn, false);
+
+            $rows[] = [
+                'type' => 'ssl',
+                'domain' => HostName::normalize($domain) ?? $domain,
+                'customer' => $item->customerService->customer,
+                'subject' => __('today.ssl_subject', ['domain' => $domain]),
+                'date' => $expiresOn->format('d.m.Y'),
+                'status' => match (true) {
+                    $days < 0 => __('today.ssl_expired'),
+                    $days === 0 => __('today.ssl_today'),
+                    default => __('today.ssl_days_left', ['count' => $days]),
+                },
+                'tone' => $days <= 0 ? 'red' : 'amber',
                 'amount' => __('money.empty'),
             ];
         }

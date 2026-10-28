@@ -118,6 +118,7 @@ return [
     'entry' => [
         'task_done' => 'İş bitti: :title',
         'service_end' => ':service bitiyor',
+        'ssl_end' => 'SSL bitiyor: :domain',
         'charge_due' => ':customer · Borç vadesi',
         'remaining' => 'Kalan :amount',
         'payment' => 'Ödeme alındı: :customer',

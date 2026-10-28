@@ -20,6 +20,8 @@ use Illuminate\Support\Carbon;
  * @property list<string>|null $remote_domains written by the usage refresh, never by a form
  * @property bool|null $is_cloudflare written by the DNS check, never by a form; null = not checked yet (T-169)
  * @property Carbon|null $dns_checked_at last DNS check attempt, a failed one included
+ * @property Carbon|null $ssl_expires_at written by the SSL check, never by a form; null = not read yet (G-16.3)
+ * @property Carbon|null $ssl_checked_at last SSL check attempt, a failed one included
  * @property string|null $license_key
  */
 #[Fillable(['catalog_service_id', 'server_id', 'remote_key', 'type', 'name', 'details', 'license_key'])]
@@ -38,6 +40,8 @@ class CustomerServiceItem extends Model
             if ($item->exists && $item->isDirty('details') && self::domainOf($item->details) !== self::domainOf($item->getOriginal('details'))) {
                 $item->is_cloudflare = null;
                 $item->dns_checked_at = null;
+                $item->ssl_expires_at = null;
+                $item->ssl_checked_at = null;
             }
         });
     }
@@ -108,6 +112,8 @@ class CustomerServiceItem extends Model
             'remote_domains' => 'array',
             'is_cloudflare' => 'boolean',
             'dns_checked_at' => 'datetime',
+            'ssl_expires_at' => 'datetime',
+            'ssl_checked_at' => 'datetime',
             'license_key' => 'encrypted',
         ];
     }
