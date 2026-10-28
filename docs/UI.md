@@ -125,9 +125,10 @@ Menü en fazla sekiz ana öğe taşır ve sıklık sırasıyla dizilir (Faz 13't
 - **Süzgeçler:** "Bana atanan / Herkes" ayırıcısı, durum çipi (varsayılan "Açık", ×'li), "Gecikmiş" çipi, müşteri seçimi (aranabilir). Süzülmüş kayıt sayısı araç çubuğunun sağında ("5 iş"). Arama başlık, not ve müşteri kısa adında arar.
 - **Sütunlar:** İş (başlık kalın, altında not soluk ve tek satır), Müşteri (karta bağlantı; arşivliyse soluk + "Arşiv" rozeti; müşterisizse "—"), Atanan (yalnız "Herkes" süzgecinde; pasif kullanıcı "(pasif)"), Bitiş (gg.aa.yyyy; gecikmişse kırmızı "N gün gecikti", bugünse amber "Bugün", tarihsizse "—"), satırda metinli ikincil "Bitti" (Bitti süzgecinde "Yeniden aç"). `md` altında Müşteri başlığın altına iner ve Atanan gizlenir.
 - **Sıra:** Bitiş tarihi olanlar tarih sırasıyla önce (gecikmişler en üstte), tarihsizler sonda. Bitenler en son bitirilen üstte.
-- **Satıra tıklamak** iş penceresini açar. Boş liste: "Açık işiniz yok".
+- **Satıra tıklamak** iş penceresini açar. Boş liste: "Açık işiniz yok"; altında soluk ipucu: "WhatsApp mesajını kopyalayıp bu sayfada Ctrl+V'ye basın" (Faz 17, U-40).
 - **İş penceresi:** Başlık, Müşteri (aranabilir, arşivsizler; müşteri kartından açılınca dolu), Atanan (etkin kullanıcılar, varsayılan oturumdaki kişi), Bitiş tarihi, Not. Mevcut işte altta adlandırılmış bölüm: "… tarafından oluşturuldu / bitirildi", "Bitti" / "Yeniden aç" ve ayrı, kırmızı, onaylı "Sil". Atama başkasınaysa e-posta gider; gönderilemezse iş kaydedilir ve uyarı gösterilir.
 - **Tarih hapları (Faz 14, U-32):** Bitiş tarihi alanının altında "Bugün · Yarın · Haftaya" hapları (Haftaya = bugünden 7 gün sonra); tıklanınca alan dolar.
+- **Yapıştırarak açılış (Faz 17, U-40):** `tasks.manage` olan kullanıcı herhangi bir sayfada, odak bir yazı kutusunda (input, textarea, select, düzenlenebilir alan) değilken ve başka bir pencere açık değilken metin yapıştırırsa (`Ctrl+V`) iş penceresi dolu açılır: başlık ilk satırdan, not mesajın tamamından, müşteri tek eşleşmeyle (PRD "Mesajdan iş"). Odak başlıktadır, `Enter` kaydeder. Müşteri bulunduysa müşteri seçiminin altında soluk "Mesajdan bulundu (logi.com.tr)" ipucu görünür; bulunamadıysa müşteri boştur ve ipucu yoktur. Panoda metin yoksa (resim gibi) hiçbir şey olmaz. Üst çubuktaki "İş ekle" düğmesinin ipucu: "WhatsApp mesajını kopyalayıp panelde Ctrl+V'ye basın". Yeni düğme ya da pencere yoktur.
 - **Müşteri kartında "İşler" bölümü:** Sağ sütunda İlgili kişiler'in üstünde, `tasks.manage` olana görünür. Müşterinin açık işleri (en çok 5; başlık, atanan, bitiş rozeti, "Bitti"), başlıkta ikincil "İş ekle" (müşteri dolu gelir), altta "Tümü ve bitenler" bağlantısı (İşler ekranını müşteriye ve Herkes'e süzer).
 
 ### Takvim (Faz 15, U-38)
@@ -309,6 +310,7 @@ Skalalar tablodaki değerlere sabitlidir. Gri skalada 50 tablo başlığı zemin
 | Takvime etkinlik girmek (Faz 15) | 1 (Etkinlik ekle) + başlık + 1 (Kaydet); boş saat dilimine tıklamak tarih ve saati doldurur |
 | Haftanın/günün programını görmek (Faz 15) | 1 (Takvim) |
 | Alan adının DNS/SSL/WHOIS durumuna bakmak (Faz 16) | `Ctrl+K` + alan adı + 1 |
+| WhatsApp mesajından iş açmak, bilgisayarda (Faz 17) | Mesajı kopyala + panelde `Ctrl+V` + 1 (`Enter`); yazma yok, başlık, not ve müşteri hazır gelir |
 
 ## 8. Şu anki panelden farklar
 

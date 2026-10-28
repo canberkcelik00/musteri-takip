@@ -619,6 +619,23 @@ Karar (kullanıcı, U-39): alan adı ve hosting için küçük, tek amaçlı kon
 
 **Faz 16 bittiğinde:** Bir alan adı yazılınca durumu tek pencerede görülür; kapanan site, biten sertifika ve taşınmış hosting kendiliğinden Bugün'e düşer.
 
+## Faz 17 – WhatsApp'tan hızlı iş
+
+Karar (kullanıcı, U-40): bilgisayardaki WhatsApp'ta mesajı kopyala → panelde `Ctrl+V` → `Enter` ile iş aç; iletmek kadar kolay olmalı. Yeni pencere, tablo ya da alan yok; mevcut `edit-task` penceresi ve `CreateTask` kullanılır. Telefonda paylaşım, `Ctrl+J`/pano izni ve WhatsApp Business API kapsam dışı. Her görev ayrı oturumda yapılır.
+
+- [x] **G-17.0 Dokümanlar** — Bağımlılık: G-16.8
+  - Yapılacak: PRD "Mesajdan iş (Faz 17)", UI.md (yapıştırarak açılış, boş liste ipucu, hedef tık satırı), DECISIONS U-40, bu faz.
+- [ ] **G-17.1 `ParseQuickTask` Action'ı** — Bağımlılık: G-17.0
+  - Yapılacak: `app/Actions/Tasks/ParseQuickTask.php`: metinden başlık, not, müşteri ve eşleşme işaretini çıkarır (PRD "Mesajdan iş"); veritabanına yazmaz; en çok 5 alan adı, 3 telefon ve 3 gönderen denenir.
+  - Kabul: Başlık ilk satırdan gelir, uzun başlık kısaltılır; iki WhatsApp öneki biçimi temizlenir; tek kısa satırda not boş kalır; müşteri alan adı, telefon (farklı yazımlarda), gönderen adı ve kısa adla bulunur; iki müşteriyle eşleşince boş kalır; arşivli müşteri seçilmez; 5000 karakterden uzun metin kırpılır; boş metin boş başlık döndürür (testli).
+- [ ] **G-17.2 Ctrl+V ile pencere** — Bağımlılık: G-17.1
+  - Yapılacak: Yerleşim dosyasında `tasks.manage` olana yapıştırma dinleyicisi (yazı kutusunda, pencere açıkken ve boş panoda çalışmaz); `EditTask::mount`'a `pasted` parametresi ve "Mesajdan bulundu (…)" ipucu; "İş ekle" düğmesi ve boş liste ipuçları; `lang/tr/tasks.php` anahtarları.
+  - Kabul: `pasted` ile pencere alanları dolu açılır; kayıt iş oluşturur ve oluşturanı saklar; başkasına atamada e-posta gider; eşleşme yoksa müşteri boş kalır; izni olmayan rolde pencere açılmaz ve sayfada dinleyici yoktur; izinli kullanıcının sayfasında dinleyici vardır (testli).
+- [ ] **K-17.1 Canlı deneme (kullanıcı)** — Bağımlılık: G-17.2
+  - Yapılacak: Windows'taki WhatsApp'ta tek mesajı, sonra birden çok mesajı kopyalayıp panelde `Ctrl+V` → `Enter` ile iş aç; arama kutusuna yapıştırınca pencerenin açılmadığını (normal yapıştırma) kontrol et.
+
+**Faz 17 bittiğinde:** WhatsApp'tan gelen bir talep, mesajı kopyalayıp `Ctrl+V` ve `Enter`'a basarak yazmadan İşler'e düşer.
+
 ## Faz 7 ve sonrası
 
 Fiyat/tarih geçmişi, %50 ön ödeme kuralı ve sonraki fazların görevleri, sistem bir süre kullanıldıktan sonra yazılacak. Böylece gerçek kullanımdan çıkan ihtiyaçlar planlamaya dahil edilir.
