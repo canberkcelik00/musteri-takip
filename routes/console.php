@@ -73,3 +73,8 @@ Schedule::command('app:refresh-server-usage')
     ->everyMinute()
     ->withoutOverlapping(60)
     ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());
+
+// Removes the expired and revoked OAuth tokens and codes of the Claude connections (U-43); running it twice is harmless.
+Schedule::command('passport:purge')
+    ->daily()
+    ->when(fn (): bool => ! app(DeployRelease::class)->hasPendingRelease());

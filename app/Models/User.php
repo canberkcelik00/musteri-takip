@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\AccessToken;
+use Laravel\Passport\Contracts\OAuthenticatable;
+use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -23,10 +25,16 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements OAuthenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
+
+    /**
+     * Roles and permissions live in the `web` guard. The Claude endpoint authenticates with the `api` guard (U-43),
+     * and without this the permission checks would look in `api` there and find nothing.
+     */
+    protected string $guard_name = 'web';
 
     /**
      * Get the attributes that should be cast.
@@ -49,6 +57,17 @@ class User extends Authenticatable
     public function assignedTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
+     * The id of the OAuth client (the Claude app) behind the access token of this request; null outside the Claude
+     * endpoint.
+     */
+    public function currentMcpClientId(): ?string
+    {
+        $token = $this->currentAccessToken();
+
+        return $token instanceof AccessToken ? $token->oauth_client_id : null;
     }
 
     /**

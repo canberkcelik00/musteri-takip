@@ -5,6 +5,7 @@ namespace App\Mcp\Tools;
 use App\Enums\McpAccess;
 use App\Enums\Permission;
 use App\Models\Charge;
+use App\Models\McpConnection;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\Money;
@@ -13,12 +14,15 @@ use Illuminate\Support\Facades\Log;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use Laravel\Mcp\Server\Registrar;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Passport\Passport;
 
 /**
- * The common gate of every Claude tool (U-42): the token must carry the tool's ability and its owner the tool's
- * permission, or the tool is neither listed nor run. Every run is written to the `mcp` log channel (who, which tool,
- * which token). An answer is built from hand-picked fields only, never from a model's toArray(), so a secret (a
+ * The common gate of every Claude tool (U-42, U-43): the OAuth token must carry the MCP scope, the user must have
+ * given the connection write access for a write tool, and the user's role must hold the tool's permission, or the
+ * tool is neither listed nor run. Every run is written to the `mcp` log channel (who, which tool, which connection).
+ * An answer is built from hand-picked fields only, never from a model's toArray(), so a secret (a
  * server key, a password, a license key, a token) can never leak into it.
  */
 abstract class BaseTool extends Tool
@@ -45,7 +49,8 @@ abstract class BaseTool extends Tool
             'user_id' => $user->id,
             'user' => $user->email,
             'tool' => $this->name(),
-            'token' => $user->currentAccessToken()->name,
+            'client_id' => $user->currentMcpClientId(),
+            'client' => Passport::client()->newQuery()->find($user->currentMcpClientId())?->name,
             ...$this->loggedArguments($request),
         ]);
 
@@ -63,11 +68,11 @@ abstract class BaseTool extends Tool
     }
 
     /**
-     * The token ability the tool needs.
+     * Whether the tool changes data, so the user must have given the connection write access.
      */
-    protected function ability(): string
+    protected function requiresWrite(): bool
     {
-        return McpAccess::READ_ABILITY;
+        return false;
     }
 
     /**
@@ -84,7 +89,11 @@ abstract class BaseTool extends Tool
     {
         $user = $request->user();
 
-        if (! $user instanceof User || ! $user->tokenCan($this->ability())) {
+        if (! $user instanceof User || ! $user->tokenCan(Registrar::OAUTH_SCOPE)) {
+            return null;
+        }
+
+        if ($this->requiresWrite() && McpConnection::accessFor($user, (string) $user->currentMcpClientId()) !== McpAccess::ReadWrite) {
             return null;
         }
 

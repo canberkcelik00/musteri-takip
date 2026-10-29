@@ -346,32 +346,40 @@ Küçük, tek amaçlı kontroller; müşteri hizmetlerinin alan adları üzerind
 
 ## Claude erişimi (Faz 18)
 
-Kullanıcı kendi bilgisayarındaki Claude Code'dan canlı uygulamaya bağlanıp soru sorar ("bu ay vadesi gelen borçlar ne?", "logi.com.tr kimin?") ve sınırlı işlem yapar. Uygulama `/mcp` adresinde bir MCP sunucusu açar; Claude bu sunucudaki **araçları** çağırır. Araçlar arayüzle aynı Action'ları çağırır, yani iş kuralları ve yetkiler arayüzdekiyle birebir aynıdır. Hostingde SSH olmadığından bağlantı yalnız HTTPS üzerindendir; sunucuda komut çalıştırma, dosya ya da veritabanına doğrudan erişim **yoktur**.
+Kullanıcı kendi Claude'undan (masaüstü uygulamanın sohbeti, claude.ai, telefon ya da Claude Code) canlı uygulamaya bağlanıp soru sorar ("bu ay vadesi gelen borçlar ne?", "logi.com.tr kimin?") ve sınırlı işlem yapar. Uygulama `/mcp` adresinde bir MCP sunucusu açar; Claude bu sunucudaki **araçları** çağırır. Araçlar arayüzle aynı Action'ları çağırır, yani iş kuralları ve yetkiler arayüzdekiyle birebir aynıdır. Hostingde SSH olmadığından bağlantı yalnız HTTPS üzerindendir; sunucuda komut çalıştırma, dosya ya da veritabanına doğrudan erişim **yoktur**. Claude'un uygulamaya gelen istekleri Anthropic'in sunucularından gelir.
 
-**Token**
+**Bağlanma (OAuth)**
 
-- Her kullanıcı Profil'deki "Claude erişimi" bölümünden kendine token üretir: ad (örn. "Ev bilgisayarı") ve yetki (**Yalnız okuma** ya da **Okuma ve yazma**). Token düz metin olarak yalnız bir kez gösterilir; veritabanında yalnız özeti (hash) saklanır.
-- Token 90 gün geçerlidir; süresi dolan yenisiyle değiştirilir. Listede adı, yetkisi, oluşturulma ve son kullanım zamanı, bitiş tarihi görünür; kullanıcı kendi token'ını tek tıkla iptal eder, başkasınınkini göremez ve iptal edemez.
-- Pasifleştirilen kullanıcının bütün token'ları silinir; pasif kullanıcının token'ı çalışmaz.
-- Panel oturumu (tarayıcı çerezi) MCP'ye giriş açmaz; yalnız token geçerlidir. Token başına dakikada en çok 60 istek yapılır.
+- Kullanıcı Claude'da "Özel bağdaştırıcı ekle" penceresine ad ve `/mcp` adresini yazar (Claude Code'da Profil'de gösterilen `claude mcp add --transport http …` komutunu çalıştırır). Hiçbir token kopyalanmaz.
+- Claude kendini uygulamaya kaydeder, kullanıcıyı tarayıcıda uygulamanın giriş ve **onay ekranına** götürür. Kullanıcı uygulamaya giriş yapmışsa yalnız onaylar; yapmamışsa önce giriş yapar. Onay ekranı hangi uygulamanın bağlanmak istediğini, giriş yapan kullanıcıyı ve dönülecek adresi gösterir; **Onayla** ve **Reddet** düğmeleri vardır. Reddedilirse hiçbir kod ya da token verilmez.
+- Erişim belirteci (access token) 1 saat, yenileme belirteci (refresh token) 90 gün geçerlidir; Claude erişimi kendisi yeniler. 90 gün kullanılmayan bağlantı kendiliğinden biter ve yeniden onay ister. Belirteçlerin düz metni veritabanında tutulmaz.
+- Geri dönüş adresi yalnız Claude'un adreslerine (`claude.ai`, `claude.com`) ve Claude Code'un yerel adresine (`localhost`) verilebilir; başka adres kaydedilemez. Kayıt adresi herkese açıktır; bu yüzden adres başına dakikada en çok 10 istekle sınırlıdır.
+- Panel oturumu (tarayıcı çerezi) MCP'ye giriş açmaz; yalnız OAuth belirteci geçerlidir. Kullanıcı ve bağlantı başına dakikada en çok 60 istek yapılır.
+
+**Bağlantıları yönetme**
+
+- Profil'deki "Claude erişimi" kartı bağdaştırıcı adresini, Claude Code komutunu ve **bağlı uygulamaların listesini** gösterir: uygulama adı, yazma anahtarı ve son yenileme zamanı. Kullanıcı yalnız kendi bağlantılarını görür.
+- **Her yeni bağlantı yalnız okuma ile başlar.** Kullanıcı bir bağlantı için "İş ve ödeme kaydedebilir" anahtarını Profil'den açar (varsayılan kapalı); istediği an kapatır. Anahtar bağlantı başınadır: telefon bağlantısı yazarken masaüstü yalnız okuyabilir.
+- Kullanıcı bir bağlantıyı "Bağlantıyı kes" ile (onay penceresiyle) keser: o uygulamanın bütün belirteçleri geçersiz olur ve yeniden onay gerekir. Başkasının bağlantısı görülmez, değiştirilmez, kesilemez.
+- Pasifleştirilen kullanıcının bütün bağlantıları kesilir; pasif kullanıcının belirteci çalışmaz.
 
 **Yetki**
 
-- Token kullanıcının **rolünün izinleriyle** çalışır: izni olmayan araç Claude'a hiç listelenmez ve çağrılamaz. Yazılımcı parayı burada da görmez.
-- Yazma araçları yalnız "Okuma ve yazma" token'ında bulunur.
+- Bağlantı kullanıcının **rolünün izinleriyle** çalışır: izni olmayan araç Claude'a hiç listelenmez ve çağrılamaz. Yazılımcı parayı burada da görmez.
+- Yazma araçları yalnız kullanıcının yazmaya izin verdiği bağlantıda bulunur.
 - **Silme, iptal, arşivleme ve geri alma aracı yoktur**; bunlar yalnız panelden yapılır.
 
 **Araçlar**
 
 - **Okuma:** Bugün özeti (dört sayı ve yapılacaklar), müşteri arama (ad, alan adı, telefon; arşivliler istenirse), müşteri kartı (hizmetler, ilgili kişiler, açık borç), borç listesi (açık / gecikmiş, müşteri, tarih aralığı; para birimi başına toplam), ödeme listesi (tarih aralığı, müşteri), iş listesi (açık / bana atanan), takvim (en çok 92 günlük aralık). Listeler en çok 50 satır döner.
-- **Yazma (Okuma ve yazma token'ı):** iş ekleme, iş bitirme, ödeme kaydetme (otomatik dağıtım; elle dağıtım yok). Kayıtta "kim yaptı" token sahibidir; atama e-postası ve diğer kurallar paneldeki gibi işler.
+- **Yazma (yazmaya izin verilen bağlantı):** iş ekleme, iş bitirme, ödeme kaydetme (otomatik dağıtım; elle dağıtım yok). Kayıtta "kim yaptı" bağlantının sahibidir; atama e-postası ve diğer kurallar paneldeki gibi işler.
 
 **Kurallar**
 
 - Araç yanıtı yalnız gereken alanları içerir; şifre, token, sunucu API anahtarı gibi gizli bilgiler hiçbir yanıtta bulunmaz. Para tutarları para birimi başına ayrı verilir, toplanmaz.
-- Her araç çağrısı ayrı bir günlük dosyasına yazılır (kullanıcı, token adı, araç, zaman); yazma araçlarında girilen değerler de yazılır.
-- **Veri çıkışı:** Araç yanıtındaki müşteri bilgileri kullanıcının Claude hesabına (Anthropic) gider. Bu, token'ı üreten kullanıcının bilinçli seçimidir; Profil'deki bölüm bunu tek cümleyle belirtir.
-- **Kapsam dışı:** claude.ai web/telefon bağlayıcısı (OAuth gerektirir), sunucuda komut ya da dosya işlemi, rapor dışa aktarma, silme/iptal araçları.
+- Her araç çağrısı ayrı bir günlük dosyasına yazılır (kullanıcı, bağlı uygulamanın adı ve kimliği, araç, zaman); yazma araçlarında girilen değerler de yazılır.
+- **Veri çıkışı:** Araç yanıtındaki müşteri bilgileri kullanıcının Claude hesabına (Anthropic) gider. Bu, bağlantıyı onaylayan kullanıcının bilinçli seçimidir; onay ekranı ve Profil'deki bölüm bunu belirtir.
+- **Kapsam dışı:** sunucuda komut ya da dosya işlemi, rapor dışa aktarma, silme/iptal araçları, Claude dışındaki uygulamalar için bağlantı kuralları (geri dönüş adresi yalnız Claude'a açıktır).
 
 ## Veri modeli
 

@@ -193,14 +193,19 @@ Sunucuya bağlı hosting hizmetinin kullanımı **hizmetin düzenleme formuna g�
 - **Hesabın diğer alan adları (WHM):** Müşteri kartında hesabın diğer alan adları da sağ sütundaki Alan adları kartına girer (U-31; hizmet satırında "+3 alan adı" sayacı yoktur). Hizmet düzenleme penceresinde, sunucuya bağlı kalemin bölümünde kullanım özetinin üstünde soluk satır: "Hesaptaki diğer alan adları: ikinci.com, logi.net"; Kullanım penceresinde başlık notlarının arasında aynı satır. Yeni düğme yoktur.
 - **Sunucu kullanım penceresi (WHM):** Sunucular ekranında "Kullanım" sütununa tıklamak (1 tık) salt okunur pencere açar; satır işlemleri ikide kalır. Başlıkta sunucu adı, altında adresi ve soluk "Son güncelleme". Üstte bayi göstergeleri (disk, aylık trafik, hesap sayısı: "32,1 / 50 GB · %64" ve çubuk; limitsizde "Limitsiz"); limit okunamadıysa soluk not ("Bayi limitleri sunucudan okunamadı (token yetkisi); yalnız toplamlar gösteriliyor.") ve yalnız toplam. Altında iki sütunlu sayaçlar: aktif / askıdaki hesap, müşteriye bağlı / bağlı olmayan hesap, hesaplara tahsis edilen disk ve trafik (bayi limitiyle yan yana, "+ N limitsiz hesap"). "Hesaplar (n)" listesi sunucudaki bütün hesapları gösterir: alan adı, kullanıcı · paket, müşteri (karta bağlantı; arşivliyse "arşivli"; yoksa "Bağlı değil"), disk ve trafik "kullanılan / sınır · %" ve çubukla, "Askıda" ve "Dolmak üzere" / "Dolu" rozetleri; eşik aşan hesaplar üstte, sonra en çok disk kullanan; dar ekranda bloklar alt alta iner, yatay kayma olmaz. Hesap başına e-posta uyarısı yoktur, renk yalnız gösterimdir. Altta "Kapat" ve solda "Şimdi yenile": yalnız sunucu toplamlarını ve hesap listesini yeniler, bağlı hesapların kullanımını değil. Hata ve hiç veri yok durumları hesap penceresindeki gibidir. cPanel bağlantısında pencere yoktur.
 
-### Profil: Claude erişimi (Faz 18, U-42)
+### Profil: Claude erişimi (Faz 18, U-42, U-43)
 
 - **Yer:** Profil sayfasında, şifre bölümünün altında "Claude erişimi" kartı. Menüde ayrı sayfa yoktur.
-- **Açıklama:** Kartın başında tek cümle: "Claude Code bu token'la verilerinizi okuyabilir; yanıtlar Claude hesabınıza gider."
-- **Oluşturma:** Ad alanı ve yetki seçimi (iOS bölümlü denetim: **Yalnız okuma · Okuma ve yazma**, varsayılan Yalnız okuma) ve "Token oluştur" düğmesi. Oluşunca kartın içinde, kopyala düğmeli bir kutuda token ve hazır bağlantı komutu (`claude mcp add --transport http … --header "Authorization: Bearer …"`) gösterilir, altında "Bu token bir daha gösterilmez." uyarısı. Sayfa yenilenince kutu kaybolur.
-- **Liste:** Ad · yetki · son kullanım (hiç kullanılmadıysa "Kullanılmadı") · bitiş tarihi (geçmişse kırmızı "Süresi doldu"). Her satırda metinli "İptal et"; onay penceresi ("… token'ı iptal edilsin mi? Bu bilgisayardaki Claude bağlantısı çalışmaz.") sonrası satır kalkar.
-- Hedef tık: token oluşturma 2 tık (yetki seçimi varsayılandaysa ad + "Token oluştur"), iptal 2 tık.
+- **Açıklama:** Kartın başında: "Claude'u buraya bağlayınca verilerinizi okuyabilir; yanıtlar Claude hesabınıza gider. Bağlantı yalnız okur; yazmaya siz izin verirsiniz."
+- **Bağlanma:** İki kopyalanabilir kutu: "Bağdaştırıcı adresi" (`/mcp`) ve "Claude Code komutu" (`claude mcp add --scope user --transport http musteri-takip …`, token yok). Altında tek cümlelik yönerge: masaüstü ya da claude.ai'da "Özel bağdaştırıcı ekle" ile adresi girin, açılan sayfada onay verin.
+- **Liste:** "Bağlı uygulama" · "Yazma" (iOS anahtarı "İş ve ödeme kaydedebilir", varsayılan kapalı, değişince hemen kaydolur) · son yenileme (dar ekranda gizlenir). Her satırda metinli "Bağlantıyı kes"; onay penceresi ("… bağlantısı kesilsin mi? Uygulama verilerinize erişemez; yeniden onaylamanız gerekir.") sonrası satır kalkar. Hiç bağlantı yoksa soluk "Henüz bağlı uygulama yok." yazar.
+- Hedef tık: bağlanma 0 tık (adres kopyalanır; onay Claude'da), yazmayı açma 1 tık, bağlantıyı kesme 2 tık.
 
+### Onay ekranı: Claude bağlantısı (Faz 18, U-43)
+
+- Giriş ekranı gibi ortada tek cam kart (`layouts/guest` görünümü); Livewire sayfası değil, Passport'un onay sayfasıdır. Giriş yapılmamışsa önce giriş ekranı açılır, giriş sonrası bu ekrana dönülür.
+- İçerik: "… bağlanmak istiyor" başlığı (uygulama adı), müşteri ve para verilerinin okunabileceğini anlatan tek cümle, "Bağlantı yalnız okuma izniyle başlar; yazmayı Profil'den açabilirsiniz." ve "Hiçbir uygulama bir şeyi silemez, iptal edemez veya geri alamaz." notları, giriş yapan e-posta ve onaydan sonra dönülecek alan adı.
+- İki düğme, yan yana: **Reddet** (ikincil) ve **Onayla** (birincil, ekranın tek dolu düğmesi). Reddetmek hiçbir şey vermez.
 ### Tablolar (tüm listeler)
 
 - Tablolar dört işi desteklemeli: kayıt bulmak (arama, filtre), karşılaştırmak (hizalı sütunlar), tek kaydı görmek/düzenlemek ve kayıt üzerinde işlem yapmak.

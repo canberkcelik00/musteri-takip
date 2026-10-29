@@ -357,18 +357,17 @@ Kısıtlar: ödeme ve borcun para birimi aynıdır; bir ödemenin dağıtımlar�
 
 ## Claude erişimi (Faz 18)
 
-**personal_access_tokens** (`laravel/sanctum` standart tablosu; MCP token'ları)
+**oauth_clients, oauth_auth_codes, oauth_access_tokens, oauth_refresh_tokens, oauth_device_codes** (`laravel/passport` standart tabloları; U-43). Claude'un kendini kaydettiği uygulamalar (`oauth_clients`: uuid kimlik, ad, geri dönüş adresleri) ile onay sonrası verilen kod ve belirteçler burada durur. Belirteçlerin düz metni saklanmaz: erişim belirteci imzalı bir JWT'dir, tabloda yalnız kimliği, kullanıcısı, istemcisi, kapsamı (`mcp:use`), iptal durumu ve bitişi vardır. Cihaz kodu (`oauth_device_codes`) kullanılmaz. Süresi dolan ve iptal edilen satırları günlük `passport:purge` temizler.
+
+**mcp_connections** (U-43; bir kullanıcının bir Claude uygulamasına verdiği izin)
 
 | Alan | Tür | Zorunlu | Not |
 | --- | --- | --- | --- |
-| tokenable_type, tokenable_id | morph | Evet | Token sahibi; yalnız `User` |
-| name | string | Evet | Kullanıcının verdiği ad (örn. "Ev bilgisayarı") |
-| token | string(64), benzersiz | Evet | Token'ın SHA-256 özeti; düz metin saklanmaz |
-| abilities | text (JSON) | Hayır | `["mcp:read"]` ya da `["mcp:read","mcp:write"]` |
-| last_used_at | timestamp | Hayır | Son başarılı istek |
-| expires_at | timestamp | Hayır | Oluşturulmadan 90 gün sonra; dolunca token çalışmaz |
+| user_id | FK → users | Evet | Bağlantının sahibi; kullanıcı silinirse satır da silinir |
+| oauth_client_id | FK → oauth_clients (uuid) | Evet | Onaylanan uygulama |
+| access | string | Evet | `read` (varsayılan) ya da `read_write`; `McpAccess` enum'u |
 
-Kullanıcı pasifleştirilince token'ları silinir. Token'ın kendisi geçmiş kaydı değildir; iptal edilen token satırı silinir.
+`(user_id, oauth_client_id)` benzersizdir. Satır, uygulama o kullanıcı için ilk belirteci aldığında açılır (yazma kapalı); belirteç yenilenince değişmez. "Bağlantıyı kes" belirteçleri iptal eder ve satırı siler. Pasifleştirilen kullanıcının satırları silinir. Eski `personal_access_tokens` (Sanctum) tablosu kaldırıldı.
 
 ## Ayarlar
 

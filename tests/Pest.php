@@ -1,6 +1,5 @@
 <?php
 
-use App\Actions\Account\CreateMcpToken;
 use App\Actions\Deploy\ArtisanRunner;
 use App\Actions\Deploy\DeployRelease;
 use App\Enums\McpAccess;
@@ -8,26 +7,151 @@ use App\Mcp\Servers\MusteriTakipServer;
 use App\Models\Charge;
 use App\Models\Contact;
 use App\Models\CustomerService;
+use App\Models\McpConnection;
 use App\Models\User;
 use BladeUI\Icons\IconsManifest;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
+use Laravel\Mcp\Server\Registrar;
 use Laravel\Mcp\Server\Testing\PendingTestResponse;
+use Laravel\Passport\AccessToken;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(fn () => passportTestKeys())
     ->in('Feature');
 
 /**
- * The Claude server (Faz 18) acting as the user, through a real token of the given access (as the endpoint does).
+ * An RSA key pair for signing the OAuth access tokens of the Claude access (U-43), made once per run and handed to
+ * Passport through its config, so no key file has to exist.
  */
-function mcpAs(User $user, McpAccess $access = McpAccess::ReadOnly): PendingTestResponse
+function passportTestKeys(): void
 {
-    app(CreateMcpToken::class)->handle($user, 'Ofis', $access);
+    static $keys = null;
 
-    return MusteriTakipServer::actingAs($user->withAccessToken($user->tokens()->latest('id')->firstOrFail()));
+    if ($keys === null) {
+        $resource = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+        openssl_pkey_export($resource, $private);
+        $keys = [$private, openssl_pkey_get_details($resource)['key']];
+    }
+
+    config()->set('passport.private_key', $keys[0]);
+    config()->set('passport.public_key', $keys[1]);
+}
+
+/**
+ * The Claude server (Faz 18) acting as the user, through a Claude connection (an OAuth client with a live token of the
+ * MCP scope) that has the given access (as the endpoint does).
+ *
+ * @param  list<string>  $scopes
+ */
+function mcpAs(User $user, McpAccess $access = McpAccess::ReadOnly, array $scopes = [Registrar::OAUTH_SCOPE]): PendingTestResponse
+{
+    $client = app(ClientRepository::class)->createAuthorizationCodeGrantClient('Claude', ['https://claude.ai/api/mcp/auth_callback'], confidential: false);
+
+    $token = Passport::token()->newQuery()->create([
+        'id' => Str::random(80),
+        'user_id' => $user->id,
+        'client_id' => $client->getKey(),
+        'scopes' => $scopes,
+        'revoked' => false,
+        'expires_at' => now()->addHour(),
+    ]);
+
+    McpConnection::query()->updateOrCreate(
+        ['user_id' => $user->id, 'oauth_client_id' => $client->getKey()],
+        ['access' => $access],
+    );
+
+    return MusteriTakipServer::actingAs($user->withAccessToken(new AccessToken([
+        'oauth_client_id' => $client->getKey(),
+        'oauth_access_token_id' => $token->id,
+        'oauth_user_id' => $user->id,
+        'oauth_scopes' => $scopes,
+    ])));
+}
+
+/**
+ * Send one JSON-RPC message to the Claude access endpoint, with the token as a bearer header when given.
+ *
+ * @param  array<string, mixed>  $params
+ */
+function mcpCall(?string $token, string $method = 'initialize', array $params = []): TestResponse
+{
+    if ($method === 'initialize' && $params === []) {
+        $params = ['protocolVersion' => '2025-06-18', 'capabilities' => (object) [], 'clientInfo' => ['name' => 'test', 'version' => '1.0']];
+    }
+
+    $test = test();
+
+    if ($token !== null) {
+        $test->withToken($token);
+    }
+
+    return $test->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => $method, 'params' => (object) $params]);
+}
+
+/**
+ * What a Claude app does to get in, over HTTP, the way Claude does (U-43): register itself, send the signed-in user to
+ * the consent screen, approve, and trade the code (with PKCE) for tokens. Afterwards nobody is signed in to the panel,
+ * so only the returned tokens open the endpoint. The new connection starts read only unless `$access` says otherwise.
+ *
+ * @return array{token: string, refresh: string, client_id: string}
+ */
+function claudeConnects(User $user, McpAccess $access = McpAccess::ReadOnly, string $name = 'Claude', string $scope = Registrar::OAUTH_SCOPE): array
+{
+    $test = test();
+    $redirect = 'https://claude.ai/api/mcp/auth_callback';
+
+    // A route keeps its controller, and Passport's holds the session guard it got on the first call; a real request
+    // starts a fresh application, so drop that to let the next user sign in.
+    foreach (app('router')->getRoutes()->getRoutes() as $route) {
+        $route->flushController();
+    }
+
+    $clientId = $test->postJson('/oauth/register', ['client_name' => $name, 'redirect_uris' => [$redirect]])
+        ->assertCreated()
+        ->json('client_id');
+
+    $verifier = Str::random(64);
+    $challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+
+    $test->actingAs($user)->get('/oauth/authorize?'.http_build_query([
+        'response_type' => 'code',
+        'client_id' => $clientId,
+        'redirect_uri' => $redirect,
+        'scope' => $scope,
+        'state' => 'abc',
+        'code_challenge' => $challenge,
+        'code_challenge_method' => 'S256',
+    ]))->assertOk();
+
+    $location = $test->post('/oauth/authorize', ['state' => 'abc', 'client_id' => $clientId, 'auth_token' => session('authToken')])
+        ->assertRedirect()
+        ->headers->get('Location');
+
+    parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
+
+    $tokens = $test->postJson('/oauth/token', [
+        'grant_type' => 'authorization_code',
+        'client_id' => $clientId,
+        'redirect_uri' => $redirect,
+        'code_verifier' => $verifier,
+        'code' => $query['code'],
+    ])->assertOk()->json();
+
+    McpConnection::query()->where('user_id', $user->id)->where('oauth_client_id', $clientId)->update(['access' => $access]);
+
+    auth()->forgetGuards();
+    $test->flushSession();
+
+    return ['token' => $tokens['access_token'], 'refresh' => $tokens['refresh_token'], 'client_id' => $clientId];
 }
 
 /**

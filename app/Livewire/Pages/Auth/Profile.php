@@ -3,7 +3,8 @@
 namespace App\Livewire\Pages\Auth;
 
 use App\Actions\Account\ChangePassword;
-use App\Actions\Account\CreateMcpToken;
+use App\Actions\Account\ListMcpConnections;
+use App\Actions\Account\SetMcpConnectionAccess;
 use App\Actions\Account\UpdateProfile;
 use App\Enums\McpAccess;
 use App\Models\User;
@@ -28,14 +29,12 @@ class Profile extends Component
 
     public string $password_confirmation = '';
 
-    public string $token_name = '';
-
-    public string $token_access = McpAccess::ReadOnly->value;
-
     /**
-     * The plain text of the token just created: shown once, gone when the page reloads (U-42).
+     * Whether each Claude connection (by connection id) may use the write tools; a connection starts read only (U-43).
+     *
+     * @var array<int, bool>
      */
-    public ?string $new_token = null;
+    public array $write = [];
 
     public function mount(): void
     {
@@ -43,6 +42,7 @@ class Profile extends Component
 
         $this->name = $user->name;
         $this->email = $user->email;
+        $this->loadConnections();
     }
 
     public function saveProfile(UpdateProfile $updateProfile): void
@@ -72,34 +72,33 @@ class Profile extends Component
         $this->dispatch('notify', message: __('ui.profile.password_changed'));
     }
 
-    public function createToken(CreateMcpToken $createMcpToken): void
+    /**
+     * The switch of a connection was flipped; only the user's own connection is found (U-43).
+     */
+    public function updatedWrite(mixed $value, string $key, SetMcpConnectionAccess $setAccess): void
     {
-        $this->validate([
-            'token_name' => ['required', 'string', 'max:100'],
-            'token_access' => ['required', Rule::enum(McpAccess::class)],
-        ]);
+        $setAccess->handle($this->user(), (int) $key, $value ? McpAccess::ReadWrite : McpAccess::ReadOnly);
 
-        $this->new_token = $createMcpToken->handle($this->user(), $this->token_name, McpAccess::from($this->token_access));
-
-        $this->reset('token_name', 'token_access');
-        $this->dispatch('notify', message: __('mcp.created'));
+        $this->dispatch('notify', message: __('mcp.access_saved'));
     }
 
     /**
-     * Re-render the token list after the confirm window revoked one.
+     * Re-read the list after the confirm window cut a connection.
      */
-    #[On('mcp-tokens-changed')]
-    public function refreshTokens(): void {}
+    #[On('mcp-connections-changed')]
+    public function loadConnections(): void
+    {
+        $this->write = app(ListMcpConnections::class)->handle($this->user())
+            ->mapWithKeys(fn (array $row): array => [$row['connection']->id => $row['connection']->access === McpAccess::ReadWrite])
+            ->all();
+    }
 
     public function render(): View
     {
         return view('livewire.pages.auth.profile', [
-            'tokens' => $this->user()->tokens()->latest('id')->get(),
-            'command' => $this->new_token === null ? null : sprintf(
-                'claude mcp add --scope user --transport http musteri-takip %s --header "Authorization: Bearer %s"',
-                route('mcp'),
-                $this->new_token,
-            ),
+            'connections' => app(ListMcpConnections::class)->handle($this->user()),
+            'url' => route('mcp'),
+            'command' => 'claude mcp add --scope user --transport http musteri-takip '.route('mcp'),
         ])->title(__('ui.profile.title'));
     }
 

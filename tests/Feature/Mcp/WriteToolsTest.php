@@ -1,6 +1,5 @@
 <?php
 
-use App\Actions\Account\CreateMcpToken;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\McpAccess;
@@ -24,7 +23,7 @@ beforeEach(function () {
     $this->travelTo('2026-10-28 10:00');
 });
 
-it('shows and runs the write tools only with a read and write token', function () {
+it('shows and runs the write tools only for a connection the user gave write access', function () {
     $admin = User::factory()->admin()->create();
     $task = Task::factory()->create(['assigned_to' => $admin->id]);
 
@@ -39,7 +38,7 @@ it('shows and runs the write tools only with a read and write token', function (
 });
 
 it('offers no delete, cancel, archive or undo tool', function () {
-    $token = app(CreateMcpToken::class)->handle(User::factory()->admin()->create(), 'Ofis', McpAccess::ReadWrite);
+    ['token' => $token] = claudeConnects(User::factory()->admin()->create(), McpAccess::ReadWrite);
 
     $names = collect($this->withToken($token)
         ->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list', 'params' => (object) []])
@@ -84,7 +83,10 @@ it('writes a write call to the mcp log channel with its arguments', function () 
 
     Log::shouldReceive('channel')->once()->with('mcp')->andReturnSelf();
     Log::shouldReceive('info')->once()->withArgs(fn (string $message, array $context): bool => $message === 'Tool call'
-        && $context === ['user_id' => $user->id, 'user' => 'sahip@example.com', 'tool' => 'create-task', 'token' => 'Ofis', 'arguments' => ['title' => 'Yedek al']]);
+        && array_keys($context) === ['user_id', 'user', 'tool', 'client_id', 'client', 'arguments']
+        && $context['tool'] === 'create-task'
+        && $context['client'] === 'Claude'
+        && $context['arguments'] === ['title' => 'Yedek al']);
 
     mcpAs($user, McpAccess::ReadWrite)->tool(CreateTask::class, ['title' => 'Yedek al'])->assertOk();
 });
@@ -271,7 +273,7 @@ it('lists the active payment methods and users in the input descriptions', funct
     PaymentMethod::factory()->archived()->create(['name' => 'Çek']);
     User::factory()->deactivated()->create(['name' => 'Eski Çalışan']);
 
-    $token = app(CreateMcpToken::class)->handle(User::factory()->admin()->create(['name' => 'Ayşe']), 'Ofis', McpAccess::ReadWrite);
+    ['token' => $token] = claudeConnects(User::factory()->admin()->create(['name' => 'Ayşe']), McpAccess::ReadWrite);
 
     $tools = collect($this->withToken($token)
         ->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list', 'params' => (object) []])

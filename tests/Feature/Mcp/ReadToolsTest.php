@@ -1,9 +1,7 @@
 <?php
 
-use App\Actions\Account\CreateMcpToken;
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
-use App\Enums\McpAccess;
 use App\Enums\Permission;
 use App\Enums\ServiceType;
 use App\Mcp\Servers\MusteriTakipServer;
@@ -40,8 +38,11 @@ it('lists every read tool for an administrator and leaves the money tools out fo
         ->assertNotRegistered([ListCharges::class, ListPayments::class]);
 });
 
-it('lists no tool without a token carrying the read ability', function () {
+it('lists no tool without a connection token of the MCP scope', function () {
     MusteriTakipServer::actingAs(User::factory()->admin()->create())->tools()
+        ->assertNotRegistered([TodaySummary::class, SearchCustomers::class, ListCharges::class]);
+
+    mcpAs(User::factory()->admin()->create(), scopes: ['other'])->tools()
         ->assertNotRegistered([TodaySummary::class, SearchCustomers::class, ListCharges::class]);
 });
 
@@ -65,15 +66,19 @@ it('writes every call to the mcp log channel without the arguments', function ()
 
     Log::shouldReceive('channel')->once()->with('mcp')->andReturnSelf();
     Log::shouldReceive('info')->once()->withArgs(fn (string $message, array $context): bool => $message === 'Tool call'
-        && $context === ['user_id' => $user->id, 'user' => 'sahip@example.com', 'tool' => 'search-customers', 'token' => 'Ofis']);
+        && array_keys($context) === ['user_id', 'user', 'tool', 'client_id', 'client']
+        && $context['user_id'] === $user->id
+        && $context['user'] === 'sahip@example.com'
+        && $context['tool'] === 'search-customers'
+        && $context['client'] === 'Claude'
+        && is_string($context['client_id']));
 
     mcpAs($user)->tool(SearchCustomers::class, ['query' => 'gizli arama'])->assertOk();
 });
 
 it('answers a tool call over the endpoint with the token', function () {
-    $user = User::factory()->admin()->create();
     Customer::factory()->create(['short_name' => 'Acme Yazılım']);
-    $token = app(CreateMcpToken::class)->handle($user, 'Ofis', McpAccess::ReadOnly);
+    ['token' => $token] = claudeConnects(User::factory()->admin()->create());
 
     $this->withToken($token)
         ->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/call', 'params' => ['name' => 'search-customers', 'arguments' => ['query' => 'acme']]])

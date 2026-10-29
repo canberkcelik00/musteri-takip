@@ -1,5 +1,4 @@
 @php
-    use App\Enums\McpAccess;
     use App\Support\Ui\Js;
 @endphp
 
@@ -26,81 +25,55 @@
             </div>
         </x-ui.card>
 
-        {{-- Claude access (U-42) --}}
+        {{-- Claude access (U-43) --}}
         <x-ui.card tag="section" class="flex flex-col gap-4">
             <div class="ui-card-head"><h2>{{ __('mcp.heading') }}</h2></div>
             <p class="ui-hint ui-m-0">{{ __('mcp.description') }}</p>
 
-            <form wire:submit="createToken" class="flex flex-col gap-4">
-                <x-ui.input :label="__('mcp.name')" wire:model="token_name" maxlength="100" :placeholder="__('mcp.name_placeholder')" required />
-                <div class="ui-field">
-                    <span class="ui-label">{{ __('mcp.access') }}</span>
-                    <x-ui.segmented
-                        wire:model="token_access"
-                        :aria-label="__('mcp.access')"
-                        :options="collect(McpAccess::cases())->mapWithKeys(fn (McpAccess $access) => [$access->value => $access->getLabel()])->all()"
-                    />
-                    @error('token_access')
-                        <span class="ui-error">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="flex justify-end">
-                    <x-ui.button type="submit">{{ __('mcp.create') }}</x-ui.button>
-                </div>
-            </form>
-
-            @if ($new_token !== null)
-                <div class="flex flex-col gap-2" x-data="{ copied: null }">
-                    @foreach (['token' => $new_token, 'command' => $command] as $key => $value)
-                        <div class="ui-field">
-                            <span class="ui-label">{{ __('mcp.new_'.$key) }}</span>
-                            <div class="ui-note flex items-start gap-2">
-                                <code class="min-w-0 flex-1 font-mono break-all">{{ $value }}</code>
-                                <x-ui.tooltip :label="__('mcp.copy')"><button
-                                    type="button"
-                                    class="ui-icon-link"
-                                    aria-label="{{ __('mcp.copy') }}"
-                                    x-on:click="navigator.clipboard.writeText(@js($value)).then(() => { copied = @js($key); setTimeout(() => copied = null, 1500) })"
-                                >
-                                    <x-heroicon-o-clipboard-document x-show="copied !== '{{ $key }}'" aria-hidden="true" />
-                                    <x-heroicon-o-check x-show="copied === '{{ $key }}'" x-cloak aria-hidden="true" />
-                                </button></x-ui.tooltip>
-                            </div>
+            <div class="flex flex-col gap-2" x-data="{ copied: null }">
+                @foreach (['url' => $url, 'command' => $command] as $key => $value)
+                    <div class="ui-field">
+                        <span class="ui-label">{{ __('mcp.'.$key) }}</span>
+                        <div class="ui-note flex items-start gap-2">
+                            <code class="min-w-0 flex-1 font-mono break-all">{{ $value }}</code>
+                            <x-ui.tooltip :label="__('mcp.copy')"><button
+                                type="button"
+                                class="ui-icon-link"
+                                aria-label="{{ __('mcp.copy') }}"
+                                x-on:click="navigator.clipboard.writeText(@js($value)).then(() => { copied = @js($key); setTimeout(() => copied = null, 1500) })"
+                            >
+                                <x-heroicon-o-clipboard-document x-show="copied !== '{{ $key }}'" aria-hidden="true" />
+                                <x-heroicon-o-check x-show="copied === '{{ $key }}'" x-cloak aria-hidden="true" />
+                            </button></x-ui.tooltip>
                         </div>
-                    @endforeach
-                    <span class="ui-hint">{{ __('mcp.shown_once') }}</span>
-                </div>
-            @endif
+                    </div>
+                @endforeach
+                <span class="ui-hint">{{ __('mcp.how_to') }}</span>
+            </div>
 
-            @if ($tokens->isNotEmpty())
+            @if ($connections->isNotEmpty())
                 <x-ui.table
                     :card="false"
                     :end="true"
                     :columns="[
-                        ['key' => 'name', 'label' => __('mcp.name')],
-                        ['key' => 'access', 'label' => __('mcp.access'), 'from' => 'md'],
-                        ['key' => 'last_used', 'label' => __('mcp.last_used'), 'from' => 'md'],
-                        ['key' => 'expires', 'label' => __('mcp.expires')],
+                        ['key' => 'name', 'label' => __('mcp.connection')],
+                        ['key' => 'write', 'label' => __('mcp.write_access')],
+                        ['key' => 'last', 'label' => __('mcp.last_issued'), 'from' => 'md'],
                     ]"
                 >
-                    @foreach ($tokens as $token)
-                        <x-ui.row wire:key="mcp-token-{{ $token->id }}">
-                            <td class="ui-cell-title">{{ $token->name }}</td>
-                            <td class="ui-from-md">{{ McpAccess::fromAbilities($token->abilities ?? [])->getLabel() }}</td>
-                            <td class="ui-from-md">{{ $token->last_used_at?->format('d.m.Y H:i') ?? __('mcp.never_used') }}</td>
-                            <td>
-                                @if ($token->expires_at !== null && $token->expires_at->isPast())
-                                    <x-ui.badge tone="red">{{ __('mcp.expired') }}</x-ui.badge>
-                                @else
-                                    {{ $token->expires_at?->format('d.m.Y') }}
-                                @endif
-                            </td>
+                    @foreach ($connections as $row)
+                        <x-ui.row wire:key="mcp-connection-{{ $row['connection']->id }}">
+                            <td class="ui-cell-title">{{ $row['connection']->client?->name }}</td>
+                            <td><x-ui.toggle wire:model.live="write.{{ $row['connection']->id }}" :label="__('mcp.write_label')" /></td>
+                            <td class="ui-from-md">{{ $row['last_token_at'] === null ? '' : \Illuminate\Support\Carbon::parse($row['last_token_at'])->timezone(config('app.timezone'))->format('d.m.Y H:i') }}</td>
                             <x-slot:actions>
-                                <x-ui.button variant="danger" size="sm" x-on:click="{!! Js::openWindow('confirm', ['action' => 'revoke-mcp-token', 'id' => $token->id]) !!}">{{ __('mcp.revoke') }}</x-ui.button>
+                                <x-ui.button variant="danger" size="sm" x-on:click="{!! Js::openWindow('confirm', ['action' => 'disconnect-mcp', 'id' => $row['connection']->id]) !!}">{{ __('mcp.disconnect') }}</x-ui.button>
                             </x-slot:actions>
                         </x-ui.row>
                     @endforeach
                 </x-ui.table>
+            @else
+                <span class="ui-hint">{{ __('mcp.none') }}</span>
             @endif
         </x-ui.card>
     </div>

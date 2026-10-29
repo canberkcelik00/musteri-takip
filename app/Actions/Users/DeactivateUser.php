@@ -2,6 +2,7 @@
 
 namespace App\Actions\Users;
 
+use App\Actions\Account\RevokeMcpTokens;
 use App\Enums\Role;
 use App\Exceptions\InvalidUserChange;
 use App\Models\User;
@@ -9,8 +10,8 @@ use App\Models\User;
 class DeactivateUser
 {
     /**
-     * Block the user from signing in; an open session ends on the next request and their Claude access tokens are
-     * deleted (U-42). An administrator cannot deactivate themself, and the last active administrator stays active.
+     * Block the user from signing in; an open session ends on the next request and their Claude connections are
+     * cut (U-43). An administrator cannot deactivate themself, and the last active administrator stays active.
      *
      * @throws InvalidUserChange
      */
@@ -25,6 +26,6 @@ class DeactivateUser
         }
 
         $user->forceFill(['deactivated_at' => $user->deactivated_at ?? now()])->save();
-        $user->tokens()->delete();
+        app(RevokeMcpTokens::class)->handle($user);
     }
 }
