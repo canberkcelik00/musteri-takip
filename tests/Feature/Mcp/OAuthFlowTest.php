@@ -122,7 +122,7 @@ it('starts every approved connection read only and keeps one row for it', functi
 
     $names = fn () => collect(mcpCall($token, 'tools/list')->assertOk()->json('result.tools'))->pluck('name');
 
-    expect($names())->toHaveCount(7)->not->toContain('create-task');
+    expect($names())->toHaveCount(8)->not->toContain('create-task');
 
     // Renewing the token makes a new access token for the same connection, not a second connection.
     auth()->forgetGuards();
@@ -142,12 +142,12 @@ it('shows the write tools the moment the user lets the connection write', functi
 
     $names = collect(mcpCall($token, 'tools/list')->assertOk()->json('result.tools'))->pluck('name');
 
-    expect($names)->toHaveCount(10)->toContain('create-task', 'complete-task', 'record-payment');
+    expect($names)->toHaveCount(11)->toContain('create-task', 'complete-task', 'record-payment');
 
     app(SetMcpConnectionAccess::class)->handle($user, McpConnection::query()->sole()->id, McpAccess::ReadOnly);
     auth()->forgetGuards();
 
-    expect(collect(mcpCall($token, 'tools/list')->json('result.tools'))->pluck('name'))->toHaveCount(7);
+    expect(collect(mcpCall($token, 'tools/list')->json('result.tools'))->pluck('name'))->toHaveCount(8);
 });
 
 it('does not let a connection of one user write because another user\'s connection may', function () {
@@ -156,7 +156,7 @@ it('does not let a connection of one user write because another user\'s connecti
     claudeConnects($writer, McpAccess::ReadWrite);
     ['token' => $readerToken] = claudeConnects($reader);
 
-    expect(collect(mcpCall($readerToken, 'tools/list')->json('result.tools'))->pluck('name'))->toHaveCount(7);
+    expect(collect(mcpCall($readerToken, 'tools/list')->json('result.tools'))->pluck('name'))->toHaveCount(8);
 });
 
 it('refuses the refresh token once the connection was cut', function () {

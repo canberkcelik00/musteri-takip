@@ -3,9 +3,11 @@
 use App\Enums\ChargeStatus;
 use App\Enums\Currency;
 use App\Enums\Permission;
+use App\Enums\RemoteServerErrorReason;
 use App\Enums\ServiceType;
 use App\Mcp\Servers\MusteriTakipServer;
 use App\Mcp\Tools\CustomerCard;
+use App\Mcp\Tools\CustomerUsage;
 use App\Mcp\Tools\ListCalendar;
 use App\Mcp\Tools\ListCharges;
 use App\Mcp\Tools\ListPayments;
@@ -18,23 +20,25 @@ use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\CustomerServiceItem;
 use App\Models\Payment;
+use App\Models\Server;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Spatie\Permission\Models\Role;
+use Tests\Fixtures\UsageScenario;
 
 beforeEach(function () {
     $this->travelTo('2026-10-28 10:00');
 });
 
 it('lists every read tool for an administrator and leaves the money tools out for a developer', function () {
-    $all = [TodaySummary::class, SearchCustomers::class, CustomerCard::class, ListCharges::class, ListPayments::class, ListTasks::class, ListCalendar::class];
+    $all = [TodaySummary::class, SearchCustomers::class, CustomerCard::class, CustomerUsage::class, ListCharges::class, ListPayments::class, ListTasks::class, ListCalendar::class];
 
     mcpAs(User::factory()->admin()->create())->tools()->assertRegistered($all);
 
     mcpAs(User::factory()->developer()->create())->tools()
-        ->assertRegistered([TodaySummary::class, SearchCustomers::class, CustomerCard::class, ListTasks::class, ListCalendar::class])
+        ->assertRegistered([TodaySummary::class, SearchCustomers::class, CustomerCard::class, CustomerUsage::class, ListTasks::class, ListCalendar::class])
         ->assertNotRegistered([ListCharges::class, ListPayments::class]);
 });
 
@@ -327,4 +331,134 @@ it('limits the calendar range to 92 days', function () {
 
     mcpAs($admin)->tool(ListCalendar::class, ['from' => '2026-11-01', 'to' => '2027-02-01'])
         ->assertHasErrors([__('mcp.calendar_range', ['days' => 92])]);
+});
+
+/**
+ * A customer with one hosting account on a WHM server; the account's stored usage and mailboxes are given by the test.
+ *
+ * @return array{customer: Customer, server: Server}
+ */
+function customerWithHostingAccount(string $username = 'acme', string $domain = 'acme.com.tr'): array
+{
+    $server = Server::query()->first() ?? Server::factory()->whm()->create();
+    $service = UsageScenario::linkedService($server, $username, domain: $domain);
+
+    return ['customer' => $service->customer, 'server' => $server];
+}
+
+it('shows the stored hosting usage of a customer with mailboxes and databases', function () {
+    ['customer' => $customer, 'server' => $server] = customerWithHostingAccount();
+    UsageScenario::usage($server, 'acme', [
+        UsageScenario::resource('disk_usage', 4 * 1024 ** 3, 5 * 1024 ** 3, true),
+        UsageScenario::resource('bandwidth', 10 * 1024 ** 3, 100 * 1024 ** 3, true),
+        UsageScenario::resource('email_accounts', 2, 10),
+    ], ['databases' => [['name' => 'acme_wp', 'bytes' => 2 * 1024 ** 2]]]);
+    UsageScenario::mailbox($server, 'acme', 'az@acme.com.tr', 10, 100);
+    UsageScenario::mailbox($server, 'acme', 'cok@acme.com.tr', 95, 100);
+
+    mcpAs(User::factory()->admin()->create())->tool(CustomerUsage::class, ['customer_id' => $customer->id])
+        ->assertOk()
+        ->assertStructuredContent(fn (AssertableJson $json) => $json
+            ->where('customer_id', $customer->id)
+            ->where('total', 1)
+            ->where('accounts.0.domain', 'acme.com.tr')
+            ->where('accounts.0.server', $server->name)
+            ->where('accounts.0.username', 'acme')
+            ->where('accounts.0.has_data', true)
+            ->where('accounts.0.failed_at', null)
+            ->where('accounts.0.meters.0.id', 'disk_usage')
+            ->where('accounts.0.meters.0.percent', 80)
+            ->where('accounts.0.meters.0.level', null)
+            ->where('accounts.0.meters.1.id', 'bandwidth')
+            ->where('accounts.0.meters.2.id', 'email_accounts')
+            ->where('accounts.0.mailboxes.0.address', 'cok@acme.com.tr')
+            ->where('accounts.0.mailboxes.0.level', 'nearly_full')
+            ->where('accounts.0.mailboxes.1.address', 'az@acme.com.tr')
+            ->where('accounts.0.databases.0.name', 'acme_wp')
+            ->where('accounts.0.databases.0.used', 2 * 1024 ** 2)
+            ->etc());
+});
+
+it('flags a resource at its limit and says when the last refresh failed', function () {
+    ['customer' => $customer, 'server' => $server] = customerWithHostingAccount();
+    $this->travelTo('2026-10-27 09:00');
+    $usage = UsageScenario::usage($server, 'acme', [UsageScenario::resource('disk_usage', 100, 100, true)]);
+    $this->travelTo('2026-10-28 10:00');
+    $usage->forceFill(['failed_at' => now(), 'failure_reason' => RemoteServerErrorReason::Timeout])->save();
+
+    mcpAs(User::factory()->admin()->create())->tool(CustomerUsage::class, ['customer_id' => $customer->id])
+        ->assertStructuredContent(fn (AssertableJson $json) => $json
+            ->where('accounts.0.meters.0.level', 'full')
+            ->where('accounts.0.refreshed_at', '2026-10-27 09:00:00')
+            ->where('accounts.0.failed_at', '2026-10-28 10:00:00')
+            ->where('accounts.0.failure_reason', 'timeout')
+            ->etc());
+});
+
+it('answers without error for an account the refresh never read', function () {
+    ['customer' => $customer] = customerWithHostingAccount();
+
+    mcpAs(User::factory()->admin()->create())->tool(CustomerUsage::class, ['customer_id' => $customer->id])
+        ->assertOk()
+        ->assertStructuredContent(fn (AssertableJson $json) => $json
+            ->where('total', 1)
+            ->where('accounts.0.has_data', false)
+            ->where('accounts.0.refreshed_at', null)
+            ->where('accounts.0.meters', [])
+            ->etc());
+});
+
+it('returns only the accounts of the asked customer and nothing for a customer without a linked account', function () {
+    ['customer' => $acme, 'server' => $server] = customerWithHostingAccount('acme', 'acme.com.tr');
+    UsageScenario::usage($server, 'acme');
+    $other = UsageScenario::linkedService($server, 'baska', domain: 'baska.com')->customer;
+    UsageScenario::usage($server, 'baska');
+    $bare = Customer::factory()->create();
+
+    $admin = User::factory()->admin()->create();
+
+    mcpAs($admin)->tool(CustomerUsage::class, ['customer_id' => $acme->id])
+        ->assertStructuredContent(fn (AssertableJson $json) => $json
+            ->where('total', 1)
+            ->where('accounts.0.domain', 'acme.com.tr')
+            ->missing('accounts.1')
+            ->etc());
+
+    mcpAs($admin)->tool(CustomerUsage::class, ['customer_id' => $other->id])
+        ->assertStructuredContent(fn (AssertableJson $json) => $json->where('accounts.0.domain', 'baska.com')->etc());
+
+    mcpAs($admin)->tool(CustomerUsage::class, ['customer_id' => $bare->id])
+        ->assertOk()
+        ->assertStructuredContent(fn (AssertableJson $json) => $json->where('total', 0)->where('accounts', [])->etc());
+});
+
+it('keeps secrets out of the usage answer and limits the mailbox rows', function () {
+    ['customer' => $customer, 'server' => $server] = customerWithHostingAccount();
+    UsageScenario::usage($server, 'acme');
+
+    foreach (range(1, 55) as $number) {
+        UsageScenario::mailbox($server, 'acme', "kutu{$number}@acme.com.tr", $number, 100);
+    }
+
+    $customer->customerServices()->first()->items()->first()->forceFill(['license_key' => 'GIZLI-LISANS-ANAHTARI'])->save();
+
+    mcpAs(User::factory()->admin()->create())->tool(CustomerUsage::class, ['customer_id' => $customer->id])
+        ->assertOk()
+        ->assertDontSee(['GIZLI-LISANS-ANAHTARI', 'remote_key', 'password', 'token'])
+        ->assertStructuredContent(fn (AssertableJson $json) => $json->has('accounts.0.mailboxes', 50)->etc());
+});
+
+it('does not let a user without services.view read the usage', function () {
+    ['customer' => $customer] = customerWithHostingAccount();
+    $user = User::factory()->developer()->create();
+    Role::findByName('developer')->revokePermissionTo(Permission::ServicesView->value);
+    $user->refresh();
+
+    mcpAs($user)->tools()->assertNotRegistered(CustomerUsage::class);
+    mcpAs($user)->tool(CustomerUsage::class, ['customer_id' => $customer->id])->assertHasErrors();
+});
+
+it('rejects a missing or unknown customer for the usage tool', function () {
+    mcpAs(User::factory()->admin()->create())->tool(CustomerUsage::class, ['customer_id' => 999])->assertHasErrors();
+    mcpAs(User::factory()->admin()->create())->tool(CustomerUsage::class)->assertHasErrors();
 });

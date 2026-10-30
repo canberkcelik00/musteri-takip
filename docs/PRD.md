@@ -371,7 +371,7 @@ Kullanıcı kendi Claude'undan (masaüstü uygulamanın sohbeti, claude.ai, tele
 
 **Araçlar**
 
-- **Okuma:** Bugün özeti (dört sayı ve yapılacaklar), müşteri arama (ad, alan adı, telefon; arşivliler istenirse), müşteri kartı (hizmetler, ilgili kişiler, açık borç), borç listesi (açık / gecikmiş, müşteri, tarih aralığı; para birimi başına toplam), ödeme listesi (tarih aralığı, müşteri), iş listesi (açık / bana atanan), takvim (en çok 92 günlük aralık). Listeler en çok 50 satır döner.
+- **Okuma:** Bugün özeti (dört sayı ve yapılacaklar), müşteri arama (ad, alan adı, telefon; arşivliler istenirse), müşteri kartı (hizmetler, ilgili kişiler, açık borç), müşteri kullanımı (bağlı hosting hesabı başına disk, aylık trafik, dosya sayısı, e-posta ve veritabanı sayaçları, e-posta kutuları ve veritabanı boyutları; uygulamanın son okuduğu kayıtlı değerlerdir, sunucuya gidilmez; "Kullanım" penceresi gibi `services.view` ister), borç listesi (açık / gecikmiş, müşteri, tarih aralığı; para birimi başına toplam), ödeme listesi (tarih aralığı, müşteri), iş listesi (açık / bana atanan), takvim (en çok 92 günlük aralık). Listeler en çok 50 satır döner.
 - **Yazma (yazmaya izin verilen bağlantı):** iş ekleme, iş bitirme, ödeme kaydetme (otomatik dağıtım; elle dağıtım yok). Kayıtta "kim yaptı" bağlantının sahibidir; atama e-postası ve diğer kurallar paneldeki gibi işler.
 
 **Kurallar**

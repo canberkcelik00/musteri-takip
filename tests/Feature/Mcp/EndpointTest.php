@@ -29,7 +29,7 @@ it('answers initialize and tools/list with a token of an approved connection', f
     mcpCall($token, 'tools/list')
         ->assertOk()
         ->assertJsonPath('result.tools.0.name', 'today-summary')
-        ->assertJsonCount(7, 'result.tools');
+        ->assertJsonCount(8, 'result.tools');
 });
 
 it('stops working when the access token has run out', function () {

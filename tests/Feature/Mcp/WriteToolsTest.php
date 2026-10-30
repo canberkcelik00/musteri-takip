@@ -45,7 +45,7 @@ it('offers no delete, cancel, archive or undo tool', function () {
         ->assertOk()
         ->json('result.tools'))->pluck('name');
 
-    expect($names)->toHaveCount(10)
+    expect($names)->toHaveCount(11)
         ->toContain('create-task', 'complete-task', 'record-payment')
         ->and($names->filter(fn (string $name): bool => preg_match('/delete|cancel|archive|undo|remove|reopen/', $name) === 1))->toBeEmpty();
 });
