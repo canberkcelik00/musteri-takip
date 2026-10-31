@@ -901,6 +901,7 @@ class ComposerStaticInit45cfd8cb52957bc24f8f738bc9daa754
         'App\\Mcp\\Tools\\CompleteTask' => __DIR__ . '/../..' . '/app/Mcp/Tools/CompleteTask.php',
         'App\\Mcp\\Tools\\CreateTask' => __DIR__ . '/../..' . '/app/Mcp/Tools/CreateTask.php',
         'App\\Mcp\\Tools\\CustomerCard' => __DIR__ . '/../..' . '/app/Mcp/Tools/CustomerCard.php',
+        'App\\Mcp\\Tools\\CustomerUsage' => __DIR__ . '/../..' . '/app/Mcp/Tools/CustomerUsage.php',
         'App\\Mcp\\Tools\\ListCalendar' => __DIR__ . '/../..' . '/app/Mcp/Tools/ListCalendar.php',
         'App\\Mcp\\Tools\\ListCharges' => __DIR__ . '/../..' . '/app/Mcp/Tools/ListCharges.php',
         'App\\Mcp\\Tools\\ListPayments' => __DIR__ . '/../..' . '/app/Mcp/Tools/ListPayments.php',

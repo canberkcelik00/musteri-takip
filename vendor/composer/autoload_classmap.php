@@ -284,6 +284,7 @@ return array(
     'App\\Mcp\\Tools\\CompleteTask' => $baseDir . '/app/Mcp/Tools/CompleteTask.php',
     'App\\Mcp\\Tools\\CreateTask' => $baseDir . '/app/Mcp/Tools/CreateTask.php',
     'App\\Mcp\\Tools\\CustomerCard' => $baseDir . '/app/Mcp/Tools/CustomerCard.php',
+    'App\\Mcp\\Tools\\CustomerUsage' => $baseDir . '/app/Mcp/Tools/CustomerUsage.php',
     'App\\Mcp\\Tools\\ListCalendar' => $baseDir . '/app/Mcp/Tools/ListCalendar.php',
     'App\\Mcp\\Tools\\ListCharges' => $baseDir . '/app/Mcp/Tools/ListCharges.php',
     'App\\Mcp\\Tools\\ListPayments' => $baseDir . '/app/Mcp/Tools/ListPayments.php',
